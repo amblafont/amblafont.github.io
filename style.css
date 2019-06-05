@@ -1,0 +1,210 @@
+:root {
+  --bgcol: rgb(65, 114, 65);
+  --hsec: rgb(97, 176, 103);
+}
+
+/*** GENERAL ***/
+
+body, div, header, footer, main, h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  /* font-family: "Open Sans", sans-serif; */
+  font-family: sans-serif;
+  /*background-color: rgb(241, 237, 237);*/
+  /* background-color: rgb(249, 247, 247); */
+  /* background: #e7f1f5; */
+  background: var(--bgcol);
+}
+
+a {
+  text-decoration: none;
+  color: rgb(29, 125, 203);
+}
+
+a:hover {
+  color: rgb(43, 159, 252);
+}
+
+a.href {
+  cursor: pointer;
+}
+
+
+/*** HEADER ***/
+
+header {
+  max-width: 1200pt;
+  width: auto;
+  margin: auto;
+  /* background: var(--bgcol); */
+  padding: 20pt;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+header h1 {
+  color: rgb(244, 244, 244);
+  text-align: left;
+  font-size: 32pt;
+  margin: 0;
+}
+
+header h2 {
+  color: rgb(227, 232, 238);
+  text-align: right;
+  margin: 0;
+}
+
+header a {
+  color: rgb(102, 179, 241); /* LINK COLOUR */
+}
+
+header a:hover {
+  color: rgb(154, 203, 242);
+}
+
+
+/*** MAIN ***/
+
+main {
+  margin: auto;
+  /* margin-top: 20pt; */
+  margin-bottom: 30pt;
+  max-width: 1200pt;
+  padding: 5pt 12pt 20pt 12pt;
+
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "me"
+    "pb"
+    "tk"
+    "pj";
+  grid-gap: 15pt;
+
+  text-align: center;
+  color: rgb(45, 45, 45);
+}
+
+main section {
+  /* display: inline-block; */
+  /* margin-bottom: 30pt; */
+  background-color: rgb(255, 255, 255);
+  border-radius: 5pt;
+  /* margin: 10pt 5pt; */
+  padding: 0;
+  box-shadow: 0 2px 2px rgba(52, 52, 52, 0.03);
+  transition: all 1s;
+  /* width: 250pt; */
+  vertical-align: top;
+  overflow: hidden;
+  text-align: left;
+}
+
+main section:hover {
+  box-shadow: 0 3px 2px rgba(52, 52, 52, 0.08);
+}
+
+main section.myself {
+  grid-area: me;
+}
+
+main section.publications {
+  grid-area: pb;
+}
+
+main section.talks {
+  grid-area: tk;
+}
+
+main section.projects {
+  grid-area: pj;
+}
+
+main section h3 {
+  background-color: var(--hsec);
+  color: white;
+  padding: 10pt;
+  text-align: center;
+}
+
+main section h5 {
+  text-transform: uppercase;
+  text-align: center;
+  margin: 3pt 0;
+}
+
+main section p {
+  margin: 12pt;
+  font-weight: normal;
+  /* text-align: justify; */
+  text-align: left;
+}
+
+main section article {
+  padding: 10pt;
+}
+
+main section article:hover {
+  background-color: rgb(249, 249, 249);
+}
+
+main section article p {
+  margin: 2pt 0;
+  font-weight: normal;
+  text-align: left;
+}
+
+p.conference, p.yearspan {
+  font-style: italic;
+  color: rgb(136, 136, 136);
+}
+
+div.files a {
+  transition: all 1s;
+  display: inline-block;
+  border-radius: 1pt;
+  border: 1px solid #d1e5f4;
+  padding: 0 3pt;
+  margin-right: 7pt;
+  background: #d9e7f2;
+  color: #f0f6fb;
+}
+
+div.files a:hover {
+  border: 1px solid #8ab7d9;
+  background: #95bcda;
+  box-shadow: 0 2px 1px rgba(52, 52, 52, 0.08);
+}
+
+span.speaker {
+  text-decoration: underline;
+}
+
+@media only screen and (min-width: 45em) {
+  main {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas:
+      "me pb"
+      "me tk"
+      "me pj";
+  }
+}
+
+@media only screen and (min-width: 65em) {
+  main {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-areas:
+      "me pb pb"
+      "me tk pj";
+  }
+}
