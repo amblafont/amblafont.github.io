@@ -6359,8 +6359,17 @@ var $author$project$GraphEditor$switch_NewArrow = F2(
 				}),
 			$author$project$GraphEditor$newArrow_mayFocus(state.step));
 	});
-var $author$project$GraphEditor$initialise_NewArrow = $author$project$GraphEditor$switch_NewArrow(
-	{edgeLabel: '', nodeLabel: '', step: $author$project$GraphEditor$EditEdge});
+var $author$project$GraphEditor$initialise_NewArrow = function (m) {
+	var _v0 = m.activeObj;
+	if (_v0.$ === 'ONode') {
+		return A2(
+			$author$project$GraphEditor$switch_NewArrow,
+			{edgeLabel: '', nodeLabel: '', step: $author$project$GraphEditor$EditEdge},
+			m);
+	} else {
+		return $author$project$GraphEditor$switch_Default(m);
+	}
+};
 var $author$project$GraphEditor$RenameMode = function (a) {
 	return {$: 'RenameMode', a: a};
 };
