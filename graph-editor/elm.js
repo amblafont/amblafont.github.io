@@ -7040,6 +7040,14 @@ var $elm$html$Html$div = _VirtualDom_node('div');
 var $author$project$GraphEditor$EdgeClick = function (a) {
 	return {$: 'EdgeClick', a: a};
 };
+var $author$project$GraphEditor$addP = F2(
+	function (_v0, _v1) {
+		var x1 = _v0.a;
+		var y1 = _v0.b;
+		var x2 = _v1.a;
+		var y2 = _v1.b;
+		return _Utils_Tuple2(x1 + x2, y1 + y2);
+	});
 var $timjs$elm_collage$Collage$Flat = {$: 'Flat'};
 var $timjs$elm_collage$Collage$Sharp = {$: 'Sharp'};
 var $avh4$elm_color$Color$RgbaSpace = F4(
@@ -7194,12 +7202,11 @@ var $timjs$elm_collage$Collage$triangle = function (b) {
 };
 var $author$project$GraphEditor$arrow = F3(
 	function (c, from, to) {
-		var offset = 10;
+		var offset = 15;
 		var delta = A2($author$project$GraphEditor$minusP, to, from);
-		var pos = A2(
-			$author$project$GraphEditor$minusP,
-			to,
-			A2($author$project$GraphEditor$normaliseP, offset, delta));
+		var offsetP = A2($author$project$GraphEditor$normaliseP, offset, delta);
+		var fromOffset = A2($author$project$GraphEditor$addP, from, offsetP);
+		var pos = A2($author$project$GraphEditor$minusP, to, offsetP);
 		return $timjs$elm_collage$Collage$group(
 			_List_fromArray(
 				[
@@ -7221,7 +7228,7 @@ var $author$project$GraphEditor$arrow = F3(
 						$timjs$elm_collage$Collage$solid,
 						$timjs$elm_collage$Collage$thin,
 						$timjs$elm_collage$Collage$uniform(c)),
-					A2($timjs$elm_collage$Collage$segment, from, pos))
+					A2($timjs$elm_collage$Collage$segment, fromOffset, pos))
 				]));
 	});
 var $timjs$elm_collage$Collage$Events$on = F3(
@@ -7246,14 +7253,6 @@ var $avh4$elm_color$Color$red = A4($avh4$elm_color$Color$RgbaSpace, 204 / 255, 0
 var $author$project$GraphEditor$EdgeLabelEdit = F2(
 	function (a, b) {
 		return {$: 'EdgeLabelEdit', a: a, b: b};
-	});
-var $author$project$GraphEditor$addP = F2(
-	function (_v0, _v1) {
-		var x1 = _v0.a;
-		var y1 = _v0.b;
-		var x2 = _v1.a;
-		var y2 = _v1.b;
-		return _Utils_Tuple2(x1 + x2, y1 + y2);
 	});
 var $timjs$elm_collage$Collage$Core$Chunk = F2(
 	function (a, b) {
