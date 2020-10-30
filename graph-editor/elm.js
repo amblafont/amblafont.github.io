@@ -4392,6 +4392,136 @@ var _Bitwise_shiftRightZfBy = F2(function(offset, a)
 {
 	return a >>> offset;
 });
+
+
+
+
+// STRINGS
+
+
+var _Parser_isSubString = F5(function(smallString, offset, row, col, bigString)
+{
+	var smallLength = smallString.length;
+	var isGood = offset + smallLength <= bigString.length;
+
+	for (var i = 0; isGood && i < smallLength; )
+	{
+		var code = bigString.charCodeAt(offset);
+		isGood =
+			smallString[i++] === bigString[offset++]
+			&& (
+				code === 0x000A /* \n */
+					? ( row++, col=1 )
+					: ( col++, (code & 0xF800) === 0xD800 ? smallString[i++] === bigString[offset++] : 1 )
+			)
+	}
+
+	return _Utils_Tuple3(isGood ? offset : -1, row, col);
+});
+
+
+
+// CHARS
+
+
+var _Parser_isSubChar = F3(function(predicate, offset, string)
+{
+	return (
+		string.length <= offset
+			? -1
+			:
+		(string.charCodeAt(offset) & 0xF800) === 0xD800
+			? (predicate(_Utils_chr(string.substr(offset, 2))) ? offset + 2 : -1)
+			:
+		(predicate(_Utils_chr(string[offset]))
+			? ((string[offset] === '\n') ? -2 : (offset + 1))
+			: -1
+		)
+	);
+});
+
+
+var _Parser_isAsciiCode = F3(function(code, offset, string)
+{
+	return string.charCodeAt(offset) === code;
+});
+
+
+
+// NUMBERS
+
+
+var _Parser_chompBase10 = F2(function(offset, string)
+{
+	for (; offset < string.length; offset++)
+	{
+		var code = string.charCodeAt(offset);
+		if (code < 0x30 || 0x39 < code)
+		{
+			return offset;
+		}
+	}
+	return offset;
+});
+
+
+var _Parser_consumeBase = F3(function(base, offset, string)
+{
+	for (var total = 0; offset < string.length; offset++)
+	{
+		var digit = string.charCodeAt(offset) - 0x30;
+		if (digit < 0 || base <= digit) break;
+		total = base * total + digit;
+	}
+	return _Utils_Tuple2(offset, total);
+});
+
+
+var _Parser_consumeBase16 = F2(function(offset, string)
+{
+	for (var total = 0; offset < string.length; offset++)
+	{
+		var code = string.charCodeAt(offset);
+		if (0x30 <= code && code <= 0x39)
+		{
+			total = 16 * total + code - 0x30;
+		}
+		else if (0x41 <= code && code <= 0x46)
+		{
+			total = 16 * total + code - 55;
+		}
+		else if (0x61 <= code && code <= 0x66)
+		{
+			total = 16 * total + code - 87;
+		}
+		else
+		{
+			break;
+		}
+	}
+	return _Utils_Tuple2(offset, total);
+});
+
+
+
+// FIND STRING
+
+
+var _Parser_findSubString = F5(function(smallString, offset, row, col, bigString)
+{
+	var newOffset = bigString.indexOf(smallString, offset);
+	var target = newOffset < 0 ? bigString.length : newOffset + smallString.length;
+
+	while (offset < target)
+	{
+		var code = bigString.charCodeAt(offset++);
+		code === 0x000A /* \n */
+			? ( col=1, row++ )
+			: ( col++, (code & 0xF800) === 0xD800 && offset++ )
+	}
+
+	return _Utils_Tuple3(newOffset, row, col);
+});
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$LT = {$: 'LT'};
 var $elm$core$List$cons = _List_cons;
@@ -5181,16 +5311,17 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$GraphEditor$DefaultMode = {$: 'DefaultMode'};
-var $author$project$GraphEditor$ONothing = {$: 'ONothing'};
-var $author$project$GraphEditor$createModel = function (g) {
+var $author$project$Model$DefaultMode = {$: 'DefaultMode'};
+var $author$project$Model$ONothing = {$: 'ONothing'};
+var $author$project$Model$createModel = function (g) {
 	return {
-		activeObj: $author$project$GraphEditor$ONothing,
+		activeObj: $author$project$Model$ONothing,
 		graph: g,
-		mode: $author$project$GraphEditor$DefaultMode,
-		mousePointOver: $author$project$GraphEditor$ONothing,
+		mode: $author$project$Model$DefaultMode,
+		mousePointOver: $author$project$Model$ONothing,
 		mousePos: _Utils_Tuple2(0, 0),
-		unnamedFlag: false
+		quickInput: '',
+		statusMsg: ''
 	};
 };
 var $elm_community$graph$Graph$Graph = function (a) {
@@ -5457,43 +5588,43 @@ var $elm_community$graph$Graph$fromNodesAndEdges = F2(
 		return $elm_community$graph$Graph$Graph(
 			A3($elm$core$List$foldl, addEdgeIfValid, nodeRep, edges_));
 	});
-var $author$project$GraphEditor$init = $author$project$GraphEditor$createModel(
+var $author$project$GraphEditor$iniModel = $author$project$Model$createModel(
 	A2($elm_community$graph$Graph$fromNodesAndEdges, _List_Nil, _List_Nil));
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$GraphEditor$KeyChanged = F2(
+var $author$project$Msg$KeyChanged = F2(
 	function (a, b) {
 		return {$: 'KeyChanged', a: a, b: b};
 	});
-var $author$project$GraphEditor$Loaded = function (a) {
+var $author$project$Msg$Loaded = function (a) {
 	return {$: 'Loaded', a: a};
 };
-var $author$project$GraphEditor$MouseClick = {$: 'MouseClick'};
-var $author$project$GraphEditor$MouseMove = function (a) {
+var $author$project$Msg$MouseClick = {$: 'MouseClick'};
+var $author$project$Msg$MouseMove = function (a) {
 	return {$: 'MouseMove', a: a};
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$string = _Json_decodeString;
-var $author$project$GraphEditor$Character = function (a) {
+var $author$project$Msg$Character = function (a) {
 	return {$: 'Character', a: a};
 };
-var $author$project$GraphEditor$Control = function (a) {
+var $author$project$Msg$Control = function (a) {
 	return {$: 'Control', a: a};
 };
-var $author$project$GraphEditor$toKey = function (string) {
+var $author$project$Msg$toKey = function (string) {
 	var _v0 = $elm$core$String$uncons(string);
 	if ((_v0.$ === 'Just') && (_v0.a.b === '')) {
 		var _v1 = _v0.a;
 		var _char = _v1.a;
-		return $author$project$GraphEditor$Character(_char);
+		return $author$project$Msg$Character(_char);
 	} else {
-		return $author$project$GraphEditor$Control(string);
+		return $author$project$Msg$Control(string);
 	}
 };
-var $author$project$GraphEditor$keyDecoder = A2(
+var $author$project$Msg$keyDecoder = A2(
 	$elm$json$Json$Decode$map,
-	$author$project$GraphEditor$toKey,
+	$author$project$Msg$toKey,
 	A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string));
 var $elm$json$Json$Decode$andThen = _Json_andThen;
 var $elm$json$Json$Decode$float = _Json_decodeFloat;
@@ -6001,48 +6132,34 @@ var $author$project$GraphEditor$subscriptions = function (m) {
 				function (_v0) {
 					var n = _v0.a;
 					var e = _v0.b;
-					return $author$project$GraphEditor$Loaded(
+					return $author$project$Msg$Loaded(
 						A2($elm_community$graph$Graph$fromNodesAndEdges, n, e));
 				}),
+				$elm$browser$Browser$Events$onClick(
+				$elm$json$Json$Decode$succeed($author$project$Msg$MouseClick)),
 				$elm$browser$Browser$Events$onKeyUp(
 				A2(
 					$elm$json$Json$Decode$map,
-					$author$project$GraphEditor$KeyChanged(false),
-					$author$project$GraphEditor$keyDecoder)),
-				$elm$browser$Browser$Events$onClick(
-				$elm$json$Json$Decode$succeed($author$project$GraphEditor$MouseClick)),
-				$author$project$GraphEditor$onMouseMoveFromJS($author$project$GraphEditor$MouseMove)
+					$author$project$Msg$KeyChanged(false),
+					$author$project$Msg$keyDecoder)),
+				$author$project$GraphEditor$onMouseMoveFromJS($author$project$Msg$MouseMove)
 			]));
 };
-var $author$project$GraphEditor$ONode = function (a) {
+var $author$project$Model$ONode = function (a) {
 	return {$: 'ONode', a: a};
 };
-var $author$project$GraphEditor$flipY = function (_v0) {
+var $author$project$Model$QuickInputMode = function (a) {
+	return {$: 'QuickInputMode', a: a};
+};
+var $author$project$CollageExtra$flipY = function (_v0) {
 	var x = _v0.a;
 	var y = _v0.b;
 	return _Utils_Tuple2(x, 0 - y);
 };
-var $author$project$GraphEditor$noCmd = function (m) {
+var $author$project$Model$noCmd = function (m) {
 	return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
 };
-var $author$project$GraphEditor$switch_Default = function (m) {
-	return $author$project$GraphEditor$noCmd(
-		_Utils_update(
-			m,
-			{mode: $author$project$GraphEditor$DefaultMode}));
-};
-var $author$project$GraphEditor$update_DebugMode = F2(
-	function (msg, model) {
-		if ((((msg.$ === 'KeyChanged') && (!msg.a)) && (msg.b.$ === 'Control')) && (msg.b.a === 'Escape')) {
-			return $author$project$GraphEditor$switch_Default(model);
-		} else {
-			return $author$project$GraphEditor$noCmd(model);
-		}
-	});
-var $author$project$GraphEditor$DebugMode = {$: 'DebugMode'};
-var $author$project$GraphEditor$MoveNode = {$: 'MoveNode'};
-var $author$project$GraphEditor$NewNode = {$: 'NewNode'};
-var $author$project$GraphEditor$OEdge = function (a) {
+var $author$project$Model$OEdge = function (a) {
 	return {$: 'OEdge', a: a};
 };
 var $elm_community$intdict$IntDict$foldl = F3(
@@ -6256,24 +6373,8 @@ var $elm_community$graph$Graph$update = F2(
 			$elm_community$graph$Graph$unGraph,
 			A2($elm$core$Basics$composeR, wrappedUpdater, $elm_community$graph$Graph$Graph));
 	});
-var $elm_community$graph$Graph$remove = F2(
-	function (nodeId, graph) {
-		return A3(
-			$elm_community$graph$Graph$update,
-			nodeId,
-			$elm$core$Basics$always($elm$core$Maybe$Nothing),
-			graph);
-	});
-var $elm_community$intdict$IntDict$remove = F2(
-	function (key, dict) {
-		return A3(
-			$elm_community$intdict$IntDict$update,
-			key,
-			$elm$core$Basics$always($elm$core$Maybe$Nothing),
-			dict);
-	});
-var $author$project$GraphExtra$removeEdge = F2(
-	function (_v0, g) {
+var $author$project$GraphExtra$updateEdge = F3(
+	function (_v0, f, g) {
 		var from = _v0.a;
 		var to = _v0.b;
 		return A3(
@@ -6284,28 +6385,64 @@ var $author$project$GraphExtra$removeEdge = F2(
 					return _Utils_update(
 						nc,
 						{
-							outgoing: A2($elm_community$intdict$IntDict$remove, to, nc.outgoing)
+							outgoing: A3(
+								$elm_community$intdict$IntDict$update,
+								to,
+								$elm$core$Maybe$map(f),
+								nc.outgoing)
 						});
 				}),
 			g);
 	});
-var $author$project$GraphEditor$graphRemoveObj = F2(
-	function (o, g) {
+var $elm_community$graph$Graph$Node = F2(
+	function (id, label) {
+		return {id: id, label: label};
+	});
+var $author$project$GraphExtra$updateNode = F2(
+	function (id, f) {
+		return A2(
+			$elm_community$graph$Graph$update,
+			id,
+			$elm$core$Maybe$map(
+				function (nc) {
+					return _Utils_update(
+						nc,
+						{
+							node: A2(
+								$elm_community$graph$Graph$Node,
+								nc.node.id,
+								f(nc.node.label))
+						});
+				}));
+	});
+var $author$project$Model$graphRenameObj = F3(
+	function (g, o, s) {
 		switch (o.$) {
-			case 'ONothing':
-				return g;
 			case 'ONode':
 				var id = o.a;
-				return A2($elm_community$graph$Graph$remove, id, g);
-			default:
+				return A3(
+					$author$project$GraphExtra$updateNode,
+					id,
+					function (nl) {
+						return _Utils_update(
+							nl,
+							{label: s});
+					},
+					g);
+			case 'OEdge':
 				var id = o.a;
-				return A2($author$project$GraphExtra$removeEdge, id, g);
+				return A3(
+					$author$project$GraphExtra$updateEdge,
+					id,
+					function (_v1) {
+						return s;
+					},
+					g);
+			default:
+				return g;
 		}
 	});
-var $author$project$GraphEditor$EditEdge = {$: 'EditEdge'};
-var $author$project$GraphEditor$NewArrow = function (a) {
-	return {$: 'NewArrow', a: a};
-};
+var $author$project$GraphCollage$curIdInput = 'edited_label';
 var $elm$core$Basics$composeL = F3(
 	function (g, f, x) {
 		return g(
@@ -6330,272 +6467,36 @@ var $elm$core$Task$attempt = F2(
 							$elm$core$Result$Ok),
 						task))));
 	});
-var $author$project$GraphEditor$curIdInput = 'edited_label';
 var $elm$browser$Browser$Dom$focus = _Browser_call('focus');
-var $author$project$GraphEditor$Do = function (a) {
+var $author$project$Msg$Do = function (a) {
 	return {$: 'Do', a: a};
 };
-var $author$project$GraphEditor$noOp = $author$project$GraphEditor$Do($elm$core$Platform$Cmd$none);
-var $author$project$GraphEditor$focusLabelInput = A2(
-	$elm$core$Task$attempt,
-	function (_v0) {
-		return $author$project$GraphEditor$noOp;
-	},
-	$elm$browser$Browser$Dom$focus($author$project$GraphEditor$curIdInput));
-var $author$project$GraphEditor$newArrow_mayFocus = function (step) {
-	if (step.$ === 'NoEdit') {
+var $author$project$Msg$noOp = $author$project$Msg$Do($elm$core$Platform$Cmd$none);
+var $author$project$Model$focusId = function (s) {
+	return A2(
+		$elm$core$Task$attempt,
+		function (_v0) {
+			return $author$project$Msg$noOp;
+		},
+		$elm$browser$Browser$Dom$focus(s));
+};
+var $author$project$Model$focusLabelInput = $author$project$Model$focusId($author$project$GraphCollage$curIdInput);
+var $author$project$Modes$NewArrow$mayFocus = function (step) {
+	if (step.$ === 'NewArrowMoveNode') {
 		return $elm$core$Platform$Cmd$none;
 	} else {
-		return $author$project$GraphEditor$focusLabelInput;
+		return $author$project$Model$focusLabelInput;
 	}
 };
-var $author$project$GraphEditor$switch_NewArrow = F2(
-	function (state, model) {
-		return _Utils_Tuple2(
-			_Utils_update(
-				model,
-				{
-					mode: $author$project$GraphEditor$NewArrow(state)
-				}),
-			$author$project$GraphEditor$newArrow_mayFocus(state.step));
-	});
-var $author$project$GraphEditor$initialise_NewArrow = function (m) {
-	var _v0 = m.activeObj;
-	if (_v0.$ === 'ONode') {
-		return A2(
-			$author$project$GraphEditor$switch_NewArrow,
-			{edgeLabel: '', nodeLabel: '', step: $author$project$GraphEditor$EditEdge},
-			m);
-	} else {
-		return $author$project$GraphEditor$switch_Default(m);
-	}
+var $author$project$Model$NewArrow = function (a) {
+	return {$: 'NewArrow', a: a};
 };
-var $author$project$GraphEditor$RenameMode = function (a) {
-	return {$: 'RenameMode', a: a};
+var $author$project$Model$NewArrowEditEdge = function (a) {
+	return {$: 'NewArrowEditEdge', a: a};
 };
-var $elm$core$Maybe$andThen = F2(
-	function (callback, maybeValue) {
-		if (maybeValue.$ === 'Just') {
-			var value = maybeValue.a;
-			return callback(value);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $elm_community$graph$Graph$get = function (nodeId) {
-	return A2(
-		$elm$core$Basics$composeR,
-		$elm_community$graph$Graph$unGraph,
-		$elm_community$intdict$IntDict$get(nodeId));
+var $author$project$Model$NewArrowEditNode = function (a) {
+	return {$: 'NewArrowEditNode', a: a};
 };
-var $author$project$GraphExtra$getEdge = F2(
-	function (_v0, g) {
-		var from = _v0.a;
-		var to = _v0.b;
-		return A2(
-			$elm$core$Maybe$andThen,
-			function (nc) {
-				return A2($elm_community$intdict$IntDict$get, to, nc.outgoing);
-			},
-			A2($elm_community$graph$Graph$get, from, g));
-	});
-var $author$project$GraphExtra$getNode = F2(
-	function (id, g) {
-		return A2(
-			$elm$core$Maybe$map,
-			A2(
-				$elm$core$Basics$composeR,
-				function ($) {
-					return $.node;
-				},
-				function ($) {
-					return $.label;
-				}),
-			A2($elm_community$graph$Graph$get, id, g));
-	});
-var $author$project$GraphEditor$switch_RenameMode = function (model) {
-	var label = function () {
-		var _v1 = model.activeObj;
-		switch (_v1.$) {
-			case 'ONothing':
-				return $elm$core$Maybe$Nothing;
-			case 'ONode':
-				var id = _v1.a;
-				return A2(
-					$elm$core$Maybe$map,
-					function ($) {
-						return $.label;
-					},
-					A2($author$project$GraphExtra$getNode, id, model.graph));
-			default:
-				var id = _v1.a;
-				return A2($author$project$GraphExtra$getEdge, id, model.graph);
-		}
-	}();
-	if (label.$ === 'Nothing') {
-		return $author$project$GraphEditor$noCmd(model);
-	} else {
-		var l = label.a;
-		return _Utils_Tuple2(
-			_Utils_update(
-				model,
-				{
-					mode: $author$project$GraphEditor$RenameMode(l)
-				}),
-			$author$project$GraphEditor$focusLabelInput);
-	}
-};
-var $author$project$GraphEditor$update_DefaultMode = F2(
-	function (msg, model) {
-		_v0$10:
-		while (true) {
-			switch (msg.$) {
-				case 'KeyChanged':
-					if (!msg.a) {
-						if (msg.b.$ === 'Control') {
-							if (msg.b.a === 'Delete') {
-								return $author$project$GraphEditor$noCmd(
-									_Utils_update(
-										model,
-										{
-											graph: A2($author$project$GraphEditor$graphRemoveObj, model.activeObj, model.graph)
-										}));
-							} else {
-								break _v0$10;
-							}
-						} else {
-							switch (msg.b.a.valueOf()) {
-								case 'a':
-									return $author$project$GraphEditor$initialise_NewArrow(model);
-								case 'r':
-									return $author$project$GraphEditor$switch_RenameMode(model);
-								case 'p':
-									return $author$project$GraphEditor$noCmd(
-										_Utils_update(
-											model,
-											{mode: $author$project$GraphEditor$NewNode}));
-								case 'u':
-									return $author$project$GraphEditor$noCmd(
-										_Utils_update(
-											model,
-											{unnamedFlag: !model.unnamedFlag}));
-								case 'd':
-									return $author$project$GraphEditor$noCmd(
-										_Utils_update(
-											model,
-											{mode: $author$project$GraphEditor$DebugMode}));
-								case 'g':
-									return $author$project$GraphEditor$noCmd(
-										_Utils_update(
-											model,
-											{mode: $author$project$GraphEditor$MoveNode}));
-								case 'x':
-									return $author$project$GraphEditor$noCmd(
-										_Utils_update(
-											model,
-											{
-												graph: A2($author$project$GraphEditor$graphRemoveObj, model.activeObj, model.graph)
-											}));
-								default:
-									break _v0$10;
-							}
-						}
-					} else {
-						break _v0$10;
-					}
-				case 'NodeClick':
-					var n = msg.a;
-					return $author$project$GraphEditor$noCmd(
-						_Utils_update(
-							model,
-							{
-								activeObj: $author$project$GraphEditor$ONode(n)
-							}));
-				case 'EdgeClick':
-					var n = msg.a;
-					return $author$project$GraphEditor$noCmd(
-						_Utils_update(
-							model,
-							{
-								activeObj: $author$project$GraphEditor$OEdge(n)
-							}));
-				default:
-					break _v0$10;
-			}
-		}
-		return $author$project$GraphEditor$noCmd(model);
-	});
-var $author$project$GraphEditor$obj_NodeId = function (x) {
-	if (x.$ === 'ONode') {
-		var id = x.a;
-		return id;
-	} else {
-		return 0;
-	}
-};
-var $author$project$GraphEditor$activeNode = function (m) {
-	return $author$project$GraphEditor$obj_NodeId(m.activeObj);
-};
-var $author$project$GraphEditor$setPos = F2(
-	function (p, l) {
-		return _Utils_update(
-			l,
-			{pos: p});
-	});
-var $elm_community$graph$Graph$Node = F2(
-	function (id, label) {
-		return {id: id, label: label};
-	});
-var $author$project$GraphExtra$updateNode = F2(
-	function (id, f) {
-		return A2(
-			$elm_community$graph$Graph$update,
-			id,
-			$elm$core$Maybe$map(
-				function (nc) {
-					return _Utils_update(
-						nc,
-						{
-							node: A2(
-								$elm_community$graph$Graph$Node,
-								nc.node.id,
-								f(nc.node.label))
-						});
-				}));
-	});
-var $author$project$GraphEditor$graph_MoveNode = function (model) {
-	return A3(
-		$author$project$GraphExtra$updateNode,
-		$author$project$GraphEditor$activeNode(model),
-		$author$project$GraphEditor$setPos(model.mousePos),
-		model.graph);
-};
-var $author$project$GraphEditor$update_MoveNode = F2(
-	function (msg, model) {
-		_v0$2:
-		while (true) {
-			switch (msg.$) {
-				case 'KeyChanged':
-					if (((!msg.a) && (msg.b.$ === 'Control')) && (msg.b.a === 'Escape')) {
-						return $author$project$GraphEditor$switch_Default(model);
-					} else {
-						break _v0$2;
-					}
-				case 'MouseClick':
-					return $author$project$GraphEditor$switch_Default(
-						_Utils_update(
-							model,
-							{
-								graph: $author$project$GraphEditor$graph_MoveNode(model)
-							}));
-				default:
-					break _v0$2;
-			}
-		}
-		return $author$project$GraphEditor$noCmd(model);
-	});
-var $author$project$GraphEditor$EditNode = {$: 'EditNode'};
-var $author$project$GraphEditor$NoEdit = {$: 'NoEdit'};
 var $author$project$GraphExtra$addEdge = F3(
 	function (g, _v0, label) {
 		var from = _v0.a;
@@ -6619,7 +6520,7 @@ var $elm_community$graph$Graph$member = function (nodeId) {
 		$elm_community$graph$Graph$unGraph,
 		$elm_community$intdict$IntDict$member(nodeId));
 };
-var $author$project$GraphEditor$newArrowGetTargetNode = function (m) {
+var $author$project$Model$getTargetNode = function (m) {
 	var _v0 = m.mousePointOver;
 	if (_v0.$ === 'ONode') {
 		var i = _v0.a;
@@ -6647,6 +6548,15 @@ var $author$project$GraphExtra$addNode = F3(
 				outgoing: $elm_community$intdict$IntDict$empty
 			},
 			g);
+	});
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
 	});
 var $elm_community$intdict$IntDict$findMax = function (dict) {
 	findMax:
@@ -6719,147 +6629,870 @@ var $author$project$GraphExtra$newNode = F2(
 			A3($author$project$GraphExtra$addNode, g, id, n),
 			id);
 	});
-var $author$project$GraphEditor$graph_NewArrow = F2(
-	function (state, m) {
-		var _v0 = function () {
-			var _v1 = $author$project$GraphEditor$newArrowGetTargetNode(m);
-			if (_v1.$ === 'Just') {
-				var t = _v1.a;
-				return _Utils_Tuple2(m.graph, t);
-			} else {
-				return A2(
+var $author$project$Model$mayCreateTargetNode = F2(
+	function (m, s) {
+		var _v0 = $author$project$Model$getTargetNode(m);
+		if (_v0.$ === 'Just') {
+			var n = _v0.a;
+			return _Utils_Tuple2(
+				_Utils_Tuple2(m.graph, n),
+				false);
+		} else {
+			return _Utils_Tuple2(
+				A2(
 					$author$project$GraphExtra$newNode,
 					m.graph,
-					{label: state.nodeLabel, pos: m.mousePos});
-			}
-		}();
-		var graph = _v0.a;
-		var target = _v0.b;
-		return _Utils_Tuple2(
-			A3(
+					{label: s, pos: m.mousePos}),
+				true);
+		}
+	});
+var $author$project$Modes$NewArrow$moveNodeInfo = F2(
+	function (m, state) {
+		var _v0 = A2($author$project$Model$mayCreateTargetNode, m, '');
+		var _v1 = _v0.a;
+		var graph = _v1.a;
+		var movedNode = _v1.b;
+		var created = _v0.b;
+		return {
+			created: created,
+			graph: A3(
 				$author$project$GraphExtra$addEdge,
 				graph,
-				_Utils_Tuple2(
-					$author$project$GraphEditor$activeNode(m),
-					target),
-				state.edgeLabel),
-			target);
+				_Utils_Tuple2(state.chosenNode, movedNode),
+				''),
+			movedNode: movedNode
+		};
 	});
-var $author$project$GraphEditor$finalise_NewArrow = F2(
-	function (state, model) {
-		var _v0 = A2($author$project$GraphEditor$graph_NewArrow, state, model);
-		var g = _v0.a;
-		var targetNode = _v0.b;
-		return $author$project$GraphEditor$initialise_NewArrow(
-			_Utils_update(
-				model,
-				{
-					activeObj: $author$project$GraphEditor$ONode(targetNode),
-					graph: g
-				}));
-	});
-var $author$project$GraphEditor$newArrowIsNewNode = function (m) {
-	var _v0 = $author$project$GraphEditor$newArrowGetTargetNode(m);
-	if (_v0.$ === 'Just') {
-		return false;
-	} else {
-		return true;
+var $author$project$Modes$NewArrow$renamableFromState = function (state) {
+	var _v0 = state.step;
+	switch (_v0.$) {
+		case 'NewArrowEditNode':
+			var m = _v0.a;
+			return $author$project$Model$ONode(m);
+		case 'NewArrowEditEdge':
+			var m = _v0.a;
+			return $author$project$Model$OEdge(
+				_Utils_Tuple2(state.chosenNode, m));
+		default:
+			return $author$project$Model$ONothing;
 	}
 };
-var $author$project$GraphEditor$update_NewArrow = F3(
+var $author$project$Model$switch_Default = function (m) {
+	return $author$project$Model$noCmd(
+		_Utils_update(
+			m,
+			{mode: $author$project$Model$DefaultMode}));
+};
+var $author$project$Modes$NewArrow$nextStep = F3(
+	function (model, validate, state) {
+		var renamableNextMode = function (m) {
+			var graph = validate ? m.graph : A3(
+				$author$project$Model$graphRenameObj,
+				m.graph,
+				$author$project$Modes$NewArrow$renamableFromState(state),
+				'');
+			return $author$project$Model$noCmd(
+				_Utils_update(
+					m,
+					{graph: graph}));
+		};
+		var renamableNextStep = function (step) {
+			return renamableNextMode(
+				_Utils_update(
+					model,
+					{
+						mode: $author$project$Model$NewArrow(
+							_Utils_update(
+								state,
+								{step: step}))
+					}));
+		};
+		var _v0 = state.step;
+		switch (_v0.$) {
+			case 'NewArrowMoveNode':
+				if (!validate) {
+					return $author$project$Model$switch_Default(model);
+				} else {
+					var info = A2($author$project$Modes$NewArrow$moveNodeInfo, model, state);
+					return $author$project$Model$noCmd(
+						_Utils_update(
+							model,
+							{
+								graph: info.graph,
+								mode: $author$project$Model$NewArrow(
+									_Utils_update(
+										state,
+										{
+											step: info.created ? $author$project$Model$NewArrowEditNode(info.movedNode) : $author$project$Model$NewArrowEditEdge(info.movedNode)
+										}))
+							}));
+				}
+			case 'NewArrowEditNode':
+				var movedNode = _v0.a;
+				return renamableNextStep(
+					$author$project$Model$NewArrowEditEdge(movedNode));
+			default:
+				var movedNode = _v0.a;
+				return renamableNextMode(
+					_Utils_update(
+						model,
+						{
+							activeObj: $author$project$Model$ONode(movedNode),
+							mode: $author$project$Model$DefaultMode
+						}));
+		}
+	});
+var $author$project$Modes$NewArrow$update = F3(
 	function (state, msg, model) {
 		_v0$7:
 		while (true) {
 			switch (msg.$) {
-				case 'MouseClick':
-					if (model.unnamedFlag) {
-						return A2($author$project$GraphEditor$finalise_NewArrow, state, model);
-					} else {
-						var _v1 = state.step;
-						switch (_v1.$) {
-							case 'EditEdge':
-								return $author$project$GraphEditor$newArrowIsNewNode(model) ? A2(
-									$author$project$GraphEditor$switch_NewArrow,
-									_Utils_update(
-										state,
-										{step: $author$project$GraphEditor$EditNode}),
-									model) : A2($author$project$GraphEditor$finalise_NewArrow, state, model);
-							case 'EditNode':
-								return A2($author$project$GraphEditor$finalise_NewArrow, state, model);
-							default:
-								return A2($author$project$GraphEditor$finalise_NewArrow, state, model);
-						}
-					}
 				case 'KeyChanged':
 					if ((!msg.a) && (msg.b.$ === 'Control')) {
 						switch (msg.b.a) {
 							case 'Escape':
-								return $author$project$GraphEditor$switch_Default(model);
+								return A3($author$project$Modes$NewArrow$nextStep, model, false, state);
 							case 'Enter':
-								if (model.unnamedFlag) {
-									return A2($author$project$GraphEditor$finalise_NewArrow, state, model);
-								} else {
-									var _v2 = state.step;
-									switch (_v2.$) {
-										case 'EditEdge':
-											return A2(
-												$author$project$GraphEditor$switch_NewArrow,
-												_Utils_update(
-													state,
-													{step: $author$project$GraphEditor$EditNode}),
-												model);
-										case 'EditNode':
-											return $author$project$GraphEditor$newArrowIsNewNode(model) ? A2(
-												$author$project$GraphEditor$switch_NewArrow,
-												_Utils_update(
-													state,
-													{step: $author$project$GraphEditor$NoEdit}),
-												model) : A2($author$project$GraphEditor$finalise_NewArrow, state, model);
-										default:
-											return $author$project$GraphEditor$noCmd(model);
-									}
-								}
+								return A3($author$project$Modes$NewArrow$nextStep, model, true, state);
 							default:
 								break _v0$7;
 						}
 					} else {
 						break _v0$7;
 					}
+				case 'MouseClick':
+					return A3($author$project$Modes$NewArrow$nextStep, model, true, state);
 				case 'EdgeLabelEdit':
+					var e = msg.a;
 					var s = msg.b;
-					return $author$project$GraphEditor$noCmd(
+					return $author$project$Model$noCmd(
 						_Utils_update(
 							model,
 							{
-								mode: $author$project$GraphEditor$NewArrow(
-									_Utils_update(
-										state,
-										{edgeLabel: s}))
+								graph: A3(
+									$author$project$Model$graphRenameObj,
+									model.graph,
+									$author$project$Model$OEdge(e),
+									s)
 							}));
 				case 'NodeLabelEdit':
+					var n = msg.a;
 					var s = msg.b;
-					return $author$project$GraphEditor$noCmd(
+					return $author$project$Model$noCmd(
 						_Utils_update(
 							model,
 							{
-								mode: $author$project$GraphEditor$NewArrow(
-									_Utils_update(
-										state,
-										{nodeLabel: s}))
+								graph: A3(
+									$author$project$Model$graphRenameObj,
+									model.graph,
+									$author$project$Model$ONode(n),
+									s)
 							}));
 				case 'NodeLeave':
 					return _Utils_Tuple2(
 						model,
-						$author$project$GraphEditor$newArrow_mayFocus(state.step));
+						$author$project$Modes$NewArrow$mayFocus(state.step));
 				case 'NodeEnter':
 					return _Utils_Tuple2(
 						model,
-						$author$project$GraphEditor$newArrow_mayFocus(state.step));
+						$author$project$Modes$NewArrow$mayFocus(state.step));
 				default:
 					break _v0$7;
 			}
 		}
-		return $author$project$GraphEditor$noCmd(model);
+		return $author$project$Model$noCmd(model);
+	});
+var $author$project$Modes$Square$mayFocus = function (step) {
+	if (step.$ === 'SquareMoveNode') {
+		return $elm$core$Platform$Cmd$none;
+	} else {
+		return $author$project$Model$focusLabelInput;
+	}
+};
+var $author$project$Model$SquareEditEdge1 = function (a) {
+	return {$: 'SquareEditEdge1', a: a};
+};
+var $author$project$Model$SquareEditEdge2 = function (a) {
+	return {$: 'SquareEditEdge2', a: a};
+};
+var $author$project$Model$SquareEditNode = function (a) {
+	return {$: 'SquareEditNode', a: a};
+};
+var $author$project$Model$SquareMode = function (a) {
+	return {$: 'SquareMode', a: a};
+};
+var $author$project$GraphExtra$make_EdgeId = F3(
+	function (n1, n2, isTo) {
+		return isTo ? _Utils_Tuple2(n1, n2) : _Utils_Tuple2(n2, n1);
+	});
+var $author$project$Modes$Square$nToMoved = F2(
+	function (nToChosen, otherNToChosen) {
+		return _Utils_eq(nToChosen, otherNToChosen) ? (!nToChosen) : nToChosen;
+	});
+var $author$project$Modes$Square$makeEdges = F2(
+	function (data, movedNode) {
+		return {
+			e1: A3($author$project$GraphExtra$make_EdgeId, data.n1, data.chosenNode, data.n1ToChosen),
+			e2: A3($author$project$GraphExtra$make_EdgeId, data.n2, data.chosenNode, data.n2ToChosen),
+			ne1: A3(
+				$author$project$GraphExtra$make_EdgeId,
+				data.n1,
+				movedNode,
+				A2($author$project$Modes$Square$nToMoved, data.n1ToChosen, data.n2ToChosen)),
+			ne2: A3(
+				$author$project$GraphExtra$make_EdgeId,
+				data.n2,
+				movedNode,
+				A2($author$project$Modes$Square$nToMoved, data.n2ToChosen, data.n1ToChosen))
+		};
+	});
+var $author$project$Modes$Square$moveNodeViewInfo = F2(
+	function (m, data) {
+		var _v0 = A2($author$project$Model$mayCreateTargetNode, m, '');
+		var _v1 = _v0.a;
+		var g = _v1.a;
+		var n = _v1.b;
+		var created = _v0.b;
+		var edges = A2($author$project$Modes$Square$makeEdges, data, n);
+		var g2 = A3(
+			$author$project$GraphExtra$addEdge,
+			A3($author$project$GraphExtra$addEdge, g, edges.ne1, ''),
+			edges.ne2,
+			'');
+		return _Utils_Tuple3(
+			{edges: edges, graph: g2},
+			n,
+			created);
+	});
+var $author$project$Modes$Square$renamable = F2(
+	function (step, info) {
+		switch (step.$) {
+			case 'SquareEditNode':
+				var movedNode = step.a;
+				return $author$project$Model$ONode(movedNode);
+			case 'SquareEditEdge1':
+				return $author$project$Model$OEdge(info.ne1);
+			case 'SquareEditEdge2':
+				return $author$project$Model$OEdge(info.ne2);
+			default:
+				return $author$project$Model$ONothing;
+		}
+	});
+var $author$project$Modes$Square$renamableFromState = function (state) {
+	var renamableMoved = A2(
+		$elm$core$Basics$composeR,
+		$author$project$Modes$Square$makeEdges(state.data),
+		$author$project$Modes$Square$renamable(state.step));
+	var _v0 = state.step;
+	switch (_v0.$) {
+		case 'SquareEditNode':
+			var m = _v0.a;
+			return renamableMoved(m);
+		case 'SquareEditEdge1':
+			var m = _v0.a;
+			return renamableMoved(m);
+		case 'SquareEditEdge2':
+			var m = _v0.a;
+			return renamableMoved(m);
+		default:
+			return $author$project$Model$ONothing;
+	}
+};
+var $author$project$Modes$Square$nextStep = F3(
+	function (model, validate, state) {
+		var renamableNextMode = function (m) {
+			var graph = validate ? m.graph : A3(
+				$author$project$Model$graphRenameObj,
+				m.graph,
+				$author$project$Modes$Square$renamableFromState(state),
+				'');
+			return $author$project$Model$noCmd(
+				_Utils_update(
+					m,
+					{graph: graph}));
+		};
+		var renamableNextStep = function (step) {
+			return renamableNextMode(
+				_Utils_update(
+					model,
+					{
+						mode: $author$project$Model$SquareMode(
+							_Utils_update(
+								state,
+								{step: step}))
+					}));
+		};
+		var _v0 = state.step;
+		switch (_v0.$) {
+			case 'SquareMoveNode':
+				if (!validate) {
+					return $author$project$Model$switch_Default(model);
+				} else {
+					var _v1 = A2($author$project$Modes$Square$moveNodeViewInfo, model, state.data);
+					var info = _v1.a;
+					var movedNode = _v1.b;
+					var created = _v1.c;
+					return $author$project$Model$noCmd(
+						_Utils_update(
+							model,
+							{
+								graph: info.graph,
+								mode: $author$project$Model$SquareMode(
+									_Utils_update(
+										state,
+										{
+											step: created ? $author$project$Model$SquareEditNode(movedNode) : $author$project$Model$SquareEditEdge1(movedNode)
+										}))
+							}));
+				}
+			case 'SquareEditNode':
+				var mn = _v0.a;
+				return renamableNextStep(
+					$author$project$Model$SquareEditEdge1(mn));
+			case 'SquareEditEdge1':
+				var mn = _v0.a;
+				return renamableNextStep(
+					$author$project$Model$SquareEditEdge2(mn));
+			default:
+				var mn = _v0.a;
+				return renamableNextMode(
+					_Utils_update(
+						model,
+						{
+							activeObj: $author$project$Model$ONode(mn),
+							mode: $author$project$Model$DefaultMode
+						}));
+		}
+	});
+var $author$project$Model$SquareMoveNode = function (a) {
+	return {$: 'SquareMoveNode', a: a};
+};
+var $elm_community$graph$Graph$get = function (nodeId) {
+	return A2(
+		$elm$core$Basics$composeR,
+		$elm_community$graph$Graph$unGraph,
+		$elm_community$intdict$IntDict$get(nodeId));
+};
+var $elm$core$List$drop = F2(
+	function (n, list) {
+		drop:
+		while (true) {
+			if (n <= 0) {
+				return list;
+			} else {
+				if (!list.b) {
+					return list;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs;
+					n = $temp$n;
+					list = $temp$list;
+					continue drop;
+				}
+			}
+		}
+	});
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Modes$Square$getAt = F2(
+	function (idx, xs) {
+		return $elm$core$List$head(
+			A2($elm$core$List$drop, idx, xs));
+	});
+var $elm$core$Basics$modBy = _Basics_modBy;
+var $elm_community$intdict$IntDict$foldr = F3(
+	function (f, acc, dict) {
+		foldr:
+		while (true) {
+			switch (dict.$) {
+				case 'Empty':
+					return acc;
+				case 'Leaf':
+					var l = dict.a;
+					return A3(f, l.key, l.value, acc);
+				default:
+					var i = dict.a;
+					var $temp$f = f,
+						$temp$acc = A3($elm_community$intdict$IntDict$foldr, f, acc, i.right),
+						$temp$dict = i.left;
+					f = $temp$f;
+					acc = $temp$acc;
+					dict = $temp$dict;
+					continue foldr;
+			}
+		}
+	});
+var $elm_community$intdict$IntDict$keys = function (dict) {
+	return A3(
+		$elm_community$intdict$IntDict$foldr,
+		F3(
+			function (key, value, keyList) {
+				return A2($elm$core$List$cons, key, keyList);
+			}),
+		_List_Nil,
+		dict);
+};
+var $author$project$Modes$Square$uniquePairs = function (xs) {
+	if (!xs.b) {
+		return _List_Nil;
+	} else {
+		var x = xs.a;
+		var xs_ = xs.b;
+		return _Utils_ap(
+			A2(
+				$elm$core$List$map,
+				function (y) {
+					return _Utils_Tuple2(x, y);
+				},
+				xs_),
+			$author$project$Modes$Square$uniquePairs(xs_));
+	}
+};
+var $author$project$Modes$Square$possibleSquareStates = function (nc) {
+	var outs = A2(
+		$elm$core$List$map,
+		function (x) {
+			return _Utils_Tuple2(x, false);
+		},
+		$elm_community$intdict$IntDict$keys(nc.outgoing));
+	var ins = A2(
+		$elm$core$List$map,
+		function (x) {
+			return _Utils_Tuple2(x, true);
+		},
+		$elm_community$intdict$IntDict$keys(nc.incoming));
+	return A2(
+		$elm$core$List$map,
+		function (_v0) {
+			var _v1 = _v0.a;
+			var n1 = _v1.a;
+			var i1 = _v1.b;
+			var _v2 = _v0.b;
+			var n2 = _v2.a;
+			var i2 = _v2.b;
+			return {chosenNode: nc.node.id, n1: n1, n1ToChosen: i1, n2: n2, n2ToChosen: i2};
+		},
+		$author$project$Modes$Square$uniquePairs(
+			_Utils_ap(ins, outs)));
+};
+var $author$project$Modes$Square$square_setPossibility = F3(
+	function (idx, g, chosenNode) {
+		return A2(
+			$elm$core$Maybe$andThen,
+			function (possibilities) {
+				return A2(
+					$elm$core$Maybe$map,
+					function (s) {
+						return {
+							data: s,
+							step: $author$project$Model$SquareMoveNode(
+								A2(
+									$elm$core$Basics$modBy,
+									$elm$core$List$length(possibilities),
+									idx + 1))
+						};
+					},
+					A2($author$project$Modes$Square$getAt, idx, possibilities));
+			},
+			A2(
+				$elm$core$Maybe$map,
+				$author$project$Modes$Square$possibleSquareStates,
+				A2($elm_community$graph$Graph$get, chosenNode, g)));
+	});
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$Modes$Square$square_updatePossibility = F3(
+	function (m, idx, node) {
+		return $author$project$Model$noCmd(
+			A2(
+				$elm$core$Maybe$withDefault,
+				m,
+				A2(
+					$elm$core$Maybe$map,
+					function (state) {
+						return _Utils_update(
+							m,
+							{
+								mode: $author$project$Model$SquareMode(state)
+							});
+					},
+					A3($author$project$Modes$Square$square_setPossibility, idx, m.graph, node))));
+	});
+var $author$project$Modes$Square$update = F3(
+	function (state, msg, model) {
+		_v0$8:
+		while (true) {
+			switch (msg.$) {
+				case 'MouseClick':
+					return A3($author$project$Modes$Square$nextStep, model, true, state);
+				case 'EdgeLabelEdit':
+					var e = msg.a;
+					var s = msg.b;
+					return $author$project$Model$noCmd(
+						_Utils_update(
+							model,
+							{
+								graph: A3(
+									$author$project$Model$graphRenameObj,
+									model.graph,
+									$author$project$Model$OEdge(e),
+									s)
+							}));
+				case 'NodeLabelEdit':
+					var n = msg.a;
+					var s = msg.b;
+					return $author$project$Model$noCmd(
+						_Utils_update(
+							model,
+							{
+								graph: A3(
+									$author$project$Model$graphRenameObj,
+									model.graph,
+									$author$project$Model$ONode(n),
+									s)
+							}));
+				case 'KeyChanged':
+					if (!msg.a) {
+						if (msg.b.$ === 'Control') {
+							switch (msg.b.a) {
+								case 'Escape':
+									return A3($author$project$Modes$Square$nextStep, model, false, state);
+								case 'Enter':
+									return A3($author$project$Modes$Square$nextStep, model, true, state);
+								default:
+									break _v0$8;
+							}
+						} else {
+							if ('s' === msg.b.a.valueOf()) {
+								var _v1 = state.step;
+								if (_v1.$ === 'SquareMoveNode') {
+									var idx = _v1.a;
+									return A3($author$project$Modes$Square$square_updatePossibility, model, idx, state.data.chosenNode);
+								} else {
+									return $author$project$Model$noCmd(model);
+								}
+							} else {
+								break _v0$8;
+							}
+						}
+					} else {
+						break _v0$8;
+					}
+				case 'NodeLeave':
+					return _Utils_Tuple2(
+						model,
+						$author$project$Modes$Square$mayFocus(state.step));
+				case 'NodeEnter':
+					return _Utils_Tuple2(
+						model,
+						$author$project$Modes$Square$mayFocus(state.step));
+				default:
+					break _v0$8;
+			}
+		}
+		return $author$project$Model$noCmd(model);
+	});
+var $author$project$GraphEditor$update_DebugMode = F2(
+	function (msg, model) {
+		if ((((msg.$ === 'KeyChanged') && (!msg.a)) && (msg.b.$ === 'Control')) && (msg.b.a === 'Escape')) {
+			return $author$project$Model$switch_Default(model);
+		} else {
+			return $author$project$Model$noCmd(model);
+		}
+	});
+var $author$project$Model$DebugMode = {$: 'DebugMode'};
+var $author$project$Model$MoveNode = {$: 'MoveNode'};
+var $author$project$Model$NewNode = {$: 'NewNode'};
+var $elm_community$graph$Graph$remove = F2(
+	function (nodeId, graph) {
+		return A3(
+			$elm_community$graph$Graph$update,
+			nodeId,
+			$elm$core$Basics$always($elm$core$Maybe$Nothing),
+			graph);
+	});
+var $elm_community$intdict$IntDict$remove = F2(
+	function (key, dict) {
+		return A3(
+			$elm_community$intdict$IntDict$update,
+			key,
+			$elm$core$Basics$always($elm$core$Maybe$Nothing),
+			dict);
+	});
+var $author$project$GraphExtra$removeEdge = F2(
+	function (_v0, g) {
+		var from = _v0.a;
+		var to = _v0.b;
+		return A3(
+			$elm_community$graph$Graph$update,
+			from,
+			$elm$core$Maybe$map(
+				function (nc) {
+					return _Utils_update(
+						nc,
+						{
+							outgoing: A2($elm_community$intdict$IntDict$remove, to, nc.outgoing)
+						});
+				}),
+			g);
+	});
+var $author$project$Model$graphRemoveObj = F2(
+	function (o, g) {
+		switch (o.$) {
+			case 'ONothing':
+				return g;
+			case 'ONode':
+				var id = o.a;
+				return A2($elm_community$graph$Graph$remove, id, g);
+			default:
+				var id = o.a;
+				return A2($author$project$GraphExtra$removeEdge, id, g);
+		}
+	});
+var $author$project$Model$NewArrowMoveNode = {$: 'NewArrowMoveNode'};
+var $author$project$Model$objToNode = function (o) {
+	if (o.$ === 'ONode') {
+		var n = o.a;
+		return $elm$core$Maybe$Just(n);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Modes$NewArrow$initialise = function (m) {
+	return $author$project$Model$noCmd(
+		A2(
+			$elm$core$Maybe$withDefault,
+			m,
+			A2(
+				$elm$core$Maybe$map,
+				function (chosenNode) {
+					return _Utils_update(
+						m,
+						{
+							mode: $author$project$Model$NewArrow(
+								{chosenNode: chosenNode, step: $author$project$Model$NewArrowMoveNode})
+						});
+				},
+				$author$project$Model$objToNode(m.activeObj))));
+};
+var $author$project$Modes$Square$initialise = function (m) {
+	return A2(
+		$elm$core$Maybe$withDefault,
+		$author$project$Model$noCmd(m),
+		A2(
+			$elm$core$Maybe$map,
+			A2($author$project$Modes$Square$square_updatePossibility, m, 0),
+			$author$project$Model$objToNode(m.activeObj)));
+};
+var $author$project$GraphEditor$quickInputId = 'quickinput';
+var $author$project$Model$RenameMode = function (a) {
+	return {$: 'RenameMode', a: a};
+};
+var $author$project$GraphExtra$getEdge = F2(
+	function (_v0, g) {
+		var from = _v0.a;
+		var to = _v0.b;
+		return A2(
+			$elm$core$Maybe$andThen,
+			function (nc) {
+				return A2($elm_community$intdict$IntDict$get, to, nc.outgoing);
+			},
+			A2($elm_community$graph$Graph$get, from, g));
+	});
+var $author$project$GraphExtra$getNode = F2(
+	function (id, g) {
+		return A2(
+			$elm$core$Maybe$map,
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.node;
+				},
+				function ($) {
+					return $.label;
+				}),
+			A2($elm_community$graph$Graph$get, id, g));
+	});
+var $author$project$GraphEditor$switch_RenameMode = function (model) {
+	var label = function () {
+		var _v1 = model.activeObj;
+		switch (_v1.$) {
+			case 'ONothing':
+				return $elm$core$Maybe$Nothing;
+			case 'ONode':
+				var id = _v1.a;
+				return A2(
+					$elm$core$Maybe$map,
+					function ($) {
+						return $.label;
+					},
+					A2($author$project$GraphExtra$getNode, id, model.graph));
+			default:
+				var id = _v1.a;
+				return A2($author$project$GraphExtra$getEdge, id, model.graph);
+		}
+	}();
+	if (label.$ === 'Nothing') {
+		return $author$project$Model$noCmd(model);
+	} else {
+		var l = label.a;
+		return _Utils_Tuple2(
+			_Utils_update(
+				model,
+				{
+					mode: $author$project$Model$RenameMode(l)
+				}),
+			$author$project$Model$focusLabelInput);
+	}
+};
+var $author$project$GraphEditor$update_DefaultMode = F2(
+	function (msg, model) {
+		_v0$11:
+		while (true) {
+			switch (msg.$) {
+				case 'KeyChanged':
+					if (!msg.a) {
+						if (msg.b.$ === 'Control') {
+							if (msg.b.a === 'Delete') {
+								return $author$project$Model$noCmd(
+									_Utils_update(
+										model,
+										{
+											graph: A2($author$project$Model$graphRemoveObj, model.activeObj, model.graph)
+										}));
+							} else {
+								break _v0$11;
+							}
+						} else {
+							switch (msg.b.a.valueOf()) {
+								case 'a':
+									return $author$project$Modes$NewArrow$initialise(model);
+								case 's':
+									return $author$project$Modes$Square$initialise(model);
+								case 'r':
+									return $author$project$GraphEditor$switch_RenameMode(model);
+								case 'p':
+									return $author$project$Model$noCmd(
+										_Utils_update(
+											model,
+											{mode: $author$project$Model$NewNode}));
+								case 'q':
+									return _Utils_Tuple2(
+										_Utils_update(
+											model,
+											{
+												mode: $author$project$Model$QuickInputMode($elm$core$Maybe$Nothing)
+											}),
+										$author$project$Model$focusId($author$project$GraphEditor$quickInputId));
+								case 'd':
+									return $author$project$Model$noCmd(
+										_Utils_update(
+											model,
+											{mode: $author$project$Model$DebugMode}));
+								case 'g':
+									return $author$project$Model$noCmd(
+										_Utils_update(
+											model,
+											{mode: $author$project$Model$MoveNode}));
+								case 'x':
+									return $author$project$Model$noCmd(
+										_Utils_update(
+											model,
+											{
+												graph: A2($author$project$Model$graphRemoveObj, model.activeObj, model.graph)
+											}));
+								default:
+									break _v0$11;
+							}
+						}
+					} else {
+						break _v0$11;
+					}
+				case 'NodeClick':
+					var n = msg.a;
+					return $author$project$Model$noCmd(
+						_Utils_update(
+							model,
+							{
+								activeObj: $author$project$Model$ONode(n)
+							}));
+				case 'EdgeClick':
+					var n = msg.a;
+					return $author$project$Model$noCmd(
+						_Utils_update(
+							model,
+							{
+								activeObj: $author$project$Model$OEdge(n)
+							}));
+				default:
+					break _v0$11;
+			}
+		}
+		return $author$project$Model$noCmd(model);
+	});
+var $author$project$Model$obj_NodeId = function (x) {
+	if (x.$ === 'ONode') {
+		var id = x.a;
+		return id;
+	} else {
+		return 0;
+	}
+};
+var $author$project$Model$activeNode = function (m) {
+	return $author$project$Model$obj_NodeId(m.activeObj);
+};
+var $author$project$Msg$setPos = F2(
+	function (p, l) {
+		return _Utils_update(
+			l,
+			{pos: p});
+	});
+var $author$project$GraphEditor$graph_MoveNode = function (model) {
+	return A3(
+		$author$project$GraphExtra$updateNode,
+		$author$project$Model$activeNode(model),
+		$author$project$Msg$setPos(model.mousePos),
+		model.graph);
+};
+var $author$project$GraphEditor$update_MoveNode = F2(
+	function (msg, model) {
+		_v0$2:
+		while (true) {
+			switch (msg.$) {
+				case 'KeyChanged':
+					if (((!msg.a) && (msg.b.$ === 'Control')) && (msg.b.a === 'Escape')) {
+						return $author$project$Model$switch_Default(model);
+					} else {
+						break _v0$2;
+					}
+				case 'MouseClick':
+					return $author$project$Model$switch_Default(
+						_Utils_update(
+							model,
+							{
+								graph: $author$project$GraphEditor$graph_MoveNode(model)
+							}));
+				default:
+					break _v0$2;
+			}
+		}
+		return $author$project$Model$noCmd(model);
 	});
 var $author$project$GraphEditor$update_NewNode = F2(
 	function (msg, m) {
@@ -6873,70 +7506,969 @@ var $author$project$GraphEditor$update_NewNode = F2(
 			var newModel = _Utils_update(
 				m,
 				{
-					activeObj: $author$project$GraphEditor$ONode(newId),
+					activeObj: $author$project$Model$ONode(newId),
 					graph: newGraph
 				});
-			return m.unnamedFlag ? $author$project$GraphEditor$switch_Default(newModel) : $author$project$GraphEditor$switch_RenameMode(newModel);
+			return $author$project$GraphEditor$switch_RenameMode(newModel);
 		} else {
-			return $author$project$GraphEditor$noCmd(m);
+			return $author$project$Model$noCmd(m);
 		}
 	});
-var $author$project$GraphExtra$updateEdge = F3(
-	function (_v0, f, g) {
-		var from = _v0.a;
-		var to = _v0.b;
-		return A3(
-			$elm_community$graph$Graph$update,
-			from,
-			$elm$core$Maybe$map(
-				function (nc) {
-					return _Utils_update(
-						nc,
+var $elm$parser$Parser$ExpectingEnd = {$: 'ExpectingEnd'};
+var $elm$parser$Parser$Advanced$Bad = F2(
+	function (a, b) {
+		return {$: 'Bad', a: a, b: b};
+	});
+var $elm$parser$Parser$Advanced$Good = F3(
+	function (a, b, c) {
+		return {$: 'Good', a: a, b: b, c: c};
+	});
+var $elm$parser$Parser$Advanced$Parser = function (a) {
+	return {$: 'Parser', a: a};
+};
+var $elm$parser$Parser$Advanced$AddRight = F2(
+	function (a, b) {
+		return {$: 'AddRight', a: a, b: b};
+	});
+var $elm$parser$Parser$Advanced$DeadEnd = F4(
+	function (row, col, problem, contextStack) {
+		return {col: col, contextStack: contextStack, problem: problem, row: row};
+	});
+var $elm$parser$Parser$Advanced$Empty = {$: 'Empty'};
+var $elm$parser$Parser$Advanced$fromState = F2(
+	function (s, x) {
+		return A2(
+			$elm$parser$Parser$Advanced$AddRight,
+			$elm$parser$Parser$Advanced$Empty,
+			A4($elm$parser$Parser$Advanced$DeadEnd, s.row, s.col, x, s.context));
+	});
+var $elm$parser$Parser$Advanced$end = function (x) {
+	return $elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			return _Utils_eq(
+				$elm$core$String$length(s.src),
+				s.offset) ? A3($elm$parser$Parser$Advanced$Good, false, _Utils_Tuple0, s) : A2(
+				$elm$parser$Parser$Advanced$Bad,
+				false,
+				A2($elm$parser$Parser$Advanced$fromState, s, x));
+		});
+};
+var $elm$parser$Parser$end = $elm$parser$Parser$Advanced$end($elm$parser$Parser$ExpectingEnd);
+var $elm$parser$Parser$Advanced$map2 = F3(
+	function (func, _v0, _v1) {
+		var parseA = _v0.a;
+		var parseB = _v1.a;
+		return $elm$parser$Parser$Advanced$Parser(
+			function (s0) {
+				var _v2 = parseA(s0);
+				if (_v2.$ === 'Bad') {
+					var p = _v2.a;
+					var x = _v2.b;
+					return A2($elm$parser$Parser$Advanced$Bad, p, x);
+				} else {
+					var p1 = _v2.a;
+					var a = _v2.b;
+					var s1 = _v2.c;
+					var _v3 = parseB(s1);
+					if (_v3.$ === 'Bad') {
+						var p2 = _v3.a;
+						var x = _v3.b;
+						return A2($elm$parser$Parser$Advanced$Bad, p1 || p2, x);
+					} else {
+						var p2 = _v3.a;
+						var b = _v3.b;
+						var s2 = _v3.c;
+						return A3(
+							$elm$parser$Parser$Advanced$Good,
+							p1 || p2,
+							A2(func, a, b),
+							s2);
+					}
+				}
+			});
+	});
+var $elm$parser$Parser$Advanced$ignorer = F2(
+	function (keepParser, ignoreParser) {
+		return A3($elm$parser$Parser$Advanced$map2, $elm$core$Basics$always, keepParser, ignoreParser);
+	});
+var $elm$parser$Parser$ignorer = $elm$parser$Parser$Advanced$ignorer;
+var $elm$parser$Parser$Advanced$keeper = F2(
+	function (parseFunc, parseArg) {
+		return A3($elm$parser$Parser$Advanced$map2, $elm$core$Basics$apL, parseFunc, parseArg);
+	});
+var $elm$parser$Parser$keeper = $elm$parser$Parser$Advanced$keeper;
+var $elm$parser$Parser$Advanced$map = F2(
+	function (func, _v0) {
+		var parse = _v0.a;
+		return $elm$parser$Parser$Advanced$Parser(
+			function (s0) {
+				var _v1 = parse(s0);
+				if (_v1.$ === 'Good') {
+					var p = _v1.a;
+					var a = _v1.b;
+					var s1 = _v1.c;
+					return A3(
+						$elm$parser$Parser$Advanced$Good,
+						p,
+						func(a),
+						s1);
+				} else {
+					var p = _v1.a;
+					var x = _v1.b;
+					return A2($elm$parser$Parser$Advanced$Bad, p, x);
+				}
+			});
+	});
+var $elm$parser$Parser$map = $elm$parser$Parser$Advanced$map;
+var $author$project$QuickInput$Cons = F3(
+	function (a, b, c) {
+		return {$: 'Cons', a: a, b: b, c: c};
+	});
+var $author$project$QuickInput$Singleton = function (a) {
+	return {$: 'Singleton', a: a};
+};
+var $elm$parser$Parser$Advanced$andThen = F2(
+	function (callback, _v0) {
+		var parseA = _v0.a;
+		return $elm$parser$Parser$Advanced$Parser(
+			function (s0) {
+				var _v1 = parseA(s0);
+				if (_v1.$ === 'Bad') {
+					var p = _v1.a;
+					var x = _v1.b;
+					return A2($elm$parser$Parser$Advanced$Bad, p, x);
+				} else {
+					var p1 = _v1.a;
+					var a = _v1.b;
+					var s1 = _v1.c;
+					var _v2 = callback(a);
+					var parseB = _v2.a;
+					var _v3 = parseB(s1);
+					if (_v3.$ === 'Bad') {
+						var p2 = _v3.a;
+						var x = _v3.b;
+						return A2($elm$parser$Parser$Advanced$Bad, p1 || p2, x);
+					} else {
+						var p2 = _v3.a;
+						var b = _v3.b;
+						var s2 = _v3.c;
+						return A3($elm$parser$Parser$Advanced$Good, p1 || p2, b, s2);
+					}
+				}
+			});
+	});
+var $elm$parser$Parser$andThen = $elm$parser$Parser$Advanced$andThen;
+var $elm$parser$Parser$Advanced$backtrackable = function (_v0) {
+	var parse = _v0.a;
+	return $elm$parser$Parser$Advanced$Parser(
+		function (s0) {
+			var _v1 = parse(s0);
+			if (_v1.$ === 'Bad') {
+				var x = _v1.b;
+				return A2($elm$parser$Parser$Advanced$Bad, false, x);
+			} else {
+				var a = _v1.b;
+				var s1 = _v1.c;
+				return A3($elm$parser$Parser$Advanced$Good, false, a, s1);
+			}
+		});
+};
+var $elm$parser$Parser$backtrackable = $elm$parser$Parser$Advanced$backtrackable;
+var $author$project$QuickInput$Down = {$: 'Down'};
+var $author$project$QuickInput$Edge = F2(
+	function (a, b) {
+		return {$: 'Edge', a: a, b: b};
+	});
+var $author$project$QuickInput$Up = {$: 'Up'};
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			$elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
+	});
+var $author$project$QuickInput$correctLabelChar = F2(
+	function (fb, c) {
+		return !A2(
+			$elm$core$List$member,
+			c,
+			_Utils_ap(
+				fb,
+				_List_fromArray(
+					[
+						_Utils_chr('|'),
+						_Utils_chr('-'),
+						_Utils_chr('<'),
+						_Utils_chr('>')
+					])));
+	});
+var $elm$core$Set$Set_elm_builtin = function (a) {
+	return {$: 'Set_elm_builtin', a: a};
+};
+var $elm$core$Set$empty = $elm$core$Set$Set_elm_builtin($elm$core$Dict$empty);
+var $elm$parser$Parser$Advanced$Append = F2(
+	function (a, b) {
+		return {$: 'Append', a: a, b: b};
+	});
+var $elm$parser$Parser$Advanced$oneOfHelp = F3(
+	function (s0, bag, parsers) {
+		oneOfHelp:
+		while (true) {
+			if (!parsers.b) {
+				return A2($elm$parser$Parser$Advanced$Bad, false, bag);
+			} else {
+				var parse = parsers.a.a;
+				var remainingParsers = parsers.b;
+				var _v1 = parse(s0);
+				if (_v1.$ === 'Good') {
+					var step = _v1;
+					return step;
+				} else {
+					var step = _v1;
+					var p = step.a;
+					var x = step.b;
+					if (p) {
+						return step;
+					} else {
+						var $temp$s0 = s0,
+							$temp$bag = A2($elm$parser$Parser$Advanced$Append, bag, x),
+							$temp$parsers = remainingParsers;
+						s0 = $temp$s0;
+						bag = $temp$bag;
+						parsers = $temp$parsers;
+						continue oneOfHelp;
+					}
+				}
+			}
+		}
+	});
+var $elm$parser$Parser$Advanced$oneOf = function (parsers) {
+	return $elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			return A3($elm$parser$Parser$Advanced$oneOfHelp, s, $elm$parser$Parser$Advanced$Empty, parsers);
+		});
+};
+var $elm$parser$Parser$oneOf = $elm$parser$Parser$Advanced$oneOf;
+var $elm$parser$Parser$Advanced$succeed = function (a) {
+	return $elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			return A3($elm$parser$Parser$Advanced$Good, false, a, s);
+		});
+};
+var $elm$parser$Parser$succeed = $elm$parser$Parser$Advanced$succeed;
+var $elm$parser$Parser$ExpectingSymbol = function (a) {
+	return {$: 'ExpectingSymbol', a: a};
+};
+var $elm$parser$Parser$Advanced$Token = F2(
+	function (a, b) {
+		return {$: 'Token', a: a, b: b};
+	});
+var $elm$parser$Parser$Advanced$isSubString = _Parser_isSubString;
+var $elm$parser$Parser$Advanced$token = function (_v0) {
+	var str = _v0.a;
+	var expecting = _v0.b;
+	var progress = !$elm$core$String$isEmpty(str);
+	return $elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			var _v1 = A5($elm$parser$Parser$Advanced$isSubString, str, s.offset, s.row, s.col, s.src);
+			var newOffset = _v1.a;
+			var newRow = _v1.b;
+			var newCol = _v1.c;
+			return _Utils_eq(newOffset, -1) ? A2(
+				$elm$parser$Parser$Advanced$Bad,
+				false,
+				A2($elm$parser$Parser$Advanced$fromState, s, expecting)) : A3(
+				$elm$parser$Parser$Advanced$Good,
+				progress,
+				_Utils_Tuple0,
+				{col: newCol, context: s.context, indent: s.indent, offset: newOffset, row: newRow, src: s.src});
+		});
+};
+var $elm$parser$Parser$Advanced$symbol = $elm$parser$Parser$Advanced$token;
+var $elm$parser$Parser$symbol = function (str) {
+	return $elm$parser$Parser$Advanced$symbol(
+		A2(
+			$elm$parser$Parser$Advanced$Token,
+			str,
+			$elm$parser$Parser$ExpectingSymbol(str)));
+};
+var $elm$core$String$trim = _String_trim;
+var $elm$parser$Parser$ExpectingVariable = {$: 'ExpectingVariable'};
+var $elm$parser$Parser$Advanced$isSubChar = _Parser_isSubChar;
+var $elm$core$Dict$get = F2(
+	function (targetKey, dict) {
+		get:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
+				switch (_v1.$) {
+					case 'LT':
+						var $temp$targetKey = targetKey,
+							$temp$dict = left;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+					case 'EQ':
+						return $elm$core$Maybe$Just(value);
+					default:
+						var $temp$targetKey = targetKey,
+							$temp$dict = right;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+				}
+			}
+		}
+	});
+var $elm$core$Dict$member = F2(
+	function (key, dict) {
+		var _v0 = A2($elm$core$Dict$get, key, dict);
+		if (_v0.$ === 'Just') {
+			return true;
+		} else {
+			return false;
+		}
+	});
+var $elm$core$Set$member = F2(
+	function (key, _v0) {
+		var dict = _v0.a;
+		return A2($elm$core$Dict$member, key, dict);
+	});
+var $elm$parser$Parser$Advanced$varHelp = F7(
+	function (isGood, offset, row, col, src, indent, context) {
+		varHelp:
+		while (true) {
+			var newOffset = A3($elm$parser$Parser$Advanced$isSubChar, isGood, offset, src);
+			if (_Utils_eq(newOffset, -1)) {
+				return {col: col, context: context, indent: indent, offset: offset, row: row, src: src};
+			} else {
+				if (_Utils_eq(newOffset, -2)) {
+					var $temp$isGood = isGood,
+						$temp$offset = offset + 1,
+						$temp$row = row + 1,
+						$temp$col = 1,
+						$temp$src = src,
+						$temp$indent = indent,
+						$temp$context = context;
+					isGood = $temp$isGood;
+					offset = $temp$offset;
+					row = $temp$row;
+					col = $temp$col;
+					src = $temp$src;
+					indent = $temp$indent;
+					context = $temp$context;
+					continue varHelp;
+				} else {
+					var $temp$isGood = isGood,
+						$temp$offset = newOffset,
+						$temp$row = row,
+						$temp$col = col + 1,
+						$temp$src = src,
+						$temp$indent = indent,
+						$temp$context = context;
+					isGood = $temp$isGood;
+					offset = $temp$offset;
+					row = $temp$row;
+					col = $temp$col;
+					src = $temp$src;
+					indent = $temp$indent;
+					context = $temp$context;
+					continue varHelp;
+				}
+			}
+		}
+	});
+var $elm$parser$Parser$Advanced$variable = function (i) {
+	return $elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			var firstOffset = A3($elm$parser$Parser$Advanced$isSubChar, i.start, s.offset, s.src);
+			if (_Utils_eq(firstOffset, -1)) {
+				return A2(
+					$elm$parser$Parser$Advanced$Bad,
+					false,
+					A2($elm$parser$Parser$Advanced$fromState, s, i.expecting));
+			} else {
+				var s1 = _Utils_eq(firstOffset, -2) ? A7($elm$parser$Parser$Advanced$varHelp, i.inner, s.offset + 1, s.row + 1, 1, s.src, s.indent, s.context) : A7($elm$parser$Parser$Advanced$varHelp, i.inner, firstOffset, s.row, s.col + 1, s.src, s.indent, s.context);
+				var name = A3($elm$core$String$slice, s.offset, s1.offset, s.src);
+				return A2($elm$core$Set$member, name, i.reserved) ? A2(
+					$elm$parser$Parser$Advanced$Bad,
+					false,
+					A2($elm$parser$Parser$Advanced$fromState, s, i.expecting)) : A3($elm$parser$Parser$Advanced$Good, true, name, s1);
+			}
+		});
+};
+var $elm$parser$Parser$variable = function (i) {
+	return $elm$parser$Parser$Advanced$variable(
+		{expecting: $elm$parser$Parser$ExpectingVariable, inner: i.inner, reserved: i.reserved, start: i.start});
+};
+var $author$project$QuickInput$labelParser = function (fb) {
+	return $elm$parser$Parser$oneOf(
+		_List_fromArray(
+			[
+				A2(
+				$elm$parser$Parser$keeper,
+				A2(
+					$elm$parser$Parser$ignorer,
+					$elm$parser$Parser$succeed($elm$core$Basics$identity),
+					$elm$parser$Parser$symbol('\"')),
+				A2(
+					$elm$parser$Parser$ignorer,
+					$elm$parser$Parser$variable(
 						{
-							outgoing: A3(
-								$elm_community$intdict$IntDict$update,
-								to,
-								$elm$core$Maybe$map(f),
-								nc.outgoing)
-						});
+							inner: function (c) {
+								return !_Utils_eq(
+									c,
+									_Utils_chr('\"'));
+							},
+							reserved: $elm$core$Set$empty,
+							start: function (c) {
+								return !_Utils_eq(
+									c,
+									_Utils_chr('\"'));
+							}
+						}),
+					$elm$parser$Parser$symbol('\"'))),
+				A2(
+				$elm$parser$Parser$keeper,
+				$elm$parser$Parser$succeed($elm$core$String$trim),
+				$elm$parser$Parser$variable(
+					{
+						inner: $author$project$QuickInput$correctLabelChar(fb),
+						reserved: $elm$core$Set$empty,
+						start: $author$project$QuickInput$correctLabelChar(fb)
+					}))
+			]));
+};
+var $author$project$QuickInput$maybeParser = function (p) {
+	return $elm$parser$Parser$oneOf(
+		_List_fromArray(
+			[
+				A2($elm$parser$Parser$map, $elm$core$Maybe$Just, p),
+				$elm$parser$Parser$succeed($elm$core$Maybe$Nothing)
+			]));
+};
+var $author$project$QuickInput$Left = {$: 'Left'};
+var $author$project$QuickInput$Right = {$: 'Right'};
+var $author$project$QuickInput$orientParser = $elm$parser$Parser$oneOf(
+	_List_fromArray(
+		[
+			A2(
+			$elm$parser$Parser$ignorer,
+			$elm$parser$Parser$succeed($author$project$QuickInput$Left),
+			$elm$parser$Parser$symbol('l')),
+			A2(
+			$elm$parser$Parser$ignorer,
+			$elm$parser$Parser$succeed($author$project$QuickInput$Right),
+			$elm$parser$Parser$symbol('r')),
+			A2(
+			$elm$parser$Parser$ignorer,
+			$elm$parser$Parser$succeed($author$project$QuickInput$Up),
+			$elm$parser$Parser$symbol('u')),
+			A2(
+			$elm$parser$Parser$ignorer,
+			$elm$parser$Parser$succeed($author$project$QuickInput$Down),
+			$elm$parser$Parser$symbol('d'))
+		]));
+var $elm$parser$Parser$Advanced$chompWhileHelp = F5(
+	function (isGood, offset, row, col, s0) {
+		chompWhileHelp:
+		while (true) {
+			var newOffset = A3($elm$parser$Parser$Advanced$isSubChar, isGood, offset, s0.src);
+			if (_Utils_eq(newOffset, -1)) {
+				return A3(
+					$elm$parser$Parser$Advanced$Good,
+					_Utils_cmp(s0.offset, offset) < 0,
+					_Utils_Tuple0,
+					{col: col, context: s0.context, indent: s0.indent, offset: offset, row: row, src: s0.src});
+			} else {
+				if (_Utils_eq(newOffset, -2)) {
+					var $temp$isGood = isGood,
+						$temp$offset = offset + 1,
+						$temp$row = row + 1,
+						$temp$col = 1,
+						$temp$s0 = s0;
+					isGood = $temp$isGood;
+					offset = $temp$offset;
+					row = $temp$row;
+					col = $temp$col;
+					s0 = $temp$s0;
+					continue chompWhileHelp;
+				} else {
+					var $temp$isGood = isGood,
+						$temp$offset = newOffset,
+						$temp$row = row,
+						$temp$col = col + 1,
+						$temp$s0 = s0;
+					isGood = $temp$isGood;
+					offset = $temp$offset;
+					row = $temp$row;
+					col = $temp$col;
+					s0 = $temp$s0;
+					continue chompWhileHelp;
+				}
+			}
+		}
+	});
+var $elm$parser$Parser$Advanced$chompWhile = function (isGood) {
+	return $elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			return A5($elm$parser$Parser$Advanced$chompWhileHelp, isGood, s.offset, s.row, s.col, s);
+		});
+};
+var $elm$parser$Parser$Advanced$spaces = $elm$parser$Parser$Advanced$chompWhile(
+	function (c) {
+		return _Utils_eq(
+			c,
+			_Utils_chr(' ')) || (_Utils_eq(
+			c,
+			_Utils_chr('\n')) || _Utils_eq(
+			c,
+			_Utils_chr('\r')));
+	});
+var $elm$parser$Parser$spaces = $elm$parser$Parser$Advanced$spaces;
+var $author$project$QuickInput$edgeParser = $elm$parser$Parser$oneOf(
+	_List_fromArray(
+		[
+			A2(
+			$elm$parser$Parser$keeper,
+			A2(
+				$elm$parser$Parser$keeper,
+				A2(
+					$elm$parser$Parser$ignorer,
+					A2(
+						$elm$parser$Parser$ignorer,
+						$elm$parser$Parser$succeed($author$project$QuickInput$Edge),
+						$elm$parser$Parser$symbol('-')),
+					$elm$parser$Parser$spaces),
+				A2(
+					$elm$parser$Parser$ignorer,
+					A2(
+						$elm$parser$Parser$ignorer,
+						$author$project$QuickInput$maybeParser(
+							$author$project$QuickInput$labelParser(_List_Nil)),
+						$elm$parser$Parser$spaces),
+					$elm$parser$Parser$symbol('>'))),
+			$author$project$QuickInput$maybeParser(
+				A2(
+					$elm$parser$Parser$keeper,
+					A2(
+						$elm$parser$Parser$ignorer,
+						$elm$parser$Parser$succeed($elm$core$Basics$identity),
+						$elm$parser$Parser$backtrackable(
+							$elm$parser$Parser$symbol('@'))),
+					$author$project$QuickInput$orientParser))),
+			A2(
+			$elm$parser$Parser$keeper,
+			A2(
+				$elm$parser$Parser$keeper,
+				A2(
+					$elm$parser$Parser$ignorer,
+					A2(
+						$elm$parser$Parser$ignorer,
+						$elm$parser$Parser$succeed($author$project$QuickInput$Edge),
+						$elm$parser$Parser$symbol('|')),
+					$elm$parser$Parser$spaces),
+				A2(
+					$elm$parser$Parser$ignorer,
+					$author$project$QuickInput$maybeParser(
+						$author$project$QuickInput$labelParser(
+							_List_fromArray(
+								[
+									_Utils_chr('v'),
+									_Utils_chr('^')
+								]))),
+					$elm$parser$Parser$spaces)),
+			$elm$parser$Parser$oneOf(
+				_List_fromArray(
+					[
+						A2(
+						$elm$parser$Parser$ignorer,
+						$elm$parser$Parser$succeed(
+							$elm$core$Maybe$Just($author$project$QuickInput$Down)),
+						$elm$parser$Parser$symbol('v')),
+						A2(
+						$elm$parser$Parser$ignorer,
+						$elm$parser$Parser$succeed(
+							$elm$core$Maybe$Just($author$project$QuickInput$Up)),
+						$elm$parser$Parser$symbol('^'))
+					])))
+		]));
+var $elm$parser$Parser$Advanced$lazy = function (thunk) {
+	return $elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			var _v0 = thunk(_Utils_Tuple0);
+			var parse = _v0.a;
+			return parse(s);
+		});
+};
+var $elm$parser$Parser$lazy = $elm$parser$Parser$Advanced$lazy;
+var $author$project$QuickInput$vertexParser = $author$project$QuickInput$labelParser(_List_Nil);
+function $author$project$QuickInput$cyclic$nonEmptyChainParser() {
+	return A2(
+		$elm$parser$Parser$andThen,
+		function (v) {
+			return A2(
+				$elm$parser$Parser$keeper,
+				A2(
+					$elm$parser$Parser$ignorer,
+					$elm$parser$Parser$succeed($elm$core$Basics$identity),
+					$elm$parser$Parser$spaces),
+				$elm$parser$Parser$oneOf(
+					_List_fromArray(
+						[
+							A2(
+							$elm$parser$Parser$keeper,
+							A2(
+								$elm$parser$Parser$keeper,
+								$elm$parser$Parser$succeed(
+									$author$project$QuickInput$Cons(v)),
+								A2(
+									$elm$parser$Parser$ignorer,
+									$elm$parser$Parser$backtrackable($author$project$QuickInput$edgeParser),
+									$elm$parser$Parser$spaces)),
+							$elm$parser$Parser$oneOf(
+								_List_fromArray(
+									[
+										$elm$parser$Parser$lazy(
+										function (_v0) {
+											return $author$project$QuickInput$cyclic$nonEmptyChainParser();
+										}),
+										$elm$parser$Parser$succeed(
+										$author$project$QuickInput$Singleton(''))
+									]))),
+							$elm$parser$Parser$succeed(
+							$author$project$QuickInput$Singleton(v))
+						])));
+		},
+		$author$project$QuickInput$vertexParser);
+}
+try {
+	var $author$project$QuickInput$nonEmptyChainParser = $author$project$QuickInput$cyclic$nonEmptyChainParser();
+	$author$project$QuickInput$cyclic$nonEmptyChainParser = function () {
+		return $author$project$QuickInput$nonEmptyChainParser;
+	};
+} catch ($) {
+	throw 'Some top-level definitions from `QuickInput` are causing infinite recursion:\n\n  ┌─────┐\n  │    nonEmptyChainParser\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
+var $author$project$QuickInput$chainParser = A2(
+	$elm$parser$Parser$keeper,
+	A2(
+		$elm$parser$Parser$ignorer,
+		$elm$parser$Parser$succeed($elm$core$Basics$identity),
+		$elm$parser$Parser$spaces),
+	$elm$parser$Parser$oneOf(
+		_List_fromArray(
+			[
+				A2(
+				$elm$parser$Parser$ignorer,
+				$elm$parser$Parser$succeed($elm$core$Maybe$Nothing),
+				$elm$parser$Parser$end),
+				A2($elm$parser$Parser$map, $elm$core$Maybe$Just, $author$project$QuickInput$nonEmptyChainParser)
+			])));
+var $elm$parser$Parser$deadEndsToString = function (deadEnds) {
+	return 'TODO deadEndsToString';
+};
+var $author$project$CollageExtra$addP = F2(
+	function (_v0, _v1) {
+		var x1 = _v0.a;
+		var y1 = _v0.b;
+		var x2 = _v1.a;
+		var y2 = _v1.b;
+		return _Utils_Tuple2(x1 + x2, y1 + y2);
+	});
+var $author$project$GraphEditor$createNodeLabel = F3(
+	function (g, s, p) {
+		var label = {label: s, pos: p};
+		var _v0 = A2($author$project$GraphExtra$newNode, g, label);
+		var g2 = _v0.a;
+		var id = _v0.b;
+		return _Utils_Tuple3(g2, id, p);
+	});
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
 				}),
-			g);
+			_List_Nil,
+			list);
+	});
+var $elm_community$intdict$IntDict$values = function (dict) {
+	return A3(
+		$elm_community$intdict$IntDict$foldr,
+		F3(
+			function (key, value, valueList) {
+				return A2($elm$core$List$cons, value, valueList);
+			}),
+		_List_Nil,
+		dict);
+};
+var $elm_community$graph$Graph$nodes = A2(
+	$elm$core$Basics$composeR,
+	$elm_community$graph$Graph$unGraph,
+	A2(
+		$elm$core$Basics$composeR,
+		$elm_community$intdict$IntDict$values,
+		$elm$core$List$map(
+			function ($) {
+				return $.node;
+			})));
+var $author$project$GraphExtra$filterNodes = F2(
+	function (g, f) {
+		return A2(
+			$elm$core$List$filter,
+			A2(
+				$elm$core$Basics$composeL,
+				f,
+				function ($) {
+					return $.label;
+				}),
+			$elm_community$graph$Graph$nodes(g));
+	});
+var $author$project$GraphEditor$getNodeLabelOrCreate = F3(
+	function (g, s, p) {
+		if (s === '') {
+			return A3($author$project$GraphEditor$createNodeLabel, g, s, p);
+		} else {
+			var _v0 = A2(
+				$author$project$GraphExtra$filterNodes,
+				g,
+				function (l) {
+					return _Utils_eq(l.label, s);
+				});
+			if (!_v0.b) {
+				return A3($author$project$GraphEditor$createNodeLabel, g, s, p);
+			} else {
+				var t = _v0.a;
+				return _Utils_Tuple3(g, t.id, t.label.pos);
+			}
+		}
+	});
+var $author$project$QuickInput$orientToPoint = function (o) {
+	switch (o.$) {
+		case 'Up':
+			return _Utils_Tuple2(0, 1);
+		case 'Down':
+			return _Utils_Tuple2(0, -1);
+		case 'Left':
+			return _Utils_Tuple2(-1, 0);
+		default:
+			return _Utils_Tuple2(1, 0);
+	}
+};
+var $author$project$CollageExtra$resizeP = F2(
+	function (s, _v0) {
+		var x1 = _v0.a;
+		var y1 = _v0.b;
+		return _Utils_Tuple2(x1 * s, y1 * s);
+	});
+var $author$project$GraphEditor$graphCollageNonEmptyChain = F3(
+	function (g, ch, loc) {
+		if (ch.$ === 'Singleton') {
+			var v = ch.a;
+			var _v1 = A3($author$project$GraphEditor$getNodeLabelOrCreate, g, v, loc);
+			var g2 = _v1.a;
+			var source = _v1.b;
+			return _Utils_Tuple2(g2, source);
+		} else {
+			var v = ch.a;
+			var _v2 = ch.b;
+			var olabel = _v2.a;
+			var oorient = _v2.b;
+			var tail = ch.c;
+			var defOrient = $author$project$QuickInput$Right;
+			var _v3 = A3($author$project$GraphEditor$getNodeLabelOrCreate, g, v, loc);
+			var g2 = _v3.a;
+			var source = _v3.b;
+			var source_pos = _v3.c;
+			var orient = A2($elm$core$Maybe$withDefault, defOrient, oorient);
+			var offset = 200;
+			var newPoint = A2(
+				$author$project$CollageExtra$addP,
+				source_pos,
+				A2(
+					$author$project$CollageExtra$resizeP,
+					offset,
+					$author$project$QuickInput$orientToPoint(orient)));
+			var _v4 = A3($author$project$GraphEditor$graphCollageNonEmptyChain, g2, tail, newPoint);
+			var g3 = _v4.a;
+			var target = _v4.b;
+			var label = A2($elm$core$Maybe$withDefault, '', olabel);
+			return _Utils_Tuple2(
+				A3(
+					$author$project$GraphExtra$addEdge,
+					g3,
+					_Utils_Tuple2(source, target),
+					label),
+				source);
+		}
+	});
+var $author$project$GraphEditor$graphCollageChain = F2(
+	function (g, ch) {
+		if (ch.$ === 'Nothing') {
+			return g;
+		} else {
+			var nonEmptyCh = ch.a;
+			var iniP = _Utils_Tuple2(100, -100);
+			return A3($author$project$GraphEditor$graphCollageNonEmptyChain, g, nonEmptyCh, iniP).a;
+		}
+	});
+var $elm$parser$Parser$DeadEnd = F3(
+	function (row, col, problem) {
+		return {col: col, problem: problem, row: row};
+	});
+var $elm$parser$Parser$problemToDeadEnd = function (p) {
+	return A3($elm$parser$Parser$DeadEnd, p.row, p.col, p.problem);
+};
+var $elm$parser$Parser$Advanced$bagToList = F2(
+	function (bag, list) {
+		bagToList:
+		while (true) {
+			switch (bag.$) {
+				case 'Empty':
+					return list;
+				case 'AddRight':
+					var bag1 = bag.a;
+					var x = bag.b;
+					var $temp$bag = bag1,
+						$temp$list = A2($elm$core$List$cons, x, list);
+					bag = $temp$bag;
+					list = $temp$list;
+					continue bagToList;
+				default:
+					var bag1 = bag.a;
+					var bag2 = bag.b;
+					var $temp$bag = bag1,
+						$temp$list = A2($elm$parser$Parser$Advanced$bagToList, bag2, list);
+					bag = $temp$bag;
+					list = $temp$list;
+					continue bagToList;
+			}
+		}
+	});
+var $elm$parser$Parser$Advanced$run = F2(
+	function (_v0, src) {
+		var parse = _v0.a;
+		var _v1 = parse(
+			{col: 1, context: _List_Nil, indent: 1, offset: 0, row: 1, src: src});
+		if (_v1.$ === 'Good') {
+			var value = _v1.b;
+			return $elm$core$Result$Ok(value);
+		} else {
+			var bag = _v1.b;
+			return $elm$core$Result$Err(
+				A2($elm$parser$Parser$Advanced$bagToList, bag, _List_Nil));
+		}
+	});
+var $elm$parser$Parser$run = F2(
+	function (parser, source) {
+		var _v0 = A2($elm$parser$Parser$Advanced$run, parser, source);
+		if (_v0.$ === 'Ok') {
+			var a = _v0.a;
+			return $elm$core$Result$Ok(a);
+		} else {
+			var problems = _v0.a;
+			return $elm$core$Result$Err(
+				A2($elm$core$List$map, $elm$parser$Parser$problemToDeadEnd, problems));
+		}
+	});
+var $elm$core$Debug$toString = _Debug_toString;
+var $author$project$GraphEditor$update_QuickInput = F3(
+	function (ch, msg, model) {
+		_v0$3:
+		while (true) {
+			switch (msg.$) {
+				case 'KeyChanged':
+					if ((!msg.a) && (msg.b.$ === 'Control')) {
+						switch (msg.b.a) {
+							case 'Escape':
+								return $author$project$Model$switch_Default(model);
+							case 'Enter':
+								return $author$project$Model$switch_Default(
+									_Utils_update(
+										model,
+										{
+											graph: A2($author$project$GraphEditor$graphCollageChain, model.graph, ch),
+											quickInput: ''
+										}));
+							default:
+								break _v0$3;
+						}
+					} else {
+						break _v0$3;
+					}
+				case 'QuickInput':
+					var s = msg.a;
+					var _v1 = function () {
+						var _v2 = A2($elm$parser$Parser$run, $author$project$QuickInput$chainParser, s);
+						if (_v2.$ === 'Ok') {
+							var l = _v2.a;
+							return _Utils_Tuple2(
+								$elm$core$Debug$toString(l),
+								l);
+						} else {
+							var e = _v2.a;
+							return _Utils_Tuple2(
+								$elm$parser$Parser$deadEndsToString(e),
+								$elm$core$Maybe$Nothing);
+						}
+					}();
+					var statusMsg = _v1.a;
+					var chain = _v1.b;
+					return $author$project$Model$noCmd(
+						_Utils_update(
+							model,
+							{
+								mode: $author$project$Model$QuickInputMode(chain),
+								statusMsg: statusMsg
+							}));
+				default:
+					break _v0$3;
+			}
+		}
+		return $author$project$Model$noCmd(model);
 	});
 var $author$project$GraphEditor$graph_RenameMode = F2(
 	function (s, m) {
-		var _v0 = m.activeObj;
-		switch (_v0.$) {
-			case 'ONode':
-				var id = _v0.a;
-				return A3(
-					$author$project$GraphExtra$updateNode,
-					id,
-					function (nl) {
-						return _Utils_update(
-							nl,
-							{label: s});
-					},
-					m.graph);
-			case 'OEdge':
-				var id = _v0.a;
-				return A3(
-					$author$project$GraphExtra$updateEdge,
-					id,
-					function (nl) {
-						return s;
-					},
-					m.graph);
-			default:
-				return m.graph;
-		}
+		return A3($author$project$Model$graphRenameObj, m.graph, m.activeObj, s);
 	});
 var $author$project$GraphEditor$finalise_RenameMode = F2(
 	function (label, model) {
 		var g = A2($author$project$GraphEditor$graph_RenameMode, label, model);
-		return $author$project$GraphEditor$switch_Default(
+		return $author$project$Model$switch_Default(
 			_Utils_update(
 				model,
-				{graph: g, mode: $author$project$GraphEditor$DefaultMode}));
+				{graph: g}));
 	});
 var $author$project$GraphEditor$update_RenameMode = F3(
 	function (label, msg, model) {
@@ -6947,7 +8479,7 @@ var $author$project$GraphEditor$update_RenameMode = F3(
 					if ((!msg.a) && (msg.b.$ === 'Control')) {
 						switch (msg.b.a) {
 							case 'Escape':
-								return $author$project$GraphEditor$switch_Default(model);
+								return $author$project$Model$switch_Default(model);
 							case 'Enter':
 								return A2($author$project$GraphEditor$finalise_RenameMode, label, model);
 							default:
@@ -6960,25 +8492,25 @@ var $author$project$GraphEditor$update_RenameMode = F3(
 					return A2($author$project$GraphEditor$finalise_RenameMode, label, model);
 				case 'NodeLabelEdit':
 					var s = msg.b;
-					return $author$project$GraphEditor$noCmd(
+					return $author$project$Model$noCmd(
 						_Utils_update(
 							model,
 							{
-								mode: $author$project$GraphEditor$RenameMode(s)
+								mode: $author$project$Model$RenameMode(s)
 							}));
 				case 'EdgeLabelEdit':
 					var s = msg.b;
-					return $author$project$GraphEditor$noCmd(
+					return $author$project$Model$noCmd(
 						_Utils_update(
 							model,
 							{
-								mode: $author$project$GraphEditor$RenameMode(s)
+								mode: $author$project$Model$RenameMode(s)
 							}));
 				default:
 					break _v0$5;
 			}
 		}
-		return $author$project$GraphEditor$noCmd(model);
+		return $author$project$Model$noCmd(model);
 	});
 var $author$project$GraphEditor$update = F2(
 	function (msg, model) {
@@ -6989,20 +8521,28 @@ var $author$project$GraphEditor$update = F2(
 					return _Utils_update(
 						model,
 						{
-							mousePos: $author$project$GraphEditor$flipY(p)
+							mousePos: $author$project$CollageExtra$flipY(p)
+						});
+				case 'QuickInput':
+					var s = msg.a;
+					return _Utils_update(
+						model,
+						{
+							mode: $author$project$Model$QuickInputMode($elm$core$Maybe$Nothing),
+							quickInput: s
 						});
 				case 'NodeEnter':
 					var n = msg.a;
 					return _Utils_update(
 						model,
 						{
-							mousePointOver: $author$project$GraphEditor$ONode(n)
+							mousePointOver: $author$project$Model$ONode(n)
 						});
 				case 'NodeLeave':
 					var n = msg.a;
 					return _Utils_update(
 						model,
-						{mousePointOver: $author$project$GraphEditor$ONothing});
+						{mousePointOver: $author$project$Model$ONothing});
 				default:
 					return model;
 			}
@@ -7013,16 +8553,19 @@ var $author$project$GraphEditor$update = F2(
 				return _Utils_Tuple2(m, cmd);
 			case 'Loaded':
 				var g = msg.a;
-				return $author$project$GraphEditor$noCmd(
-					$author$project$GraphEditor$createModel(g));
+				return $author$project$Model$noCmd(
+					$author$project$Model$createModel(g));
 			default:
 				var _v1 = model.mode;
 				switch (_v1.$) {
+					case 'QuickInputMode':
+						var c = _v1.a;
+						return A3($author$project$GraphEditor$update_QuickInput, c, msg, m);
 					case 'DefaultMode':
 						return A2($author$project$GraphEditor$update_DefaultMode, msg, m);
 					case 'NewArrow':
-						var state = _v1.a;
-						return A3($author$project$GraphEditor$update_NewArrow, state, msg, m);
+						var astate = _v1.a;
+						return A3($author$project$Modes$NewArrow$update, astate, msg, m);
 					case 'RenameMode':
 						var l = _v1.a;
 						return A3($author$project$GraphEditor$update_RenameMode, l, msg, m);
@@ -7030,24 +8573,19 @@ var $author$project$GraphEditor$update = F2(
 						return A2($author$project$GraphEditor$update_MoveNode, msg, m);
 					case 'DebugMode':
 						return A2($author$project$GraphEditor$update_DebugMode, msg, m);
-					default:
+					case 'NewNode':
 						return A2($author$project$GraphEditor$update_NewNode, msg, m);
+					default:
+						var state = _v1.a;
+						return A3($author$project$Modes$Square$update, state, msg, m);
 				}
 		}
 	});
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$div = _VirtualDom_node('div');
-var $author$project$GraphEditor$EdgeClick = function (a) {
+var $author$project$Msg$EdgeClick = function (a) {
 	return {$: 'EdgeClick', a: a};
 };
-var $author$project$GraphEditor$addP = F2(
-	function (_v0, _v1) {
-		var x1 = _v0.a;
-		var y1 = _v0.b;
-		var x2 = _v1.a;
-		var y2 = _v1.b;
-		return _Utils_Tuple2(x1 + x2, y1 + y2);
-	});
 var $timjs$elm_collage$Collage$Flat = {$: 'Flat'};
 var $timjs$elm_collage$Collage$Sharp = {$: 'Sharp'};
 var $avh4$elm_color$Color$RgbaSpace = F4(
@@ -7103,7 +8641,7 @@ var $timjs$elm_collage$Collage$filled = function (fill) {
 	return $timjs$elm_collage$Collage$styled(
 		_Utils_Tuple2(fill, $timjs$elm_collage$Collage$invisible));
 };
-var $author$project$GraphEditor$flip = function (_v0) {
+var $author$project$CollageExtra$flip = function (_v0) {
 	var x = _v0.a;
 	var y = _v0.b;
 	return _Utils_Tuple2(0 - x, 0 - y);
@@ -7112,7 +8650,7 @@ var $timjs$elm_collage$Collage$Core$Group = function (a) {
 	return {$: 'Group', a: a};
 };
 var $timjs$elm_collage$Collage$group = A2($elm$core$Basics$composeL, $timjs$elm_collage$Collage$Core$collage, $timjs$elm_collage$Collage$Core$Group);
-var $author$project$GraphEditor$minusP = F2(
+var $author$project$CollageExtra$minusP = F2(
 	function (_v0, _v1) {
 		var x1 = _v0.a;
 		var y1 = _v0.b;
@@ -7121,31 +8659,32 @@ var $author$project$GraphEditor$minusP = F2(
 		return _Utils_Tuple2(x1 - x2, y1 - y2);
 	});
 var $elm$core$Basics$sqrt = _Basics_sqrt;
-var $author$project$GraphEditor$radius = function (_v0) {
+var $author$project$CollageExtra$radius = function (_v0) {
 	var x = _v0.a;
 	var y = _v0.b;
 	return $elm$core$Basics$sqrt((x * x) + (y * y));
 };
-var $author$project$GraphEditor$normaliseP = F2(
+var $author$project$CollageExtra$normaliseP = F2(
 	function (len, _v0) {
 		var x = _v0.a;
 		var y = _v0.b;
-		var r = $author$project$GraphEditor$radius(
+		var r = $author$project$CollageExtra$radius(
 			_Utils_Tuple2(x, y));
 		return _Utils_Tuple2((len * x) / r, (len * y) / r);
 	});
-var $author$project$GraphEditor$orthogonalP = function (_v0) {
+var $author$project$CollageExtra$orthogonalP = function (_v0) {
 	var x = _v0.a;
 	var y = _v0.b;
 	return _Utils_Tuple2(0 - y, x);
 };
 var $elm$core$Basics$atan = _Basics_atan;
-var $author$project$GraphEditor$pointToAngle = function (_v0) {
+var $elm$core$Basics$pi = _Basics_pi;
+var $author$project$CollageExtra$pointToAngle = function (_v0) {
 	var x = _v0.a;
 	var y = _v0.b;
-	return 2 * $elm$core$Basics$atan(
-		y / (x + $author$project$GraphEditor$radius(
-			_Utils_Tuple2(x, y))));
+	return ((!y) && (x <= 0)) ? $elm$core$Basics$pi : (2 * $elm$core$Basics$atan(
+		y / (x + $author$project$CollageExtra$radius(
+			_Utils_Tuple2(x, y)))));
 };
 var $timjs$elm_collage$Collage$rotate = F2(
 	function (t, collage) {
@@ -7200,13 +8739,13 @@ var $timjs$elm_collage$Collage$triangle = function (b) {
 				_Utils_Tuple2(0, y)
 			]));
 };
-var $author$project$GraphEditor$arrow = F3(
+var $author$project$CollageExtra$arrow = F3(
 	function (c, from, to) {
 		var offset = 15;
-		var delta = A2($author$project$GraphEditor$minusP, to, from);
-		var offsetP = A2($author$project$GraphEditor$normaliseP, offset, delta);
-		var fromOffset = A2($author$project$GraphEditor$addP, from, offsetP);
-		var pos = A2($author$project$GraphEditor$minusP, to, offsetP);
+		var delta = A2($author$project$CollageExtra$minusP, to, from);
+		var offsetP = A2($author$project$CollageExtra$normaliseP, offset, delta);
+		var fromOffset = A2($author$project$CollageExtra$addP, from, offsetP);
+		var pos = A2($author$project$CollageExtra$minusP, to, offsetP);
 		return $timjs$elm_collage$Collage$group(
 			_List_fromArray(
 				[
@@ -7215,9 +8754,9 @@ var $author$project$GraphEditor$arrow = F3(
 					pos,
 					A2(
 						$timjs$elm_collage$Collage$rotate,
-						$author$project$GraphEditor$pointToAngle(
-							$author$project$GraphEditor$flip(
-								$author$project$GraphEditor$orthogonalP(delta))),
+						$author$project$CollageExtra$pointToAngle(
+							$author$project$CollageExtra$flip(
+								$author$project$CollageExtra$orthogonalP(delta))),
 						A2(
 							$timjs$elm_collage$Collage$filled,
 							$timjs$elm_collage$Collage$uniform(c),
@@ -7230,6 +8769,375 @@ var $author$project$GraphEditor$arrow = F3(
 						$timjs$elm_collage$Collage$uniform(c)),
 					A2($timjs$elm_collage$Collage$segment, fromOffset, pos))
 				]));
+	});
+var $elm$core$Basics$cos = _Basics_cos;
+var $elm$core$Basics$sin = _Basics_sin;
+var $timjs$elm_collage$Collage$Core$apply = function (_v0) {
+	var shift = _v0.shift;
+	var scale = _v0.scale;
+	var rotation = _v0.rotation;
+	var rotated = function (_v5) {
+		var x = _v5.a;
+		var y = _v5.b;
+		var s = $elm$core$Basics$sin(rotation);
+		var c = $elm$core$Basics$cos(rotation);
+		return _Utils_Tuple2((c * x) - (s * y), (s * x) + (c * y));
+	};
+	var _v1 = scale;
+	var sx = _v1.a;
+	var sy = _v1.b;
+	var scaled = function (_v4) {
+		var x = _v4.a;
+		var y = _v4.b;
+		return _Utils_Tuple2(sx * x, sy * y);
+	};
+	var _v2 = shift;
+	var dx = _v2.a;
+	var dy = _v2.b;
+	var shifted = function (_v3) {
+		var x = _v3.a;
+		var y = _v3.b;
+		return _Utils_Tuple2(x + dx, y + dy);
+	};
+	return A2(
+		$elm$core$Basics$composeL,
+		A2($elm$core$Basics$composeL, shifted, scaled),
+		rotated);
+};
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
+var $timjs$elm_collage$Collage$Layout$handlePoints = function (thickness) {
+	var thicken = function (_v0) {
+		var x = _v0.a;
+		var y = _v0.b;
+		var t = thickness / 2;
+		return _Utils_Tuple2(
+			(x < 0) ? (x - t) : (x + t),
+			(y < 0) ? (y - t) : (y + t));
+	};
+	return $elm$core$List$map(thicken);
+};
+var $timjs$elm_collage$Collage$Layout$handleBox = F2(
+	function (thickness, _v0) {
+		var w = _v0.a;
+		var h = _v0.b;
+		var y = h / 2;
+		var x = w / 2;
+		return A2(
+			$timjs$elm_collage$Collage$Layout$handlePoints,
+			thickness,
+			_List_fromArray(
+				[
+					_Utils_Tuple2(-x, -y),
+					_Utils_Tuple2(x, -y),
+					_Utils_Tuple2(x, y),
+					_Utils_Tuple2(-x, y)
+				]));
+	});
+var $elm$core$List$maximum = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(
+			A3($elm$core$List$foldl, $elm$core$Basics$max, x, xs));
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $elm$core$Basics$min = F2(
+	function (x, y) {
+		return (_Utils_cmp(x, y) < 0) ? x : y;
+	});
+var $elm$core$List$minimum = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(
+			A3($elm$core$List$foldl, $elm$core$Basics$min, x, xs));
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $timjs$elm_collage$Collage$Layout$unpack = function (_v0) {
+	var toTop = _v0.toTop;
+	var toBottom = _v0.toBottom;
+	var toRight = _v0.toRight;
+	var toLeft = _v0.toLeft;
+	return _List_fromArray(
+		[
+			_Utils_Tuple2(-toLeft, -toBottom),
+			_Utils_Tuple2(toRight, -toBottom),
+			_Utils_Tuple2(toRight, toTop),
+			_Utils_Tuple2(-toLeft, toTop)
+		]);
+};
+var $elm$core$List$unzip = function (pairs) {
+	var step = F2(
+		function (_v0, _v1) {
+			var x = _v0.a;
+			var y = _v0.b;
+			var xs = _v1.a;
+			var ys = _v1.b;
+			return _Utils_Tuple2(
+				A2($elm$core$List$cons, x, xs),
+				A2($elm$core$List$cons, y, ys));
+		});
+	return A3(
+		$elm$core$List$foldr,
+		step,
+		_Utils_Tuple2(_List_Nil, _List_Nil),
+		pairs);
+};
+var $timjs$elm_collage$Collage$Layout$distances = function (col) {
+	var points = $timjs$elm_collage$Collage$Layout$handleBasic(col.basic);
+	var _v8 = $elm$core$List$unzip(
+		A2(
+			$elm$core$List$map,
+			$timjs$elm_collage$Collage$Core$apply(col),
+			points));
+	var xs = _v8.a;
+	var ys = _v8.b;
+	return {
+		toBottom: -A2(
+			$elm$core$Maybe$withDefault,
+			0,
+			$elm$core$List$minimum(ys)),
+		toLeft: -A2(
+			$elm$core$Maybe$withDefault,
+			0,
+			$elm$core$List$minimum(xs)),
+		toRight: A2(
+			$elm$core$Maybe$withDefault,
+			0,
+			$elm$core$List$maximum(xs)),
+		toTop: A2(
+			$elm$core$Maybe$withDefault,
+			0,
+			$elm$core$List$maximum(ys))
+	};
+};
+var $timjs$elm_collage$Collage$Layout$handleBasic = function (basic) {
+	handleBasic:
+	while (true) {
+		switch (basic.$) {
+			case 'Shape':
+				switch (basic.b.$) {
+					case 'Circle':
+						var _v1 = basic.a;
+						var thickness = _v1.b.thickness;
+						var r = basic.b.a;
+						var d = 2 * r;
+						return A2(
+							$timjs$elm_collage$Collage$Layout$handleBox,
+							thickness,
+							_Utils_Tuple2(d, d));
+					case 'Ellipse':
+						var _v2 = basic.a;
+						var thickness = _v2.b.thickness;
+						var _v3 = basic.b;
+						var rx = _v3.a;
+						var ry = _v3.b;
+						return A2(
+							$timjs$elm_collage$Collage$Layout$handleBox,
+							thickness,
+							_Utils_Tuple2(2 * rx, 2 * ry));
+					case 'Rectangle':
+						var _v4 = basic.a;
+						var thickness = _v4.b.thickness;
+						var _v5 = basic.b;
+						var w = _v5.a;
+						var h = _v5.b;
+						return A2(
+							$timjs$elm_collage$Collage$Layout$handleBox,
+							thickness,
+							_Utils_Tuple2(w, h));
+					case 'Polygon':
+						var _v6 = basic.a;
+						var thickness = _v6.b.thickness;
+						var ps = basic.b.a;
+						return A2($timjs$elm_collage$Collage$Layout$handlePoints, thickness, ps);
+					default:
+						var _v7 = basic.a;
+						var line = _v7.b;
+						var path = basic.b.a;
+						var $temp$basic = A2($timjs$elm_collage$Collage$Core$Path, line, path);
+						basic = $temp$basic;
+						continue handleBasic;
+				}
+			case 'Path':
+				var thickness = basic.a.thickness;
+				var cap = basic.a.cap;
+				var ps = basic.b.a;
+				return A2(
+					$timjs$elm_collage$Collage$Layout$handlePoints,
+					_Utils_eq(cap, $timjs$elm_collage$Collage$Flat) ? 0 : thickness,
+					ps);
+			case 'Text':
+				var dims = basic.a;
+				return A2($timjs$elm_collage$Collage$Layout$handleBox, 0, dims);
+			case 'Image':
+				var dims = basic.a;
+				return A2($timjs$elm_collage$Collage$Layout$handleBox, 0, dims);
+			case 'Html':
+				var dims = basic.a;
+				return A2($timjs$elm_collage$Collage$Layout$handleBox, 0, dims);
+			case 'Group':
+				var cols = basic.a;
+				return A2(
+					$timjs$elm_collage$Collage$Layout$handlePoints,
+					0,
+					$elm$core$List$concat(
+						A2(
+							$elm$core$List$map,
+							A2($elm$core$Basics$composeR, $timjs$elm_collage$Collage$Layout$distances, $timjs$elm_collage$Collage$Layout$unpack),
+							cols)));
+			default:
+				var back = basic.b;
+				return A2(
+					$timjs$elm_collage$Collage$Layout$handlePoints,
+					0,
+					$timjs$elm_collage$Collage$Layout$unpack(
+						$timjs$elm_collage$Collage$Layout$distances(back)));
+		}
+	}
+};
+var $timjs$elm_collage$Collage$Layout$base = function (col) {
+	var _v0 = $timjs$elm_collage$Collage$Layout$distances(col);
+	var toTop = _v0.toTop;
+	var toBottom = _v0.toBottom;
+	var toLeft = _v0.toLeft;
+	var toRight = _v0.toRight;
+	var tx = (toRight - toLeft) / 2;
+	var ty = (toTop - toBottom) / 2;
+	return _Utils_Tuple2(tx, ty);
+};
+var $timjs$elm_collage$Collage$Layout$bottomLeft = function (col) {
+	var _v0 = $timjs$elm_collage$Collage$Layout$distances(col);
+	var toLeft = _v0.toLeft;
+	var toBottom = _v0.toBottom;
+	return _Utils_Tuple2(-toLeft, -toBottom);
+};
+var $timjs$elm_collage$Collage$Layout$topRight = function (col) {
+	var _v0 = $timjs$elm_collage$Collage$Layout$distances(col);
+	var toRight = _v0.toRight;
+	var toTop = _v0.toTop;
+	return _Utils_Tuple2(toRight, toTop);
+};
+var $author$project$CollageExtra$collageToRect = function (c) {
+	return _Utils_Tuple2(
+		$timjs$elm_collage$Collage$Layout$bottomLeft(c),
+		$timjs$elm_collage$Collage$Layout$topRight(c));
+};
+var $elm$core$List$map3 = _List_map3;
+var $author$project$CollageExtra$distance = F3(
+	function (ro, rd, _v0) {
+		var aa = _v0.a;
+		var bb = _v0.b;
+		var f = F3(
+			function (x, roi, rdi) {
+				return (x - roi) / rdi;
+			});
+		var dimLo = A4($elm$core$List$map3, f, aa, ro, rd);
+		var dimHi = A4($elm$core$List$map3, f, bb, ro, rd);
+		var dimLo2 = A3($elm$core$List$map2, $elm$core$Basics$min, dimLo, dimHi);
+		var dimHi2 = A3($elm$core$List$map2, $elm$core$Basics$max, dimLo, dimHi);
+		var _v1 = _Utils_Tuple2(
+			$elm$core$List$maximum(dimLo2),
+			$elm$core$List$minimum(dimHi2));
+		if ((_v1.a.$ === 'Just') && (_v1.b.$ === 'Just')) {
+			var maxLo = _v1.a.a;
+			var minHi = _v1.b.a;
+			return (_Utils_cmp(minHi, maxLo) < 0) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(maxLo);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$CollageExtra$intersection = F3(
+	function (ro, rd, aabb) {
+		return A2(
+			$elm$core$Maybe$andThen,
+			function (d) {
+				return $elm$core$Maybe$Just(
+					A3(
+						$elm$core$List$map2,
+						F2(
+							function (roi, rdi) {
+								return roi + (rdi * d);
+							}),
+						ro,
+						rd));
+			},
+			A3($author$project$CollageExtra$distance, ro, rd, aabb));
+	});
+var $author$project$CollageExtra$pointToList = function (_v0) {
+	var px = _v0.a;
+	var py = _v0.b;
+	return _List_fromArray(
+		[px, py]);
+};
+var $author$project$CollageExtra$rayTraceP_rect = F3(
+	function (p1, p2, _v0) {
+		var r1 = _v0.a;
+		var r2 = _v0.b;
+		var v = A2(
+			$author$project$CollageExtra$normaliseP,
+			1,
+			A2($author$project$CollageExtra$minusP, p2, p1));
+		var l = $author$project$CollageExtra$pointToList;
+		var _v1 = A3(
+			$author$project$CollageExtra$intersection,
+			l(p1),
+			l(v),
+			_Utils_Tuple2(
+				l(r1),
+				l(r2)));
+		if ((((_v1.$ === 'Just') && _v1.a.b) && _v1.a.b.b) && (!_v1.a.b.b.b)) {
+			var _v2 = _v1.a;
+			var ix = _v2.a;
+			var _v3 = _v2.b;
+			var iy = _v3.a;
+			return $elm$core$Maybe$Just(
+				_Utils_Tuple2(ix, iy));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$CollageExtra$arrowCollage = F3(
+	function (c, from, to) {
+		var pto = $timjs$elm_collage$Collage$Layout$base(to);
+		var pfrom = $timjs$elm_collage$Collage$Layout$base(from);
+		var _v0 = function () {
+			var _v1 = _Utils_Tuple2(
+				A3(
+					$author$project$CollageExtra$rayTraceP_rect,
+					pfrom,
+					pto,
+					$author$project$CollageExtra$collageToRect(to)),
+				A3(
+					$author$project$CollageExtra$rayTraceP_rect,
+					pto,
+					pfrom,
+					$author$project$CollageExtra$collageToRect(from)));
+			if ((_v1.a.$ === 'Just') && (_v1.b.$ === 'Just')) {
+				var e = _v1.a.a;
+				var s = _v1.b.a;
+				return _Utils_Tuple2(e, s);
+			} else {
+				return _Utils_Tuple2(pto, pfrom);
+			}
+		}();
+		var end = _v0.a;
+		var start = _v0.b;
+		return A3($author$project$CollageExtra$arrow, c, start, end);
 	});
 var $timjs$elm_collage$Collage$Events$on = F3(
 	function (event, decoder, collage) {
@@ -7250,7 +9158,7 @@ var $timjs$elm_collage$Collage$Events$simpleOn = function (event) {
 };
 var $timjs$elm_collage$Collage$Events$onClick = $timjs$elm_collage$Collage$Events$simpleOn('click');
 var $avh4$elm_color$Color$red = A4($avh4$elm_color$Color$RgbaSpace, 204 / 255, 0 / 255, 0 / 255, 1.0);
-var $author$project$GraphEditor$EdgeLabelEdit = F2(
+var $author$project$Msg$EdgeLabelEdit = F2(
 	function (a, b) {
 		return {$: 'EdgeLabelEdit', a: a, b: b};
 	});
@@ -7318,7 +9226,7 @@ var $elm$html$Html$Events$onInput = function (tagger) {
 			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
 };
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
-var $author$project$GraphEditor$make_input = F2(
+var $author$project$GraphCollage$make_input = F2(
 	function (label, onChange) {
 		return A2(
 			$timjs$elm_collage$Collage$html,
@@ -7329,11 +9237,11 @@ var $author$project$GraphEditor$make_input = F2(
 					[
 						$elm$html$Html$Attributes$value(label),
 						$elm$html$Html$Events$onInput(onChange),
-						$elm$html$Html$Attributes$id($author$project$GraphEditor$curIdInput)
+						$elm$html$Html$Attributes$id($author$project$GraphCollage$curIdInput)
 					]),
 				_List_Nil));
 	});
-var $author$project$GraphEditor$middleP = F2(
+var $author$project$CollageExtra$middleP = F2(
 	function (_v0, _v1) {
 		var x1 = _v0.a;
 		var y1 = _v0.b;
@@ -7363,31 +9271,31 @@ var $timjs$elm_collage$Collage$rendered = function (text) {
 				$timjs$elm_collage$Collage$Text$height(text)),
 			text));
 };
-var $author$project$GraphEditor$segmentLabel = function (_v0) {
+var $author$project$GraphCollage$segmentLabel = function (_v0) {
 	var from = _v0.from;
 	var to = _v0.to;
 	var label = _v0.label;
-	var toP = to.label.pos;
-	var fromP = from.label.pos;
-	var middle = A2($author$project$GraphEditor$middleP, fromP, toP);
+	var toP = $timjs$elm_collage$Collage$Layout$base(to.label);
+	var fromP = $timjs$elm_collage$Collage$Layout$base(from.label);
+	var middle = A2($author$project$CollageExtra$middleP, fromP, toP);
 	var edgeId = _Utils_Tuple2(from.id, to.id);
-	var delta = A2($author$project$GraphEditor$minusP, toP, fromP);
+	var delta = A2($author$project$CollageExtra$minusP, toP, fromP);
 	var coef = 10;
 	var orth = A2(
-		$author$project$GraphEditor$normaliseP,
+		$author$project$CollageExtra$normaliseP,
 		coef,
-		$author$project$GraphEditor$orthogonalP(delta));
-	var labelpos = A2($author$project$GraphEditor$addP, middle, orth);
+		$author$project$CollageExtra$orthogonalP(delta));
+	var labelpos = A2($author$project$CollageExtra$addP, middle, orth);
 	return A2(
 		$timjs$elm_collage$Collage$shift,
 		labelpos,
 		label.editable ? A2(
-			$author$project$GraphEditor$make_input,
+			$author$project$GraphCollage$make_input,
 			label.label,
-			$author$project$GraphEditor$EdgeLabelEdit(edgeId)) : $timjs$elm_collage$Collage$rendered(
+			$author$project$Msg$EdgeLabelEdit(edgeId)) : $timjs$elm_collage$Collage$rendered(
 			$timjs$elm_collage$Collage$Text$fromString(label.label)));
 };
-var $author$project$GraphEditor$edgeCollage = function (e) {
+var $author$project$GraphCollage$edgeCollage = function (e) {
 	var from = e.from;
 	var to = e.to;
 	var label = e.label;
@@ -7395,12 +9303,12 @@ var $author$project$GraphEditor$edgeCollage = function (e) {
 	var edgeId = _Utils_Tuple2(from.id, to.id);
 	return A2(
 		$timjs$elm_collage$Collage$Events$onClick,
-		$author$project$GraphEditor$EdgeClick(edgeId),
+		$author$project$Msg$EdgeClick(edgeId),
 		$timjs$elm_collage$Collage$group(
 			_List_fromArray(
 				[
-					A3($author$project$GraphEditor$arrow, c, from.label.pos, to.label.pos),
-					$author$project$GraphEditor$segmentLabel(e)
+					A3($author$project$CollageExtra$arrowCollage, c, from.label, to.label),
+					$author$project$GraphCollage$segmentLabel(e)
 				])));
 };
 var $author$project$GraphExtra$edgeToEdgeWithNodes = F2(
@@ -7452,164 +9360,6 @@ var $author$project$GraphExtra$edgesWithNodes = function (g) {
 		$author$project$GraphExtra$edgeToEdgeWithNodes(g),
 		$elm_community$graph$Graph$edges(g));
 };
-var $author$project$GraphEditor$NodeClick = function (a) {
-	return {$: 'NodeClick', a: a};
-};
-var $author$project$GraphEditor$NodeEnter = function (a) {
-	return {$: 'NodeEnter', a: a};
-};
-var $author$project$GraphEditor$NodeLeave = function (a) {
-	return {$: 'NodeLeave', a: a};
-};
-var $author$project$GraphEditor$NodeLabelEdit = F2(
-	function (a, b) {
-		return {$: 'NodeLabelEdit', a: a, b: b};
-	});
-var $timjs$elm_collage$Collage$Core$Circle = function (a) {
-	return {$: 'Circle', a: a};
-};
-var $timjs$elm_collage$Collage$circle = $timjs$elm_collage$Collage$Core$Circle;
-var $timjs$elm_collage$Collage$Text$color = F2(
-	function (newcolor, _v0) {
-		var sty = _v0.a;
-		var str = _v0.b;
-		return A2(
-			$timjs$elm_collage$Collage$Core$Chunk,
-			_Utils_update(
-				sty,
-				{color: newcolor}),
-			str);
-	});
-var $author$project$GraphEditor$nodeLabelCollage = function (node) {
-	var n = node.label;
-	var id = node.id;
-	var color = n.isActive ? $avh4$elm_color$Color$red : $avh4$elm_color$Color$black;
-	return A2(
-		$timjs$elm_collage$Collage$shift,
-		n.pos,
-		n.editable ? A2(
-			$author$project$GraphEditor$make_input,
-			n.label,
-			$author$project$GraphEditor$NodeLabelEdit(id)) : ((n.label === '') ? A2(
-			$timjs$elm_collage$Collage$filled,
-			$timjs$elm_collage$Collage$uniform(color),
-			$timjs$elm_collage$Collage$circle(5)) : $timjs$elm_collage$Collage$rendered(
-			A2(
-				$timjs$elm_collage$Collage$Text$color,
-				color,
-				$timjs$elm_collage$Collage$Text$fromString(n.label)))));
-};
-var $timjs$elm_collage$Collage$Events$mouseOn = F2(
-	function (event, msg) {
-		return A2(
-			$timjs$elm_collage$Collage$Events$on,
-			event,
-			A2(
-				$elm$json$Json$Decode$map,
-				msg,
-				A3(
-					$elm$json$Json$Decode$map2,
-					F2(
-						function (x, y) {
-							return _Utils_Tuple2(x, y);
-						}),
-					A2($elm$json$Json$Decode$field, 'clientX', $elm$json$Json$Decode$float),
-					A2($elm$json$Json$Decode$field, 'clientY', $elm$json$Json$Decode$float))));
-	});
-var $timjs$elm_collage$Collage$Events$onMouseEnter = $timjs$elm_collage$Collage$Events$mouseOn('mouseenter');
-var $timjs$elm_collage$Collage$Events$onMouseLeave = $timjs$elm_collage$Collage$Events$mouseOn('mouseleave');
-var $author$project$GraphEditor$nodeCollage = function (n) {
-	return A2(
-		$timjs$elm_collage$Collage$Events$onMouseLeave,
-		function (_v1) {
-			return $author$project$GraphEditor$NodeLeave(n.id);
-		},
-		A2(
-			$timjs$elm_collage$Collage$Events$onMouseEnter,
-			function (_v0) {
-				return $author$project$GraphEditor$NodeEnter(n.id);
-			},
-			A2(
-				$timjs$elm_collage$Collage$Events$onClick,
-				$author$project$GraphEditor$NodeClick(n.id),
-				$author$project$GraphEditor$nodeLabelCollage(n))));
-};
-var $elm_community$intdict$IntDict$foldr = F3(
-	function (f, acc, dict) {
-		foldr:
-		while (true) {
-			switch (dict.$) {
-				case 'Empty':
-					return acc;
-				case 'Leaf':
-					var l = dict.a;
-					return A3(f, l.key, l.value, acc);
-				default:
-					var i = dict.a;
-					var $temp$f = f,
-						$temp$acc = A3($elm_community$intdict$IntDict$foldr, f, acc, i.right),
-						$temp$dict = i.left;
-					f = $temp$f;
-					acc = $temp$acc;
-					dict = $temp$dict;
-					continue foldr;
-			}
-		}
-	});
-var $elm_community$intdict$IntDict$values = function (dict) {
-	return A3(
-		$elm_community$intdict$IntDict$foldr,
-		F3(
-			function (key, value, valueList) {
-				return A2($elm$core$List$cons, value, valueList);
-			}),
-		_List_Nil,
-		dict);
-};
-var $elm_community$graph$Graph$nodes = A2(
-	$elm$core$Basics$composeR,
-	$elm_community$graph$Graph$unGraph,
-	A2(
-		$elm$core$Basics$composeR,
-		$elm_community$intdict$IntDict$values,
-		$elm$core$List$map(
-			function ($) {
-				return $.node;
-			})));
-var $author$project$GraphEditor$graphCollage = function (g) {
-	var nodes = $elm_community$graph$Graph$nodes(g);
-	var edges = $author$project$GraphExtra$edgesWithNodes(g);
-	return $timjs$elm_collage$Collage$group(
-		_Utils_ap(
-			A2($elm$core$List$map, $author$project$GraphEditor$nodeCollage, nodes),
-			A2($elm$core$List$map, $author$project$GraphEditor$edgeCollage, edges)));
-};
-var $author$project$GraphEditor$make_nodeCollageLabel = F2(
-	function (_v0, _v1) {
-		var editable = _v0.editable;
-		var isActive = _v0.isActive;
-		var label = _v1.label;
-		var pos = _v1.pos;
-		return {editable: editable, isActive: isActive, label: label, pos: pos};
-	});
-var $author$project$GraphEditor$make_defaultNodeCollageLabel = F2(
-	function (m, n) {
-		return A2(
-			$author$project$GraphEditor$make_nodeCollageLabel,
-			{
-				editable: false,
-				isActive: _Utils_eq(
-					n.id,
-					$author$project$GraphEditor$activeNode(m))
-			},
-			n.label);
-	});
-var $author$project$GraphEditor$make_edgeCollageLabel = F2(
-	function (_v0, label) {
-		var editable = _v0.editable;
-		var isActive = _v0.isActive;
-		return {editable: editable, isActive: isActive, label: label};
-	});
 var $elm_community$intdict$IntDict$map = F2(
 	function (f, dict) {
 		switch (dict.$) {
@@ -7703,7 +9453,135 @@ var $author$project$GraphExtra$mapNodeEdges = F3(
 			},
 			g);
 	});
-var $author$project$GraphEditor$obj_EdgeId = function (x) {
+var $author$project$Msg$NodeClick = function (a) {
+	return {$: 'NodeClick', a: a};
+};
+var $author$project$Msg$NodeEnter = function (a) {
+	return {$: 'NodeEnter', a: a};
+};
+var $author$project$Msg$NodeLeave = function (a) {
+	return {$: 'NodeLeave', a: a};
+};
+var $author$project$Msg$NodeLabelEdit = F2(
+	function (a, b) {
+		return {$: 'NodeLabelEdit', a: a, b: b};
+	});
+var $timjs$elm_collage$Collage$Core$Circle = function (a) {
+	return {$: 'Circle', a: a};
+};
+var $timjs$elm_collage$Collage$circle = $timjs$elm_collage$Collage$Core$Circle;
+var $timjs$elm_collage$Collage$Text$color = F2(
+	function (newcolor, _v0) {
+		var sty = _v0.a;
+		var str = _v0.b;
+		return A2(
+			$timjs$elm_collage$Collage$Core$Chunk,
+			_Utils_update(
+				sty,
+				{color: newcolor}),
+			str);
+	});
+var $author$project$GraphCollage$nodeLabelCollage = function (node) {
+	var n = node.label;
+	var id = node.id;
+	var color = n.isActive ? $avh4$elm_color$Color$red : $avh4$elm_color$Color$black;
+	return A2(
+		$timjs$elm_collage$Collage$shift,
+		n.pos,
+		n.editable ? A2(
+			$author$project$GraphCollage$make_input,
+			n.label,
+			$author$project$Msg$NodeLabelEdit(id)) : ((n.label === '') ? A2(
+			$timjs$elm_collage$Collage$filled,
+			$timjs$elm_collage$Collage$uniform(color),
+			$timjs$elm_collage$Collage$circle(5)) : $timjs$elm_collage$Collage$rendered(
+			A2(
+				$timjs$elm_collage$Collage$Text$color,
+				color,
+				$timjs$elm_collage$Collage$Text$fromString(n.label)))));
+};
+var $timjs$elm_collage$Collage$Events$mouseOn = F2(
+	function (event, msg) {
+		return A2(
+			$timjs$elm_collage$Collage$Events$on,
+			event,
+			A2(
+				$elm$json$Json$Decode$map,
+				msg,
+				A3(
+					$elm$json$Json$Decode$map2,
+					F2(
+						function (x, y) {
+							return _Utils_Tuple2(x, y);
+						}),
+					A2($elm$json$Json$Decode$field, 'clientX', $elm$json$Json$Decode$float),
+					A2($elm$json$Json$Decode$field, 'clientY', $elm$json$Json$Decode$float))));
+	});
+var $timjs$elm_collage$Collage$Events$onMouseEnter = $timjs$elm_collage$Collage$Events$mouseOn('mouseenter');
+var $timjs$elm_collage$Collage$Events$onMouseLeave = $timjs$elm_collage$Collage$Events$mouseOn('mouseleave');
+var $author$project$GraphCollage$nodeCollage = function (n) {
+	return A2(
+		$timjs$elm_collage$Collage$Events$onMouseLeave,
+		function (_v1) {
+			return $author$project$Msg$NodeLeave(n.id);
+		},
+		A2(
+			$timjs$elm_collage$Collage$Events$onMouseEnter,
+			function (_v0) {
+				return $author$project$Msg$NodeEnter(n.id);
+			},
+			A2(
+				$timjs$elm_collage$Collage$Events$onClick,
+				$author$project$Msg$NodeClick(n.id),
+				$author$project$GraphCollage$nodeLabelCollage(n))));
+};
+var $author$project$GraphCollage$graphCollage = function (g0) {
+	var g = A3(
+		$author$project$GraphExtra$mapNodeEdges,
+		$author$project$GraphCollage$nodeCollage,
+		function ($) {
+			return $.label;
+		},
+		g0);
+	var nodes = $elm_community$graph$Graph$nodes(g);
+	var edges = $author$project$GraphExtra$edgesWithNodes(g);
+	return $timjs$elm_collage$Collage$group(
+		_Utils_ap(
+			A2(
+				$elm$core$List$map,
+				function ($) {
+					return $.label;
+				},
+				nodes),
+			A2($elm$core$List$map, $author$project$GraphCollage$edgeCollage, edges)));
+};
+var $author$project$GraphCollage$make_nodeCollageLabel = F2(
+	function (_v0, _v1) {
+		var editable = _v0.editable;
+		var isActive = _v0.isActive;
+		var label = _v1.label;
+		var pos = _v1.pos;
+		return {editable: editable, isActive: isActive, label: label, pos: pos};
+	});
+var $author$project$Model$make_defaultNodeCollageLabel = F2(
+	function (model, n) {
+		return A2(
+			$author$project$GraphCollage$make_nodeCollageLabel,
+			{
+				editable: false,
+				isActive: _Utils_eq(
+					n.id,
+					$author$project$Model$activeNode(model))
+			},
+			n.label);
+	});
+var $author$project$GraphCollage$make_edgeCollageLabel = F2(
+	function (_v0, label) {
+		var editable = _v0.editable;
+		var isActive = _v0.isActive;
+		return {editable: editable, isActive: isActive, label: label};
+	});
+var $author$project$Model$obj_EdgeId = function (x) {
 	if (x.$ === 'OEdge') {
 		var id = x.a;
 		return id;
@@ -7711,67 +9589,180 @@ var $author$project$GraphEditor$obj_EdgeId = function (x) {
 		return _Utils_Tuple2(0, 0);
 	}
 };
-var $author$project$GraphEditor$collageGraphFromGraph = function (m) {
+var $author$project$Model$collageGraphFromGraph = function (model) {
 	return A2(
 		$author$project$GraphExtra$mapNodeEdges,
-		$author$project$GraphEditor$make_defaultNodeCollageLabel(m),
+		$author$project$Model$make_defaultNodeCollageLabel(model),
 		function (e) {
 			return A2(
-				$author$project$GraphEditor$make_edgeCollageLabel,
+				$author$project$GraphCollage$make_edgeCollageLabel,
 				{
 					editable: false,
 					isActive: _Utils_eq(
 						_Utils_Tuple2(e.from, e.to),
-						$author$project$GraphEditor$obj_EdgeId(m.activeObj))
+						$author$project$Model$obj_EdgeId(model.activeObj))
 				},
 				e.label);
 		});
 };
+var $author$project$Model$graphMakeEditable = F2(
+	function (o, g) {
+		switch (o.$) {
+			case 'ONode':
+				var id = o.a;
+				return A3(
+					$author$project$GraphExtra$updateNode,
+					id,
+					function (e) {
+						return _Utils_update(
+							e,
+							{editable: true});
+					},
+					g);
+			case 'OEdge':
+				var id = o.a;
+				return A3(
+					$author$project$GraphExtra$updateEdge,
+					id,
+					function (e) {
+						return _Utils_update(
+							e,
+							{editable: true});
+					},
+					g);
+			default:
+				return g;
+		}
+	});
+var $author$project$Modes$NewArrow$makeGraph = F2(
+	function (m, s) {
+		var _v0 = s.step;
+		switch (_v0.$) {
+			case 'NewArrowMoveNode':
+				return A2($author$project$Modes$NewArrow$moveNodeInfo, m, s).graph;
+			case 'NewArrowEditNode':
+				return m.graph;
+			default:
+				return m.graph;
+		}
+	});
+var $author$project$Modes$NewArrow$graphCollage = F2(
+	function (m, astate) {
+		var g = A2($author$project$Modes$NewArrow$makeGraph, m, astate);
+		return A2(
+			$author$project$Model$graphMakeEditable,
+			$author$project$Modes$NewArrow$renamableFromState(astate),
+			A2($author$project$Model$collageGraphFromGraph, m, g));
+	});
+var $author$project$Model$graphMakeActive = F2(
+	function (o, g) {
+		switch (o.$) {
+			case 'ONode':
+				var id = o.a;
+				return A3(
+					$author$project$GraphExtra$updateNode,
+					id,
+					function (e) {
+						return _Utils_update(
+							e,
+							{isActive: true});
+					},
+					g);
+			case 'OEdge':
+				var id = o.a;
+				return A3(
+					$author$project$GraphExtra$updateEdge,
+					id,
+					function (e) {
+						return _Utils_update(
+							e,
+							{isActive: true});
+					},
+					g);
+			default:
+				return g;
+		}
+	});
+var $author$project$Modes$Square$squareMode_activeObj = function (info) {
+	return _List_fromArray(
+		[
+			$author$project$Model$OEdge(info.e1),
+			$author$project$Model$OEdge(info.e2),
+			$author$project$Model$OEdge(info.ne1),
+			$author$project$Model$OEdge(info.ne2)
+		]);
+};
+var $author$project$Modes$Square$graphCollageFromInfo = F3(
+	function (info, step, g) {
+		var g2 = A2(
+			$author$project$Model$graphMakeEditable,
+			A2($author$project$Modes$Square$renamable, step, info),
+			g);
+		return A3(
+			$elm$core$List$foldl,
+			$author$project$Model$graphMakeActive,
+			g2,
+			$author$project$Modes$Square$squareMode_activeObj(info));
+	});
+var $author$project$Modes$Square$stateInfo = F2(
+	function (m, s) {
+		var defaultView = function (movedNode) {
+			return {
+				edges: A2($author$project$Modes$Square$makeEdges, s.data, movedNode),
+				graph: m.graph
+			};
+		};
+		var _v0 = s.step;
+		switch (_v0.$) {
+			case 'SquareMoveNode':
+				var _v1 = A2($author$project$Modes$Square$moveNodeViewInfo, m, s.data);
+				var info = _v1.a;
+				return info;
+			case 'SquareEditNode':
+				var movedNode = _v0.a;
+				return defaultView(movedNode);
+			case 'SquareEditEdge1':
+				var movedNode = _v0.a;
+				return defaultView(movedNode);
+			default:
+				var movedNode = _v0.a;
+				return defaultView(movedNode);
+		}
+	});
+var $author$project$Modes$Square$graphCollage = F2(
+	function (m, state) {
+		var info = A2($author$project$Modes$Square$stateInfo, m, state);
+		return A3(
+			$author$project$Modes$Square$graphCollageFromInfo,
+			info.edges,
+			state.step,
+			A2($author$project$Model$collageGraphFromGraph, m, info.graph));
+	});
 var $author$project$GraphEditor$graphCollageFromModel = function (m) {
 	var _v0 = m.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return A2($author$project$GraphEditor$collageGraphFromGraph, m, m.graph);
+			return A2($author$project$Model$collageGraphFromGraph, m, m.graph);
 		case 'NewNode':
-			return A2($author$project$GraphEditor$collageGraphFromGraph, m, m.graph);
+			return A2($author$project$Model$collageGraphFromGraph, m, m.graph);
+		case 'QuickInputMode':
+			var ch = _v0.a;
+			return A2(
+				$author$project$Model$collageGraphFromGraph,
+				m,
+				A2($author$project$GraphEditor$graphCollageChain, m.graph, ch));
 		case 'MoveNode':
 			return A2(
-				$author$project$GraphEditor$collageGraphFromGraph,
+				$author$project$Model$collageGraphFromGraph,
 				m,
 				$author$project$GraphEditor$graph_MoveNode(m));
 		case 'RenameMode':
 			var l = _v0.a;
 			var g = A2($author$project$GraphEditor$graph_RenameMode, l, m);
-			return function () {
-				var _v1 = m.activeObj;
-				switch (_v1.$) {
-					case 'ONode':
-						var id = _v1.a;
-						return A2(
-							$author$project$GraphExtra$updateNode,
-							id,
-							function (e) {
-								return _Utils_update(
-									e,
-									{editable: true});
-							});
-					case 'OEdge':
-						var id = _v1.a;
-						return A2(
-							$author$project$GraphExtra$updateEdge,
-							id,
-							function (e) {
-								return _Utils_update(
-									e,
-									{editable: true});
-							});
-					default:
-						return function (x) {
-							return x;
-						};
-				}
-			}()(
-				A2($author$project$GraphEditor$collageGraphFromGraph, m, g));
+			return A2(
+				$author$project$Model$graphMakeEditable,
+				m.activeObj,
+				A2($author$project$Model$collageGraphFromGraph, m, g));
 		case 'DebugMode':
 			return A3(
 				$author$project$GraphExtra$mapNodeEdges,
@@ -7786,40 +9777,13 @@ var $author$project$GraphEditor$graphCollageFromModel = function (m) {
 				function ($) {
 					return $.label;
 				},
-				A2($author$project$GraphEditor$collageGraphFromGraph, m, m.graph));
+				A2($author$project$Model$collageGraphFromGraph, m, m.graph));
+		case 'NewArrow':
+			var astate = _v0.a;
+			return A2($author$project$Modes$NewArrow$graphCollage, m, astate);
 		default:
 			var state = _v0.a;
-			var _v2 = A2($author$project$GraphEditor$graph_NewArrow, state, m);
-			var g = _v2.a;
-			var newId = _v2.b;
-			var cg = A2($author$project$GraphEditor$collageGraphFromGraph, m, g);
-			var _v3 = state.step;
-			switch (_v3.$) {
-				case 'EditEdge':
-					return A3(
-						$author$project$GraphExtra$updateEdge,
-						_Utils_Tuple2(
-							$author$project$GraphEditor$activeNode(m),
-							newId),
-						function (e) {
-							return _Utils_update(
-								e,
-								{editable: true});
-						},
-						cg);
-				case 'EditNode':
-					return $author$project$GraphEditor$newArrowIsNewNode(m) ? A3(
-						$author$project$GraphExtra$updateNode,
-						newId,
-						function (l) {
-							return _Utils_update(
-								l,
-								{editable: true});
-						},
-						cg) : cg;
-				default:
-					return cg;
-			}
+			return A2($author$project$Modes$Square$graphCollage, m, state);
 	}
 };
 var $elm$html$Html$Attributes$height = function (n) {
@@ -7828,60 +9792,150 @@ var $elm$html$Html$Attributes$height = function (n) {
 		'height',
 		$elm$core$String$fromInt(n));
 };
+var $author$project$GraphEditor$Plain = {$: 'Plain'};
+var $author$project$GraphEditor$Bold = {$: 'Bold'};
+var $author$project$GraphEditor$helpMsgParser_aux = function () {
+	var correctChar = function (c) {
+		return (!_Utils_eq(
+			c,
+			_Utils_chr('['))) && (!_Utils_eq(
+			c,
+			_Utils_chr(']')));
+	};
+	var varParser = $elm$parser$Parser$variable(
+		{inner: correctChar, reserved: $elm$core$Set$empty, start: correctChar});
+	return $elm$parser$Parser$oneOf(
+		_List_fromArray(
+			[
+				A2(
+				$elm$parser$Parser$keeper,
+				A2(
+					$elm$parser$Parser$ignorer,
+					$elm$parser$Parser$succeed(
+						function (s) {
+							return _Utils_Tuple2(s, $author$project$GraphEditor$Bold);
+						}),
+					$elm$parser$Parser$symbol('[')),
+				A2(
+					$elm$parser$Parser$ignorer,
+					varParser,
+					$elm$parser$Parser$symbol(']'))),
+				A2(
+				$elm$parser$Parser$keeper,
+				$elm$parser$Parser$succeed(
+					function (s) {
+						return _Utils_Tuple2(s, $author$project$GraphEditor$Plain);
+					}),
+				varParser)
+			]));
+}();
+function $author$project$GraphEditor$cyclic$helpMsgParser() {
+	return A2(
+		$elm$parser$Parser$keeper,
+		$elm$parser$Parser$succeed($elm$core$Basics$identity),
+		$elm$parser$Parser$oneOf(
+			_List_fromArray(
+				[
+					A2(
+					$elm$parser$Parser$ignorer,
+					$elm$parser$Parser$succeed(_List_Nil),
+					$elm$parser$Parser$end),
+					A2(
+					$elm$parser$Parser$keeper,
+					A2(
+						$elm$parser$Parser$keeper,
+						$elm$parser$Parser$succeed($elm$core$List$cons),
+						$author$project$GraphEditor$helpMsgParser_aux),
+					$elm$parser$Parser$lazy(
+						function (_v0) {
+							return $author$project$GraphEditor$cyclic$helpMsgParser();
+						}))
+				])));
+}
+try {
+	var $author$project$GraphEditor$helpMsgParser = $author$project$GraphEditor$cyclic$helpMsgParser();
+	$author$project$GraphEditor$cyclic$helpMsgParser = function () {
+		return $author$project$GraphEditor$helpMsgParser;
+	};
+} catch ($) {
+	throw 'Some top-level definitions from `GraphEditor` are causing infinite recursion:\n\n  ┌─────┐\n  │    helpMsgParser\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
 var $elm$html$Html$b = _VirtualDom_node('b');
 var $elm$html$Html$span = _VirtualDom_node('span');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $elm$core$Debug$toString = _Debug_toString;
-var $author$project$GraphEditor$helpMsg = function (model) {
-	var _v0 = model.mode;
-	switch (_v0.$) {
-		case 'DefaultMode':
-			var b = function (s) {
-				return A2(
-					$elm$html$Html$span,
+var $author$project$GraphEditor$helpStr_collage = function (_v0) {
+	var s = _v0.a;
+	var h = _v0.b;
+	if (h.$ === 'Bold') {
+		return A2(
+			$elm$html$Html$span,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text('['),
+					A2(
+					$elm$html$Html$b,
 					_List_Nil,
 					_List_fromArray(
 						[
-							$elm$html$Html$text('['),
-							A2(
-							$elm$html$Html$b,
-							_List_Nil,
-							_List_fromArray(
-								[
-									$elm$html$Html$text(s)
-								])),
-							$elm$html$Html$text(']')
-						]));
-			};
+							$elm$html$Html$text(s)
+						])),
+					$elm$html$Html$text(']')
+				]));
+	} else {
+		return $elm$html$Html$text(s);
+	}
+};
+var $elm$html$Html$p = _VirtualDom_node('p');
+var $elm$core$Result$withDefault = F2(
+	function (def, result) {
+		if (result.$ === 'Ok') {
+			var a = result.a;
+			return a;
+		} else {
+			return def;
+		}
+	});
+var $author$project$GraphEditor$helpMsg = function (model) {
+	var msg = function (s) {
+		return A2(
+			$elm$html$Html$div,
+			_List_Nil,
+			A2(
+				$elm$core$List$map,
+				$author$project$GraphEditor$helpStr_collage,
+				A2(
+					$elm$core$Result$withDefault,
+					_List_fromArray(
+						[
+							_Utils_Tuple2('Parsing help msg error', $author$project$GraphEditor$Plain)
+						]),
+					A2($elm$parser$Parser$run, $author$project$GraphEditor$helpMsgParser, s))));
+	};
+	var _v0 = model.mode;
+	switch (_v0.$) {
+		case 'DefaultMode':
+			return msg('Default mode. Commands: [click] for point/edge selection' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point' + (', [del]ete selected object (also [x])' + (', [q]ickInput mode' + (', [d]ebug mode' + (', [r]ename selected object' + (', [g] move selected object' + '.')))))))));
+		case 'DebugMode':
+			return $elm$html$Html$text(
+				'Debug Mode. [ESC] to cancel and come back to the default mode. ' + $elm$core$Debug$toString(model));
+		case 'QuickInputMode':
+			var ch = _v0.a;
 			return A2(
 				$elm$html$Html$div,
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Default mode. Commands: '),
-						b('click'),
-						$elm$html$Html$text(' for point/edge selection, new '),
-						b('a'),
-						$elm$html$Html$text('rrow from selected point, new '),
-						b('p'),
-						$elm$html$Html$text('oint, '),
-						b('del'),
-						$elm$html$Html$text('ete selected object (also '),
-						b('x'),
-						$elm$html$Html$text('), '),
-						b('r'),
-						$elm$html$Html$text('ename selected object, '),
-						b('g'),
-						$elm$html$Html$text(' move selected point, '),
-						b('d'),
-						$elm$html$Html$text('ebug mode, '),
-						b('u'),
-						$elm$html$Html$text('nnamed flag (no labelling on point creation).')
+						$elm$html$Html$text(
+						'Mode: QuickInput' + ($elm$core$Debug$toString(model.mode) + '.')),
+						A2(
+						$elm$html$Html$p,
+						_List_Nil,
+						_List_fromArray(
+							[
+								msg(' Syntax: v1 -> v2 - edgeLabel >@d v3 vr |down arrow v X | \"uparrow \" ^ end yo.' + (' [RET] to accept the current chain' + (', alternative possible [s]quare' + ', [ESC] to cancel and comeback to the default mode.')))
+							]))
 					]));
-		case 'DebugMode':
-			return $elm$html$Html$text(
-				'Debug Mode. [ESC] to cancel and come back to the default mode. ' + $elm$core$Debug$toString(model));
 		default:
 			return $elm$html$Html$text(
 				'Mode: ' + ($elm$core$Debug$toString(model.mode) + ('. [ESC] to cancel and come back to the default' + ' mode.')));
@@ -7904,7 +9958,29 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		$elm$json$Json$Decode$succeed(msg));
 };
 var $author$project$GraphEditor$onMouseMove = _Platform_outgoingPort('onMouseMove', $elm$core$Basics$identity);
-var $elm$html$Html$p = _VirtualDom_node('p');
+var $author$project$Msg$QuickInput = function (a) {
+	return {$: 'QuickInput', a: a};
+};
+var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
+var $author$project$GraphEditor$quickInputView = function (m) {
+	return A2(
+		$elm$html$Html$p,
+		_List_Nil,
+		_List_fromArray(
+			[
+				$elm$html$Html$text('QuickInput'),
+				A2(
+				$elm$html$Html$input,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$type_('text'),
+						$elm$html$Html$Attributes$id($author$project$GraphEditor$quickInputId),
+						$elm$html$Html$Events$onInput($author$project$Msg$QuickInput),
+						$elm$html$Html$Attributes$value(m.quickInput)
+					]),
+				_List_Nil)
+			]));
+};
 var $elm$json$Json$Encode$float = _Json_wrap;
 var $elm$json$Json$Encode$int = _Json_wrap;
 var $elm$json$Json$Encode$list = F2(
@@ -7993,7 +10069,7 @@ var $author$project$GraphEditor$saveGraph = _Platform_outgoingPort(
 				]));
 	});
 var $author$project$GraphEditor$save = function (model) {
-	return $author$project$GraphEditor$Do(
+	return $author$project$Msg$Do(
 		$author$project$GraphEditor$saveGraph(
 			_Utils_Tuple2(
 				$elm_community$graph$Graph$nodes(model.graph),
@@ -8113,7 +10189,6 @@ var $timjs$elm_collage$Collage$Render$decodeJoin = function (join) {
 			return 'bevel';
 	}
 };
-var $elm$core$Basics$pi = _Basics_pi;
 var $elm$core$Tuple$second = function (_v0) {
 	var y = _v0.b;
 	return y;
@@ -8370,15 +10445,6 @@ var $elm$svg$Svg$Attributes$rx = _VirtualDom_attribute('rx');
 var $elm$svg$Svg$Attributes$ry = _VirtualDom_attribute('ry');
 var $elm$svg$Svg$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$svg$Svg$text_ = $elm$svg$Svg$trustedNode('text');
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var $elm$svg$Svg$Attributes$xlinkHref = function (value) {
 	return A3(
 		_VirtualDom_attributeNS,
@@ -8615,13 +10681,8 @@ var $author$project$GraphEditor$view = function (model) {
 					[
 						$elm$html$Html$text('Save')
 					])),
-				model.unnamedFlag ? A2(
-				$elm$html$Html$p,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Unnamed flag On')
-					])) : $elm$html$Html$text(''),
+				$author$project$GraphEditor$quickInputView(model),
+				$elm$html$Html$text(model.statusMsg),
 				A2(
 				$elm$html$Html$p,
 				_List_Nil,
@@ -8641,17 +10702,17 @@ var $author$project$GraphEditor$view = function (model) {
 						'mousemove',
 						A2(
 							$elm$json$Json$Decode$map,
-							A2($elm$core$Basics$composeL, $author$project$GraphEditor$Do, $author$project$GraphEditor$onMouseMove),
+							A2($elm$core$Basics$composeL, $author$project$Msg$Do, $author$project$GraphEditor$onMouseMove),
 							$elm$json$Json$Decode$value))
 					]),
-				$author$project$GraphEditor$graphCollage(
+				$author$project$GraphCollage$graphCollage(
 					$author$project$GraphEditor$graphCollageFromModel(model)))
 			]));
 };
 var $author$project$GraphEditor$main = $elm$browser$Browser$element(
 	{
 		init: function (_v0) {
-			return _Utils_Tuple2($author$project$GraphEditor$init, $elm$core$Platform$Cmd$none);
+			return _Utils_Tuple2($author$project$GraphEditor$iniModel, $elm$core$Platform$Cmd$none);
 		},
 		subscriptions: $author$project$GraphEditor$subscriptions,
 		update: $author$project$GraphEditor$update,
