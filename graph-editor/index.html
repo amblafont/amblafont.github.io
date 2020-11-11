@@ -8,15 +8,78 @@
     <body>
         <h1>Graph editor</h1>
         <p>
-            A very simple graph editor written in Elm, with labelled nodes and edges.
+            A graph editor, with labelled nodes and edges.
         The code is available on
         <a href="https://github.com/amblafont/graph-editor-web">github</a>.
         </p>
         <button onclick="loadGraph()" >Load graph</button>
         <div id="myapp"></div>
         <script>
+         var appDiv = document.getElementById('myapp');
+        var idFocus = "edited_label";
+        var classLifecycle = "lifecycle";
+         
+        function dispatchCreate(node) {
+            console.log("added node: " + node.tagName);
+            if (node.getBoundingClientRect != null)
+                     {
+                         // could be optimized by having an additionnal
+                         // attribute that tells whether it has
+                         // a listener, so that we don't need
+                         // to get the bounding rectangle
+                         var rect = node.getBoundingClientRect();
+
+                         node.dispatchEvent(new CustomEvent("create", { detail : rect } ));
+                     }
+        };
+
+         // newsize event handlers
+         // Fonction callback à éxécuter quand une mutation est observée
+         var callbackMutation = function(mutationsList) {
+             for(var mutation of mutationsList) {
+	               for(var node of mutation.addedNodes) {
+                     //console.log("added node: " + node.tagName);
+                     //console.log(node.innerHTML);
+                     /* console.log(node.id); */
+                     dispatchCreate(node);
+                     if (node.getElementsByClassName == null) {
+                         console.log("no getElementsByClassName");
+                         continue;
+                     }
+
+                     children = node.getElementsByClassName(classLifecycle);
+                     for (var i = 0; i < children.length; ++i) {
+                          dispatchCreate(children[i]);
+                      }                 
+                     // Y en a marre que ca focuse pas
+                     // ca ne marche pas!!
+                     /*if (node.id == "edited_label") {
+                         console.log("coucou");
+                         node.addEventListener("focus", function () { console.log("edited_label: focus"); });
+
+                         node.focus();
+                     }*/
+
+                 }
+                 // TODO utiliser slotchange on custom elements
+	               for(var node of mutation.removedNodes) {
+                     if (node.getBoundingClientRect != null)
+                     {
+                         node.dispatchEvent(new CustomEvent("remove"));
+                     }
+                 }
+             }
+         };
+
+         // Créé une instance de l'observateur lié à la fonction de callback
+         var observer = new MutationObserver(callbackMutation);
+         observer.observe(appDiv, 
+	                        { subtree: true, childList: true }); 
+
+         // initialisation de Elm
+
          var app = Elm.GraphEditor.init({
-             node: document.getElementById('myapp')
+             node: appDiv
          });
          // load a json graph file, send it to the elm component
          function loadGraph() {
