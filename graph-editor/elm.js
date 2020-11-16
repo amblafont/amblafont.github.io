@@ -5606,6 +5606,14 @@ var $author$project$Msg$MouseMove = function (a) {
 	return {$: 'MouseMove', a: a};
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
+var $author$project$Msg$ArrowStyle = F2(
+	function (s, bend) {
+		return {bend: bend, s: s};
+	});
+var $author$project$Msg$EdgeLabel = F2(
+	function (label, style) {
+		return {label: label, style: style};
+	});
 var $author$project$ArrowStyle$DefaultHead = {$: 'DefaultHead'};
 var $author$project$ArrowStyle$NoHead = {$: 'NoHead'};
 var $author$project$ArrowStyle$TwoHeads = {$: 'TwoHeads'};
@@ -5647,10 +5655,14 @@ var $author$project$ArrowStyle$fromJsStyle = function (_v0) {
 var $author$project$Msg$edgeLabelFromJs = function (_v0) {
 	var label = _v0.label;
 	var style = _v0.style;
-	return {
-		label: label,
-		style: $author$project$ArrowStyle$fromJsStyle(style)
-	};
+	var bend = _v0.bend;
+	return A2(
+		$author$project$Msg$EdgeLabel,
+		label,
+		A2(
+			$author$project$Msg$ArrowStyle,
+			$author$project$ArrowStyle$fromJsStyle(style),
+			bend));
 };
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$string = _Json_decodeString;
@@ -5718,8 +5730,13 @@ var $author$project$GraphEditor$loadedGraph = _Platform_incomingPort(
 												return A2(
 													$elm$json$Json$Decode$andThen,
 													function (label) {
-														return $elm$json$Json$Decode$succeed(
-															{label: label, style: style});
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (bend) {
+																return $elm$json$Json$Decode$succeed(
+																	{bend: bend, label: label, style: style});
+															},
+															A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
 													},
 													A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 											},
@@ -7133,11 +7150,33 @@ var $author$project$Msg$keyUpdateArrowStyle = F2(
 		}
 		return style;
 	});
+var $author$project$Msg$keyUpdateBend = F2(
+	function (k, bend) {
+		_v0$2:
+		while (true) {
+			if (k.$ === 'Character') {
+				switch (k.a.valueOf()) {
+					case 'b':
+						return bend + 0.1;
+					case 'B':
+						return bend - 0.1;
+					default:
+						break _v0$2;
+				}
+			} else {
+				break _v0$2;
+			}
+		}
+		return bend;
+	});
 var $author$project$Msg$msgUpdateArrowStyle = F2(
 	function (m, style) {
 		if ((m.$ === 'KeyChanged') && (!m.a)) {
 			var k = m.b;
-			return A2($author$project$Msg$keyUpdateArrowStyle, k, style);
+			return {
+				bend: A2($author$project$Msg$keyUpdateBend, k, style.bend),
+				s: A2($author$project$Msg$keyUpdateArrowStyle, k, style.s)
+			};
 		} else {
 			return style;
 		}
@@ -7289,7 +7328,7 @@ var $author$project$Geometry$Rect = F2(
 	function (topLeft, bottomRight) {
 		return {bottomRight: bottomRight, topLeft: topLeft};
 	});
-var $author$project$Point$add = F2(
+var $author$project$Geometry$Point$add = F2(
 	function (_v0, _v1) {
 		var x1 = _v0.a;
 		var y1 = _v0.b;
@@ -7297,13 +7336,13 @@ var $author$project$Point$add = F2(
 		var y2 = _v1.b;
 		return _Utils_Tuple2(x1 + x2, y1 + y2);
 	});
-var $author$project$Point$resize = F2(
+var $author$project$Geometry$Point$resize = F2(
 	function (s, _v0) {
 		var x1 = _v0.a;
 		var y1 = _v0.b;
 		return _Utils_Tuple2(x1 * s, y1 * s);
 	});
-var $author$project$Point$subtract = F2(
+var $author$project$Geometry$Point$subtract = F2(
 	function (_v0, _v1) {
 		var x1 = _v0.a;
 		var y1 = _v0.b;
@@ -7314,11 +7353,11 @@ var $author$project$Point$subtract = F2(
 var $author$project$Geometry$rectFromPosDims = function (_v0) {
 	var pos = _v0.pos;
 	var dims = _v0.dims;
-	var dims2 = A2($author$project$Point$resize, 0.5, dims);
+	var dims2 = A2($author$project$Geometry$Point$resize, 0.5, dims);
 	return A2(
 		$author$project$Geometry$Rect,
-		A2($author$project$Point$subtract, pos, dims2),
-		A2($author$project$Point$add, pos, dims2));
+		A2($author$project$Geometry$Point$subtract, pos, dims2),
+		A2($author$project$Geometry$Point$add, pos, dims2));
 };
 var $author$project$Geometry$isInPosDims = F2(
 	function (dims, p) {
@@ -7585,6 +7624,7 @@ var $author$project$Model$SquareEditNode = function (a) {
 	return {$: 'SquareEditNode', a: a};
 };
 var $author$project$ArrowStyle$empty = {dashed: false, _double: false, head: $author$project$ArrowStyle$DefaultHead, tail: $author$project$ArrowStyle$DefaultTail};
+var $author$project$Msg$emptyArrowStyle = A2($author$project$Msg$ArrowStyle, $author$project$ArrowStyle$empty, 0);
 var $author$project$GraphExtra$make_EdgeId = F3(
 	function (n1, n2, isTo) {
 		return isTo ? _Utils_Tuple2(n1, n2) : _Utils_Tuple2(n2, n1);
@@ -7624,9 +7664,9 @@ var $author$project$Modes$Square$moveNodeViewInfo = F2(
 				$author$project$GraphExtra$addEdge,
 				g,
 				edges.ne1,
-				{label: '', style: $author$project$ArrowStyle$empty}),
+				{label: '', style: $author$project$Msg$emptyArrowStyle}),
 			edges.ne2,
-			{label: '', style: $author$project$ArrowStyle$empty});
+			{label: '', style: $author$project$Msg$emptyArrowStyle});
 		return _Utils_Tuple3(
 			{edges: edges, graph: g2},
 			n,
@@ -8051,7 +8091,7 @@ var $author$project$Modes$NewArrow$initialise = function (m) {
 							mode: $author$project$Model$NewArrow(
 								{
 									chosenNode: chosenNode,
-									step: $author$project$Model$NewArrowMoveNode($author$project$ArrowStyle$empty)
+									step: $author$project$Model$NewArrowMoveNode($author$project$Msg$emptyArrowStyle)
 								})
 						});
 				},
@@ -8314,6 +8354,7 @@ var $author$project$GraphEditor$update_NewNode = F2(
 			return $author$project$Model$noCmd(m);
 		}
 	});
+var $elm$browser$Browser$Dom$blur = _Browser_call('blur');
 var $elm$parser$Parser$ExpectingEnd = {$: 'ExpectingEnd'};
 var $elm$parser$Parser$Advanced$Bad = F2(
 	function (a, b) {
@@ -9038,10 +9079,10 @@ var $author$project$GraphEditor$graphDrawingNonEmptyChain = F3(
 			var orient = A2($elm$core$Maybe$withDefault, defOrient, oorient);
 			var offset = 200;
 			var newPoint = A2(
-				$author$project$Point$add,
+				$author$project$Geometry$Point$add,
 				source_pos,
 				A2(
-					$author$project$Point$resize,
+					$author$project$Geometry$Point$resize,
 					offset,
 					$author$project$QuickInput$orientToPoint(orient)));
 			var _v4 = A3($author$project$GraphEditor$graphDrawingNonEmptyChain, g2, tail, newPoint);
@@ -9053,7 +9094,7 @@ var $author$project$GraphEditor$graphDrawingNonEmptyChain = F3(
 					$author$project$GraphExtra$addEdge,
 					g3,
 					_Utils_Tuple2(source, target),
-					{label: label, style: $author$project$ArrowStyle$empty}),
+					{label: label, style: $author$project$Msg$emptyArrowStyle}),
 				source);
 		}
 	});
@@ -9135,7 +9176,16 @@ var $author$project$GraphEditor$update_QuickInput = F3(
 					if ((!msg.a) && (msg.b.$ === 'Control')) {
 						switch (msg.b.a) {
 							case 'Escape':
-								return $author$project$Model$switch_Default(model);
+								return _Utils_Tuple2(
+									_Utils_update(
+										model,
+										{mode: $author$project$Model$DefaultMode}),
+									A2(
+										$elm$core$Task$attempt,
+										function (_v1) {
+											return $author$project$Msg$noOp;
+										},
+										$elm$browser$Browser$Dom$blur($author$project$GraphEditor$quickInputId)));
 							case 'Enter':
 								return $author$project$Model$switch_Default(
 									_Utils_update(
@@ -9152,22 +9202,22 @@ var $author$project$GraphEditor$update_QuickInput = F3(
 					}
 				case 'QuickInput':
 					var s = msg.a;
-					var _v1 = function () {
-						var _v2 = A2($elm$parser$Parser$run, $author$project$QuickInput$chainParser, s);
-						if (_v2.$ === 'Ok') {
-							var l = _v2.a;
+					var _v2 = function () {
+						var _v3 = A2($elm$parser$Parser$run, $author$project$QuickInput$chainParser, s);
+						if (_v3.$ === 'Ok') {
+							var l = _v3.a;
 							return _Utils_Tuple2(
 								$elm$core$Debug$toString(l),
 								l);
 						} else {
-							var e = _v2.a;
+							var e = _v3.a;
 							return _Utils_Tuple2(
 								$elm$parser$Parser$deadEndsToString(e),
 								$elm$core$Maybe$Nothing);
 						}
 					}();
-					var statusMsg = _v1.a;
-					var chain = _v1.b;
+					var statusMsg = _v2.a;
+					var chain = _v2.b;
 					return $author$project$Model$noCmd(
 						_Utils_update(
 							model,
@@ -9387,16 +9437,16 @@ var $author$project$ArrowStyle$makeImg = F4(
 var $elm$core$Basics$pi = _Basics_pi;
 var $elm$core$Basics$atan = _Basics_atan;
 var $elm$core$Basics$sqrt = _Basics_sqrt;
-var $author$project$Point$radius = function (_v0) {
+var $author$project$Geometry$Point$radius = function (_v0) {
 	var x = _v0.a;
 	var y = _v0.b;
 	return $elm$core$Basics$sqrt((x * x) + (y * y));
 };
-var $author$project$Point$pointToAngle = function (_v0) {
+var $author$project$Geometry$Point$pointToAngle = function (_v0) {
 	var x = _v0.a;
 	var y = _v0.b;
 	return ((!y) && (x <= 0)) ? $elm$core$Basics$pi : (2 * $elm$core$Basics$atan(
-		y / (x + $author$project$Point$radius(
+		y / (x + $author$project$Geometry$Point$radius(
 			_Utils_Tuple2(x, y)))));
 };
 var $author$project$ArrowStyle$tailToString = function (tail) {
@@ -9412,26 +9462,29 @@ var $author$project$ArrowStyle$tailToString = function (tail) {
 var $author$project$ArrowStyle$tailFileName = function (s) {
 	return $author$project$ArrowStyle$prefixDouble(s) + ($author$project$ArrowStyle$tailToString(s.tail) + '.svg');
 };
-var $author$project$ArrowStyle$makeHeadTailImgs = F3(
-	function (from, to, style) {
-		var delta = A2($author$project$Point$subtract, to, from);
-		var angle = function (a) {
-			return (a * 180) / $elm$core$Basics$pi;
-		}(
-			$author$project$Point$pointToAngle(delta));
+var $author$project$ArrowStyle$makeHeadTailImgs = F2(
+	function (_v0, style) {
+		var from = _v0.from;
+		var to = _v0.to;
+		var controlPoint = _v0.controlPoint;
+		var angle = function (delta) {
+			return ($author$project$Geometry$Point$pointToAngle(delta) * 180) / $elm$core$Basics$pi;
+		};
 		return _List_fromArray(
 			[
 				A4(
 				$author$project$ArrowStyle$makeImg,
 				style.dashed,
 				to,
-				angle,
+				angle(
+					A2($author$project$Geometry$Point$subtract, to, controlPoint)),
 				$author$project$ArrowStyle$headFileName(style)),
 				A4(
 				$author$project$ArrowStyle$makeImg,
 				style.dashed,
 				from,
-				angle,
+				angle(
+					A2($author$project$Geometry$Point$subtract, controlPoint, from)),
 				$author$project$ArrowStyle$tailFileName(style))
 			]);
 	});
@@ -9479,84 +9532,100 @@ var $author$project$Drawing$attrsToSvgAttrs = function (f) {
 		$author$project$Drawing$attrToSvgAttr(f));
 };
 var $author$project$ArrowStyle$dashedStr = '7, 3';
-var $elm$svg$Svg$line = $elm$svg$Svg$trustedNode('line');
-var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
 var $elm$svg$Svg$Attributes$strokeDasharray = _VirtualDom_attribute('stroke-dasharray');
-var $elm$svg$Svg$Attributes$x1 = _VirtualDom_attribute('x1');
-var $elm$svg$Svg$Attributes$x2 = _VirtualDom_attribute('x2');
-var $elm$svg$Svg$Attributes$y1 = _VirtualDom_attribute('y1');
-var $elm$svg$Svg$Attributes$y2 = _VirtualDom_attribute('y2');
-var $author$project$Drawing$mkLine = F4(
-	function (dashed, attrs, _v0, _v1) {
-		var x1 = _v0.a;
-		var y1 = _v0.b;
-		var x2 = _v1.a;
-		var y2 = _v1.b;
-		var f = $elm$core$String$fromFloat;
+var $author$project$Drawing$dashedToAttrs = function (dashed) {
+	return dashed ? _List_fromArray(
+		[
+			$elm$svg$Svg$Attributes$strokeDasharray($author$project$ArrowStyle$dashedStr)
+		]) : _List_Nil;
+};
+var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
+var $elm$svg$Svg$path = $elm$svg$Svg$trustedNode('path');
+var $elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
+var $author$project$Drawing$quadraticBezierToAttr = function (_v0) {
+	var from = _v0.from;
+	var to = _v0.to;
+	var controlPoint = _v0.controlPoint;
+	var f = $elm$core$String$fromFloat;
+	var p = function (_v1) {
+		var x1 = _v1.a;
+		var x2 = _v1.b;
+		return f(x1) + (' ' + f(x2));
+	};
+	return $elm$svg$Svg$Attributes$d(
+		'M' + (p(from) + (' Q ' + (p(controlPoint) + (', ' + p(to))))));
+};
+var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
+var $author$project$Drawing$mkPath = F3(
+	function (dashed, attrs, q) {
 		return A2(
-			$elm$svg$Svg$line,
-			_Utils_ap(
-				_List_fromArray(
-					[
-						$elm$svg$Svg$Attributes$x1(
-						f(x1)),
-						$elm$svg$Svg$Attributes$x2(
-						f(x2)),
-						$elm$svg$Svg$Attributes$y1(
-						f(y1)),
-						$elm$svg$Svg$Attributes$y2(
-						f(y2))
-					]),
-				_Utils_ap(
-					A2($author$project$Drawing$attrsToSvgAttrs, $elm$svg$Svg$Attributes$stroke, attrs),
-					dashed ? _List_fromArray(
-						[
-							$elm$svg$Svg$Attributes$strokeDasharray($author$project$ArrowStyle$dashedStr)
-						]) : _List_Nil)),
+			$elm$svg$Svg$path,
+			A2(
+				$elm$core$List$cons,
+				$author$project$Drawing$quadraticBezierToAttr(q),
+				A2(
+					$elm$core$List$cons,
+					$elm$svg$Svg$Attributes$fill('transparent'),
+					_Utils_ap(
+						A2($author$project$Drawing$attrsToSvgAttrs, $elm$svg$Svg$Attributes$stroke, attrs),
+						$author$project$Drawing$dashedToAttrs(dashed)))),
 			_List_Nil);
 	});
-var $author$project$Point$normalise = F2(
+var $elm$core$Basics$abs = function (n) {
+	return (n < 0) ? (-n) : n;
+};
+var $author$project$Geometry$Point$normalise = F2(
 	function (len, _v0) {
 		var x = _v0.a;
 		var y = _v0.b;
-		var r = $author$project$Point$radius(
+		var r = $author$project$Geometry$Point$radius(
 			_Utils_Tuple2(x, y));
 		return _Utils_Tuple2((len * x) / r, (len * y) / r);
 	});
-var $author$project$Point$orthogonal = function (_v0) {
+var $author$project$Geometry$Point$orthogonal = function (_v0) {
 	var x = _v0.a;
 	var y = _v0.b;
 	return _Utils_Tuple2(0 - y, x);
 };
-var $author$project$Drawing$arrow = F4(
-	function (attrs, style, from, to) {
-		var imgs = A3($author$project$ArrowStyle$makeHeadTailImgs, from, to, style);
-		var mkl = A2($author$project$Drawing$mkLine, style.dashed, attrs);
-		var lines = function () {
-			if ($author$project$ArrowStyle$isDouble(style)) {
-				var delta = A2(
-					$author$project$Point$normalise,
-					$author$project$ArrowStyle$doubleSize,
-					$author$project$Point$orthogonal(
-						A2($author$project$Point$subtract, to, from)));
-				return _List_fromArray(
-					[
-						A2(
-						mkl,
-						A2($author$project$Point$add, from, delta),
-						A2($author$project$Point$add, to, delta)),
-						A2(
-						mkl,
-						A2($author$project$Point$subtract, from, delta),
-						A2($author$project$Point$subtract, to, delta))
-					]);
-			} else {
-				return _List_fromArray(
-					[
-						A2(mkl, from, to)
-					]);
-			}
-		}();
+var $author$project$Geometry$Point$orthoVectPx = F3(
+	function (from, to, px) {
+		return A2(
+			$author$project$Geometry$Point$normalise,
+			px,
+			$author$project$Geometry$Point$orthogonal(
+				A2($author$project$Geometry$Point$subtract, to, from)));
+	});
+var $author$project$Geometry$QuadraticBezier$orthoVectPx = F2(
+	function (px, _v0) {
+		var from = _v0.from;
+		var to = _v0.to;
+		var controlPoint = _v0.controlPoint;
+		var deltaFrom = A3($author$project$Geometry$Point$orthoVectPx, from, controlPoint, px);
+		var deltaTo = A3($author$project$Geometry$Point$orthoVectPx, controlPoint, to, px);
+		var deltaCp = A2(
+			$author$project$Geometry$Point$normalise,
+			$elm$core$Basics$abs(px),
+			A2($author$project$Geometry$Point$add, deltaFrom, deltaTo));
+		return {
+			controlPoint: A2($author$project$Geometry$Point$add, controlPoint, deltaCp),
+			from: A2($author$project$Geometry$Point$add, deltaFrom, from),
+			to: A2($author$project$Geometry$Point$add, deltaTo, to)
+		};
+	});
+var $author$project$Drawing$arrow = F3(
+	function (attrs, style, q) {
+		var imgs = A2($author$project$ArrowStyle$makeHeadTailImgs, q, style);
+		var mkl = A2($author$project$Drawing$mkPath, style.dashed, attrs);
+		var lines = $author$project$ArrowStyle$isDouble(style) ? _List_fromArray(
+			[
+				mkl(
+				A2($author$project$Geometry$QuadraticBezier$orthoVectPx, 0 - $author$project$ArrowStyle$doubleSize, q)),
+				mkl(
+				A2($author$project$Geometry$QuadraticBezier$orthoVectPx, $author$project$ArrowStyle$doubleSize, q))
+			]) : _List_fromArray(
+			[
+				mkl(q)
+			]);
 		return $author$project$Drawing$Drawing(
 			_Utils_ap(lines, imgs));
 	});
@@ -9606,7 +9675,6 @@ var $author$project$Msg$EdgeLabelEdit = F2(
 		return {$: 'EdgeLabelEdit', a: a, b: b};
 	});
 var $elm$svg$Svg$Attributes$dominantBaseline = _VirtualDom_attribute('dominant-baseline');
-var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
 var $author$project$Drawing$ofSvg = function (s) {
 	return $author$project$Drawing$Drawing(
 		_List_fromArray(
@@ -9640,6 +9708,19 @@ var $author$project$Drawing$fromString = F3(
 						$elm$svg$Svg$text(str)
 					])));
 	});
+var $author$project$Geometry$QuadraticBezier$isLine = function (_v0) {
+	var from = _v0.from;
+	var to = _v0.to;
+	var controlPoint = _v0.controlPoint;
+	var _v1 = A2($author$project$Geometry$Point$subtract, controlPoint, to);
+	var x2 = _v1.a;
+	var y2 = _v1.b;
+	var _v2 = $author$project$Geometry$Point$orthogonal(
+		A2($author$project$Geometry$Point$subtract, to, from));
+	var x1 = _v2.a;
+	var y1 = _v2.b;
+	return $elm$core$Basics$abs((x1 * x2) + (y1 * y2)) < 1e-10;
+};
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$html$Html$Attributes$boolProperty = F2(
 	function (key, bool) {
@@ -9744,7 +9825,7 @@ var $author$project$GraphDrawing$make_input = F3(
 					]),
 				_List_Nil));
 	});
-var $author$project$Point$middle = F2(
+var $author$project$Geometry$Point$middle = F2(
 	function (_v0, _v1) {
 		var x1 = _v0.a;
 		var y1 = _v0.b;
@@ -9752,16 +9833,35 @@ var $author$project$Point$middle = F2(
 		var y2 = _v1.b;
 		return _Utils_Tuple2((x1 + x2) / 2, (y1 + y2) / 2);
 	});
-var $author$project$GraphDrawing$segmentLabel = F4(
-	function (fromP, toP, edgeId, label) {
-		var middle = A2($author$project$Point$middle, fromP, toP);
-		var delta = A2($author$project$Point$subtract, toP, fromP);
-		var coef = 10;
-		var orth = A2(
-			$author$project$Point$normalise,
-			coef,
-			$author$project$Point$orthogonal(delta));
-		var labelpos = A2($author$project$Point$add, middle, orth);
+var $author$project$Geometry$QuadraticBezier$middle = function (_v0) {
+	var from = _v0.from;
+	var to = _v0.to;
+	var controlPoint = _v0.controlPoint;
+	return A2(
+		$author$project$Geometry$Point$middle,
+		controlPoint,
+		A2($author$project$Geometry$Point$middle, from, to));
+};
+var $author$project$GraphDrawing$segmentLabel = F3(
+	function (q, edgeId, label) {
+		var offset = 10 + ($author$project$ArrowStyle$isDouble(label.style.s) ? $author$project$ArrowStyle$doubleSize : 0);
+		var labelpos = function () {
+			if ($author$project$Geometry$QuadraticBezier$isLine(q)) {
+				return A2(
+					$author$project$Geometry$Point$add,
+					A2($author$project$Geometry$Point$middle, q.from, q.to),
+					A3($author$project$Geometry$Point$orthoVectPx, q.to, q.from, offset));
+			} else {
+				var m = $author$project$Geometry$QuadraticBezier$middle(q);
+				return A2(
+					$author$project$Geometry$Point$add,
+					m,
+					A2(
+						$author$project$Geometry$Point$normalise,
+						offset,
+						A2($author$project$Geometry$Point$subtract, q.controlPoint, m)));
+			}
+		}();
 		return label.editable ? A3(
 			$author$project$GraphDrawing$make_input,
 			labelpos,
@@ -9775,6 +9875,21 @@ var $author$project$GraphDrawing$segmentLabel = F4(
 				]),
 			labelpos,
 			label.label);
+	});
+var $author$project$Geometry$diamondPointPx = F3(
+	function (p1, p2, d) {
+		var mid = A2($author$project$Geometry$Point$middle, p1, p2);
+		var delta = A2($author$project$Geometry$Point$subtract, mid, p1);
+		var ortho = A2(
+			$author$project$Geometry$Point$normalise,
+			d,
+			$author$project$Geometry$Point$orthogonal(delta));
+		return A2($author$project$Geometry$Point$add, mid, ortho);
+	});
+var $author$project$Geometry$pxFromRatio = F3(
+	function (p1, p2, r) {
+		return r * $author$project$Geometry$Point$radius(
+			A2($author$project$Geometry$Point$subtract, p2, p1));
 	});
 var $elm$core$List$map3 = _List_map3;
 var $elm$core$List$maximum = function (list) {
@@ -9841,7 +9956,7 @@ var $author$project$Geometry$intersection = F3(
 			},
 			A3($author$project$Geometry$distance, ro, rd, aabb));
 	});
-var $author$project$Point$toList = function (_v0) {
+var $author$project$Geometry$Point$toList = function (_v0) {
 	var px = _v0.a;
 	var py = _v0.b;
 	return _List_fromArray(
@@ -9852,10 +9967,10 @@ var $author$project$Geometry$raytraceRect = F3(
 		var topLeft = _v0.topLeft;
 		var bottomRight = _v0.bottomRight;
 		var v = A2(
-			$author$project$Point$normalise,
+			$author$project$Geometry$Point$normalise,
 			1,
-			A2($author$project$Point$subtract, p2, p1));
-		var l = $author$project$Point$toList;
+			A2($author$project$Geometry$Point$subtract, p2, p1));
+		var l = $author$project$Geometry$Point$toList;
 		var _v1 = A3(
 			$author$project$Geometry$intersection,
 			l(p1),
@@ -9874,14 +9989,19 @@ var $author$project$Geometry$raytraceRect = F3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Geometry$segmentRect = F2(
-	function (r1, r2) {
+var $author$project$Geometry$segmentRectBent = F3(
+	function (r1, r2, bent) {
+		var controlPoint = A3(
+			$author$project$Geometry$diamondPointPx,
+			r1.pos,
+			r2.pos,
+			A3($author$project$Geometry$pxFromRatio, r1.pos, r2.pos, bent));
 		var p2 = A2(
 			$elm$core$Maybe$withDefault,
 			r2.pos,
 			A3(
 				$author$project$Geometry$raytraceRect,
-				r1.pos,
+				controlPoint,
 				r2.pos,
 				$author$project$Geometry$rectFromPosDims(r2)));
 		var p1 = A2(
@@ -9889,10 +10009,10 @@ var $author$project$Geometry$segmentRect = F2(
 			r1.pos,
 			A3(
 				$author$project$Geometry$raytraceRect,
-				r2.pos,
+				controlPoint,
 				r1.pos,
 				$author$project$Geometry$rectFromPosDims(r1)));
-		return _Utils_Tuple2(p1, p2);
+		return {controlPoint: controlPoint, from: p1, to: p2};
 	});
 var $author$project$GraphDrawing$edgeDrawing = function (_v0) {
 	var from = _v0.from;
@@ -9900,13 +10020,11 @@ var $author$project$GraphDrawing$edgeDrawing = function (_v0) {
 	var label = _v0.label;
 	var c = label.isActive ? $author$project$Drawing$red : $author$project$Drawing$black;
 	var edgeId = _Utils_Tuple2(from.id, to.id);
-	var _v1 = A2($author$project$Geometry$segmentRect, from.label.posDims, to.label.posDims);
-	var fromP = _v1.a;
-	var toP = _v1.b;
+	var q = A3($author$project$Geometry$segmentRectBent, from.label.posDims, to.label.posDims, label.style.bend);
 	return $author$project$Drawing$group(
 		_List_fromArray(
 			[
-				A4(
+				A3(
 				$author$project$Drawing$arrow,
 				_List_fromArray(
 					[
@@ -9914,10 +10032,9 @@ var $author$project$GraphDrawing$edgeDrawing = function (_v0) {
 						$author$project$Drawing$onClick(
 						$author$project$Msg$EdgeClick(edgeId))
 					]),
-				label.style,
-				fromP,
-				toP),
-				A4($author$project$GraphDrawing$segmentLabel, fromP, toP, edgeId, label)
+				label.style.s,
+				q),
+				A3($author$project$GraphDrawing$segmentLabel, q, edgeId, label)
 			]));
 };
 var $author$project$GraphExtra$edgeToEdgeWithNodes = F2(
@@ -10129,7 +10246,7 @@ var $author$project$Geometry$pad = F2(
 		var n2 = n * 2;
 		return {
 			dims: A2(
-				$author$project$Point$add,
+				$author$project$Geometry$Point$add,
 				dims,
 				_Utils_Tuple2(n2, n2)),
 			pos: pos
@@ -10538,7 +10655,7 @@ var $author$project$GraphEditor$helpMsg = function (model) {
 				'Default mode. Commands: [click] for point/edge selection' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [q]ickInput mode' + (', [d]ebug mode' + (', [r]ename selected object' + (', [g] move selected object' + ('.' + function () {
 					var _v1 = model.activeObj;
 					if (_v1.$ === 'OEdge') {
-						return ' [(,=,-,>]: alternate between different arrow styles.';
+						return ' [(,=,b,B,-,>]: alternate between different arrow styles.';
 					} else {
 						return '';
 					}
@@ -10568,7 +10685,7 @@ var $author$project$GraphEditor$helpMsg = function (model) {
 			return $elm$html$Html$text(
 				'Mode NewArrow. [ESC] to cancel and come back to the default. ' + function () {
 					if (step.$ === 'NewArrowMoveNode') {
-						return ' [(,=,-,>]: alternate between different arrow styles.';
+						return ' [(,=,b,B,-,>]: alternate between different arrow styles.';
 					} else {
 						return '';
 					}
@@ -10634,8 +10751,9 @@ var $author$project$Msg$edgeLabelToJs = function (_v0) {
 	var label = _v0.label;
 	var style = _v0.style;
 	return {
+		bend: style.bend,
 		label: label,
-		style: $author$project$ArrowStyle$toJsStyle(style)
+		style: $author$project$ArrowStyle$toJsStyle(style.s)
 	};
 };
 var $elm$json$Json$Encode$float = _Json_wrap;
@@ -10721,6 +10839,9 @@ var $author$project$GraphEditor$saveGraph = _Platform_outgoingPort(
 										return $elm$json$Json$Encode$object(
 											_List_fromArray(
 												[
+													_Utils_Tuple2(
+													'bend',
+													$elm$json$Json$Encode$float($.bend)),
 													_Utils_Tuple2(
 													'label',
 													$elm$json$Json$Encode$string($.label)),
