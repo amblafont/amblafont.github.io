@@ -5312,14 +5312,13 @@ var $elm$core$Task$perform = F2(
 	});
 var $elm$browser$Browser$element = _Browser_element;
 var $author$project$Model$DefaultMode = {$: 'DefaultMode'};
-var $author$project$Model$ONothing = {$: 'ONothing'};
 var $author$project$Model$createModel = function (g) {
 	return {
-		activeObj: $author$project$Model$ONothing,
 		graph: g,
 		mode: $author$project$Model$DefaultMode,
 		mousePos: _Utils_Tuple2(0, 0),
 		quickInput: '',
+		selectedObjs: _List_Nil,
 		statusMsg: ''
 	};
 };
@@ -7051,6 +7050,7 @@ var $author$project$Modes$NewArrow$moveNodeInfo = F3(
 			movedNode: movedNode
 		};
 	});
+var $author$project$Model$ONothing = {$: 'ONothing'};
 var $author$project$Modes$NewArrow$renamableFromState = function (state) {
 	var _v0 = state.step;
 	switch (_v0.$) {
@@ -7122,8 +7122,11 @@ var $author$project$Modes$NewArrow$nextStep = F3(
 						_Utils_update(
 							model,
 							{
-								activeObj: $author$project$Model$ONode(info.movedNode),
-								graph: info.graph
+								graph: info.graph,
+								selectedObjs: _List_fromArray(
+									[
+										$author$project$Model$ONode(info.movedNode)
+									])
 							}),
 						state,
 						step));
@@ -7486,8 +7489,11 @@ var $author$project$Modes$Square$nextStep = F3(
 					_Utils_update(
 						model,
 						{
-							activeObj: $author$project$Model$ONode(mn),
-							mode: $author$project$Model$DefaultMode
+							mode: $author$project$Model$DefaultMode,
+							selectedObjs: _List_fromArray(
+								[
+									$author$project$Model$ONode(mn)
+								])
 						}));
 		}
 	});
@@ -7699,6 +7705,68 @@ var $author$project$Main$update_DebugMode = F2(
 var $author$project$Model$DebugMode = {$: 'DebugMode'};
 var $author$project$Model$MoveNode = {$: 'MoveNode'};
 var $author$project$Model$NewNode = {$: 'NewNode'};
+var $author$project$Model$RectSelect = function (a) {
+	return {$: 'RectSelect', a: a};
+};
+var $author$project$Model$activeObj = function (m) {
+	var _v0 = m.selectedObjs;
+	if (_v0.b && (!_v0.b.b)) {
+		var o = _v0.a;
+		return o;
+	} else {
+		return $author$project$Model$ONothing;
+	}
+};
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
+var $elm$core$List$concatMap = F2(
+	function (f, list) {
+		return $elm$core$List$concat(
+			A2($elm$core$List$map, f, list));
+	});
+var $author$project$Model$allSelectedNodesId = function (m) {
+	return A2(
+		$elm$core$List$concatMap,
+		function (o) {
+			switch (o.$) {
+				case 'ONothing':
+					return _List_Nil;
+				case 'ONode':
+					var id = o.a;
+					return _List_fromArray(
+						[id]);
+				default:
+					var _v1 = o.a;
+					var id1 = _v1.a;
+					var id2 = _v1.b;
+					return _List_fromArray(
+						[id1, id2]);
+			}
+		},
+		m.selectedObjs);
+};
+var $author$project$Model$allSelectedNodes = function (m) {
+	return A2(
+		$elm$core$List$filterMap,
+		function (id) {
+			return A2(
+				$elm$core$Maybe$map,
+				function ($) {
+					return $.node;
+				},
+				A2($elm_community$graph$Graph$get, id, m.graph));
+		},
+		$author$project$Model$allSelectedNodesId(m));
+};
 var $elm$core$Task$onError = _Scheduler_onError;
 var $elm$core$Task$attempt = F2(
 	function (resultToMessage, task) {
@@ -7795,7 +7863,8 @@ var $author$project$Modes$NewArrow$initialise = function (m) {
 								})
 						});
 				},
-				$author$project$Model$objToNode(m.activeObj))));
+				$author$project$Model$objToNode(
+					$author$project$Model$activeObj(m)))));
 };
 var $author$project$Modes$Square$initialise = function (m) {
 	return A2(
@@ -7804,7 +7873,15 @@ var $author$project$Modes$Square$initialise = function (m) {
 		A2(
 			$elm$core$Maybe$map,
 			A2($author$project$Modes$Square$square_updatePossibility, m, 0),
-			$author$project$Model$objToNode(m.activeObj)));
+			$author$project$Model$objToNode(
+				$author$project$Model$activeObj(m))));
+};
+var $elm$core$List$isEmpty = function (xs) {
+	if (!xs.b) {
+		return true;
+	} else {
+		return false;
+	}
 };
 var $author$project$Model$objToEdge = function (o) {
 	if (o.$ === 'OEdge') {
@@ -7845,7 +7922,7 @@ var $author$project$GraphExtra$getNode = F2(
 	});
 var $author$project$Main$switch_RenameMode = function (model) {
 	var label = function () {
-		var _v1 = model.activeObj;
+		var _v1 = $author$project$Model$activeObj(model);
 		switch (_v1.$) {
 			case 'ONothing':
 				return $elm$core$Maybe$Nothing;
@@ -7882,9 +7959,16 @@ var $author$project$Main$switch_RenameMode = function (model) {
 };
 var $author$project$Main$update_DefaultMode = F2(
 	function (msg, model) {
-		_v0$11:
+		_v0$12:
 		while (true) {
 			switch (msg.$) {
+				case 'MouseDown':
+					return $author$project$Model$noCmd(
+						_Utils_update(
+							model,
+							{
+								mode: $author$project$Model$RectSelect(model.mousePos)
+							}));
 				case 'KeyChanged':
 					if (!msg.a) {
 						if (msg.b.$ === 'Control') {
@@ -7893,10 +7977,13 @@ var $author$project$Main$update_DefaultMode = F2(
 									_Utils_update(
 										model,
 										{
-											graph: A2($author$project$Model$graphRemoveObj, model.activeObj, model.graph)
+											graph: A2(
+												$author$project$Model$graphRemoveObj,
+												$author$project$Model$activeObj(model),
+												model.graph)
 										}));
 							} else {
-								break _v0$11;
+								break _v0$12;
 							}
 						} else {
 							switch (msg.b.a.valueOf()) {
@@ -7928,20 +8015,26 @@ var $author$project$Main$update_DefaultMode = F2(
 									return $author$project$Model$noCmd(
 										_Utils_update(
 											model,
-											{mode: $author$project$Model$MoveNode}));
+											{
+												mode: $elm$core$List$isEmpty(
+													$author$project$Model$allSelectedNodes(model)) ? $author$project$Model$DefaultMode : $author$project$Model$MoveNode
+											}));
 								case 'x':
 									return $author$project$Model$noCmd(
 										_Utils_update(
 											model,
 											{
-												graph: A2($author$project$Model$graphRemoveObj, model.activeObj, model.graph)
+												graph: A2(
+													$author$project$Model$graphRemoveObj,
+													$author$project$Model$activeObj(model),
+													model.graph)
 											}));
 								default:
-									break _v0$11;
+									break _v0$12;
 							}
 						}
 					} else {
-						break _v0$11;
+						break _v0$12;
 					}
 				case 'NodeClick':
 					var n = msg.a;
@@ -7949,7 +8042,10 @@ var $author$project$Main$update_DefaultMode = F2(
 						_Utils_update(
 							model,
 							{
-								activeObj: $author$project$Model$ONode(n)
+								selectedObjs: _List_fromArray(
+									[
+										$author$project$Model$ONode(n)
+									])
 							}));
 				case 'EdgeClick':
 					var n = msg.a;
@@ -7957,13 +8053,17 @@ var $author$project$Main$update_DefaultMode = F2(
 						_Utils_update(
 							model,
 							{
-								activeObj: $author$project$Model$OEdge(n)
+								selectedObjs: _List_fromArray(
+									[
+										$author$project$Model$OEdge(n)
+									])
 							}));
 				default:
-					break _v0$11;
+					break _v0$12;
 			}
 		}
-		var _v1 = $author$project$Model$objToEdge(model.activeObj);
+		var _v1 = $author$project$Model$objToEdge(
+			$author$project$Model$activeObj(model));
 		if (_v1.$ === 'Nothing') {
 			return $author$project$Model$noCmd(model);
 		} else {
@@ -7986,25 +8086,122 @@ var $author$project$Main$update_DefaultMode = F2(
 					}));
 		}
 	});
-var $author$project$Model$obj_NodeId = function (x) {
-	if (x.$ === 'ONode') {
-		var id = x.a;
-		return id;
+var $author$project$Geometry$Point$middle = F2(
+	function (_v0, _v1) {
+		var x1 = _v0.a;
+		var y1 = _v0.b;
+		var x2 = _v1.a;
+		var y2 = _v1.b;
+		return _Utils_Tuple2((x1 + x2) / 2, (y1 + y2) / 2);
+	});
+var $author$project$Geometry$centerRect = function (_v0) {
+	var bottomRight = _v0.bottomRight;
+	var topLeft = _v0.topLeft;
+	return A2($author$project$Geometry$Point$middle, bottomRight, topLeft);
+};
+var $elm$core$List$maximum = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(
+			A3($elm$core$List$foldl, $elm$core$Basics$max, x, xs));
 	} else {
-		return 0;
+		return $elm$core$Maybe$Nothing;
 	}
 };
-var $author$project$Model$activeNode = function (m) {
-	return $author$project$Model$obj_NodeId(m.activeObj);
+var $elm$core$Basics$min = F2(
+	function (x, y) {
+		return (_Utils_cmp(x, y) < 0) ? x : y;
+	});
+var $elm$core$List$minimum = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(
+			A3($elm$core$List$foldl, $elm$core$Basics$min, x, xs));
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
 };
-var $author$project$Main$graph_MoveNode = function (model) {
+var $elm$core$List$unzip = function (pairs) {
+	var step = F2(
+		function (_v0, _v1) {
+			var x = _v0.a;
+			var y = _v0.b;
+			var xs = _v1.a;
+			var ys = _v1.b;
+			return _Utils_Tuple2(
+				A2($elm$core$List$cons, x, xs),
+				A2($elm$core$List$cons, y, ys));
+		});
 	return A3(
-		$author$project$GraphExtra$updateNode,
-		$author$project$Model$activeNode(model),
+		$elm$core$List$foldr,
+		step,
+		_Utils_Tuple2(_List_Nil, _List_Nil),
+		pairs);
+};
+var $author$project$Geometry$rectEnveloppe = function (l) {
+	var _v0 = $elm$core$List$unzip(l);
+	var xs = _v0.a;
+	var ys = _v0.b;
+	var lmin = A2(
+		$elm$core$Basics$composeR,
+		$elm$core$List$minimum,
+		$elm$core$Maybe$withDefault(0));
+	var lmax = A2(
+		$elm$core$Basics$composeR,
+		$elm$core$List$maximum,
+		$elm$core$Maybe$withDefault(0));
+	return {
+		bottomRight: _Utils_Tuple2(
+			lmax(xs),
+			lmax(ys)),
+		topLeft: _Utils_Tuple2(
+			lmin(xs),
+			lmin(ys))
+	};
+};
+var $author$project$GraphExtra$updateNodes = F3(
+	function (l, f, g) {
+		return A3(
+			$elm$core$List$foldl,
+			F2(
+				function (id, g2) {
+					return A3($author$project$GraphExtra$updateNode, id, f, g2);
+				}),
+			g,
+			l);
+	});
+var $author$project$Main$graph_MoveNode = function (model) {
+	var nodes = $author$project$Model$allSelectedNodes(model);
+	var center = $author$project$Geometry$centerRect(
+		$author$project$Geometry$rectEnveloppe(
+			A2(
+				$elm$core$List$map,
+				A2(
+					$elm$core$Basics$composeR,
+					function ($) {
+						return $.label;
+					},
+					function ($) {
+						return $.pos;
+					}),
+				nodes)));
+	var delta = A2($author$project$Geometry$Point$subtract, model.mousePos, center);
+	return A2(
+		$author$project$GraphExtra$updateNodes(
+			A2(
+				$elm$core$List$map,
+				function ($) {
+					return $.id;
+				},
+				nodes)),
 		function (n) {
 			return _Utils_update(
 				n,
-				{pos: model.mousePos});
+				{
+					pos: A2($author$project$Geometry$Point$add, n.pos, delta)
+				});
 		},
 		model.graph);
 };
@@ -8047,8 +8244,11 @@ var $author$project$Main$update_NewNode = F2(
 					var newModel = _Utils_update(
 						m,
 						{
-							activeObj: $author$project$Model$ONode(newId),
-							graph: newGraph
+							graph: newGraph,
+							selectedObjs: _List_fromArray(
+								[
+									$author$project$Model$ONode(newId)
+								])
 						});
 					return $author$project$Main$switch_RenameMode(newModel);
 				case 'KeyChanged':
@@ -8832,7 +9032,7 @@ var $author$project$Main$graphDrawingChain = F2(
 			return g;
 		} else {
 			var nonEmptyCh = ch.a;
-			var iniP = _Utils_Tuple2(100, 100);
+			var iniP = _Utils_Tuple2(400, 200);
 			return A3($author$project$Main$graphDrawingNonEmptyChain, g, nonEmptyCh, iniP).a;
 		}
 	});
@@ -8960,9 +9160,63 @@ var $author$project$Main$update_QuickInput = F3(
 		}
 		return $author$project$Model$noCmd(model);
 	});
+var $author$project$Model$getNodesInRect = F2(
+	function (m, r) {
+		return A2(
+			$elm$core$List$map,
+			function ($) {
+				return $.id;
+			},
+			A2(
+				$author$project$GraphExtra$filterNodes,
+				m.graph,
+				function (n) {
+					return A2($author$project$Geometry$isInRect, r, n.pos);
+				}));
+	});
+var $author$project$Geometry$makeRect = F2(
+	function (p1, p2) {
+		return $author$project$Geometry$rectEnveloppe(
+			_List_fromArray(
+				[p1, p2]));
+	});
+var $author$project$Main$update_RectSelect = F3(
+	function (msg, orig, model) {
+		_v0$2:
+		while (true) {
+			switch (msg.$) {
+				case 'KeyChanged':
+					if (((!msg.a) && (msg.b.$ === 'Control')) && (msg.b.a === 'Escape')) {
+						return $author$project$Model$switch_Default(model);
+					} else {
+						break _v0$2;
+					}
+				case 'MouseUp':
+					return $author$project$Model$switch_Default(
+						_Utils_update(
+							model,
+							{
+								selectedObjs: A2(
+									$elm$core$List$map,
+									$author$project$Model$ONode,
+									A2(
+										$author$project$Model$getNodesInRect,
+										model,
+										A2($author$project$Geometry$makeRect, orig, model.mousePos)))
+							}));
+				default:
+					break _v0$2;
+			}
+		}
+		return $author$project$Model$noCmd(model);
+	});
 var $author$project$Main$graph_RenameMode = F2(
 	function (s, m) {
-		return A3($author$project$Model$graphRenameObj, m.graph, m.activeObj, s);
+		return A3(
+			$author$project$Model$graphRenameObj,
+			m.graph,
+			$author$project$Model$activeObj(m),
+			s);
 	});
 var $author$project$Main$finalise_RenameMode = F2(
 	function (label, model) {
@@ -9087,6 +9341,9 @@ var $author$project$Main$update = F2(
 						return A3($author$project$Main$update_QuickInput, c, msg, m);
 					case 'DefaultMode':
 						return A2($author$project$Main$update_DefaultMode, msg, m);
+					case 'RectSelect':
+						var orig = _v1.a;
+						return A3($author$project$Main$update_RectSelect, msg, orig, m);
 					case 'NewArrow':
 						var astate = _v1.a;
 						return A3($author$project$Modes$NewArrow$update, astate, msg, m);
@@ -9105,13 +9362,66 @@ var $author$project$Main$update = F2(
 				}
 		}
 	});
+var $author$project$Msg$MouseDown = {$: 'MouseDown'};
+var $author$project$Msg$MouseUp = {$: 'MouseUp'};
+var $author$project$Drawing$Drawing = function (a) {
+	return {$: 'Drawing', a: a};
+};
+var $author$project$Drawing$empty = $author$project$Drawing$Drawing(_List_Nil);
+var $elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
+var $elm$core$String$fromFloat = _String_fromNumber;
+var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var $author$project$Drawing$ofSvg = function (s) {
+	return $author$project$Drawing$Drawing(
+		_List_fromArray(
+			[s]));
+};
+var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
+var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
+var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
+var $elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
+var $author$project$Drawing$rect = function (_v0) {
+	var topLeft = _v0.topLeft;
+	var bottomRight = _v0.bottomRight;
+	var f = $elm$core$String$fromFloat;
+	var _v1 = bottomRight;
+	var tox = _v1.a;
+	var toy = _v1.b;
+	var _v2 = topLeft;
+	var fromx = _v2.a;
+	var fromy = _v2.b;
+	return $author$project$Drawing$ofSvg(
+		A2(
+			$elm$svg$Svg$rect,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$x(
+					f(fromx)),
+					$elm$svg$Svg$Attributes$y(
+					f(fromy)),
+					$elm$svg$Svg$Attributes$width(
+					f(tox - fromx)),
+					$elm$svg$Svg$Attributes$height(
+					f(toy - fromy)),
+					$elm$svg$Svg$Attributes$class('rect-select')
+				]),
+			_List_Nil));
+};
+var $author$project$Main$additionnalDrawing = function (m) {
+	var _v0 = m.mode;
+	if (_v0.$ === 'RectSelect') {
+		var orig = _v0.a;
+		return $author$project$Drawing$rect(
+			A2($author$project$Geometry$makeRect, orig, m.mousePos));
+	} else {
+		return $author$project$Drawing$empty;
+	}
+};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $author$project$Msg$EdgeClick = function (a) {
 	return {$: 'EdgeClick', a: a};
-};
-var $author$project$Drawing$Drawing = function (a) {
-	return {$: 'Drawing', a: a};
 };
 var $author$project$ArrowStyle$Core$doubleSize = 2.5;
 var $author$project$ArrowStyle$Core$isDouble = function (_v0) {
@@ -9135,9 +9445,6 @@ var $author$project$ArrowStyle$Core$prefixDouble = function (_v0) {
 var $author$project$ArrowStyle$Core$headFileName = function (s) {
 	return $author$project$ArrowStyle$Core$prefixDouble(s) + ($author$project$ArrowStyle$Core$headToString(s.head) + '.svg');
 };
-var $elm$core$String$fromFloat = _String_fromNumber;
-var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
-var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var $elm$svg$Svg$image = $elm$svg$Svg$trustedNode('image');
 var $author$project$ArrowStyle$Core$imgDir = 'img/arrow/';
 var $author$project$ArrowStyle$Core$imgHeight = 13;
@@ -9150,8 +9457,6 @@ var $author$project$ArrowStyle$Core$svgRotate = F2(
 		return $elm$svg$Svg$Attributes$transform(
 			' rotate(' + ($elm$core$String$fromFloat(angle) + (' ' + ($elm$core$String$fromFloat(x2) + (' ' + ($elm$core$String$fromFloat(y2) + ')'))))));
 	});
-var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
-var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
 var $elm$svg$Svg$Attributes$xlinkHref = function (value) {
 	return A3(
 		_VirtualDom_attributeNS,
@@ -9159,7 +9464,6 @@ var $elm$svg$Svg$Attributes$xlinkHref = function (value) {
 		'xlink:href',
 		_VirtualDom_noJavaScriptUri(value));
 };
-var $elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
 var $author$project$ArrowStyle$Core$makeImg = F3(
 	function (_v0, angle, file) {
 		var x = _v0.a;
@@ -9241,7 +9545,6 @@ var $author$project$ArrowStyle$Core$makeHeadTailImgs = F2(
 				$author$project$ArrowStyle$Core$tailFileName(style))
 			]);
 	});
-var $elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
 var $author$project$Drawing$colorToString = function (c) {
 	if (c.$ === 'Black') {
 		return 'black';
@@ -9388,17 +9691,6 @@ var $author$project$Drawing$Color = function (a) {
 	return {$: 'Color', a: a};
 };
 var $author$project$Drawing$color = $author$project$Drawing$Color;
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
-		}
-	});
-var $elm$core$List$concat = function (lists) {
-	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
-};
 var $author$project$Drawing$drawingToSvgs = function (d) {
 	var c = d.a;
 	return c;
@@ -9440,14 +9732,6 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 			$elm$json$Json$Encode$string(string));
 	});
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
-var $author$project$Geometry$Point$middle = F2(
-	function (_v0, _v1) {
-		var x1 = _v0.a;
-		var y1 = _v0.b;
-		var x2 = _v1.a;
-		var y2 = _v1.b;
-		return _Utils_Tuple2((x1 + x2) / 2, (y1 + y2) / 2);
-	});
 var $author$project$Geometry$Point$diamondPx = F3(
 	function (p1, p2, d) {
 		var mid = A2($author$project$Geometry$Point$middle, p1, p2);
@@ -9456,13 +9740,7 @@ var $author$project$Geometry$Point$diamondPx = F3(
 			mid,
 			A3($author$project$Geometry$Point$orthoVectPx, p1, p2, d));
 	});
-var $author$project$Drawing$empty = $author$project$Drawing$Drawing(_List_Nil);
 var $elm$svg$Svg$foreignObject = $elm$svg$Svg$trustedNode('foreignObject');
-var $author$project$Drawing$ofSvg = function (s) {
-	return $author$project$Drawing$Drawing(
-		_List_fromArray(
-			[s]));
-};
 var $author$project$Drawing$html = F3(
 	function (_v0, _v1, h) {
 		var x1 = _v0.a;
@@ -9702,30 +9980,6 @@ var $author$project$Geometry$pxFromRatio = F3(
 			A2($author$project$Geometry$Point$subtract, p2, p1));
 	});
 var $elm$core$List$map3 = _List_map3;
-var $elm$core$List$maximum = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(
-			A3($elm$core$List$foldl, $elm$core$Basics$max, x, xs));
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $elm$core$Basics$min = F2(
-	function (x, y) {
-		return (_Utils_cmp(x, y) < 0) ? x : y;
-	});
-var $elm$core$List$minimum = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(
-			A3($elm$core$List$foldl, $elm$core$Basics$min, x, xs));
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
 var $author$project$Geometry$distance = F3(
 	function (ro, rd, _v0) {
 		var aa = _v0.a;
@@ -10072,6 +10326,14 @@ var $author$project$GraphDrawing$graphDrawing = function (g0) {
 				nodes),
 			A2($elm$core$List$map, $author$project$GraphDrawing$edgeDrawing, edges)));
 };
+var $author$project$Model$isSelectedObj = F2(
+	function (m, o) {
+		if (o.$ === 'ONothing') {
+			return false;
+		} else {
+			return A2($elm$core$List$member, o, m.selectedObjs);
+		}
+	});
 var $author$project$GraphDrawing$make_nodeDrawingLabel = F2(
 	function (_v0, l) {
 		var editable = _v0.editable;
@@ -10092,9 +10354,10 @@ var $author$project$Model$make_defaultNodeDrawingLabel = F2(
 			$author$project$GraphDrawing$make_nodeDrawingLabel,
 			{
 				editable: false,
-				isActive: _Utils_eq(
-					n.id,
-					$author$project$Model$activeNode(model))
+				isActive: A2(
+					$author$project$Model$isSelectedObj,
+					model,
+					$author$project$Model$ONode(n.id))
 			},
 			n.label);
 	});
@@ -10121,14 +10384,6 @@ var $author$project$GraphDrawing$make_edgeDrawingLabel = F2(
 			style: style
 		};
 	});
-var $author$project$Model$obj_EdgeId = function (x) {
-	if (x.$ === 'OEdge') {
-		var id = x.a;
-		return id;
-	} else {
-		return _Utils_Tuple2(0, 0);
-	}
-};
 var $author$project$Model$collageGraphFromGraph = function (model) {
 	return A2(
 		$author$project$GraphExtra$mapNodesEdges,
@@ -10138,9 +10393,11 @@ var $author$project$Model$collageGraphFromGraph = function (model) {
 				$author$project$GraphDrawing$make_edgeDrawingLabel,
 				{
 					editable: false,
-					isActive: _Utils_eq(
-						_Utils_Tuple2(e.from, e.to),
-						$author$project$Model$obj_EdgeId(model.activeObj))
+					isActive: A2(
+						$author$project$Model$isSelectedObj,
+						model,
+						$author$project$Model$OEdge(
+							_Utils_Tuple2(e.from, e.to)))
 				},
 				e.label);
 		});
@@ -10282,6 +10539,8 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 	switch (_v0.$) {
 		case 'DefaultMode':
 			return A2($author$project$Model$collageGraphFromGraph, m, m.graph);
+		case 'RectSelect':
+			return A2($author$project$Model$collageGraphFromGraph, m, m.graph);
 		case 'NewNode':
 			return A2($author$project$Model$collageGraphFromGraph, m, m.graph);
 		case 'QuickInputMode':
@@ -10300,7 +10559,7 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 			var g = A2($author$project$Main$graph_RenameMode, l, m);
 			return A2(
 				$author$project$Model$graphMakeEditable,
-				m.activeObj,
+				$author$project$Model$activeObj(m),
 				A2($author$project$Model$collageGraphFromGraph, m, g));
 		case 'DebugMode':
 			return A3(
@@ -10448,6 +10707,10 @@ var $author$project$Main$helpStr_collage = function (_v0) {
 	}
 };
 var $elm$html$Html$p = _VirtualDom_node('p');
+var $elm$core$List$singleton = function (value) {
+	return _List_fromArray(
+		[value]);
+};
 var $elm$core$Result$withDefault = F2(
 	function (def, result) {
 		if (result.$ === 'Ok') {
@@ -10458,10 +10721,16 @@ var $elm$core$Result$withDefault = F2(
 		}
 	});
 var $author$project$Main$helpMsg = function (model) {
-	var msg = function (s) {
+	var cl = $elm$html$Html$Attributes$class('help-div');
+	var makeHelpDiv = function (l) {
 		return A2(
 			$elm$html$Html$div,
-			_List_Nil,
+			_List_fromArray(
+				[cl]),
+			l);
+	};
+	var msg = function (s) {
+		return makeHelpDiv(
 			A2(
 				$elm$core$List$map,
 				$author$project$Main$helpStr_collage,
@@ -10477,8 +10746,8 @@ var $author$project$Main$helpMsg = function (model) {
 	switch (_v0.$) {
 		case 'DefaultMode':
 			return msg(
-				'Default mode. Commands: [click] for point/edge selection' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [q]ickInput mode' + (', [d]ebug mode' + (', [r]ename selected object' + (', [g] move selected object' + ('.' + function () {
-					var _v1 = model.activeObj;
+				'Default mode. Commands: [click] for point/edge selection (hold for selection rectangle)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [q]ickInput mode' + (', [d]ebug mode' + (', [r]ename selected object' + (', [g] move selected objects' + ('.' + function () {
+					var _v1 = $author$project$Model$activeObj(model);
 					if (_v1.$ === 'OEdge') {
 						return ' [(,=,b,B,-,>]: alternate between different arrow styles.';
 					} else {
@@ -10486,13 +10755,13 @@ var $author$project$Main$helpMsg = function (model) {
 					}
 				}()))))))))));
 		case 'DebugMode':
-			return $elm$html$Html$text(
-				'Debug Mode. [ESC] to cancel and come back to the default mode. ' + $elm$core$Debug$toString(model));
+			return makeHelpDiv(
+				$elm$core$List$singleton(
+					$elm$html$Html$text(
+						'Debug Mode. [ESC] to cancel and come back to the default mode. ' + $elm$core$Debug$toString(model))));
 		case 'QuickInputMode':
 			var ch = _v0.a;
-			return A2(
-				$elm$html$Html$div,
-				_List_Nil,
+			return makeHelpDiv(
 				_List_fromArray(
 					[
 						$elm$html$Html$text(
@@ -10507,18 +10776,34 @@ var $author$project$Main$helpMsg = function (model) {
 					]));
 		case 'NewArrow':
 			var step = _v0.a.step;
-			return $elm$html$Html$text(
+			return msg(
 				'Mode NewArrow. ' + $author$project$Modes$NewArrow$help(step));
 		case 'SquareMode':
 			var step = _v0.a.step;
-			return $elm$html$Html$text(
+			return msg(
 				'Mode Commutative square. ' + $author$project$Modes$Square$help(step));
 		default:
-			return $elm$html$Html$text(
-				'Mode: ' + ($elm$core$Debug$toString(model.mode) + ('. [ESC] to cancel and come back to the default' + ' mode.')));
+			var txt = 'Mode: ' + ($elm$core$Debug$toString(model.mode) + ('. [ESC] to cancel and come back to the default' + ' mode.'));
+			return makeHelpDiv(
+				_List_fromArray(
+					[
+						$elm$html$Html$text(txt)
+					]));
 	}
 };
+var $elm$html$Html$Events$onMouseDown = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'mousedown',
+		$elm$json$Json$Decode$succeed(msg));
+};
 var $author$project$Main$onMouseMove = _Platform_outgoingPort('onMouseMove', $elm$core$Basics$identity);
+var $elm$html$Html$Events$onMouseUp = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'mouseup',
+		$elm$json$Json$Decode$succeed(msg));
+};
 var $author$project$Msg$QuickInput = function (a) {
 	return {$: 'QuickInput', a: a};
 };
@@ -10729,14 +11014,14 @@ var $author$project$Main$view = function (model) {
 					[
 						$elm$html$Html$text('Save')
 					])),
-				$author$project$Main$quickInputView(model),
 				$elm$html$Html$text(model.statusMsg),
 				A2(
 				$elm$html$Html$p,
 				_List_Nil,
 				_List_fromArray(
 					[
-						$author$project$Main$helpMsg(model)
+						$author$project$Main$helpMsg(model),
+						$author$project$Main$quickInputView(model)
 					])),
 				A2(
 				$author$project$Drawing$svg,
@@ -10751,10 +11036,17 @@ var $author$project$Main$view = function (model) {
 						A2(
 							$elm$json$Json$Decode$map,
 							A2($elm$core$Basics$composeL, $author$project$Msg$Do, $author$project$Main$onMouseMove),
-							$elm$json$Json$Decode$value))
+							$elm$json$Json$Decode$value)),
+						$elm$html$Html$Events$onMouseDown($author$project$Msg$MouseDown),
+						$elm$html$Html$Events$onMouseUp($author$project$Msg$MouseUp)
 					]),
-				$author$project$GraphDrawing$graphDrawing(
-					$author$project$Main$graphDrawingFromModel(model)))
+				$author$project$Drawing$group(
+					_List_fromArray(
+						[
+							$author$project$GraphDrawing$graphDrawing(
+							$author$project$Main$graphDrawingFromModel(model)),
+							$author$project$Main$additionnalDrawing(model)
+						])))
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
