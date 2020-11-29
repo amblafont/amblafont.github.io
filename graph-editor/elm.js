@@ -7142,16 +7142,21 @@ var $author$project$Modes$NewArrow$nextStep = F3(
 		var renamableNextMode = function (m) {
 			switch (action.$) {
 				case 'Cancel':
-					return $author$project$Model$switch_Default(
-						_Utils_update(
-							m,
-							{
-								graph: A3(
-									$author$project$Model$graphRenameObj,
-									m.graph,
-									$author$project$Modes$NewArrow$renamableFromState(state),
-									'')
-							}));
+					var _v2 = state.step;
+					if (_v2.$ === 'NewArrowMoveNode') {
+						return $author$project$Model$switch_Default(model);
+					} else {
+						return $author$project$Model$switch_Default(
+							_Utils_update(
+								m,
+								{
+									graph: A3(
+										$author$project$Model$graphRenameObj,
+										m.graph,
+										$author$project$Modes$NewArrow$renamableFromState(state),
+										'')
+								}));
+					}
 				case 'ValidateNext':
 					return $author$project$Model$noCmd(m);
 				default:
@@ -7173,7 +7178,7 @@ var $author$project$Modes$NewArrow$nextStep = F3(
 						$author$project$Modes$NewArrow$updateStep,
 						A3(
 							$author$project$Model$addOrSetSel,
-							true,
+							false,
 							$author$project$Model$ONode(info.movedNode),
 							_Utils_update(
 								model,
@@ -7490,16 +7495,21 @@ var $author$project$Modes$Square$nextStep = F3(
 		var renamableNextMode = function (m) {
 			switch (action.$) {
 				case 'Cancel':
-					return $author$project$Model$switch_Default(
-						_Utils_update(
-							m,
-							{
-								graph: A3(
-									$author$project$Model$graphRenameObj,
-									m.graph,
-									$author$project$Modes$Square$renamableFromState(state),
-									'')
-							}));
+					var _v3 = state.step;
+					if (_v3.$ === 'SquareMoveNode') {
+						return $author$project$Model$switch_Default(model);
+					} else {
+						return $author$project$Model$switch_Default(
+							_Utils_update(
+								m,
+								{
+									graph: A3(
+										$author$project$Model$graphRenameObj,
+										m.graph,
+										$author$project$Modes$Square$renamableFromState(state),
+										'')
+								}));
+					}
 				case 'ValidateNext':
 					return $author$project$Model$noCmd(m);
 				default:
@@ -7538,7 +7548,7 @@ var $author$project$Modes$Square$nextStep = F3(
 				return renamableNextMode(
 					A3(
 						$author$project$Model$addOrSetSel,
-						true,
+						false,
 						$author$project$Model$ONode(mn),
 						_Utils_update(
 							model,
@@ -8320,7 +8330,6 @@ var $author$project$Geometry$centerRect = function (_v0) {
 	var topLeft = _v0.topLeft;
 	return A2($author$project$Geometry$Point$middle, bottomRight, topLeft);
 };
-var $elm$core$Debug$log = _Debug_log;
 var $elm$core$List$maximum = function (list) {
 	if (list.b) {
 		var x = list.a;
@@ -8392,10 +8401,6 @@ var $author$project$Main$graph_MoveNode = function (model) {
 						return $.pos;
 					}),
 				nodes)));
-	var _v0 = A2(
-		$elm$core$Debug$log,
-		'(mousePos, center)',
-		_Utils_Tuple2(model.mousePos, center));
 	var delta = A2($author$project$Geometry$Point$subtract, model.mousePos, center);
 	return A2(
 		$author$project$GraphExtra$updateNodes(
@@ -9340,10 +9345,11 @@ var $author$project$GraphDefs$setNodesSelection = F2(
 var $author$project$Main$selectGraph = F3(
 	function (m, orig, keep) {
 		var selRect = A2($author$project$Geometry$makeRect, orig, m.mousePos);
+		var g = keep ? m.graph : $author$project$GraphDefs$clearSelection(m.graph);
 		var isSel = function (n) {
 			return A2($author$project$Geometry$isInRect, selRect, n.pos) || (n.selected && keep);
 		};
-		return A2($author$project$GraphDefs$setNodesSelection, m.graph, isSel);
+		return A2($author$project$GraphDefs$setNodesSelection, g, isSel);
 	});
 var $author$project$Main$update_RectSelect = F4(
 	function (msg, orig, keep, model) {
@@ -9387,7 +9393,7 @@ var $author$project$Main$finalise_RenameMode = F2(
 	});
 var $author$project$Main$update_RenameMode = F3(
 	function (label, msg, model) {
-		_v0$5:
+		_v0$4:
 		while (true) {
 			switch (msg.$) {
 				case 'KeyChanged':
@@ -9398,13 +9404,11 @@ var $author$project$Main$update_RenameMode = F3(
 							case 'Enter':
 								return A2($author$project$Main$finalise_RenameMode, label, model);
 							default:
-								break _v0$5;
+								break _v0$4;
 						}
 					} else {
-						break _v0$5;
+						break _v0$4;
 					}
-				case 'MouseClick':
-					return A2($author$project$Main$finalise_RenameMode, label, model);
 				case 'NodeLabelEdit':
 					var s = msg.b;
 					return $author$project$Model$noCmd(
@@ -9422,7 +9426,7 @@ var $author$project$Main$update_RenameMode = F3(
 								mode: $author$project$Model$RenameMode(s)
 							}));
 				default:
-					break _v0$5;
+					break _v0$4;
 			}
 		}
 		return $author$project$Model$noCmd(model);
