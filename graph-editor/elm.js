@@ -7256,36 +7256,21 @@ var $author$project$Modes$SplitArrow = function (a) {
 var $author$project$ArrowStyle$Core$empty = {dashed: false, _double: false, head: $author$project$ArrowStyle$Core$DefaultHead, tail: $author$project$ArrowStyle$Core$DefaultTail};
 var $author$project$ArrowStyle$empty = A2($author$project$ArrowStyle$ArrowStyle, $author$project$ArrowStyle$Core$empty, 0);
 var $author$project$GraphDefs$emptyEdge = A2($author$project$GraphDefs$newEdgeLabel, '', $author$project$ArrowStyle$empty);
-var $elm_community$intdict$IntDict$foldl = F3(
-	function (f, acc, dict) {
-		foldl:
-		while (true) {
-			switch (dict.$) {
-				case 'Empty':
-					return acc;
-				case 'Leaf':
-					var l = dict.a;
-					return A3(f, l.key, l.value, acc);
-				default:
-					var i = dict.a;
-					var $temp$f = f,
-						$temp$acc = A3($elm_community$intdict$IntDict$foldl, f, acc, i.left),
-						$temp$dict = i.right;
-					f = $temp$f;
-					acc = $temp$acc;
-					dict = $temp$dict;
-					continue foldl;
-			}
-		}
+var $elm_community$intdict$IntDict$remove = F2(
+	function (key, dict) {
+		return A3(
+			$elm_community$intdict$IntDict$update,
+			key,
+			$elm$core$Basics$always($elm$core$Maybe$Nothing),
+			dict);
 	});
-var $elm_community$intdict$IntDict$filter = F2(
-	function (predicate, dict) {
-		var add = F3(
-			function (k, v, d) {
-				return A2(predicate, k, v) ? A3($elm_community$intdict$IntDict$insert, k, v, d) : d;
-			});
-		return A3($elm_community$intdict$IntDict$foldl, add, $elm_community$intdict$IntDict$empty, dict);
+var $author$project$IntDictExtra$removeList = F2(
+	function (l, d) {
+		return A3($elm$core$List$foldl, $elm_community$intdict$IntDict$remove, d, l);
 	});
+var $author$project$Polygraph$Input = function (a) {
+	return {$: 'Input', a: a};
+};
 var $elm_community$intdict$IntDict$keys = function (dict) {
 	return A3(
 		$elm_community$intdict$IntDict$foldr,
@@ -7296,46 +7281,162 @@ var $elm_community$intdict$IntDict$keys = function (dict) {
 		_List_Nil,
 		dict);
 };
-var $elm_community$intdict$IntDict$remove = F2(
-	function (key, dict) {
-		return A3(
-			$elm_community$intdict$IntDict$update,
-			key,
-			$elm$core$Basics$always($elm$core$Maybe$Nothing),
-			dict);
+var $author$project$Polygraph$Output = function (a) {
+	return {$: 'Output', a: a};
+};
+var $author$project$Polygraph$Waiting = F3(
+	function (a, b, c) {
+		return {$: 'Waiting', a: a, b: b, c: c};
 	});
+var $author$project$Polygraph$mapRecAux = F6(
+	function (cn, ce, fn, fe, dict, ids) {
+		var getA = function (o) {
+			if (o.$ === 'NodeObj') {
+				var n = o.a;
+				return cn(n);
+			} else {
+				var e = o.c;
+				return ce(e);
+			}
+		};
+		var rec = A4($author$project$Polygraph$mapRecAux, cn, ce, fn, fe);
+		var ins = F2(
+			function (id, o) {
+				return A3($elm_community$intdict$IntDict$insert, id, o, dict);
+			});
+		if (!ids.b) {
+			return dict;
+		} else {
+			var id = ids.a;
+			var tailIds = ids.b;
+			var _v1 = A2($elm_community$intdict$IntDict$get, id, dict);
+			_v1$3:
+			while (true) {
+				if (_v1.$ === 'Just') {
+					switch (_v1.a.$) {
+						case 'Input':
+							if (_v1.a.a.$ === 'NodeObj') {
+								var n = _v1.a.a.a;
+								return A2(
+									rec,
+									A2(
+										ins,
+										id,
+										$author$project$Polygraph$Output(
+											$author$project$Polygraph$NodeObj(
+												A2(fn, id, n)))),
+									tailIds);
+							} else {
+								var _v2 = _v1.a.a;
+								var i1 = _v2.a;
+								var i2 = _v2.b;
+								var e = _v2.c;
+								return A2(
+									rec,
+									A2(
+										ins,
+										id,
+										A3($author$project$Polygraph$Waiting, i1, i2, e)),
+									A2(
+										$elm$core$List$cons,
+										i1,
+										A2(
+											$elm$core$List$cons,
+											i2,
+											A2($elm$core$List$cons, id, tailIds))));
+							}
+						case 'Waiting':
+							var _v3 = _v1.a;
+							var i1 = _v3.a;
+							var i2 = _v3.b;
+							var e = _v3.c;
+							var _v4 = _Utils_Tuple2(
+								A2($elm_community$intdict$IntDict$get, i1, dict),
+								A2($elm_community$intdict$IntDict$get, i2, dict));
+							if ((((_v4.a.$ === 'Just') && (_v4.a.a.$ === 'Output')) && (_v4.b.$ === 'Just')) && (_v4.b.a.$ === 'Output')) {
+								var o1 = _v4.a.a.a;
+								var o2 = _v4.b.a.a;
+								var a2 = getA(o2);
+								var a1 = getA(o1);
+								return A2(
+									rec,
+									A2(
+										ins,
+										id,
+										$author$project$Polygraph$Output(
+											A3(
+												$author$project$Polygraph$EdgeObj,
+												i1,
+												i2,
+												A4(fe, id, a1, a2, e)))),
+									tailIds);
+							} else {
+								return A2(rec, dict, tailIds);
+							}
+						default:
+							break _v1$3;
+					}
+				} else {
+					break _v1$3;
+				}
+			}
+			return A2(rec, dict, tailIds);
+		}
+	});
+var $author$project$Polygraph$invalidEdges = function (_v0) {
+	var g = _v0.a;
+	var dict = A6(
+		$author$project$Polygraph$mapRecAux,
+		$elm$core$Basics$always(_Utils_Tuple0),
+		$elm$core$Basics$always(_Utils_Tuple0),
+		$elm$core$Basics$always($elm$core$Basics$identity),
+		F3(
+			function (_v3, _v4, _v5) {
+				return $elm$core$Basics$identity;
+			}),
+		A2(
+			$elm_community$intdict$IntDict$map,
+			function (_v6) {
+				return $author$project$Polygraph$Input;
+			},
+			g),
+		$elm_community$intdict$IntDict$keys(g));
+	var l = $elm_community$intdict$IntDict$toList(dict);
+	var missings = A2(
+		$elm$core$List$filterMap,
+		function (_v1) {
+			var id = _v1.a;
+			var o = _v1.b;
+			if (o.$ === 'Waiting') {
+				var i1 = o.a;
+				var i2 = o.b;
+				var e = o.c;
+				return $elm$core$Maybe$Just(
+					{from: i1, id: id, label: e, to: i2});
+			} else {
+				return $elm$core$Maybe$Nothing;
+			}
+		},
+		l);
+	return missings;
+};
+var $author$project$Polygraph$sanitise = function (g) {
+	var d = g.a;
+	var ids = A2(
+		$elm$core$List$map,
+		function ($) {
+			return $.id;
+		},
+		$author$project$Polygraph$invalidEdges(g));
+	return $author$project$Polygraph$Graph(
+		A2($author$project$IntDictExtra$removeList, ids, d));
+};
 var $author$project$Polygraph$removeList = F2(
 	function (l, _v0) {
-		removeList:
-		while (true) {
-			var g = _v0.a;
-			if (!l.b) {
-				return $author$project$Polygraph$Graph(g);
-			} else {
-				var t = l.a;
-				var q = l.b;
-				var gt = A2($elm_community$intdict$IntDict$remove, t, g);
-				var newl = $elm_community$intdict$IntDict$keys(
-					A2(
-						$elm_community$intdict$IntDict$filter,
-						F2(
-							function (_v2, o) {
-								if (o.$ === 'EdgeObj') {
-									var i1 = o.a;
-									var i2 = o.b;
-									return _Utils_eq(i1, t) || _Utils_eq(i2, t);
-								} else {
-									return false;
-								}
-							}),
-						gt));
-				var $temp$l = _Utils_ap(newl, q),
-					$temp$_v0 = $author$project$Polygraph$Graph(gt);
-				l = $temp$l;
-				_v0 = $temp$_v0;
-				continue removeList;
-			}
-		}
+		var d = _v0.a;
+		return $author$project$Polygraph$sanitise(
+			$author$project$Polygraph$Graph(
+				A2($author$project$IntDictExtra$removeList, l, d)));
 	});
 var $author$project$Polygraph$remove = function (id) {
 	return $author$project$Polygraph$removeList(
@@ -7792,216 +7893,82 @@ var $author$project$Model$activeObj = function (m) {
 		return $author$project$Model$ONothing;
 	}
 };
-var $author$project$Polygraph$Input = function (a) {
-	return {$: 'Input', a: a};
-};
-var $elm_community$intdict$IntDict$member = F2(
-	function (key, dict) {
-		var _v0 = A2($elm_community$intdict$IntDict$get, key, dict);
-		if (_v0.$ === 'Just') {
-			return true;
-		} else {
-			return false;
-		}
+var $author$project$IntDictExtra$filterMap = F2(
+	function (f, d) {
+		return $elm_community$intdict$IntDict$fromList(
+			A2(
+				$elm$core$List$filterMap,
+				function (_v0) {
+					var i = _v0.a;
+					var o = _v0.b;
+					return A2(
+						$elm$core$Maybe$map,
+						function (b) {
+							return _Utils_Tuple2(i, b);
+						},
+						A2(f, i, o));
+				},
+				$elm_community$intdict$IntDict$toList(d)));
 	});
-var $elm_community$intdict$IntDict$intersect = F2(
-	function (l, r) {
-		intersect:
+var $author$project$Polygraph$mapRec = F6(
+	function (cn, ce, fn, fe, ids, _v0) {
+		var g = _v0.a;
+		var dict = A6(
+			$author$project$Polygraph$mapRecAux,
+			cn,
+			ce,
+			fn,
+			fe,
+			A2(
+				$elm_community$intdict$IntDict$map,
+				function (_v2) {
+					return $author$project$Polygraph$Input;
+				},
+				g),
+			ids);
+		var gf = A2(
+			$author$project$IntDictExtra$filterMap,
+			F2(
+				function (id, o) {
+					if (o.$ === 'Output') {
+						var o2 = o.a;
+						return $elm$core$Maybe$Just(o2);
+					} else {
+						return $elm$core$Maybe$Nothing;
+					}
+				}),
+			dict);
+		return $author$project$Polygraph$Graph(gf);
+	});
+var $elm_community$intdict$IntDict$foldl = F3(
+	function (f, acc, dict) {
+		foldl:
 		while (true) {
-			var _v0 = _Utils_Tuple2(l, r);
-			_v0$1:
-			while (true) {
-				_v0$2:
-				while (true) {
-					switch (_v0.a.$) {
-						case 'Empty':
-							var _v1 = _v0.a;
-							return $elm_community$intdict$IntDict$Empty;
-						case 'Leaf':
-							switch (_v0.b.$) {
-								case 'Empty':
-									break _v0$1;
-								case 'Leaf':
-									break _v0$2;
-								default:
-									break _v0$2;
-							}
-						default:
-							switch (_v0.b.$) {
-								case 'Empty':
-									break _v0$1;
-								case 'Leaf':
-									var lr = _v0.b.a;
-									var _v3 = A2($elm_community$intdict$IntDict$get, lr.key, l);
-									if (_v3.$ === 'Just') {
-										var v = _v3.a;
-										return A2($elm_community$intdict$IntDict$leaf, lr.key, v);
-									} else {
-										return $elm_community$intdict$IntDict$Empty;
-									}
-								default:
-									var il = _v0.a.a;
-									var ir = _v0.b.a;
-									var _v4 = A2($elm_community$intdict$IntDict$determineBranchRelation, il, ir);
-									switch (_v4.$) {
-										case 'SamePrefix':
-											return A3(
-												$elm_community$intdict$IntDict$inner,
-												il.prefix,
-												A2($elm_community$intdict$IntDict$intersect, il.left, ir.left),
-												A2($elm_community$intdict$IntDict$intersect, il.right, ir.right));
-										case 'Parent':
-											if (_v4.a.$ === 'Left') {
-												if (_v4.b.$ === 'Right') {
-													var _v5 = _v4.a;
-													var _v6 = _v4.b;
-													var $temp$l = il.right,
-														$temp$r = r;
-													l = $temp$l;
-													r = $temp$r;
-													continue intersect;
-												} else {
-													var _v9 = _v4.a;
-													var _v10 = _v4.b;
-													var $temp$l = il.left,
-														$temp$r = r;
-													l = $temp$l;
-													r = $temp$r;
-													continue intersect;
-												}
-											} else {
-												if (_v4.b.$ === 'Right') {
-													var _v7 = _v4.a;
-													var _v8 = _v4.b;
-													var $temp$l = l,
-														$temp$r = ir.right;
-													l = $temp$l;
-													r = $temp$r;
-													continue intersect;
-												} else {
-													var _v11 = _v4.a;
-													var _v12 = _v4.b;
-													var $temp$l = l,
-														$temp$r = ir.left;
-													l = $temp$l;
-													r = $temp$r;
-													continue intersect;
-												}
-											}
-										default:
-											return $elm_community$intdict$IntDict$Empty;
-									}
-							}
-					}
-				}
-				var ll = _v0.a.a;
-				return A2($elm_community$intdict$IntDict$member, ll.key, r) ? l : $elm_community$intdict$IntDict$Empty;
+			switch (dict.$) {
+				case 'Empty':
+					return acc;
+				case 'Leaf':
+					var l = dict.a;
+					return A3(f, l.key, l.value, acc);
+				default:
+					var i = dict.a;
+					var $temp$f = f,
+						$temp$acc = A3($elm_community$intdict$IntDict$foldl, f, acc, i.left),
+						$temp$dict = i.right;
+					f = $temp$f;
+					acc = $temp$acc;
+					dict = $temp$dict;
+					continue foldl;
 			}
-			var _v2 = _v0.b;
-			return $elm_community$intdict$IntDict$Empty;
 		}
 	});
-var $author$project$Polygraph$Output = function (a) {
-	return {$: 'Output', a: a};
-};
-var $author$project$Polygraph$Waiting = F3(
-	function (a, b, c) {
-		return {$: 'Waiting', a: a, b: b, c: c};
-	});
-var $author$project$Polygraph$mapRecAux = F4(
-	function (fn, fe, dict, ids) {
-		var getA = function (o) {
-			if (o.$ === 'NodeObj') {
-				var a = o.a;
-				return a;
-			} else {
-				var a = o.c;
-				return a;
-			}
-		};
-		var rec = A2($author$project$Polygraph$mapRecAux, fn, fe);
-		var ins = F2(
-			function (id, o) {
-				return A3($elm_community$intdict$IntDict$insert, id, o, dict);
+var $elm_community$intdict$IntDict$filter = F2(
+	function (predicate, dict) {
+		var add = F3(
+			function (k, v, d) {
+				return A2(predicate, k, v) ? A3($elm_community$intdict$IntDict$insert, k, v, d) : d;
 			});
-		if (!ids.b) {
-			return dict;
-		} else {
-			var id = ids.a;
-			var tailIds = ids.b;
-			var _v1 = A2($elm_community$intdict$IntDict$get, id, dict);
-			_v1$3:
-			while (true) {
-				if (_v1.$ === 'Just') {
-					switch (_v1.a.$) {
-						case 'Input':
-							if (_v1.a.a.$ === 'NodeObj') {
-								var n = _v1.a.a.a;
-								return A2(
-									rec,
-									A2(
-										ins,
-										id,
-										$author$project$Polygraph$Output(
-											$author$project$Polygraph$NodeObj(
-												A2(fn, id, n)))),
-									tailIds);
-							} else {
-								var _v2 = _v1.a.a;
-								var i1 = _v2.a;
-								var i2 = _v2.b;
-								var e = _v2.c;
-								return A2(
-									rec,
-									A2(
-										ins,
-										id,
-										A3($author$project$Polygraph$Waiting, i1, i2, e)),
-									A2(
-										$elm$core$List$cons,
-										i1,
-										A2(
-											$elm$core$List$cons,
-											i2,
-											A2($elm$core$List$cons, id, tailIds))));
-							}
-						case 'Waiting':
-							var _v3 = _v1.a;
-							var i1 = _v3.a;
-							var i2 = _v3.b;
-							var e = _v3.c;
-							var _v4 = _Utils_Tuple2(
-								A2($elm_community$intdict$IntDict$get, i1, dict),
-								A2($elm_community$intdict$IntDict$get, i2, dict));
-							if ((((_v4.a.$ === 'Just') && (_v4.a.a.$ === 'Output')) && (_v4.b.$ === 'Just')) && (_v4.b.a.$ === 'Output')) {
-								var o1 = _v4.a.a.a;
-								var o2 = _v4.b.a.a;
-								var a2 = getA(o2);
-								var a1 = getA(o1);
-								return A2(
-									rec,
-									A2(
-										ins,
-										id,
-										$author$project$Polygraph$Output(
-											A3(
-												$author$project$Polygraph$EdgeObj,
-												i1,
-												i2,
-												A4(fe, id, a1, a2, e)))),
-									tailIds);
-							} else {
-								return A2(rec, dict, tailIds);
-							}
-						default:
-							break _v1$3;
-					}
-				} else {
-					break _v1$3;
-				}
-			}
-			return A2(rec, dict, tailIds);
-		}
+		return A3($elm_community$intdict$IntDict$foldl, add, $elm_community$intdict$IntDict$empty, dict);
 	});
 var $author$project$Polygraph$rawFilter = F2(
 	function (fn, fe) {
@@ -8017,43 +7984,27 @@ var $author$project$Polygraph$rawFilter = F2(
 					}
 				}));
 	});
-var $author$project$Polygraph$filter = F3(
+var $author$project$Polygraph$keepBelow = F3(
 	function (fn, fe, _v0) {
 		var g = _v0.a;
 		var g2 = A3($author$project$Polygraph$rawFilter, fn, fe, g);
-		var dict = A4(
-			$author$project$Polygraph$mapRecAux,
-			F2(
-				function (_v3, _v4) {
-					return _Utils_Tuple0;
+		var dict = A6(
+			$author$project$Polygraph$mapRec,
+			$elm$core$Basics$always(_Utils_Tuple0),
+			$elm$core$Basics$always(_Utils_Tuple0),
+			function (_v1) {
+				return $elm$core$Basics$identity;
+			},
+			F3(
+				function (_v2, _v3, _v4) {
+					return $elm$core$Basics$identity;
 				}),
-			F4(
-				function (_v5, _v6, _v7, _v8) {
-					return _Utils_Tuple0;
-				}),
-			A2(
-				$elm_community$intdict$IntDict$map,
-				function (_v9) {
-					return $author$project$Polygraph$Input;
-				},
-				g),
-			$elm_community$intdict$IntDict$keys(g2));
-		var dictIds = A2(
-			$elm_community$intdict$IntDict$filter,
-			F2(
-				function (_v1, o) {
-					if (o.$ === 'Output') {
-						return true;
-					} else {
-						return false;
-					}
-				}),
-			dict);
-		return $author$project$Polygraph$Graph(
-			A2($elm_community$intdict$IntDict$intersect, g, dictIds));
+			$elm_community$intdict$IntDict$keys(g2),
+			$author$project$Polygraph$Graph(g));
+		return dict;
 	});
 var $author$project$GraphDefs$selectedGraph = A2(
-	$author$project$Polygraph$filter,
+	$author$project$Polygraph$keepBelow,
 	function ($) {
 		return $.selected;
 	},
@@ -8310,18 +8261,7 @@ var $author$project$Main$update_DefaultMode = F2(
 							}));
 				case 'KeyChanged':
 					if (!msg.a) {
-						if (msg.b.$ === 'Control') {
-							if (msg.b.a === 'Delete') {
-								return $author$project$Model$noCmd(
-									_Utils_update(
-										model,
-										{
-											graph: $author$project$GraphDefs$removeSelected(model.graph)
-										}));
-							} else {
-								break _v0$15;
-							}
-						} else {
+						if (msg.b.$ === 'Character') {
 							switch (msg.b.a.valueOf()) {
 								case 'a':
 									return $author$project$Modes$NewArrow$initialise(model);
@@ -8336,34 +8276,14 @@ var $author$project$Main$update_DefaultMode = F2(
 														model.graph,
 														_Utils_Tuple2(30, 30))
 												})));
-								case 's':
-									return $author$project$Modes$Square$initialise(model);
-								case '/':
-									return $author$project$Modes$SplitArrow$initialise(model);
-								case 'r':
-									var ids = A2(
-										$elm$core$Maybe$withDefault,
-										_List_Nil,
-										A2(
-											$elm$core$Maybe$map,
-											$elm$core$List$singleton,
-											$author$project$Model$objId(
-												$author$project$Model$activeObj(model))));
-									return $author$project$Model$noCmd(
-										A2($author$project$Model$initialise_RenameMode, ids, model));
-								case 'p':
+								case 'd':
 									return $author$project$Model$noCmd(
 										_Utils_update(
 											model,
-											{mode: $author$project$Modes$NewNode}));
-								case 'q':
-									return _Utils_Tuple2(
-										_Utils_update(
-											model,
-											{
-												mode: $author$project$Modes$QuickInputMode($elm$core$Maybe$Nothing)
-											}),
-										$author$project$Msg$focusId($author$project$HtmlDefs$quickInputId));
+											{mode: $author$project$Modes$DebugMode}));
+								case 'g':
+									return $author$project$Model$noCmd(
+										$author$project$Main$initialiseMoveMode(model));
 								case 'i':
 									return $author$project$Model$noCmd(
 										function () {
@@ -8379,14 +8299,32 @@ var $author$project$Main$update_DefaultMode = F2(
 												return model;
 											}
 										}());
-								case 'd':
+								case 'r':
+									var ids = A2(
+										$elm$core$Maybe$withDefault,
+										_List_Nil,
+										A2(
+											$elm$core$Maybe$map,
+											$elm$core$List$singleton,
+											$author$project$Model$objId(
+												$author$project$Model$activeObj(model))));
+									return $author$project$Model$noCmd(
+										A2($author$project$Model$initialise_RenameMode, ids, model));
+								case 's':
+									return $author$project$Modes$Square$initialise(model);
+								case 'p':
 									return $author$project$Model$noCmd(
 										_Utils_update(
 											model,
-											{mode: $author$project$Modes$DebugMode}));
-								case 'g':
-									return $author$project$Model$noCmd(
-										$author$project$Main$initialiseMoveMode(model));
+											{mode: $author$project$Modes$NewNode}));
+								case 'q':
+									return _Utils_Tuple2(
+										_Utils_update(
+											model,
+											{
+												mode: $author$project$Modes$QuickInputMode($elm$core$Maybe$Nothing)
+											}),
+										$author$project$Msg$focusId($author$project$HtmlDefs$quickInputId));
 								case 'x':
 									return $author$project$Model$noCmd(
 										_Utils_update(
@@ -8394,8 +8332,21 @@ var $author$project$Main$update_DefaultMode = F2(
 											{
 												graph: $author$project$GraphDefs$removeSelected(model.graph)
 											}));
+								case '/':
+									return $author$project$Modes$SplitArrow$initialise(model);
 								default:
 									break _v0$15;
+							}
+						} else {
+							if (msg.b.a === 'Delete') {
+								return $author$project$Model$noCmd(
+									_Utils_update(
+										model,
+										{
+											graph: $author$project$GraphDefs$removeSelected(model.graph)
+										}));
+							} else {
+								break _v0$15;
 							}
 						}
 					} else {
@@ -9461,6 +9412,44 @@ var $author$project$Main$update_QuickInput = F3(
 		}
 		return $author$project$Model$noCmd(model);
 	});
+var $author$project$Polygraph$mapRecAll = F5(
+	function (cn, ce, fn, fe, _v0) {
+		var g = _v0.a;
+		return A6(
+			$author$project$Polygraph$mapRec,
+			cn,
+			ce,
+			fn,
+			fe,
+			$elm_community$intdict$IntDict$keys(g),
+			$author$project$Polygraph$Graph(g));
+	});
+var $author$project$GraphDefs$addNodesSelection = F2(
+	function (g, f) {
+		return A5(
+			$author$project$Polygraph$mapRecAll,
+			function ($) {
+				return $.selected;
+			},
+			function ($) {
+				return $.selected;
+			},
+			F2(
+				function (_v0, n) {
+					return _Utils_update(
+						n,
+						{
+							selected: f(n) || n.selected
+						});
+				}),
+			F4(
+				function (_v1, s1, s2, e) {
+					return _Utils_update(
+						e,
+						{selected: (s1 && s2) || e.selected});
+				}),
+			g);
+	});
 var $elm$core$List$maximum = function (list) {
 	if (list.b) {
 		var x = list.a;
@@ -9529,31 +9518,14 @@ var $author$project$Geometry$makeRect = F2(
 			_List_fromArray(
 				[p1, p2]));
 	});
-var $author$project$GraphDefs$setNodesSelection = F2(
-	function (g, f) {
-		return A3(
-			$author$project$Polygraph$map,
-			F2(
-				function (_v0, n) {
-					return _Utils_update(
-						n,
-						{
-							selected: f(n)
-						});
-				}),
-			function (_v1) {
-				return $elm$core$Basics$identity;
-			},
-			g);
-	});
 var $author$project$Main$selectGraph = F3(
 	function (m, orig, keep) {
 		var selRect = A2($author$project$Geometry$makeRect, orig, m.mousePos);
 		var g = keep ? m.graph : $author$project$GraphDefs$clearSelection(m.graph);
 		var isSel = function (n) {
-			return A2($author$project$Geometry$isInRect, selRect, n.pos) || (n.selected && keep);
+			return A2($author$project$Geometry$isInRect, selRect, n.pos);
 		};
-		return A2($author$project$GraphDefs$setNodesSelection, g, isSel);
+		return A2($author$project$GraphDefs$addNodesSelection, g, isSel);
 	});
 var $author$project$Main$update_RectSelect = F4(
 	function (msg, orig, keep, model) {
@@ -10534,56 +10506,6 @@ var $author$project$GraphDrawing$edgeDrawing = F3(
 					A3($author$project$GraphDrawing$segmentLabel, q, edgeId, label)
 				]));
 	});
-var $author$project$Polygraph$mapRec = F3(
-	function (fn, fe, _v0) {
-		var g = _v0.a;
-		var dict = A4(
-			$author$project$Polygraph$mapRecAux,
-			fn,
-			fe,
-			A2(
-				$elm_community$intdict$IntDict$map,
-				function (_v5) {
-					return $author$project$Polygraph$Input;
-				},
-				g),
-			$elm_community$intdict$IntDict$keys(g));
-		var l = $elm_community$intdict$IntDict$toList(dict);
-		var missings = A2(
-			$elm$core$List$filterMap,
-			function (_v3) {
-				var id = _v3.a;
-				var o = _v3.b;
-				if (o.$ === 'Waiting') {
-					var i1 = o.a;
-					var i2 = o.b;
-					var e = o.c;
-					return $elm$core$Maybe$Just(
-						{from: i1, id: id, label: e, to: i2});
-				} else {
-					return $elm$core$Maybe$Nothing;
-				}
-			},
-			l);
-		var gf = $elm_community$intdict$IntDict$fromList(
-			A2(
-				$elm$core$List$filterMap,
-				function (_v1) {
-					var id = _v1.a;
-					var o = _v1.b;
-					if (o.$ === 'Output') {
-						var o2 = o.a;
-						return $elm$core$Maybe$Just(
-							_Utils_Tuple2(id, o2));
-					} else {
-						return $elm$core$Maybe$Nothing;
-					}
-				},
-				l));
-		return _Utils_Tuple2(
-			$author$project$Polygraph$Graph(gf),
-			missings);
-	});
 var $author$project$Msg$NodeClick = F2(
 	function (a, b) {
 		return {$: 'NodeClick', a: a, b: b};
@@ -10787,8 +10709,10 @@ var $author$project$Geometry$segmentRectBent = F3(
 	});
 var $author$project$GraphDrawing$graphDrawing = function (g0) {
 	var padding = 5;
-	var _v0 = A3(
-		$author$project$Polygraph$mapRec,
+	var g = A5(
+		$author$project$Polygraph$mapRecAll,
+		$elm$core$Basics$identity,
+		$elm$core$Basics$identity,
 		F2(
 			function (id, n) {
 				return {
@@ -10818,8 +10742,6 @@ var $author$project$GraphDrawing$graphDrawing = function (g0) {
 				};
 			}),
 		g0);
-	var g = _v0.a;
-	var missing = _v0.b;
 	var nodes = A2(
 		$elm$core$List$map,
 		A2(
@@ -10843,9 +10765,7 @@ var $author$project$GraphDrawing$graphDrawing = function (g0) {
 			}),
 		$author$project$Polygraph$edges(g));
 	var drawings = _Utils_ap(nodes, edges);
-	return _Utils_Tuple2(
-		$author$project$Drawing$group(drawings),
-		missing);
+	return $author$project$Drawing$group(drawings);
 };
 var $author$project$GraphDrawing$make_nodeDrawingLabel = F2(
 	function (_v0, l) {
@@ -11454,10 +11374,9 @@ var $author$project$Drawing$svg = F2(
 			$author$project$Drawing$drawingToSvgs(d));
 	});
 var $author$project$Main$view = function (model) {
-	var _v0 = $author$project$GraphDrawing$graphDrawing(
+	var missings = $author$project$Polygraph$invalidEdges(model.graph);
+	var drawings = $author$project$GraphDrawing$graphDrawing(
 		$author$project$Main$graphDrawingFromModel(model));
-	var drawings = _v0.a;
-	var missings = _v0.b;
 	var nmissings = $elm$core$List$length(missings);
 	return A2(
 		$elm$html$Html$div,
