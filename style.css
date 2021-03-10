@@ -114,7 +114,7 @@ main section:hover {
   box-shadow: 0 3px 2px rgba(52, 52, 52, 0.08);
 }
 
-main section.myself {
+main .myself {
   grid-area: me;
 }
 
