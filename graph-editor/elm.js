@@ -8441,31 +8441,32 @@ var $author$project$Geometry$centerRect = function (_v0) {
 var $author$project$Polygraph$merge = F3(
 	function (i1, i2, _v0) {
 		var g = _v0.a;
-		return $author$project$Polygraph$Graph(
-			A2(
-				$elm_community$intdict$IntDict$remove,
-				i2,
+		return $author$project$Polygraph$sanitise(
+			$author$project$Polygraph$Graph(
 				A2(
-					$elm_community$intdict$IntDict$map,
-					F2(
-						function (_v1, o) {
-							if (o.$ === 'EdgeObj') {
-								var j1 = o.a;
-								var j2 = o.b;
-								var e = o.c;
-								var repl = function (k) {
-									return _Utils_eq(k, i2) ? i1 : k;
-								};
-								return A3(
-									$author$project$Polygraph$EdgeObj,
-									repl(j1),
-									repl(j2),
-									e);
-							} else {
-								return o;
-							}
-						}),
-					g)));
+					$elm_community$intdict$IntDict$remove,
+					i2,
+					A2(
+						$elm_community$intdict$IntDict$map,
+						F2(
+							function (_v1, o) {
+								if (o.$ === 'EdgeObj') {
+									var j1 = o.a;
+									var j2 = o.b;
+									var e = o.c;
+									var repl = function (k) {
+										return _Utils_eq(k, i2) ? i1 : k;
+									};
+									return A3(
+										$author$project$Polygraph$EdgeObj,
+										repl(j1),
+										repl(j2),
+										e);
+								} else {
+									return o;
+								}
+							}),
+						g))));
 	});
 var $elm$core$List$maximum = function (list) {
 	if (list.b) {
