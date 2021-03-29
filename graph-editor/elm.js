@@ -7562,6 +7562,7 @@ var $author$project$Modes$SplitArrow$update = F3(
 					})));
 	});
 var $elm$core$String$fromList = _String_fromList;
+var $elm$core$Debug$log = _Debug_log;
 var $author$project$Modes$Square$makeEdges = F3(
 	function (data, ne1, ne2) {
 		return {e1: data.e1.id, e2: data.e2.id, ne1: ne1, ne2: ne2};
@@ -7721,22 +7722,6 @@ var $elm$core$List$take = F2(
 	function (n, list) {
 		return A3($elm$core$List$takeFast, 0, n, list);
 	});
-var $elm_community$list_extra$List$Extra$removeAt = F2(
-	function (index, l) {
-		if (index < 0) {
-			return l;
-		} else {
-			var _v0 = A2($elm$core$List$drop, index, l);
-			if (!_v0.b) {
-				return l;
-			} else {
-				var rest = _v0.b;
-				return _Utils_ap(
-					A2($elm$core$List$take, index, l),
-					rest);
-			}
-		}
-	});
 var $elm_community$list_extra$List$Extra$splitAt = F2(
 	function (n, xs) {
 		return _Utils_Tuple2(
@@ -7744,69 +7729,37 @@ var $elm_community$list_extra$List$Extra$splitAt = F2(
 			A2($elm$core$List$drop, n, xs));
 	});
 var $author$project$MyDiff$apply = F2(
-	function (_v0, l) {
-		var n = _v0.a;
-		var d = _v0.b;
-		if (d.$ === 'Removed') {
-			return A2($elm_community$list_extra$List$Extra$removeAt, n, l);
-		} else {
-			var x = d.a;
-			var _v2 = A2($elm_community$list_extra$List$Extra$splitAt, n, l);
-			var l1 = _v2.a;
-			var l2 = _v2.b;
-			return _Utils_ap(
-				l1,
-				A2($elm$core$List$cons, x, l2));
-		}
+	function (c, l) {
+		var _v0 = A2($elm_community$list_extra$List$Extra$splitAt, c.index, l);
+		var l1 = _v0.a;
+		var l2 = _v0.b;
+		return _Utils_ap(
+			l1,
+			_Utils_ap(
+				$elm$core$List$reverse(c.rep),
+				A2($elm$core$List$drop, c.length, l2)));
 	});
 var $author$project$MyDiff$applyAll = $elm$core$List$foldl($author$project$MyDiff$apply);
-var $author$project$MyDiff$changeToInt = function (c) {
-	if (c.$ === 'Removed') {
-		return -1;
-	} else {
-		return 1;
-	}
-};
 var $author$project$MyDiff$commute = F2(
-	function (_v0, _v1) {
-		var p = _v0.a;
-		var a = _v0.b;
-		var q = _v1.a;
-		var b = _v1.b;
+	function (c1, c2) {
 		var ret = F2(
 			function (p2, q2) {
 				return $elm$core$Maybe$Just(
 					_Utils_Tuple2(
-						_Utils_Tuple2(q2, b),
-						_Utils_Tuple2(p2, a)));
+						_Utils_update(
+							c2,
+							{index: q2}),
+						_Utils_update(
+							c1,
+							{index: p2})));
 			});
-		if (_Utils_cmp(p, q) < 0) {
-			return A2(
-				ret,
-				p,
-				q - $author$project$MyDiff$changeToInt(a));
-		} else {
-			if (_Utils_cmp(p, q) > 0) {
-				return A2(
-					ret,
-					p + $author$project$MyDiff$changeToInt(b),
-					q);
-			} else {
-				var _v2 = _Utils_Tuple2(a, b);
-				if (_v2.b.$ === 'Added') {
-					return A2(ret, p + 1, q);
-				} else {
-					if (_v2.a.$ === 'Removed') {
-						var _v3 = _v2.a;
-						var _v4 = _v2.b;
-						return A2(ret, p, q + 1);
-					} else {
-						var _v5 = _v2.b;
-						return $elm$core$Maybe$Nothing;
-					}
-				}
-			}
-		}
+		return (_Utils_cmp(c1.index, c2.index) < 0) ? A2(
+			ret,
+			c1.index,
+			(c2.index + c1.length) - $elm$core$List$length(c1.rep)) : A2(
+			ret,
+			(c1.index + $elm$core$List$length(c2.rep)) - c2.length,
+			c2.index);
 	});
 var $author$project$MyDiff$commuteList = F2(
 	function (c, l) {
@@ -7836,39 +7789,70 @@ var $author$project$MyDiff$commuteAll = F2(
 			$elm$core$Maybe$Just(l),
 			$elm$core$List$reverse(cl));
 	});
-var $author$project$MyDiff$Added = function (a) {
-	return {$: 'Added', a: a};
-};
-var $author$project$MyDiff$Removed = {$: 'Removed'};
 var $author$project$MyDiff$compile = F2(
-	function (n, l) {
+	function (i, l) {
 		compile:
 		while (true) {
 			if (!l.b) {
 				return _List_Nil;
 			} else {
-				var t = l.a;
-				var q = l.b;
-				switch (t.$) {
+				if (l.a.$ === 'NoChange') {
+					var q = l.b;
+					var $temp$i = i + 1,
+						$temp$l = q;
+					i = $temp$i;
+					l = $temp$l;
+					continue compile;
+				} else {
+					return A3(
+						$author$project$MyDiff$compileChange,
+						i,
+						l,
+						{index: i, length: 0, rep: _List_Nil});
+				}
+			}
+		}
+	});
+var $author$project$MyDiff$compileChange = F3(
+	function (i, l, c) {
+		compileChange:
+		while (true) {
+			if (!l.b) {
+				return _List_fromArray(
+					[c]);
+			} else {
+				switch (l.a.$) {
 					case 'Added':
-						var x = t.a;
-						return A2(
-							$elm$core$List$cons,
-							_Utils_Tuple2(
-								n,
-								$author$project$MyDiff$Added(x)),
-							A2($author$project$MyDiff$compile, n + 1, q));
-					case 'Removed':
-						return A2(
-							$elm$core$List$cons,
-							_Utils_Tuple2(n, $author$project$MyDiff$Removed),
-							A2($author$project$MyDiff$compile, n, q));
-					default:
-						var $temp$n = n + 1,
-							$temp$l = q;
-						n = $temp$n;
+						var x = l.a.a;
+						var q = l.b;
+						var $temp$i = i + 1,
+							$temp$l = q,
+							$temp$c = _Utils_update(
+							c,
+							{
+								rep: A2($elm$core$List$cons, x, c.rep)
+							});
+						i = $temp$i;
 						l = $temp$l;
-						continue compile;
+						c = $temp$c;
+						continue compileChange;
+					case 'Removed':
+						var q = l.b;
+						var $temp$i = i,
+							$temp$l = q,
+							$temp$c = _Utils_update(
+							c,
+							{length: c.length + 1});
+						i = $temp$i;
+						l = $temp$l;
+						c = $temp$c;
+						continue compileChange;
+					default:
+						var q = l.b;
+						return A2(
+							$elm$core$List$cons,
+							c,
+							A2($author$project$MyDiff$compile, i + 1, q));
 				}
 			}
 		}
@@ -8321,7 +8305,6 @@ var $jinjor$elm_diff$Diff$diff = F2(
 			return _List_Nil;
 		}
 	});
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$MyDiff$swapDiff = F3(
 	function (l1, l2, l3) {
 		var cl2 = A2(
@@ -8349,24 +8332,33 @@ var $elm$core$String$toList = function (string) {
 };
 var $author$project$Modes$Square$moveNodeViewInfo = F2(
 	function (m, data) {
-		var commute = F2(
-			function (str1, str2) {
-				return A2(
-					$elm$core$Maybe$withDefault,
-					'!',
-					A2(
-						$elm$core$Maybe$map,
-						$elm$core$String$fromList,
-						A3(
-							$author$project$MyDiff$swapDiff,
-							$elm$core$String$toList(str1),
-							$elm$core$String$toList(data.chosenLabel),
-							$elm$core$String$toList(str2))));
+		var flipIf = F3(
+			function (b, x1, x2) {
+				return false ? _Utils_Tuple2(x2, x1) : _Utils_Tuple2(x1, x2);
 			});
+		var commute = function (_v8) {
+			var str1 = _v8.a;
+			var str2 = _v8.b;
+			var _v7 = A2($elm$core$Debug$log, str1, str2);
+			return A2(
+				$elm$core$Maybe$withDefault,
+				'!',
+				A2(
+					$elm$core$Maybe$map,
+					$elm$core$String$fromList,
+					A3(
+						$author$project$MyDiff$swapDiff,
+						$elm$core$String$toList(str1),
+						$elm$core$String$toList(data.chosenLabel),
+						$elm$core$String$toList(str2))));
+		};
 		var _v0 = _Utils_eq(data.n1ToChosen, !data.n2ToChosen) ? _Utils_Tuple3(
-			A2(commute, data.n1Label, data.n2Label),
-			A2(commute, data.n1Label, data.e2.label.label),
-			A2(commute, data.e1.label.label, data.n2Label)) : _Utils_Tuple3('', '', '');
+			commute(
+				_Utils_Tuple2(data.n1Label, data.n2Label)),
+			commute(
+				A3(flipIf, data.n1ToChosen, data.n1Label, data.e2.label.label)),
+			commute(
+				A3(flipIf, data.n1ToChosen, data.e1.label.label, data.n2Label))) : _Utils_Tuple3('', '', '');
 		var labelNode = _v0.a;
 		var labelEdge1 = _v0.b;
 		var labelEdge2 = _v0.c;
