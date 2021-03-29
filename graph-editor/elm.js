@@ -7562,7 +7562,6 @@ var $author$project$Modes$SplitArrow$update = F3(
 					})));
 	});
 var $elm$core$String$fromList = _String_fromList;
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$Modes$Square$makeEdges = F3(
 	function (data, ne1, ne2) {
 		return {e1: data.e1.id, e2: data.e2.id, ne1: ne1, ne2: ne2};
@@ -8308,19 +8307,13 @@ var $jinjor$elm_diff$Diff$diff = F2(
 var $author$project$MyDiff$swapDiff = F3(
 	function (l1, l2, l3) {
 		var cl2 = A2(
-			$elm$core$Debug$log,
-			'interesting2 ',
-			A2(
-				$author$project$MyDiff$compile,
-				0,
-				A2($jinjor$elm_diff$Diff$diff, l2, l3)));
+			$author$project$MyDiff$compile,
+			0,
+			A2($jinjor$elm_diff$Diff$diff, l2, l3));
 		var cl1 = A2(
-			$elm$core$Debug$log,
-			'interesting1 ',
-			A2(
-				$author$project$MyDiff$compile,
-				0,
-				A2($jinjor$elm_diff$Diff$diff, l1, l2)));
+			$author$project$MyDiff$compile,
+			0,
+			A2($jinjor$elm_diff$Diff$diff, l1, l2));
 		return A2(
 			$elm$core$Maybe$map,
 			$author$project$MyDiff$applyAll(l1),
@@ -8336,10 +8329,9 @@ var $author$project$Modes$Square$moveNodeViewInfo = F2(
 			function (b, x1, x2) {
 				return false ? _Utils_Tuple2(x2, x1) : _Utils_Tuple2(x1, x2);
 			});
-		var commute = function (_v8) {
-			var str1 = _v8.a;
-			var str2 = _v8.b;
-			var _v7 = A2($elm$core$Debug$log, str1, str2);
+		var commute = function (_v7) {
+			var str1 = _v7.a;
+			var str2 = _v7.b;
 			return A2(
 				$elm$core$Maybe$withDefault,
 				'!',
