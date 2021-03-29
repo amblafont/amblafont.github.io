@@ -7561,9 +7561,10 @@ var $author$project$Modes$SplitArrow$update = F3(
 						pos: A2($author$project$InputPosition$updateNoKeyboard, state.pos, msg)
 					})));
 	});
+var $elm$core$String$fromList = _String_fromList;
 var $author$project$Modes$Square$makeEdges = F3(
 	function (data, ne1, ne2) {
-		return {e1: data.e1, e2: data.e2, ne1: ne1, ne2: ne2};
+		return {e1: data.e1.id, e2: data.e2.id, ne1: ne1, ne2: ne2};
 	});
 var $author$project$Model$mayCreateTargetNode = F2(
 	function (m, s) {
@@ -7573,37 +7574,841 @@ var $author$project$Modes$Square$nToMoved = F2(
 	function (nToChosen, otherNToChosen) {
 		return _Utils_eq(nToChosen, otherNToChosen) ? (!nToChosen) : nToChosen;
 	});
+var $elm$core$List$drop = F2(
+	function (n, list) {
+		drop:
+		while (true) {
+			if (n <= 0) {
+				return list;
+			} else {
+				if (!list.b) {
+					return list;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs;
+					n = $temp$n;
+					list = $temp$list;
+					continue drop;
+				}
+			}
+		}
+	});
+var $elm$core$List$takeReverse = F3(
+	function (n, list, kept) {
+		takeReverse:
+		while (true) {
+			if (n <= 0) {
+				return kept;
+			} else {
+				if (!list.b) {
+					return kept;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs,
+						$temp$kept = A2($elm$core$List$cons, x, kept);
+					n = $temp$n;
+					list = $temp$list;
+					kept = $temp$kept;
+					continue takeReverse;
+				}
+			}
+		}
+	});
+var $elm$core$List$takeTailRec = F2(
+	function (n, list) {
+		return $elm$core$List$reverse(
+			A3($elm$core$List$takeReverse, n, list, _List_Nil));
+	});
+var $elm$core$List$takeFast = F3(
+	function (ctr, n, list) {
+		if (n <= 0) {
+			return _List_Nil;
+		} else {
+			var _v0 = _Utils_Tuple2(n, list);
+			_v0$1:
+			while (true) {
+				_v0$5:
+				while (true) {
+					if (!_v0.b.b) {
+						return list;
+					} else {
+						if (_v0.b.b.b) {
+							switch (_v0.a) {
+								case 1:
+									break _v0$1;
+								case 2:
+									var _v2 = _v0.b;
+									var x = _v2.a;
+									var _v3 = _v2.b;
+									var y = _v3.a;
+									return _List_fromArray(
+										[x, y]);
+								case 3:
+									if (_v0.b.b.b.b) {
+										var _v4 = _v0.b;
+										var x = _v4.a;
+										var _v5 = _v4.b;
+										var y = _v5.a;
+										var _v6 = _v5.b;
+										var z = _v6.a;
+										return _List_fromArray(
+											[x, y, z]);
+									} else {
+										break _v0$5;
+									}
+								default:
+									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
+										var _v7 = _v0.b;
+										var x = _v7.a;
+										var _v8 = _v7.b;
+										var y = _v8.a;
+										var _v9 = _v8.b;
+										var z = _v9.a;
+										var _v10 = _v9.b;
+										var w = _v10.a;
+										var tl = _v10.b;
+										return (ctr > 1000) ? A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
+									} else {
+										break _v0$5;
+									}
+							}
+						} else {
+							if (_v0.a === 1) {
+								break _v0$1;
+							} else {
+								break _v0$5;
+							}
+						}
+					}
+				}
+				return list;
+			}
+			var _v1 = _v0.b;
+			var x = _v1.a;
+			return _List_fromArray(
+				[x]);
+		}
+	});
+var $elm$core$List$take = F2(
+	function (n, list) {
+		return A3($elm$core$List$takeFast, 0, n, list);
+	});
+var $elm_community$list_extra$List$Extra$removeAt = F2(
+	function (index, l) {
+		if (index < 0) {
+			return l;
+		} else {
+			var _v0 = A2($elm$core$List$drop, index, l);
+			if (!_v0.b) {
+				return l;
+			} else {
+				var rest = _v0.b;
+				return _Utils_ap(
+					A2($elm$core$List$take, index, l),
+					rest);
+			}
+		}
+	});
+var $elm_community$list_extra$List$Extra$splitAt = F2(
+	function (n, xs) {
+		return _Utils_Tuple2(
+			A2($elm$core$List$take, n, xs),
+			A2($elm$core$List$drop, n, xs));
+	});
+var $author$project$MyDiff$apply = F2(
+	function (_v0, l) {
+		var n = _v0.a;
+		var d = _v0.b;
+		if (d.$ === 'Removed') {
+			return A2($elm_community$list_extra$List$Extra$removeAt, n, l);
+		} else {
+			var x = d.a;
+			var _v2 = A2($elm_community$list_extra$List$Extra$splitAt, n, l);
+			var l1 = _v2.a;
+			var l2 = _v2.b;
+			return _Utils_ap(
+				l1,
+				A2($elm$core$List$cons, x, l2));
+		}
+	});
+var $author$project$MyDiff$applyAll = $elm$core$List$foldl($author$project$MyDiff$apply);
+var $author$project$MyDiff$changeToInt = function (c) {
+	if (c.$ === 'Removed') {
+		return -1;
+	} else {
+		return 1;
+	}
+};
+var $author$project$MyDiff$commute = F2(
+	function (_v0, _v1) {
+		var p = _v0.a;
+		var a = _v0.b;
+		var q = _v1.a;
+		var b = _v1.b;
+		var ret = F2(
+			function (p2, q2) {
+				return $elm$core$Maybe$Just(
+					_Utils_Tuple2(
+						_Utils_Tuple2(q2, b),
+						_Utils_Tuple2(p2, a)));
+			});
+		if (_Utils_cmp(p, q) < 0) {
+			return A2(
+				ret,
+				p,
+				q - $author$project$MyDiff$changeToInt(a));
+		} else {
+			if (_Utils_cmp(p, q) > 0) {
+				return A2(
+					ret,
+					p + $author$project$MyDiff$changeToInt(b),
+					q);
+			} else {
+				var _v2 = _Utils_Tuple2(a, b);
+				if (_v2.b.$ === 'Added') {
+					return A2(ret, p + 1, q);
+				} else {
+					if (_v2.a.$ === 'Removed') {
+						var _v3 = _v2.a;
+						var _v4 = _v2.b;
+						return A2(ret, p, q + 1);
+					} else {
+						var _v5 = _v2.b;
+						return $elm$core$Maybe$Nothing;
+					}
+				}
+			}
+		}
+	});
+var $author$project$MyDiff$commuteList = F2(
+	function (c, l) {
+		if (!l.b) {
+			return $elm$core$Maybe$Just(_List_Nil);
+		} else {
+			var t = l.a;
+			var q = l.b;
+			return A2(
+				$elm$core$Maybe$andThen,
+				function (_v1) {
+					var t2 = _v1.a;
+					var c2 = _v1.b;
+					return A2(
+						$elm$core$Maybe$map,
+						$elm$core$List$cons(t2),
+						A2($author$project$MyDiff$commuteList, c2, q));
+				},
+				A2($author$project$MyDiff$commute, c, t));
+		}
+	});
+var $author$project$MyDiff$commuteAll = F2(
+	function (l, cl) {
+		return A3(
+			$elm$core$List$foldl,
+			A2($elm$core$Basics$composeL, $elm$core$Maybe$andThen, $author$project$MyDiff$commuteList),
+			$elm$core$Maybe$Just(l),
+			$elm$core$List$reverse(cl));
+	});
+var $author$project$MyDiff$Added = function (a) {
+	return {$: 'Added', a: a};
+};
+var $author$project$MyDiff$Removed = {$: 'Removed'};
+var $author$project$MyDiff$compile = F2(
+	function (n, l) {
+		compile:
+		while (true) {
+			if (!l.b) {
+				return _List_Nil;
+			} else {
+				var t = l.a;
+				var q = l.b;
+				switch (t.$) {
+					case 'Added':
+						var x = t.a;
+						return A2(
+							$elm$core$List$cons,
+							_Utils_Tuple2(
+								n,
+								$author$project$MyDiff$Added(x)),
+							A2($author$project$MyDiff$compile, n + 1, q));
+					case 'Removed':
+						return A2(
+							$elm$core$List$cons,
+							_Utils_Tuple2(n, $author$project$MyDiff$Removed),
+							A2($author$project$MyDiff$compile, n, q));
+					default:
+						var $temp$n = n + 1,
+							$temp$l = q;
+						n = $temp$n;
+						l = $temp$l;
+						continue compile;
+				}
+			}
+		}
+	});
+var $elm$core$Array$fromListHelp = F3(
+	function (list, nodeList, nodeListSize) {
+		fromListHelp:
+		while (true) {
+			var _v0 = A2($elm$core$Elm$JsArray$initializeFromList, $elm$core$Array$branchFactor, list);
+			var jsArray = _v0.a;
+			var remainingItems = _v0.b;
+			if (_Utils_cmp(
+				$elm$core$Elm$JsArray$length(jsArray),
+				$elm$core$Array$branchFactor) < 0) {
+				return A2(
+					$elm$core$Array$builderToArray,
+					true,
+					{nodeList: nodeList, nodeListSize: nodeListSize, tail: jsArray});
+			} else {
+				var $temp$list = remainingItems,
+					$temp$nodeList = A2(
+					$elm$core$List$cons,
+					$elm$core$Array$Leaf(jsArray),
+					nodeList),
+					$temp$nodeListSize = nodeListSize + 1;
+				list = $temp$list;
+				nodeList = $temp$nodeList;
+				nodeListSize = $temp$nodeListSize;
+				continue fromListHelp;
+			}
+		}
+	});
+var $elm$core$Array$fromList = function (list) {
+	if (!list.b) {
+		return $elm$core$Array$empty;
+	} else {
+		return A3($elm$core$Array$fromListHelp, list, _List_Nil, 0);
+	}
+};
+var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
+var $elm$core$Basics$ge = _Utils_ge;
+var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
+var $elm$core$Array$getHelp = F3(
+	function (shift, index, tree) {
+		getHelp:
+		while (true) {
+			var pos = $elm$core$Array$bitMask & (index >>> shift);
+			var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
+			if (_v0.$ === 'SubTree') {
+				var subTree = _v0.a;
+				var $temp$shift = shift - $elm$core$Array$shiftStep,
+					$temp$index = index,
+					$temp$tree = subTree;
+				shift = $temp$shift;
+				index = $temp$index;
+				tree = $temp$tree;
+				continue getHelp;
+			} else {
+				var values = _v0.a;
+				return A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, values);
+			}
+		}
+	});
+var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
+var $elm$core$Array$tailIndex = function (len) {
+	return (len >>> 5) << 5;
+};
+var $elm$core$Array$get = F2(
+	function (index, _v0) {
+		var len = _v0.a;
+		var startShift = _v0.b;
+		var tree = _v0.c;
+		var tail = _v0.d;
+		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? $elm$core$Maybe$Nothing : ((_Utils_cmp(
+			index,
+			$elm$core$Array$tailIndex(len)) > -1) ? $elm$core$Maybe$Just(
+			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
+			A3($elm$core$Array$getHelp, startShift, index, tree)));
+	});
+var $elm$core$Array$length = function (_v0) {
+	var len = _v0.a;
+	return len;
+};
+var $jinjor$elm_diff$Diff$Added = function (a) {
+	return {$: 'Added', a: a};
+};
+var $jinjor$elm_diff$Diff$CannotGetA = function (a) {
+	return {$: 'CannotGetA', a: a};
+};
+var $jinjor$elm_diff$Diff$CannotGetB = function (a) {
+	return {$: 'CannotGetB', a: a};
+};
+var $jinjor$elm_diff$Diff$NoChange = function (a) {
+	return {$: 'NoChange', a: a};
+};
+var $jinjor$elm_diff$Diff$Removed = function (a) {
+	return {$: 'Removed', a: a};
+};
+var $jinjor$elm_diff$Diff$UnexpectedPath = F2(
+	function (a, b) {
+		return {$: 'UnexpectedPath', a: a, b: b};
+	});
+var $jinjor$elm_diff$Diff$makeChangesHelp = F5(
+	function (changes, getA, getB, _v0, path) {
+		makeChangesHelp:
+		while (true) {
+			var x = _v0.a;
+			var y = _v0.b;
+			if (!path.b) {
+				return $elm$core$Result$Ok(changes);
+			} else {
+				var _v2 = path.a;
+				var prevX = _v2.a;
+				var prevY = _v2.b;
+				var tail = path.b;
+				var change = function () {
+					if (_Utils_eq(x - 1, prevX) && _Utils_eq(y - 1, prevY)) {
+						var _v4 = getA(x);
+						if (_v4.$ === 'Just') {
+							var a = _v4.a;
+							return $elm$core$Result$Ok(
+								$jinjor$elm_diff$Diff$NoChange(a));
+						} else {
+							return $elm$core$Result$Err(
+								$jinjor$elm_diff$Diff$CannotGetA(x));
+						}
+					} else {
+						if (_Utils_eq(x, prevX)) {
+							var _v5 = getB(y);
+							if (_v5.$ === 'Just') {
+								var b = _v5.a;
+								return $elm$core$Result$Ok(
+									$jinjor$elm_diff$Diff$Added(b));
+							} else {
+								return $elm$core$Result$Err(
+									$jinjor$elm_diff$Diff$CannotGetB(y));
+							}
+						} else {
+							if (_Utils_eq(y, prevY)) {
+								var _v6 = getA(x);
+								if (_v6.$ === 'Just') {
+									var a = _v6.a;
+									return $elm$core$Result$Ok(
+										$jinjor$elm_diff$Diff$Removed(a));
+								} else {
+									return $elm$core$Result$Err(
+										$jinjor$elm_diff$Diff$CannotGetA(x));
+								}
+							} else {
+								return $elm$core$Result$Err(
+									A2(
+										$jinjor$elm_diff$Diff$UnexpectedPath,
+										_Utils_Tuple2(x, y),
+										path));
+							}
+						}
+					}
+				}();
+				if (change.$ === 'Ok') {
+					var c = change.a;
+					var $temp$changes = A2($elm$core$List$cons, c, changes),
+						$temp$getA = getA,
+						$temp$getB = getB,
+						$temp$_v0 = _Utils_Tuple2(prevX, prevY),
+						$temp$path = tail;
+					changes = $temp$changes;
+					getA = $temp$getA;
+					getB = $temp$getB;
+					_v0 = $temp$_v0;
+					path = $temp$path;
+					continue makeChangesHelp;
+				} else {
+					var e = change.a;
+					return $elm$core$Result$Err(e);
+				}
+			}
+		}
+	});
+var $jinjor$elm_diff$Diff$makeChanges = F3(
+	function (getA, getB, path) {
+		if (!path.b) {
+			return $elm$core$Result$Ok(_List_Nil);
+		} else {
+			var latest = path.a;
+			var tail = path.b;
+			return A5($jinjor$elm_diff$Diff$makeChangesHelp, _List_Nil, getA, getB, latest, tail);
+		}
+	});
+var $jinjor$elm_diff$Diff$Continue = function (a) {
+	return {$: 'Continue', a: a};
+};
+var $jinjor$elm_diff$Diff$Found = function (a) {
+	return {$: 'Found', a: a};
+};
+var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
+var $elm$core$Array$setHelp = F4(
+	function (shift, index, value, tree) {
+		var pos = $elm$core$Array$bitMask & (index >>> shift);
+		var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
+		if (_v0.$ === 'SubTree') {
+			var subTree = _v0.a;
+			var newSub = A4($elm$core$Array$setHelp, shift - $elm$core$Array$shiftStep, index, value, subTree);
+			return A3(
+				$elm$core$Elm$JsArray$unsafeSet,
+				pos,
+				$elm$core$Array$SubTree(newSub),
+				tree);
+		} else {
+			var values = _v0.a;
+			var newLeaf = A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, values);
+			return A3(
+				$elm$core$Elm$JsArray$unsafeSet,
+				pos,
+				$elm$core$Array$Leaf(newLeaf),
+				tree);
+		}
+	});
+var $elm$core$Array$set = F3(
+	function (index, value, array) {
+		var len = array.a;
+		var startShift = array.b;
+		var tree = array.c;
+		var tail = array.d;
+		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? array : ((_Utils_cmp(
+			index,
+			$elm$core$Array$tailIndex(len)) > -1) ? A4(
+			$elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			tree,
+			A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, tail)) : A4(
+			$elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			A4($elm$core$Array$setHelp, startShift, index, value, tree),
+			tail));
+	});
+var $jinjor$elm_diff$Diff$step = F4(
+	function (snake_, offset, k, v) {
+		var fromTop = A2(
+			$elm$core$Maybe$withDefault,
+			_List_Nil,
+			A2($elm$core$Array$get, (k + 1) + offset, v));
+		var fromLeft = A2(
+			$elm$core$Maybe$withDefault,
+			_List_Nil,
+			A2($elm$core$Array$get, (k - 1) + offset, v));
+		var _v0 = function () {
+			var _v2 = _Utils_Tuple2(fromLeft, fromTop);
+			if (!_v2.a.b) {
+				if (!_v2.b.b) {
+					return _Utils_Tuple2(
+						_List_Nil,
+						_Utils_Tuple2(0, 0));
+				} else {
+					var _v3 = _v2.b;
+					var _v4 = _v3.a;
+					var topX = _v4.a;
+					var topY = _v4.b;
+					return _Utils_Tuple2(
+						fromTop,
+						_Utils_Tuple2(topX + 1, topY));
+				}
+			} else {
+				if (!_v2.b.b) {
+					var _v5 = _v2.a;
+					var _v6 = _v5.a;
+					var leftX = _v6.a;
+					var leftY = _v6.b;
+					return _Utils_Tuple2(
+						fromLeft,
+						_Utils_Tuple2(leftX, leftY + 1));
+				} else {
+					var _v7 = _v2.a;
+					var _v8 = _v7.a;
+					var leftX = _v8.a;
+					var leftY = _v8.b;
+					var _v9 = _v2.b;
+					var _v10 = _v9.a;
+					var topX = _v10.a;
+					var topY = _v10.b;
+					return (_Utils_cmp(leftY + 1, topY) > -1) ? _Utils_Tuple2(
+						fromLeft,
+						_Utils_Tuple2(leftX, leftY + 1)) : _Utils_Tuple2(
+						fromTop,
+						_Utils_Tuple2(topX + 1, topY));
+				}
+			}
+		}();
+		var path = _v0.a;
+		var _v1 = _v0.b;
+		var x = _v1.a;
+		var y = _v1.b;
+		var _v11 = A3(
+			snake_,
+			x + 1,
+			y + 1,
+			A2(
+				$elm$core$List$cons,
+				_Utils_Tuple2(x, y),
+				path));
+		var newPath = _v11.a;
+		var goal = _v11.b;
+		return goal ? $jinjor$elm_diff$Diff$Found(newPath) : $jinjor$elm_diff$Diff$Continue(
+			A3($elm$core$Array$set, k + offset, newPath, v));
+	});
+var $jinjor$elm_diff$Diff$onpLoopK = F4(
+	function (snake_, offset, ks, v) {
+		onpLoopK:
+		while (true) {
+			if (!ks.b) {
+				return $jinjor$elm_diff$Diff$Continue(v);
+			} else {
+				var k = ks.a;
+				var ks_ = ks.b;
+				var _v1 = A4($jinjor$elm_diff$Diff$step, snake_, offset, k, v);
+				if (_v1.$ === 'Found') {
+					var path = _v1.a;
+					return $jinjor$elm_diff$Diff$Found(path);
+				} else {
+					var v_ = _v1.a;
+					var $temp$snake_ = snake_,
+						$temp$offset = offset,
+						$temp$ks = ks_,
+						$temp$v = v_;
+					snake_ = $temp$snake_;
+					offset = $temp$offset;
+					ks = $temp$ks;
+					v = $temp$v;
+					continue onpLoopK;
+				}
+			}
+		}
+	});
+var $jinjor$elm_diff$Diff$onpLoopP = F5(
+	function (snake_, delta, offset, p, v) {
+		onpLoopP:
+		while (true) {
+			var ks = (delta > 0) ? _Utils_ap(
+				$elm$core$List$reverse(
+					A2($elm$core$List$range, delta + 1, delta + p)),
+				A2($elm$core$List$range, -p, delta)) : _Utils_ap(
+				$elm$core$List$reverse(
+					A2($elm$core$List$range, delta + 1, p)),
+				A2($elm$core$List$range, (-p) + delta, delta));
+			var _v0 = A4($jinjor$elm_diff$Diff$onpLoopK, snake_, offset, ks, v);
+			if (_v0.$ === 'Found') {
+				var path = _v0.a;
+				return path;
+			} else {
+				var v_ = _v0.a;
+				var $temp$snake_ = snake_,
+					$temp$delta = delta,
+					$temp$offset = offset,
+					$temp$p = p + 1,
+					$temp$v = v_;
+				snake_ = $temp$snake_;
+				delta = $temp$delta;
+				offset = $temp$offset;
+				p = $temp$p;
+				v = $temp$v;
+				continue onpLoopP;
+			}
+		}
+	});
+var $jinjor$elm_diff$Diff$snake = F5(
+	function (getA, getB, nextX, nextY, path) {
+		snake:
+		while (true) {
+			var _v0 = _Utils_Tuple2(
+				getA(nextX),
+				getB(nextY));
+			_v0$2:
+			while (true) {
+				if (_v0.a.$ === 'Just') {
+					if (_v0.b.$ === 'Just') {
+						var a = _v0.a.a;
+						var b = _v0.b.a;
+						if (_Utils_eq(a, b)) {
+							var $temp$getA = getA,
+								$temp$getB = getB,
+								$temp$nextX = nextX + 1,
+								$temp$nextY = nextY + 1,
+								$temp$path = A2(
+								$elm$core$List$cons,
+								_Utils_Tuple2(nextX, nextY),
+								path);
+							getA = $temp$getA;
+							getB = $temp$getB;
+							nextX = $temp$nextX;
+							nextY = $temp$nextY;
+							path = $temp$path;
+							continue snake;
+						} else {
+							return _Utils_Tuple2(path, false);
+						}
+					} else {
+						break _v0$2;
+					}
+				} else {
+					if (_v0.b.$ === 'Nothing') {
+						var _v1 = _v0.a;
+						var _v2 = _v0.b;
+						return _Utils_Tuple2(path, true);
+					} else {
+						break _v0$2;
+					}
+				}
+			}
+			return _Utils_Tuple2(path, false);
+		}
+	});
+var $jinjor$elm_diff$Diff$onp = F4(
+	function (getA, getB, m, n) {
+		var v = A2(
+			$elm$core$Array$initialize,
+			(m + n) + 1,
+			$elm$core$Basics$always(_List_Nil));
+		var delta = n - m;
+		return A5(
+			$jinjor$elm_diff$Diff$onpLoopP,
+			A2($jinjor$elm_diff$Diff$snake, getA, getB),
+			delta,
+			m,
+			0,
+			v);
+	});
+var $jinjor$elm_diff$Diff$testDiff = F2(
+	function (a, b) {
+		var arrB = $elm$core$Array$fromList(b);
+		var getB = function (y) {
+			return A2($elm$core$Array$get, y - 1, arrB);
+		};
+		var n = $elm$core$Array$length(arrB);
+		var arrA = $elm$core$Array$fromList(a);
+		var getA = function (x) {
+			return A2($elm$core$Array$get, x - 1, arrA);
+		};
+		var m = $elm$core$Array$length(arrA);
+		var path = A4($jinjor$elm_diff$Diff$onp, getA, getB, m, n);
+		return A3($jinjor$elm_diff$Diff$makeChanges, getA, getB, path);
+	});
+var $jinjor$elm_diff$Diff$diff = F2(
+	function (a, b) {
+		var _v0 = A2($jinjor$elm_diff$Diff$testDiff, a, b);
+		if (_v0.$ === 'Ok') {
+			var changes = _v0.a;
+			return changes;
+		} else {
+			return _List_Nil;
+		}
+	});
+var $elm$core$Debug$log = _Debug_log;
+var $author$project$MyDiff$swapDiff = F3(
+	function (l1, l2, l3) {
+		var cl2 = A2(
+			$elm$core$Debug$log,
+			'interesting2 ',
+			A2(
+				$author$project$MyDiff$compile,
+				0,
+				A2($jinjor$elm_diff$Diff$diff, l2, l3)));
+		var cl1 = A2(
+			$elm$core$Debug$log,
+			'interesting1 ',
+			A2(
+				$author$project$MyDiff$compile,
+				0,
+				A2($jinjor$elm_diff$Diff$diff, l1, l2)));
+		return A2(
+			$elm$core$Maybe$map,
+			$author$project$MyDiff$applyAll(l1),
+			A2($author$project$MyDiff$commuteAll, cl2, cl1));
+	});
+var $elm$core$String$foldr = _String_foldr;
+var $elm$core$String$toList = function (string) {
+	return A3($elm$core$String$foldr, $elm$core$List$cons, _List_Nil, string);
+};
 var $author$project$Modes$Square$moveNodeViewInfo = F2(
 	function (m, data) {
-		var _v0 = A2($author$project$Model$mayCreateTargetNode, m, '');
-		var _v1 = _v0.a;
-		var g = _v1.a;
-		var n = _v1.b;
-		var created = _v0.b;
+		var commute = F2(
+			function (str1, str2) {
+				return A2(
+					$elm$core$Maybe$withDefault,
+					'!',
+					A2(
+						$elm$core$Maybe$map,
+						$elm$core$String$fromList,
+						A3(
+							$author$project$MyDiff$swapDiff,
+							$elm$core$String$toList(str1),
+							$elm$core$String$toList(data.chosenLabel),
+							$elm$core$String$toList(str2))));
+			});
+		var _v0 = _Utils_eq(data.n1ToChosen, !data.n2ToChosen) ? _Utils_Tuple3(
+			A2(commute, data.n1Label, data.n2Label),
+			A2(commute, data.n1Label, data.e2.label.label),
+			A2(commute, data.e1.label.label, data.n2Label)) : _Utils_Tuple3('', '', '');
+		var labelNode = _v0.a;
+		var labelEdge1 = _v0.b;
+		var labelEdge2 = _v0.c;
+		var _v1 = A2($author$project$Model$mayCreateTargetNode, m, labelNode);
+		var _v2 = _v1.a;
+		var g = _v2.a;
+		var n = _v2.b;
+		var created = _v1.b;
 		var make_EdgeId = F3(
 			function (n1, n2, isTo) {
 				return isTo ? _Utils_Tuple2(n1, n2) : _Utils_Tuple2(n2, n1);
 			});
-		var _v2 = A3(
+		var _v3 = A3(
 			make_EdgeId,
 			data.n1,
 			n,
 			A2($author$project$Modes$Square$nToMoved, data.n1ToChosen, data.n2ToChosen));
-		var e1n1 = _v2.a;
-		var e1n2 = _v2.b;
-		var _v3 = A3(
+		var e1n1 = _v3.a;
+		var e1n2 = _v3.b;
+		var _v4 = A3(
 			make_EdgeId,
 			data.n2,
 			n,
 			A2($author$project$Modes$Square$nToMoved, data.n2ToChosen, data.n1ToChosen));
-		var e2n1 = _v3.a;
-		var e2n2 = _v3.b;
-		var _v4 = A4($author$project$Polygraph$newEdge, g, e1n1, e1n2, $author$project$GraphDefs$emptyEdge);
-		var g1 = _v4.a;
-		var ne1 = _v4.b;
-		var _v5 = A4($author$project$Polygraph$newEdge, g1, e2n1, e2n2, $author$project$GraphDefs$emptyEdge);
-		var g2 = _v5.a;
-		var ne2 = _v5.b;
+		var e2n1 = _v4.a;
+		var e2n2 = _v4.b;
+		var _v5 = A4(
+			$author$project$Polygraph$newEdge,
+			g,
+			e1n1,
+			e1n2,
+			A2($author$project$GraphDefs$newEdgeLabel, labelEdge1, $author$project$ArrowStyle$empty));
+		var g1 = _v5.a;
+		var ne1 = _v5.b;
+		var _v6 = A4(
+			$author$project$Polygraph$newEdge,
+			g1,
+			e2n1,
+			e2n2,
+			A2($author$project$GraphDefs$newEdgeLabel, labelEdge2, $author$project$ArrowStyle$empty));
+		var g2 = _v6.a;
+		var ne2 = _v6.b;
 		var edges = A3($author$project$Modes$Square$makeEdges, data, ne1, ne2);
 		return _Utils_Tuple3(
 			{edges: edges, graph: g2},
@@ -7636,27 +8441,6 @@ var $author$project$Modes$Square$nextStep = F3(
 var $author$project$Modes$SquareMode = function (a) {
 	return {$: 'SquareMode', a: a};
 };
-var $elm$core$List$drop = F2(
-	function (n, list) {
-		drop:
-		while (true) {
-			if (n <= 0) {
-				return list;
-			} else {
-				if (!list.b) {
-					return list;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs;
-					n = $temp$n;
-					list = $temp$list;
-					continue drop;
-				}
-			}
-		}
-	});
 var $elm$core$List$head = function (list) {
 	if (list.b) {
 		var x = list.a;
@@ -7746,16 +8530,63 @@ var $elm_community$list_extra$List$Extra$uniquePairs = function (xs) {
 };
 var $author$project$Modes$Square$possibleSquareStates = F2(
 	function (g, id) {
+		var chosenLabel = A2(
+			$elm$core$Maybe$withDefault,
+			'',
+			A4(
+				$author$project$Polygraph$get,
+				id,
+				function ($) {
+					return $.label;
+				},
+				function ($) {
+					return $.label;
+				},
+				g));
 		var outs = A2(
-			$elm$core$List$map,
+			$elm$core$List$filterMap,
 			function (x) {
-				return _Utils_Tuple3(x, x.to, false);
+				return A2(
+					$elm$core$Maybe$map,
+					function (labelNode) {
+						return _Utils_Tuple3(
+							x,
+							_Utils_Tuple2(labelNode, x.to),
+							false);
+					},
+					A4(
+						$author$project$Polygraph$get,
+						x.to,
+						function ($) {
+							return $.label;
+						},
+						function ($) {
+							return $.label;
+						},
+						g));
 			},
 			A2($author$project$Polygraph$outgoings, id, g));
 		var ins = A2(
-			$elm$core$List$map,
+			$elm$core$List$filterMap,
 			function (x) {
-				return _Utils_Tuple3(x, x.from, true);
+				return A2(
+					$elm$core$Maybe$map,
+					function (labelNode) {
+						return _Utils_Tuple3(
+							x,
+							_Utils_Tuple2(labelNode, x.from),
+							true);
+					},
+					A4(
+						$author$project$Polygraph$get,
+						x.from,
+						function ($) {
+							return $.label;
+						},
+						function ($) {
+							return $.label;
+						},
+						g));
 			},
 			A2($author$project$Polygraph$incomings, id, g));
 		return A2(
@@ -7763,13 +8594,17 @@ var $author$project$Modes$Square$possibleSquareStates = F2(
 			function (_v0) {
 				var _v1 = _v0.a;
 				var e1 = _v1.a;
-				var n1 = _v1.b;
+				var _v2 = _v1.b;
+				var l1 = _v2.a;
+				var n1 = _v2.b;
 				var i1 = _v1.c;
-				var _v2 = _v0.b;
-				var e2 = _v2.a;
-				var n2 = _v2.b;
-				var i2 = _v2.c;
-				return {chosenNode: id, configuration: 0, e1: e1.id, e2: e2.id, n1: n1, n1ToChosen: i1, n2: n2, n2ToChosen: i2};
+				var _v3 = _v0.b;
+				var e2 = _v3.a;
+				var _v4 = _v3.b;
+				var l2 = _v4.a;
+				var n2 = _v4.b;
+				var i2 = _v3.c;
+				return {chosenLabel: chosenLabel, chosenNode: id, configuration: 0, e1: e1, e2: e2, n1: n1, n1Label: l1, n1ToChosen: i1, n2: n2, n2Label: l2, n2ToChosen: i2};
 			},
 			$elm_community$list_extra$List$Extra$uniquePairs(
 				_Utils_ap(ins, outs)));
