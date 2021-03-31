@@ -7623,6 +7623,13 @@ var $elm_community$list_extra$List$Extra$getAt = F2(
 		return (idx < 0) ? $elm$core$Maybe$Nothing : $elm$core$List$head(
 			A2($elm$core$List$drop, idx, xs));
 	});
+var $elm$core$List$isEmpty = function (xs) {
+	if (!xs.b) {
+		return true;
+	} else {
+		return false;
+	}
+};
 var $author$project$Modes$Square$makeEdges = F3(
 	function (data, ne1, ne2) {
 		return {e1: data.e1.id, e2: data.e2.id, ne1: ne1, ne2: ne2};
@@ -8440,15 +8447,20 @@ var $author$project$MyDiff$swapDiffStr = F4(
 	});
 var $author$project$Modes$Square$moveNodeViewInfo = F2(
 	function (m, data) {
+		var atLeast1 = function (l) {
+			return $elm$core$List$isEmpty(l) ? _List_fromArray(
+				['']) : l;
+		};
 		var commute = F2(
 			function (str1, str2) {
 				return ((str1 === '') || (str2 === '')) ? _List_fromArray(
-					['']) : A4(
-					$author$project$MyDiff$swapDiffStr,
-					_Utils_eq(data.n1ToChosen, data.n2ToChosen),
-					str1,
-					data.chosenLabel,
-					str2);
+					['']) : atLeast1(
+					A4(
+						$author$project$MyDiff$swapDiffStr,
+						_Utils_eq(data.n1ToChosen, data.n2ToChosen),
+						str1,
+						data.chosenLabel,
+						str2));
 			});
 		var labelsNode = A2(commute, data.n1Label, data.n2Label);
 		var labelsEdge2 = A2(commute, data.e1.label.label, data.n2Label);
@@ -9125,13 +9137,6 @@ var $author$project$Modes$Square$initialise = function (m) {
 };
 var $author$project$Modes$Move = function (a) {
 	return {$: 'Move', a: a};
-};
-var $elm$core$List$isEmpty = function (xs) {
-	if (!xs.b) {
-		return true;
-	} else {
-		return false;
-	}
 };
 var $author$project$Main$initialiseMoveMode = function (model) {
 	return _Utils_update(
