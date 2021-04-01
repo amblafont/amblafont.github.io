@@ -11148,12 +11148,6 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 			return A2($author$project$Modes$SplitArrow$graphDrawing, m, state);
 	}
 };
-var $elm$html$Html$Attributes$height = function (n) {
-	return A2(
-		_VirtualDom_attribute,
-		'height',
-		$elm$core$String$fromInt(n));
-};
 var $author$project$Main$Plain = {$: 'Plain'};
 var $author$project$Modes$NewArrow$help = '[ESC] cancel, [click, TAB] name the point (if new), ' + ('[hjkl] position the new point with the keyboard, ' + ('[RET] terminate the arrow creation, ' + ('[(,=,b,B,-,>] alternate between different arrow styles, ' + '[i]nvert arrow.')));
 var $author$project$Modes$SplitArrow$help = '[ESC] cancel, [click] name the point (if new), ' + ('[/] to move the existing label on the other edge, ' + '[RET] terminate the square creation');
@@ -11903,8 +11897,7 @@ var $author$project$Main$view = function (model) {
 				$author$project$Drawing$svg,
 				_List_fromArray(
 					[
-						A2($elm$html$Html$Attributes$style, 'width', '100%'),
-						$elm$html$Html$Attributes$height(2000),
+						$elm$html$Html$Attributes$id('canvas'),
 						A2($elm$html$Html$Attributes$style, 'border-style', 'solid'),
 						A2(
 						$elm$html$Html$Events$on,
