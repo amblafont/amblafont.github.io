@@ -8871,6 +8871,26 @@ var $author$project$Model$activeObj = function (m) {
 		return $author$project$Model$ONothing;
 	}
 };
+var $elm$core$Basics$abs = function (n) {
+	return (n < 0) ? (-n) : n;
+};
+var $elm$core$Basics$round = _Basics_round;
+var $author$project$Geometry$Point$closeRemainder = F2(
+	function (q, a) {
+		return a - ($elm$core$Basics$round(a / q) * q);
+	});
+var $elm$core$Basics$pi = _Basics_pi;
+var $author$project$Geometry$Point$distanceAngle = F2(
+	function (alpha, beta) {
+		return $elm$core$Basics$abs(
+			A2($author$project$Geometry$Point$closeRemainder, 2 * $elm$core$Basics$pi, beta - alpha));
+	});
+var $author$project$Geometry$Point$angleWithInRange = F3(
+	function (delta, alpha, beta) {
+		return _Utils_cmp(
+			A2($author$project$Geometry$Point$distanceAngle, alpha, beta),
+			$elm$core$Basics$abs(delta)) < 1;
+	});
 var $author$project$IntDictExtra$filterMap = F2(
 	function (f, d) {
 		return $elm_community$intdict$IntDict$fromList(
@@ -9044,6 +9064,17 @@ var $author$project$GraphDefs$cloneSelected = F2(
 		var gclearSel = $author$project$GraphDefs$clearSelection(g);
 		return A2($author$project$Polygraph$union, gclearSel, g2);
 	});
+var $elm$core$Basics$sqrt = _Basics_sqrt;
+var $author$project$Geometry$Point$radius = function (_v0) {
+	var x = _v0.a;
+	var y = _v0.b;
+	return $elm$core$Basics$sqrt((x * x) + (y * y));
+};
+var $author$project$Geometry$Point$distance = F2(
+	function (x, y) {
+		return $author$project$Geometry$Point$radius(
+			A2($author$project$Geometry$Point$subtract, y, x));
+	});
 var $author$project$Model$objId = function (o) {
 	switch (o.$) {
 		case 'ONode':
@@ -9168,6 +9199,43 @@ var $author$project$Polygraph$invertEdge = F2(
 				},
 				g));
 	});
+var $elm_community$list_extra$List$Extra$minimumBy = F2(
+	function (f, ls) {
+		var minBy = F2(
+			function (x, _v1) {
+				var y = _v1.a;
+				var fy = _v1.b;
+				var fx = f(x);
+				return (_Utils_cmp(fx, fy) < 0) ? _Utils_Tuple2(x, fx) : _Utils_Tuple2(y, fy);
+			});
+		if (ls.b) {
+			if (!ls.b.b) {
+				var l_ = ls.a;
+				return $elm$core$Maybe$Just(l_);
+			} else {
+				var l_ = ls.a;
+				var ls_ = ls.b;
+				return $elm$core$Maybe$Just(
+					A3(
+						$elm$core$List$foldl,
+						minBy,
+						_Utils_Tuple2(
+							l_,
+							f(l_)),
+						ls_).a);
+			}
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$Basics$atan = _Basics_atan;
+var $author$project$Geometry$Point$pointToAngle = function (_v0) {
+	var x = _v0.a;
+	var y = _v0.b;
+	return ((!y) && (x <= 0)) ? $elm$core$Basics$pi : (2 * $elm$core$Basics$atan(
+		y / (x + $author$project$Geometry$Point$radius(
+			_Utils_Tuple2(x, y)))));
+};
 var $author$project$Polygraph$drop = F3(
 	function (fn, fe, _v0) {
 		var g = _v0.a;
@@ -9191,7 +9259,63 @@ var $elm$core$List$singleton = function (value) {
 };
 var $author$project$Main$update_DefaultMode = F2(
 	function (msg, model) {
-		_v0$14:
+		var delta_angle = $elm$core$Basics$pi / 5;
+		var move = function (angle) {
+			return $author$project$Model$noCmd(
+				A2(
+					$elm$core$Maybe$withDefault,
+					model,
+					A2(
+						$elm$core$Maybe$map,
+						function (n) {
+							return A3(
+								$author$project$Model$addOrSetSel,
+								false,
+								$author$project$Model$ONode(n.id),
+								model);
+						},
+						A2(
+							$elm$core$Maybe$andThen,
+							function (p) {
+								return A2(
+									$elm_community$list_extra$List$Extra$minimumBy,
+									A2(
+										$elm$core$Basics$composeR,
+										function ($) {
+											return $.label;
+										},
+										A2(
+											$elm$core$Basics$composeR,
+											function ($) {
+												return $.pos;
+											},
+											$author$project$Geometry$Point$distance(p))),
+									A2(
+										$author$project$Polygraph$filterNodes,
+										model.graph,
+										function (n) {
+											return (!_Utils_eq(n.pos, p)) && A3(
+												$author$project$Geometry$Point$angleWithInRange,
+												delta_angle,
+												angle,
+												$author$project$Geometry$Point$pointToAngle(
+													A2($author$project$Geometry$Point$subtract, n.pos, p)));
+										}));
+							},
+							A2(
+								$elm$core$Maybe$map,
+								function ($) {
+									return $.pos;
+								},
+								A2(
+									$elm$core$Maybe$andThen,
+									function (id) {
+										return A2($author$project$Polygraph$getNode, id, model.graph);
+									},
+									$author$project$Model$objToNode(
+										$author$project$Model$activeObj(model))))))));
+		};
+		_v0$18:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseDown':
@@ -9201,9 +9325,38 @@ var $author$project$Main$update_DefaultMode = F2(
 							{
 								mode: $author$project$Modes$RectSelect(model.mousePos)
 							}));
+				case 'NodeClick':
+					var n = msg.a;
+					var e = msg.b;
+					return $author$project$Model$noCmd(
+						A3(
+							$author$project$Model$addOrSetSel,
+							e.keys.shift,
+							$author$project$Model$ONode(n),
+							model));
+				case 'EdgeClick':
+					var n = msg.a;
+					var e = msg.b;
+					return $author$project$Model$noCmd(
+						A3(
+							$author$project$Model$addOrSetSel,
+							e.keys.shift,
+							$author$project$Model$OEdge(n),
+							model));
 				case 'KeyChanged':
 					if (!msg.a) {
-						if (msg.c.$ === 'Character') {
+						if (msg.c.$ === 'Control') {
+							if (msg.c.a === 'Delete') {
+								return $author$project$Model$noCmd(
+									_Utils_update(
+										model,
+										{
+											graph: $author$project$GraphDefs$removeSelected(model.graph)
+										}));
+							} else {
+								break _v0$18;
+							}
+						} else {
 							switch (msg.c.a.valueOf()) {
 								case 'a':
 									return $author$project$Modes$NewArrow$initialise(model);
@@ -9268,44 +9421,23 @@ var $author$project$Main$update_DefaultMode = F2(
 											}));
 								case '/':
 									return $author$project$Modes$SplitArrow$initialise(model);
+								case 'h':
+									return move($elm$core$Basics$pi);
+								case 'j':
+									return move($elm$core$Basics$pi / 2);
+								case 'k':
+									return move((3 * $elm$core$Basics$pi) / 2);
+								case 'l':
+									return move(0);
 								default:
-									break _v0$14;
-							}
-						} else {
-							if (msg.c.a === 'Delete') {
-								return $author$project$Model$noCmd(
-									_Utils_update(
-										model,
-										{
-											graph: $author$project$GraphDefs$removeSelected(model.graph)
-										}));
-							} else {
-								break _v0$14;
+									break _v0$18;
 							}
 						}
 					} else {
-						break _v0$14;
+						break _v0$18;
 					}
-				case 'NodeClick':
-					var n = msg.a;
-					var e = msg.b;
-					return $author$project$Model$noCmd(
-						A3(
-							$author$project$Model$addOrSetSel,
-							e.keys.shift,
-							$author$project$Model$ONode(n),
-							model));
-				case 'EdgeClick':
-					var n = msg.a;
-					var e = msg.b;
-					return $author$project$Model$noCmd(
-						A3(
-							$author$project$Model$addOrSetSel,
-							e.keys.shift,
-							$author$project$Model$OEdge(n),
-							model));
 				default:
-					break _v0$14;
+					break _v0$18;
 			}
 		}
 		var _v2 = $author$project$Model$objToEdge(
@@ -10046,21 +10178,6 @@ var $author$project$ArrowStyle$Core$makeImg = F3(
 				]),
 			_List_Nil);
 	});
-var $elm$core$Basics$pi = _Basics_pi;
-var $elm$core$Basics$atan = _Basics_atan;
-var $elm$core$Basics$sqrt = _Basics_sqrt;
-var $author$project$Geometry$Point$radius = function (_v0) {
-	var x = _v0.a;
-	var y = _v0.b;
-	return $elm$core$Basics$sqrt((x * x) + (y * y));
-};
-var $author$project$Geometry$Point$pointToAngle = function (_v0) {
-	var x = _v0.a;
-	var y = _v0.b;
-	return ((!y) && (x <= 0)) ? $elm$core$Basics$pi : (2 * $elm$core$Basics$atan(
-		y / (x + $author$project$Geometry$Point$radius(
-			_Utils_Tuple2(x, y)))));
-};
 var $author$project$ArrowStyle$Core$tailToString = function (tail) {
 	switch (tail.$) {
 		case 'DefaultTail':
@@ -10286,9 +10403,6 @@ var $author$project$Drawing$mkPath = F3(
 						$author$project$Drawing$dashedToAttrs(dashed)))),
 			_List_Nil);
 	});
-var $elm$core$Basics$abs = function (n) {
-	return (n < 0) ? (-n) : n;
-};
 var $author$project$Geometry$Point$normalise = F2(
 	function (len, _v0) {
 		var x = _v0.a;
@@ -10784,8 +10898,7 @@ var $author$project$Geometry$pad = F2(
 	});
 var $author$project$Geometry$pxFromRatio = F3(
 	function (p1, p2, r) {
-		return r * $author$project$Geometry$Point$radius(
-			A2($author$project$Geometry$Point$subtract, p2, p1));
+		return r * A2($author$project$Geometry$Point$distance, p2, p1);
 	});
 var $elm$core$List$map3 = _List_map3;
 var $author$project$Geometry$distance = F3(
@@ -11634,14 +11747,14 @@ var $author$project$Main$helpMsg = function (model) {
 	switch (_v0.$) {
 		case 'DefaultMode':
 			return msg(
-				'Default mode. Commands: [click] for point/edge selection (hold for selection rectangle, ' + ('[shift] to keep previous selection)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [r]ename selected object' + (', [g] move selected objects (also merge, if wanted)' + (', [c]lone selected objects' + (', [/] split arrow' + ('.' + function () {
+				'Default mode. Commands: [click] for point/edge selection (hold for selection rectangle, ' + ('[shift] to keep previous selection)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [r]ename selected object' + (', [g] move selected objects (also merge, if wanted)' + (', [c]lone selected objects' + (', [/] split arrow' + (', [hjkl] to move the selction from a point to another' + ('.' + function () {
 					var _v1 = $author$project$Model$activeObj(model);
 					if (_v1.$ === 'OEdge') {
 						return ' [(,=,b,B,-,>]: alternate between different arrow styles, [i]nverse arrow.';
 					} else {
 						return '';
 					}
-				}()))))))))))));
+				}())))))))))))));
 		case 'DebugMode':
 			return makeHelpDiv(
 				$elm$core$List$singleton(
