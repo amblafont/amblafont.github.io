@@ -9933,6 +9933,8 @@ var $author$project$Main$update = F2(
 	function (msg, model) {
 		var m = function () {
 			switch (msg.$) {
+				case 'Clear':
+					return $author$project$Model$iniModel;
 				case 'KeyChanged':
 					var r = msg.b;
 					return _Utils_update(
@@ -10037,6 +10039,7 @@ var $author$project$Main$update = F2(
 				}
 		}
 	});
+var $author$project$Msg$Clear = {$: 'Clear'};
 var $author$project$Msg$MouseDown = function (a) {
 	return {$: 'MouseDown', a: a};
 };
@@ -11746,15 +11749,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg(
-				'Default mode. Commands: [click] for point/edge selection (hold for selection rectangle, ' + ('[shift] to keep previous selection)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [r]ename selected object' + (', [g] move selected objects (also merge, if wanted)' + (', [c]lone selected objects' + (', [/] split arrow' + (', [hjkl] to move the selction from a point to another' + ('.' + function () {
-					var _v1 = $author$project$Model$activeObj(model);
-					if (_v1.$ === 'OEdge') {
-						return ' [(,=,b,B,-,>]: alternate between different arrow styles, [i]nverse arrow.';
-					} else {
-						return '';
-					}
-				}())))))))))))));
+			return msg('Default mode. Commands: [click] for point/edge selection (hold for selection rectangle, ' + ('[shift] to keep previous selection)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [r]ename selected object' + (', [g] move selected objects (also merge, if wanted)' + (', [c]lone selected objects' + (', [/] split arrow' + (', [hjkl] to move the selection from a point to another' + ', if an arrow is selected: [(,=,b,B,-,>] alternate between different arrow styles, [i]nvert arrow.'))))))))))));
 		case 'DebugMode':
 			return makeHelpDiv(
 				$elm$core$List$singleton(
@@ -11989,6 +11984,16 @@ var $author$project$Main$view = function (model) {
 				_List_fromArray(
 					[
 						$elm$html$Html$text('Save')
+					])),
+				A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Events$onClick($author$project$Msg$Clear)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Clear')
 					])),
 				$elm$html$Html$text(model.statusMsg),
 				A2(
