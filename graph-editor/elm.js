@@ -5332,6 +5332,91 @@ var $author$project$Polygraph$Graph = function (a) {
 var $elm_community$intdict$IntDict$Empty = {$: 'Empty'};
 var $elm_community$intdict$IntDict$empty = $elm_community$intdict$IntDict$Empty;
 var $author$project$Polygraph$empty = $author$project$Polygraph$Graph($elm_community$intdict$IntDict$empty);
+var $author$project$Model$iniModel = function () {
+	var sizeGrid = $author$project$Model$defaultGridSize;
+	return A2($author$project$Model$createModel, sizeGrid, $author$project$Polygraph$empty);
+}();
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Msg$Do = function (a) {
+	return {$: 'Do', a: a};
+};
+var $author$project$Msg$KeyChanged = F3(
+	function (a, b, c) {
+		return {$: 'KeyChanged', a: a, b: b, c: c};
+	});
+var $author$project$Msg$Loaded = function (a) {
+	return {$: 'Loaded', a: a};
+};
+var $author$project$Msg$MouseClick = {$: 'MouseClick'};
+var $author$project$Msg$MouseMove = function (a) {
+	return {$: 'MouseMove', a: a};
+};
+var $elm$core$Platform$Sub$batch = _Platform_batch;
+var $author$project$ArrowStyle$ArrowStyle = F2(
+	function (s, bend) {
+		return {bend: bend, s: s};
+	});
+var $author$project$GraphDefs$EdgeLabel = F4(
+	function (label, style, dims, selected) {
+		return {dims: dims, label: label, selected: selected, style: style};
+	});
+var $author$project$ArrowStyle$Core$DefaultHead = {$: 'DefaultHead'};
+var $author$project$ArrowStyle$Core$NoHead = {$: 'NoHead'};
+var $author$project$ArrowStyle$Core$TwoHeads = {$: 'TwoHeads'};
+var $author$project$ArrowStyle$Core$headFromString = function (head) {
+	switch (head) {
+		case 'twoheads':
+			return $author$project$ArrowStyle$Core$TwoHeads;
+		case 'none':
+			return $author$project$ArrowStyle$Core$NoHead;
+		default:
+			return $author$project$ArrowStyle$Core$DefaultHead;
+	}
+};
+var $author$project$ArrowStyle$Core$DefaultTail = {$: 'DefaultTail'};
+var $author$project$ArrowStyle$Core$Hook = {$: 'Hook'};
+var $author$project$ArrowStyle$Core$HookAlt = {$: 'HookAlt'};
+var $author$project$ArrowStyle$Core$tailFromString = function (tail) {
+	switch (tail) {
+		case 'hook':
+			return $author$project$ArrowStyle$Core$Hook;
+		case 'hookalt':
+			return $author$project$ArrowStyle$Core$HookAlt;
+		default:
+			return $author$project$ArrowStyle$Core$DefaultTail;
+	}
+};
+var $author$project$ArrowStyle$Core$fromJsStyle = function (_v0) {
+	var tail = _v0.tail;
+	var head = _v0.head;
+	var _double = _v0._double;
+	var dashed = _v0.dashed;
+	return {
+		dashed: dashed,
+		_double: _double,
+		head: $author$project$ArrowStyle$Core$headFromString(head),
+		tail: $author$project$ArrowStyle$Core$tailFromString(tail)
+	};
+};
+var $author$project$GraphDefs$edgeLabelFromJs = function (_v0) {
+	var label = _v0.label;
+	var style = _v0.style;
+	var bend = _v0.bend;
+	return A4(
+		$author$project$GraphDefs$EdgeLabel,
+		label,
+		A2(
+			$author$project$ArrowStyle$ArrowStyle,
+			$author$project$ArrowStyle$Core$fromJsStyle(style),
+			bend),
+		$elm$core$Maybe$Nothing,
+		false);
+};
+var $author$project$Polygraph$EdgeObj = F3(
+	function (a, b, c) {
+		return {$: 'EdgeObj', a: a, b: b, c: c};
+	});
 var $author$project$Polygraph$NodeObj = function (a) {
 	return {$: 'NodeObj', a: a};
 };
@@ -5492,157 +5577,6 @@ var $elm_community$intdict$IntDict$insert = F3(
 			$elm$core$Basics$always(
 				$elm$core$Maybe$Just(value)),
 			dict);
-	});
-var $author$project$Polygraph$mapRep = F2(
-	function (f, _v0) {
-		var g = _v0.a;
-		return $author$project$Polygraph$Graph(
-			f(g));
-	});
-var $elm_community$intdict$IntDict$findMax = function (dict) {
-	findMax:
-	while (true) {
-		switch (dict.$) {
-			case 'Empty':
-				return $elm$core$Maybe$Nothing;
-			case 'Leaf':
-				var l = dict.a;
-				return $elm$core$Maybe$Just(
-					_Utils_Tuple2(l.key, l.value));
-			default:
-				var i = dict.a;
-				var $temp$dict = i.right;
-				dict = $temp$dict;
-				continue findMax;
-		}
-	}
-};
-var $author$project$Polygraph$supId = function (g) {
-	var _v0 = $elm_community$intdict$IntDict$findMax(g);
-	if (_v0.$ === 'Just') {
-		var _v1 = _v0.a;
-		var id = _v1.a;
-		return id + 1;
-	} else {
-		return 0;
-	}
-};
-var $author$project$Polygraph$nextId = function (_v0) {
-	var g = _v0.a;
-	return $author$project$Polygraph$supId(g);
-};
-var $author$project$Polygraph$newObject = F2(
-	function (g, o) {
-		var id = $author$project$Polygraph$nextId(g);
-		return _Utils_Tuple2(
-			A2(
-				$author$project$Polygraph$mapRep,
-				A2($elm_community$intdict$IntDict$insert, id, o),
-				g),
-			id);
-	});
-var $author$project$Polygraph$newNode = F2(
-	function (g, n) {
-		return A2(
-			$author$project$Polygraph$newObject,
-			g,
-			$author$project$Polygraph$NodeObj(n));
-	});
-var $author$project$Model$iniModel = function () {
-	var sizeGrid = $author$project$Model$defaultGridSize;
-	return A2(
-		$author$project$Model$createModel,
-		sizeGrid,
-		A2(
-			$author$project$Polygraph$newNode,
-			$author$project$Polygraph$empty,
-			{
-				dims: $elm$core$Maybe$Nothing,
-				label: '',
-				pos: _Utils_Tuple2(sizeGrid / 2, sizeGrid / 2),
-				selected: true
-			}).a);
-}();
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$Msg$Do = function (a) {
-	return {$: 'Do', a: a};
-};
-var $author$project$Msg$KeyChanged = F3(
-	function (a, b, c) {
-		return {$: 'KeyChanged', a: a, b: b, c: c};
-	});
-var $author$project$Msg$Loaded = function (a) {
-	return {$: 'Loaded', a: a};
-};
-var $author$project$Msg$MouseClick = {$: 'MouseClick'};
-var $author$project$Msg$MouseMove = function (a) {
-	return {$: 'MouseMove', a: a};
-};
-var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $author$project$ArrowStyle$ArrowStyle = F2(
-	function (s, bend) {
-		return {bend: bend, s: s};
-	});
-var $author$project$GraphDefs$EdgeLabel = F4(
-	function (label, style, dims, selected) {
-		return {dims: dims, label: label, selected: selected, style: style};
-	});
-var $author$project$ArrowStyle$Core$DefaultHead = {$: 'DefaultHead'};
-var $author$project$ArrowStyle$Core$NoHead = {$: 'NoHead'};
-var $author$project$ArrowStyle$Core$TwoHeads = {$: 'TwoHeads'};
-var $author$project$ArrowStyle$Core$headFromString = function (head) {
-	switch (head) {
-		case 'twoheads':
-			return $author$project$ArrowStyle$Core$TwoHeads;
-		case 'none':
-			return $author$project$ArrowStyle$Core$NoHead;
-		default:
-			return $author$project$ArrowStyle$Core$DefaultHead;
-	}
-};
-var $author$project$ArrowStyle$Core$DefaultTail = {$: 'DefaultTail'};
-var $author$project$ArrowStyle$Core$Hook = {$: 'Hook'};
-var $author$project$ArrowStyle$Core$HookAlt = {$: 'HookAlt'};
-var $author$project$ArrowStyle$Core$tailFromString = function (tail) {
-	switch (tail) {
-		case 'hook':
-			return $author$project$ArrowStyle$Core$Hook;
-		case 'hookalt':
-			return $author$project$ArrowStyle$Core$HookAlt;
-		default:
-			return $author$project$ArrowStyle$Core$DefaultTail;
-	}
-};
-var $author$project$ArrowStyle$Core$fromJsStyle = function (_v0) {
-	var tail = _v0.tail;
-	var head = _v0.head;
-	var _double = _v0._double;
-	var dashed = _v0.dashed;
-	return {
-		dashed: dashed,
-		_double: _double,
-		head: $author$project$ArrowStyle$Core$headFromString(head),
-		tail: $author$project$ArrowStyle$Core$tailFromString(tail)
-	};
-};
-var $author$project$GraphDefs$edgeLabelFromJs = function (_v0) {
-	var label = _v0.label;
-	var style = _v0.style;
-	var bend = _v0.bend;
-	return A4(
-		$author$project$GraphDefs$EdgeLabel,
-		label,
-		A2(
-			$author$project$ArrowStyle$ArrowStyle,
-			$author$project$ArrowStyle$Core$fromJsStyle(style),
-			bend),
-		$elm$core$Maybe$Nothing,
-		false);
-};
-var $author$project$Polygraph$EdgeObj = F3(
-	function (a, b, c) {
-		return {$: 'EdgeObj', a: a, b: b, c: c};
 	});
 var $elm_community$intdict$IntDict$fromList = function (pairs) {
 	return A3(
@@ -6068,6 +6002,12 @@ var $author$project$Polygraph$mapObj = F3(
 				i2,
 				fe(e));
 		}
+	});
+var $author$project$Polygraph$mapRep = F2(
+	function (f, _v0) {
+		var g = _v0.a;
+		return $author$project$Polygraph$Graph(
+			f(g));
 	});
 var $author$project$Polygraph$map = F2(
 	function (fn, fe) {
@@ -7311,6 +7251,37 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 					})(b)
 				]));
 	});
+var $author$project$Geometry$Point$snapToGrid = F2(
+	function (sizeGrid, _v0) {
+		var px = _v0.a;
+		var py = _v0.b;
+		var approx = function (c) {
+			return ($elm$core$Basics$floor(c / sizeGrid) * sizeGrid) + (sizeGrid / 2);
+		};
+		return _Utils_Tuple2(
+			approx(px),
+			approx(py));
+	});
+var $author$project$GraphDefs$snapNodeToGrid = F2(
+	function (sizeGrid, n) {
+		return _Utils_update(
+			n,
+			{
+				pos: A2($author$project$Geometry$Point$snapToGrid, sizeGrid, n.pos)
+			});
+	});
+var $author$project$GraphDefs$snapToGrid = F2(
+	function (sizeGrid, g) {
+		return A3(
+			$author$project$Polygraph$map,
+			function (_v0) {
+				return $author$project$GraphDefs$snapNodeToGrid(sizeGrid);
+			},
+			function (_v1) {
+				return $elm$core$Basics$identity;
+			},
+			g);
+	});
 var $author$project$Model$ONode = function (a) {
 	return {$: 'ONode', a: a};
 };
@@ -7597,6 +7568,55 @@ var $author$project$GraphDefs$getNodesAt = F2(
 						},
 						p);
 				}));
+	});
+var $elm_community$intdict$IntDict$findMax = function (dict) {
+	findMax:
+	while (true) {
+		switch (dict.$) {
+			case 'Empty':
+				return $elm$core$Maybe$Nothing;
+			case 'Leaf':
+				var l = dict.a;
+				return $elm$core$Maybe$Just(
+					_Utils_Tuple2(l.key, l.value));
+			default:
+				var i = dict.a;
+				var $temp$dict = i.right;
+				dict = $temp$dict;
+				continue findMax;
+		}
+	}
+};
+var $author$project$Polygraph$supId = function (g) {
+	var _v0 = $elm_community$intdict$IntDict$findMax(g);
+	if (_v0.$ === 'Just') {
+		var _v1 = _v0.a;
+		var id = _v1.a;
+		return id + 1;
+	} else {
+		return 0;
+	}
+};
+var $author$project$Polygraph$nextId = function (_v0) {
+	var g = _v0.a;
+	return $author$project$Polygraph$supId(g);
+};
+var $author$project$Polygraph$newObject = F2(
+	function (g, o) {
+		var id = $author$project$Polygraph$nextId(g);
+		return _Utils_Tuple2(
+			A2(
+				$author$project$Polygraph$mapRep,
+				A2($elm_community$intdict$IntDict$insert, id, o),
+				g),
+			id);
+	});
+var $author$project$Polygraph$newNode = F2(
+	function (g, n) {
+		return A2(
+			$author$project$Polygraph$newObject,
+			g,
+			$author$project$Polygraph$NodeObj(n));
 	});
 var $author$project$GraphDefs$newNodeLabel = F2(
 	function (p, s) {
@@ -9718,34 +9738,6 @@ var $elm$core$List$singleton = function (value) {
 	return _List_fromArray(
 		[value]);
 };
-var $author$project$Geometry$Point$snapToGrid = F2(
-	function (sizeGrid, _v0) {
-		var px = _v0.a;
-		var py = _v0.b;
-		var approx = function (c) {
-			return ($elm$core$Basics$floor(c / sizeGrid) * sizeGrid) + (sizeGrid / 2);
-		};
-		return _Utils_Tuple2(
-			approx(px),
-			approx(py));
-	});
-var $author$project$GraphDefs$snapToGrid = F2(
-	function (sizeGrid, g) {
-		return A3(
-			$author$project$Polygraph$map,
-			F2(
-				function (_v0, n) {
-					return _Utils_update(
-						n,
-						{
-							pos: A2($author$project$Geometry$Point$snapToGrid, sizeGrid, n.pos)
-						});
-				}),
-			function (_v1) {
-				return $elm$core$Basics$identity;
-			},
-			g);
-	});
 var $author$project$Main$update_DefaultMode = F2(
 	function (msg, model) {
 		var delta_angle = $elm$core$Basics$pi / 5;
@@ -9804,16 +9796,9 @@ var $author$project$Main$update_DefaultMode = F2(
 									$author$project$Model$objToNode(
 										$author$project$Model$activeObj(model))))))));
 		};
-		_v0$20:
+		_v0$19:
 		while (true) {
 			switch (msg.$) {
-				case 'SnapToGrid':
-					return $author$project$Model$noCmd(
-						_Utils_update(
-							model,
-							{
-								graph: A2($author$project$GraphDefs$snapToGrid, model.sizeGrid, model.graph)
-							}));
 				case 'MouseDown':
 					return $author$project$Model$noCmd(
 						_Utils_update(
@@ -9850,7 +9835,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											graph: $author$project$GraphDefs$removeSelected(model.graph)
 										}));
 							} else {
-								break _v0$20;
+								break _v0$19;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -9917,6 +9902,20 @@ var $author$project$Main$update_DefaultMode = F2(
 											}));
 								case '/':
 									return $author$project$Modes$SplitArrow$initialise(model);
+								case 'f':
+									return $author$project$Model$noCmd(
+										_Utils_update(
+											model,
+											{
+												graph: A3(
+													$author$project$Polygraph$map,
+													F2(
+														function (_v2, n) {
+															return n.selected ? A2($author$project$GraphDefs$snapNodeToGrid, model.sizeGrid, n) : n;
+														}),
+													$elm$core$Basics$always($elm$core$Basics$identity),
+													model.graph)
+											}));
 								case 'h':
 									return move($elm$core$Basics$pi);
 								case 'j':
@@ -9925,29 +9924,23 @@ var $author$project$Main$update_DefaultMode = F2(
 									return move((3 * $elm$core$Basics$pi) / 2);
 								case 'l':
 									return move(0);
-								case 'n':
-									return $author$project$Model$noCmd(
-										A2(
-											$author$project$Model$createModel,
-											$author$project$Model$defaultGridSize,
-											$author$project$Polygraph$normalise(model.graph)));
 								default:
-									break _v0$20;
+									break _v0$19;
 							}
 						}
 					} else {
-						break _v0$20;
+						break _v0$19;
 					}
 				default:
-					break _v0$20;
+					break _v0$19;
 			}
 		}
-		var _v2 = $author$project$Model$objToEdge(
+		var _v3 = $author$project$Model$objToEdge(
 			$author$project$Model$activeObj(model));
-		if (_v2.$ === 'Nothing') {
+		if (_v3.$ === 'Nothing') {
 			return $author$project$Model$noCmd(model);
 		} else {
-			var id = _v2.a;
+			var id = _v3.a;
 			return $author$project$Model$noCmd(
 				_Utils_update(
 					model,
@@ -10472,6 +10465,13 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{hideGrid: !model.hideGrid}));
+			case 'SnapToGrid':
+				return $author$project$Model$noCmd(
+					_Utils_update(
+						model,
+						{
+							graph: A2($author$project$GraphDefs$snapToGrid, model.sizeGrid, model.graph)
+						}));
 			case 'SizeGrid':
 				var s = msg.a;
 				return $author$project$Model$noCmd(
@@ -10635,6 +10635,7 @@ var $author$project$Main$additionnalDrawing = function (m) {
 	}
 };
 var $elm$html$Html$button = _VirtualDom_node('button');
+var $author$project$HtmlDefs$canvasId = 'canvas';
 var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$html$Html$label = _VirtualDom_node('label');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
@@ -12339,7 +12340,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode. Commands: [click] for point/edge selection (hold for selection rectangle, ' + ('[shift] to keep previous selection)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [r]ename selected object' + (', [g] move selected objects (also merge, if wanted)' + (', [c]lone selected objects' + (', [/] split arrow' + (', [hjkl] to move the selection from a point to another' + ', if an arrow is selected: [(,=,b,B,-,>] alternate between different arrow styles, [i]nvert arrow.'))))))))))));
+			return msg('Default mode. Commands: [click] for point/edge selection (hold for selection rectangle, ' + ('[shift] to keep previous selection)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [r]ename selected object' + (', [g] move selected objects (also merge, if wanted)' + (', [c]lone selected objects' + (', [/] split arrow' + (', [f]ix (snap) selected objects on the grid' + (', [hjkl] to move the selection from a point to another' + ', if an arrow is selected: [(,=,b,B,-,>] alternate between different arrow styles, [i]nvert arrow.')))))))))))));
 		case 'DebugMode':
 			return makeHelpDiv(
 				$elm$core$List$singleton(
@@ -12489,7 +12490,7 @@ var $author$project$Main$view = function (model) {
 				$author$project$Drawing$svg,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$id('canvas'),
+						$elm$html$Html$Attributes$id($author$project$HtmlDefs$canvasId),
 						A2($elm$html$Html$Attributes$style, 'border-style', 'solid'),
 						A2(
 						$elm$html$Html$Events$on,
