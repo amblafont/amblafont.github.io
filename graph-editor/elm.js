@@ -5316,7 +5316,7 @@ var $author$project$Model$createModel = F2(
 	function (sizeGrid, g) {
 		return {
 			graph: g,
-			hideGrid: false,
+			hideGrid: true,
 			mode: $author$project$Modes$DefaultMode,
 			mousePos: _Utils_Tuple2(0, 0),
 			quickInput: '',
@@ -10636,6 +10636,14 @@ var $author$project$Main$additionnalDrawing = function (m) {
 };
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $author$project$HtmlDefs$canvasId = 'canvas';
+var $elm$html$Html$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$bool(bool));
+	});
+var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
 var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$html$Html$label = _VirtualDom_node('label');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
@@ -10667,8 +10675,8 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 			$elm$json$Json$Encode$string(string));
 	});
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
-var $author$project$HtmlDefs$checkbox = F2(
-	function (msg, name) {
+var $author$project$HtmlDefs$checkbox = F3(
+	function (msg, name, checked) {
 		return A2(
 			$elm$html$Html$label,
 			_List_fromArray(
@@ -10682,7 +10690,8 @@ var $author$project$HtmlDefs$checkbox = F2(
 					_List_fromArray(
 						[
 							$elm$html$Html$Attributes$type_('checkbox'),
-							$elm$html$Html$Events$onClick(msg)
+							$elm$html$Html$Events$onClick(msg),
+							$elm$html$Html$Attributes$checked(checked)
 						]),
 					_List_Nil),
 					$elm$html$Html$text(name)
@@ -11107,13 +11116,6 @@ var $author$project$HtmlDefs$makeLatex = F2(
 				[
 					$elm$html$Html$text(s)
 				]));
-	});
-var $elm$html$Html$Attributes$boolProperty = F2(
-	function (key, bool) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$bool(bool));
 	});
 var $elm$html$Html$Attributes$autofocus = $elm$html$Html$Attributes$boolProperty('autofocus');
 var $elm$core$Task$onError = _Scheduler_onError;
@@ -12340,7 +12342,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode. Commands: [click] for point/edge selection (hold for selection rectangle, ' + ('[shift] to keep previous selection)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [r]ename selected object' + (', [g] move selected objects (also merge, if wanted)' + (', [c]lone selected objects' + (', [/] split arrow' + (', [f]ix (snap) selected objects on the grid' + (', [hjkl] to move the selection from a point to another' + ', if an arrow is selected: [(,=,b,B,-,>] alternate between different arrow styles, [i]nvert arrow.')))))))))))));
+			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle, ' + ('[shift] to keep previous selection)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [r]ename selected object' + (', [g] move selected objects (also merge, if wanted)' + (', [c]lone selected objects' + (', [/] split arrow' + (', [f]ix (snap) selected objects on the grid' + (', [hjkl] to move the selection from a point to another' + ', if an arrow is selected: [(,=,b,B,-,>] alternate between different arrow styles, [i]nvert arrow.')))))))))))));
 		case 'DebugMode':
 			return makeHelpDiv(
 				$elm$core$List$singleton(
@@ -12448,7 +12450,7 @@ var $author$project$Main$view = function (model) {
 					[
 						$elm$html$Html$text('Clear')
 					])),
-				A2($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleHideGrid, 'Hide grid'),
+				A3($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleHideGrid, 'Show grid', !model.hideGrid),
 				A2(
 				$elm$html$Html$button,
 				_List_fromArray(
