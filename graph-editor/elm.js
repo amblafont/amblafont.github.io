@@ -11487,7 +11487,7 @@ var $author$project$Msg$onTabPreventDefault = A2(
 		function (_v0, k) {
 			return _Utils_eq(
 				k,
-				$author$project$HtmlDefs$Control('tab'));
+				$author$project$HtmlDefs$Control('Tab'));
 		}));
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$GraphDrawing$make_input = F3(
