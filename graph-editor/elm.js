@@ -7596,10 +7596,6 @@ var $author$project$Model$addOrSetSel = F3(
 			m,
 			{graph: g2});
 	});
-var $author$project$Modes$RenameMode = F2(
-	function (a, b) {
-		return {$: 'RenameMode', a: a, b: b};
-	});
 var $author$project$Polygraph$get = F4(
 	function (id, fn, fe, _v0) {
 		var g = _v0.a;
@@ -7628,31 +7624,36 @@ var $elm$core$Maybe$withDefault = F2(
 			return _default;
 		}
 	});
-var $author$project$Model$initialise_RenameMode = F2(
+var $author$project$GraphDefs$getLabelLabel = F2(
+	function (id, g) {
+		return A2(
+			$elm$core$Maybe$withDefault,
+			'',
+			A4(
+				$author$project$Polygraph$get,
+				id,
+				function ($) {
+					return $.label;
+				},
+				function ($) {
+					return $.label;
+				},
+				g));
+	});
+var $author$project$Modes$RenameMode = function (a) {
+	return {$: 'RenameMode', a: a};
+};
+var $author$project$Model$initialise_RenameModeWithDefault = F2(
 	function (l, m) {
 		if (!l.b) {
 			return _Utils_update(
 				m,
 				{mode: $author$project$Modes$DefaultMode});
 		} else {
-			var id = l.a;
-			var s = A2(
-				$elm$core$Maybe$withDefault,
-				'',
-				A4(
-					$author$project$Polygraph$get,
-					id,
-					function ($) {
-						return $.label;
-					},
-					function ($) {
-						return $.label;
-					},
-					m.graph));
 			return _Utils_update(
 				m,
 				{
-					mode: A2($author$project$Modes$RenameMode, s, l)
+					mode: $author$project$Modes$RenameMode(l)
 				});
 		}
 	});
@@ -7952,8 +7953,15 @@ var $author$project$Modes$NewArrow$nextStep = F3(
 			var ids = info.created ? _List_fromArray(
 				[info.movedNode, info.edgeId]) : _List_fromArray(
 				[info.edgeId]);
+			var label = A2($author$project$GraphDefs$getLabelLabel, state.chosenNode, info.graph);
+			var ids_labels = A2(
+				$elm$core$List$map,
+				function (id) {
+					return _Utils_Tuple2(id, label);
+				},
+				ids);
 			return $author$project$Model$noCmd(
-				A2($author$project$Model$initialise_RenameMode, ids, m2));
+				A2($author$project$Model$initialise_RenameModeWithDefault, ids_labels, m2));
 		}
 	});
 var $author$project$InputPosition$InputPosKeyboard = function (a) {
@@ -8266,9 +8274,13 @@ var $author$project$Polygraph$remove = function (id) {
 var $author$project$Polygraph$removeEdge = $author$project$Polygraph$remove;
 var $author$project$Modes$SplitArrow$stateInfo = F2(
 	function (m, state) {
+		var otherLabel = A2(
+			$author$project$GraphDefs$getLabelLabel,
+			state.labelOnSource ? state.target : state.source,
+			m.graph);
 		var _v0 = function () {
 			var makeInfo = function (pos) {
-				return A3($author$project$Model$mayCreateTargetNodeAt, m, pos, '');
+				return A3($author$project$Model$mayCreateTargetNodeAt, m, pos, otherLabel);
 			};
 			var _v2 = state.pos;
 			if (_v2.$ === 'InputPosGraph') {
@@ -8284,18 +8296,28 @@ var $author$project$Modes$SplitArrow$stateInfo = F2(
 		var g = _v1.a;
 		var n = _v1.b;
 		var created = _v0.b;
-		var _v3 = state.labelOnSource ? _Utils_Tuple2(state.label, $author$project$GraphDefs$emptyEdge) : _Utils_Tuple2($author$project$GraphDefs$emptyEdge, state.label);
-		var l1 = _v3.a;
-		var l2 = _v3.b;
-		var _v4 = A4($author$project$Polygraph$newEdge, g, state.source, n, l1);
-		var g1 = _v4.a;
-		var ne1 = _v4.b;
-		var _v5 = A4($author$project$Polygraph$newEdge, g1, n, state.target, l2);
-		var g2 = _v5.a;
-		var ne2 = _v5.b;
+		var _v3 = function () {
+			var existingLabels = _Utils_Tuple2(state.label, state.label.label);
+			var newLabel = _Utils_Tuple2($author$project$GraphDefs$emptyEdge, otherLabel);
+			return state.labelOnSource ? _Utils_Tuple2(existingLabels, newLabel) : _Utils_Tuple2(newLabel, existingLabels);
+		}();
+		var _v4 = _v3.a;
+		var l1 = _v4.a;
+		var d1 = _v4.b;
+		var _v5 = _v3.b;
+		var l2 = _v5.a;
+		var d2 = _v5.b;
+		var _v6 = A4($author$project$Polygraph$newEdge, g, state.source, n, l1);
+		var g1 = _v6.a;
+		var ne1 = _v6.b;
+		var _v7 = A4($author$project$Polygraph$newEdge, g1, n, state.target, l2);
+		var g2 = _v7.a;
+		var ne2 = _v7.b;
 		return {
 			created: created,
 			graph: A2($author$project$Polygraph$removeEdge, state.chosenEdge, g2),
+			le1: d1,
+			le2: d2,
 			movedNode: n,
 			ne1: ne1,
 			ne2: ne2
@@ -8314,11 +8336,19 @@ var $author$project$Modes$SplitArrow$nextStep = F3(
 		if (finish) {
 			return $author$project$Model$switch_Default(m2);
 		} else {
+			var ne2 = _Utils_Tuple2(info.ne2, info.le2);
+			var ne1 = _Utils_Tuple2(info.ne1, info.le1);
 			var ids = info.created ? _List_fromArray(
-				[info.movedNode, info.ne1, info.ne2]) : _List_fromArray(
-				[info.ne1, info.ne2]);
+				[
+					_Utils_Tuple2(
+					info.movedNode,
+					A2($author$project$GraphDefs$getLabelLabel, info.movedNode, info.graph)),
+					ne1,
+					ne2
+				]) : _List_fromArray(
+				[ne1, ne2]);
 			return $author$project$Model$noCmd(
-				A2($author$project$Model$initialise_RenameMode, ids, m2));
+				A2($author$project$Model$initialise_RenameModeWithDefault, ids, m2));
 		}
 	});
 var $author$project$Modes$SplitArrow$update = F3(
@@ -8380,6 +8410,18 @@ var $author$project$Modes$SplitArrow$update = F3(
 var $author$project$Modes$SquareMode = function (a) {
 	return {$: 'SquareMode', a: a};
 };
+var $author$project$Model$initialise_RenameMode = F2(
+	function (l, m) {
+		var ls = A2(
+			$elm$core$List$map,
+			function (id) {
+				return _Utils_Tuple2(
+					id,
+					A2($author$project$GraphDefs$getLabelLabel, id, m.graph));
+			},
+			l);
+		return A2($author$project$Model$initialise_RenameModeWithDefault, ls, m);
+	});
 var $elm$core$Basics$modBy = _Basics_modBy;
 var $author$project$Modes$Square$chooseAmong = F2(
 	function (l, n) {
@@ -10608,12 +10650,14 @@ var $author$project$Main$update_RectSelect = F4(
 		}
 		return $author$project$Model$noCmd(model);
 	});
-var $author$project$Main$graph_RenameMode = F3(
-	function (s, l, m) {
+var $author$project$Main$graph_RenameMode = F2(
+	function (l, m) {
 		if (!l.b) {
 			return m.graph;
 		} else {
-			var id = l.a;
+			var _v1 = l.a;
+			var id = _v1.a;
+			var s = _v1.b;
 			return A4(
 				$author$project$Polygraph$update,
 				id,
@@ -10630,9 +10674,9 @@ var $author$project$Main$graph_RenameMode = F3(
 				m.graph);
 		}
 	});
-var $author$project$Main$next_RenameMode = F4(
-	function (finish, label, ids, model) {
-		var g = A3($author$project$Main$graph_RenameMode, label, ids, model);
+var $author$project$Main$next_RenameMode = F3(
+	function (finish, labels, model) {
+		var g = A2($author$project$Main$graph_RenameMode, labels, model);
 		var m2 = _Utils_update(
 			model,
 			{graph: g});
@@ -10641,18 +10685,43 @@ var $author$project$Main$next_RenameMode = F4(
 				m2,
 				{mode: $author$project$Modes$DefaultMode});
 		} else {
-			if (!ids.b) {
+			if (!labels.b) {
 				return _Utils_update(
 					m2,
 					{mode: $author$project$Modes$DefaultMode});
 			} else {
-				var q = ids.b;
-				return A2($author$project$Model$initialise_RenameMode, q, m2);
+				var q = labels.b;
+				return _Utils_update(
+					m2,
+					{
+						mode: $author$project$Modes$RenameMode(q)
+					});
 			}
 		}
 	});
-var $author$project$Main$update_RenameMode = F4(
-	function (label, ids, msg, model) {
+var $author$project$Main$update_RenameMode = F3(
+	function (labels, msg, model) {
+		var edit_label = function (s) {
+			return $author$project$Model$noCmd(
+				_Utils_update(
+					model,
+					{
+						mode: $author$project$Modes$RenameMode(
+							function () {
+								if (labels.b) {
+									var _v2 = labels.a;
+									var id = _v2.a;
+									var q = labels.b;
+									return A2(
+										$elm$core$List$cons,
+										_Utils_Tuple2(id, s),
+										q);
+								} else {
+									return labels;
+								}
+							}())
+					}));
+		};
 		_v0$5:
 		while (true) {
 			switch (msg.$) {
@@ -10663,10 +10732,10 @@ var $author$project$Main$update_RenameMode = F4(
 								return $author$project$Model$switch_Default(model);
 							case 'Enter':
 								return $author$project$Model$noCmd(
-									A4($author$project$Main$next_RenameMode, true, label, ids, model));
+									A3($author$project$Main$next_RenameMode, true, labels, model));
 							case 'Tab':
 								return $author$project$Model$noCmd(
-									A4($author$project$Main$next_RenameMode, false, label, ids, model));
+									A3($author$project$Main$next_RenameMode, false, labels, model));
 							default:
 								break _v0$5;
 						}
@@ -10675,20 +10744,10 @@ var $author$project$Main$update_RenameMode = F4(
 					}
 				case 'NodeLabelEdit':
 					var s = msg.b;
-					return $author$project$Model$noCmd(
-						_Utils_update(
-							model,
-							{
-								mode: A2($author$project$Modes$RenameMode, s, ids)
-							}));
+					return edit_label(s);
 				case 'EdgeLabelEdit':
 					var s = msg.b;
-					return $author$project$Model$noCmd(
-						_Utils_update(
-							model,
-							{
-								mode: A2($author$project$Modes$RenameMode, s, ids)
-							}));
+					return edit_label(s);
 				default:
 					break _v0$5;
 			}
@@ -10814,9 +10873,8 @@ var $author$project$Main$update = F2(
 						var astate = _v1.a;
 						return A3($author$project$Modes$NewArrow$update, astate, msg, m);
 					case 'RenameMode':
-						var s = _v1.a;
-						var l = _v1.b;
-						return A4($author$project$Main$update_RenameMode, s, l, msg, m);
+						var l = _v1.a;
+						return A3($author$project$Main$update_RenameMode, l, msg, m);
 					case 'Move':
 						var s = _v1.a;
 						return A3($author$project$Main$update_MoveNode, msg, s, m);
@@ -12029,12 +12087,12 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 				m,
 				A2($author$project$Main$info_MoveNode, m, s).graph);
 		case 'RenameMode':
-			var s = _v0.a;
-			var l = _v0.b;
-			var g = A3($author$project$Main$graph_RenameMode, s, l, m);
+			var l = _v0.a;
+			var g = A2($author$project$Main$graph_RenameMode, l, m);
 			var g2 = A2($author$project$Model$collageGraphFromGraph, m, g);
 			if (l.b) {
-				var id = l.a;
+				var _v2 = l.a;
+				var id = _v2.a;
 				return A4(
 					$author$project$Polygraph$update,
 					id,
@@ -12063,7 +12121,7 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 								label: $elm$core$String$fromInt(id)
 							});
 					}),
-				function (_v2) {
+				function (_v3) {
 					return $elm$core$Basics$identity;
 				},
 				A2($author$project$Model$collageGraphFromGraph, m, m.graph));
