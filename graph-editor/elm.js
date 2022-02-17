@@ -10025,6 +10025,39 @@ var $elm_community$list_extra$List$Extra$findMap = F2(
 			}
 		}
 	});
+var $elm_community$list_extra$List$Extra$reverseAppend = F2(
+	function (list1, list2) {
+		return A3($elm$core$List$foldl, $elm$core$List$cons, list2, list1);
+	});
+var $elm_community$list_extra$List$Extra$removeHelp = F4(
+	function (list, x, xs, previousElements) {
+		removeHelp:
+		while (true) {
+			if (!xs.b) {
+				return list;
+			} else {
+				var y = xs.a;
+				var ys = xs.b;
+				if (_Utils_eq(x, y)) {
+					return A2($elm_community$list_extra$List$Extra$reverseAppend, previousElements, ys);
+				} else {
+					var $temp$list = list,
+						$temp$x = x,
+						$temp$xs = ys,
+						$temp$previousElements = A2($elm$core$List$cons, y, previousElements);
+					list = $temp$list;
+					x = $temp$x;
+					xs = $temp$xs;
+					previousElements = $temp$previousElements;
+					continue removeHelp;
+				}
+			}
+		}
+	});
+var $elm_community$list_extra$List$Extra$remove = F2(
+	function (x, xs) {
+		return A4($elm_community$list_extra$List$Extra$removeHelp, xs, x, xs, _List_Nil);
+	});
 var $author$project$GraphProof$commuteProof = F2(
 	function (diags, l) {
 		var _v0 = A2(
@@ -10040,7 +10073,10 @@ var $author$project$GraphProof$commuteProof = F2(
 			return A2(
 				$elm$core$List$cons,
 				step,
-				A2($author$project$GraphProof$commuteProof, diags, step.endChain));
+				A2(
+					$author$project$GraphProof$commuteProof,
+					A2($elm_community$list_extra$List$Extra$remove, step.diag, diags),
+					step.endChain));
 		}
 	});
 var $author$project$GraphProof$finishedProof = function (_v0) {
