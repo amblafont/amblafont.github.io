@@ -8971,6 +8971,12 @@ var $author$project$Modes$SplitArrow$update = F3(
 var $author$project$Modes$SquareMode = function (a) {
 	return {$: 'SquareMode', a: a};
 };
+var $elm$json$Json$Encode$null = _Json_encodeNull;
+var $author$project$HtmlDefs$computeLayout = _Platform_outgoingPort(
+	'computeLayout',
+	function ($) {
+		return $elm$json$Json$Encode$null;
+	});
 var $author$project$Model$initialise_RenameMode = F2(
 	function (l, m) {
 		var ls = A2(
@@ -9961,8 +9967,9 @@ var $author$project$Modes$Square$nextStep = F3(
 			var ids = created ? _List_fromArray(
 				[movedNode, info.edges.ne1, info.edges.ne2]) : _List_fromArray(
 				[info.edges.ne1, info.edges.ne2]);
-			return $author$project$Model$noCmd(
-				A2($author$project$Model$initialise_RenameMode, ids, m2));
+			return _Utils_Tuple2(
+				A2($author$project$Model$initialise_RenameMode, ids, m2),
+				$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
 		}
 	});
 var $author$project$Polygraph$incomings = F2(
@@ -12442,12 +12449,6 @@ var $elm$core$Task$attempt = F2(
 						task))));
 	});
 var $elm$browser$Browser$Dom$blur = _Browser_call('blur');
-var $elm$json$Json$Encode$null = _Json_encodeNull;
-var $author$project$Main$computeLayout = _Platform_outgoingPort(
-	'computeLayout',
-	function ($) {
-		return $elm$json$Json$Encode$null;
-	});
 var $elm$parser$Parser$deadEndsToString = function (deadEnds) {
 	return 'TODO deadEndsToString';
 };
@@ -12896,10 +12897,16 @@ var $author$project$GraphDefs$createNodeLabel = F3(
 		var id = _v0.b;
 		return _Utils_Tuple3(g2, id, p);
 	});
-var $author$project$QuickInput$buildGraphEdges = F6(
-	function (g, offset, pos, from, to, ch) {
+var $author$project$QuickInput$buildGraphEdges = F7(
+	function (g, offset, alignment, pos, from, to, ch) {
 		buildGraphEdges:
 		while (true) {
+			var style = function () {
+				var st = $author$project$ArrowStyle$empty;
+				return _Utils_update(
+					st,
+					{labelAlignment: alignment});
+			}();
 			if (!ch.b) {
 				return g;
 			} else {
@@ -12910,7 +12917,7 @@ var $author$project$QuickInput$buildGraphEdges = F6(
 						g,
 						from,
 						to,
-						A2($author$project$GraphDefs$newEdgeLabel, e.edge, $author$project$ArrowStyle$empty)).a;
+						A2($author$project$GraphDefs$newEdgeLabel, e.edge, style)).a;
 				} else {
 					var e = ch.a;
 					var tail = ch.b;
@@ -12923,16 +12930,18 @@ var $author$project$QuickInput$buildGraphEdges = F6(
 						g2,
 						from,
 						idto,
-						A2($author$project$GraphDefs$newEdgeLabel, e.edge, $author$project$ArrowStyle$empty));
+						A2($author$project$GraphDefs$newEdgeLabel, e.edge, style));
 					var g3 = _v2.a;
 					var $temp$g = g3,
 						$temp$offset = offset,
+						$temp$alignment = alignment,
 						$temp$pos = posf,
 						$temp$from = idto,
 						$temp$to = to,
 						$temp$ch = tail;
 					g = $temp$g;
 					offset = $temp$offset;
+					alignment = $temp$alignment;
 					pos = $temp$pos;
 					from = $temp$from;
 					to = $temp$to;
@@ -12948,7 +12957,15 @@ var $author$project$QuickInput$buildGraphSegment = F2(
 			$author$project$Geometry$Point$resize,
 			1 / $elm$core$List$length(s.edges),
 			A2($author$project$Geometry$Point$subtract, s.to, s.from));
-		return A6($author$project$QuickInput$buildGraphEdges, g, offset, s.from, s.fromId, s.toId, s.edges);
+		return A7(
+			$author$project$QuickInput$buildGraphEdges,
+			g,
+			offset,
+			s.alignLeft ? $author$project$ArrowStyle$Left : $author$project$ArrowStyle$Right,
+			s.from,
+			s.fromId,
+			s.toId,
+			s.edges);
 	});
 var $elm_community$list_extra$List$Extra$last = function (items) {
 	last:
@@ -13025,10 +13042,10 @@ var $author$project$QuickInput$orientEquation = F4(
 			g5,
 			_List_fromArray(
 				[
-					{edges: source1, from: topLeftPos, fromId: topLeftId, to: topRightPos, toId: topRightId},
-					{edges: but1, from: topLeftPos, fromId: topLeftId, to: bottomLeftPos, toId: bottomLeftId},
-					{edges: source2, from: topRightPos, fromId: topRightId, to: bottomRightPos, toId: bottomRightId},
-					{edges: but2, from: bottomLeftPos, fromId: bottomLeftId, to: bottomRightPos, toId: bottomRightId}
+					{alignLeft: true, edges: source1, from: topLeftPos, fromId: topLeftId, to: topRightPos, toId: topRightId},
+					{alignLeft: false, edges: but1, from: topLeftPos, fromId: topLeftId, to: bottomLeftPos, toId: bottomLeftId},
+					{alignLeft: true, edges: source2, from: topRightPos, fromId: topRightId, to: bottomRightPos, toId: bottomRightId},
+					{alignLeft: false, edges: but2, from: bottomLeftPos, fromId: bottomLeftId, to: bottomRightPos, toId: bottomRightId}
 				]));
 	});
 var $author$project$QuickInput$graphEquation = F4(
@@ -13060,7 +13077,7 @@ var $author$project$QuickInput$splitWithChain = F3(
 						var n2 = _v0.b.a;
 						return A2(
 							$author$project$QuickInput$buildGraphSegment,
-							{edges: ch.edges, from: n1.pos, fromId: edge.from, to: n2.pos, toId: edge.to},
+							{alignLeft: true, edges: ch.edges, from: n1.pos, fromId: edge.from, to: n2.pos, toId: edge.to},
 							A2($author$project$Polygraph$removeEdge, id, g));
 					} else {
 						return g;
@@ -13196,7 +13213,7 @@ var $author$project$Main$update_QuickInput = F3(
 											mode: $author$project$Modes$DefaultMode,
 											quickInput: ''
 										}),
-									$author$project$Main$computeLayout(_Utils_Tuple0));
+									$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
 							default:
 								break _v1$3;
 						}
