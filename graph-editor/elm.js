@@ -8759,6 +8759,12 @@ var $author$project$Modes$NewArrow$update = F3(
 var $author$project$Modes$SplitArrow = function (a) {
 	return {$: 'SplitArrow', a: a};
 };
+var $elm$json$Json$Encode$null = _Json_encodeNull;
+var $author$project$HtmlDefs$computeLayout = _Platform_outgoingPort(
+	'computeLayout',
+	function ($) {
+		return $elm$json$Json$Encode$null;
+	});
 var $author$project$GraphDefs$emptyEdge = A2($author$project$GraphDefs$newEdgeLabel, '', $author$project$ArrowStyle$empty);
 var $elm_community$intdict$IntDict$remove = F2(
 	function (key, dict) {
@@ -8895,7 +8901,11 @@ var $author$project$Modes$SplitArrow$nextStep = F3(
 				model,
 				{graph: info.graph}));
 		if (finish) {
-			return $author$project$Model$switch_Default(m2);
+			return _Utils_Tuple2(
+				_Utils_update(
+					m2,
+					{mode: $author$project$Modes$DefaultMode}),
+				$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
 		} else {
 			var ne2 = _Utils_Tuple2(info.ne2, info.le2);
 			var ne1 = _Utils_Tuple2(info.ne1, info.le1);
@@ -8908,8 +8918,9 @@ var $author$project$Modes$SplitArrow$nextStep = F3(
 					ne2
 				]) : _List_fromArray(
 				[ne1, ne2]);
-			return $author$project$Model$noCmd(
-				A2($author$project$Model$initialise_RenameModeWithDefault, ids, m2));
+			return _Utils_Tuple2(
+				A2($author$project$Model$initialise_RenameModeWithDefault, ids, m2),
+				$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
 		}
 	});
 var $author$project$Modes$SplitArrow$update = F3(
@@ -8971,12 +8982,6 @@ var $author$project$Modes$SplitArrow$update = F3(
 var $author$project$Modes$SquareMode = function (a) {
 	return {$: 'SquareMode', a: a};
 };
-var $elm$json$Json$Encode$null = _Json_encodeNull;
-var $author$project$HtmlDefs$computeLayout = _Platform_outgoingPort(
-	'computeLayout',
-	function ($) {
-		return $elm$json$Json$Encode$null;
-	});
 var $author$project$Model$initialise_RenameMode = F2(
 	function (l, m) {
 		var ls = A2(
@@ -9962,7 +9967,11 @@ var $author$project$Modes$Square$nextStep = F3(
 				model,
 				{graph: info.graph}));
 		if (finish) {
-			return $author$project$Model$switch_Default(m2);
+			return _Utils_Tuple2(
+				_Utils_update(
+					m2,
+					{mode: $author$project$Modes$DefaultMode}),
+				$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
 		} else {
 			var ids = created ? _List_fromArray(
 				[movedNode, info.edges.ne1, info.edges.ne2]) : _List_fromArray(
@@ -10180,6 +10189,107 @@ var $author$project$Polygraph$updateEdge = F3(
 var $author$project$Polygraph$updateNode = F3(
 	function (i, fn, g) {
 		return A4($author$project$Polygraph$update, i, fn, $elm$core$Basics$identity, g);
+	});
+var $author$project$Modes$CutHead = F2(
+	function (a, b) {
+		return {$: 'CutHead', a: a, b: b};
+	});
+var $author$project$Polygraph$getEdge = F2(
+	function (id, _v0) {
+		var g = _v0.a;
+		return A2(
+			$elm$core$Maybe$andThen,
+			$author$project$Polygraph$objEdge(id),
+			A2($elm_community$intdict$IntDict$get, id, g));
+	});
+var $author$project$Main$graphCutHead = F3(
+	function (id, head, m) {
+		var pos = m.mousePos;
+		return A2(
+			$elm$core$Maybe$withDefault,
+			m.graph,
+			A2(
+				$elm$core$Maybe$andThen,
+				function (e) {
+					return A2(
+						$elm$core$Maybe$map,
+						function (nto) {
+							var g1 = A2($author$project$Polygraph$removeEdge, id, m.graph);
+							var _v0 = A2(
+								$author$project$Polygraph$newNode,
+								g1,
+								_Utils_update(
+									nto,
+									{pos: pos}));
+							var g2 = _v0.a;
+							var newId = _v0.b;
+							var _v1 = head ? _Utils_Tuple2(e.from, newId) : _Utils_Tuple2(newId, e.to);
+							var n1 = _v1.a;
+							var n2 = _v1.b;
+							var _v2 = A4($author$project$Polygraph$newEdge, g2, n1, n2, e.label);
+							var g3 = _v2.a;
+							return g3;
+						},
+						A2(
+							$author$project$Polygraph$getNode,
+							head ? e.to : e.from,
+							m.graph));
+				},
+				A2($author$project$Polygraph$getEdge, id, m.graph)));
+	});
+var $author$project$Main$update_CutHead = F4(
+	function (id, head, msg, m) {
+		var finalise = function (_v1) {
+			return _Utils_Tuple2(
+				_Utils_update(
+					m,
+					{
+						graph: A3($author$project$Main$graphCutHead, id, head, m),
+						mode: $author$project$Modes$DefaultMode
+					}),
+				$elm$core$Platform$Cmd$none);
+		};
+		_v0$4:
+		while (true) {
+			switch (msg.$) {
+				case 'MouseClick':
+					return finalise(_Utils_Tuple0);
+				case 'KeyChanged':
+					if (!msg.a) {
+						if (msg.c.$ === 'Control') {
+							switch (msg.c.a) {
+								case 'Escape':
+									return _Utils_Tuple2(
+										_Utils_update(
+											m,
+											{mode: $author$project$Modes$DefaultMode}),
+										$elm$core$Platform$Cmd$none);
+								case 'Enter':
+									return finalise(_Utils_Tuple0);
+								default:
+									break _v0$4;
+							}
+						} else {
+							if ('c' === msg.c.a.valueOf()) {
+								return _Utils_Tuple2(
+									_Utils_update(
+										m,
+										{
+											mode: A2($author$project$Modes$CutHead, id, !head)
+										}),
+									$elm$core$Platform$Cmd$none);
+							} else {
+								break _v0$4;
+							}
+						}
+					} else {
+						break _v0$4;
+					}
+				default:
+					break _v0$4;
+			}
+		}
+		return $author$project$Model$noCmd(m);
 	});
 var $author$project$Main$update_DebugMode = F2(
 	function (msg, model) {
@@ -11114,23 +11224,22 @@ var $author$project$Modes$NewArrow$initialise = function (m) {
 				},
 				$author$project$GraphDefs$selectedId(m.graph))));
 };
-var $author$project$Polygraph$getEdge = F2(
-	function (id, _v0) {
-		var g = _v0.a;
-		return A2(
-			$elm$core$Maybe$andThen,
-			$author$project$Polygraph$objEdge(id),
-			A2($elm_community$intdict$IntDict$get, id, g));
-	});
-var $author$project$GraphDefs$selectedEdgeId = function (g) {
+var $author$project$GraphDefs$selectedEdge = function (g) {
 	var _v0 = $author$project$GraphDefs$selectedEdges(g);
 	if (_v0.b && (!_v0.b.b)) {
 		var x = _v0.a;
-		return $elm$core$Maybe$Just(x.id);
+		return $elm$core$Maybe$Just(x);
 	} else {
 		return $elm$core$Maybe$Nothing;
 	}
 };
+var $author$project$GraphDefs$selectedEdgeId = A2(
+	$elm$core$Basics$composeR,
+	$author$project$GraphDefs$selectedEdge,
+	$elm$core$Maybe$map(
+		function ($) {
+			return $.id;
+		}));
 var $author$project$Modes$SplitArrow$initialise = function (m) {
 	var _v0 = $author$project$GraphDefs$selectedEdgeId(m.graph);
 	if (_v0.$ === 'Nothing') {
@@ -11897,7 +12006,7 @@ var $author$project$Main$update_DefaultMode = F2(
 						$author$project$GraphDefs$toProofGraph(model.graph))));
 			return A2(fillBottom, s, 'No diagram found!');
 		};
-		_v0$27:
+		_v0$28:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseDown':
@@ -11934,7 +12043,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											graph: $author$project$GraphDefs$removeSelected(model.graph)
 										}));
 							} else {
-								break _v0$27;
+								break _v0$28;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -11988,6 +12097,19 @@ var $author$project$Main$update_DefaultMode = F2(
 											{
 												graph: A2($author$project$GraphDefs$selectSurroundingDiagram, model.mousePos, model.graph)
 											}));
+								case 'c':
+									var _v2 = $author$project$GraphDefs$selectedEdgeId(model.graph);
+									if (_v2.$ === 'Nothing') {
+										return $author$project$Model$noCmd(model);
+									} else {
+										var id = _v2.a;
+										return $author$project$Model$noCmd(
+											_Utils_update(
+												model,
+												{
+													mode: A2($author$project$Modes$CutHead, id, true)
+												}));
+									}
 								case 'C':
 									var gc = $author$project$GraphDefs$toProofGraph(model.graph);
 									var s = A2(
@@ -12014,12 +12136,12 @@ var $author$project$Main$update_DefaultMode = F2(
 								case 's':
 									return $author$project$Modes$Square$initialise(model);
 								case 'p':
-									var _v2 = A2(
+									var _v3 = A2(
 										$author$project$Polygraph$newNode,
 										model.graph,
 										A2($author$project$GraphDefs$newNodeLabel, model.mousePos, ''));
-									var newGraph = _v2.a;
-									var newId = _v2.b;
+									var newGraph = _v3.a;
+									var newId = _v3.b;
 									var newModel = A3(
 										$author$project$Model$addOrSetSel,
 										false,
@@ -12050,7 +12172,7 @@ var $author$project$Main$update_DefaultMode = F2(
 												graph: A3(
 													$author$project$Polygraph$map,
 													F2(
-														function (_v3, n) {
+														function (_v4, n) {
 															return n.selected ? A2($author$project$GraphDefs$snapNodeToGrid, model.sizeGrid, n) : n;
 														}),
 													$elm$core$Basics$always($elm$core$Basics$identity),
@@ -12065,11 +12187,11 @@ var $author$project$Main$update_DefaultMode = F2(
 								case 'l':
 									return move(0);
 								default:
-									break _v0$27;
+									break _v0$28;
 							}
 						}
 					} else {
-						break _v0$27;
+						break _v0$28;
 					}
 				case 'PasteGraph':
 					var g = msg.a;
@@ -12084,14 +12206,14 @@ var $author$project$Main$update_DefaultMode = F2(
 										$author$project$GraphDefs$selectAll(g))
 								})));
 				default:
-					break _v0$27;
+					break _v0$28;
 			}
 		}
-		var _v4 = $author$project$GraphDefs$selectedEdgeId(model.graph);
-		if (_v4.$ === 'Nothing') {
+		var _v5 = $author$project$GraphDefs$selectedEdgeId(model.graph);
+		if (_v5.$ === 'Nothing') {
 			return $author$project$Model$noCmd(model);
 		} else {
-			var id = _v4.a;
+			var id = _v5.a;
 			return $author$project$Model$noCmd(
 				_Utils_update(
 					model,
@@ -12460,11 +12582,7 @@ var $author$project$QuickInput$Edge = F2(
 	function (edge, to) {
 		return {edge: edge, to: to};
 	});
-var $author$project$QuickInput$endArrowChar = _Utils_chr('⟩');
-var $elm$core$String$cons = _String_cons;
-var $elm$core$String$fromChar = function (_char) {
-	return A2($elm$core$String$cons, _char, '');
-};
+var $author$project$QuickInput$endSymbol = '->';
 var $elm$parser$Parser$Advanced$Bad = F2(
 	function (a, b) {
 		return {$: 'Bad', a: a, b: b};
@@ -12519,10 +12637,109 @@ var $elm$parser$Parser$Advanced$keeper = F2(
 		return A3($elm$parser$Parser$Advanced$map2, $elm$core$Basics$apL, parseFunc, parseArg);
 	});
 var $elm$parser$Parser$keeper = $elm$parser$Parser$Advanced$keeper;
-var $author$project$QuickInput$correctLabelChar = F2(
-	function (fb, c) {
-		return !A2($elm$core$List$member, c, fb);
+var $elm$parser$Parser$Advanced$Empty = {$: 'Empty'};
+var $elm$parser$Parser$Advanced$Append = F2(
+	function (a, b) {
+		return {$: 'Append', a: a, b: b};
 	});
+var $elm$parser$Parser$Advanced$oneOfHelp = F3(
+	function (s0, bag, parsers) {
+		oneOfHelp:
+		while (true) {
+			if (!parsers.b) {
+				return A2($elm$parser$Parser$Advanced$Bad, false, bag);
+			} else {
+				var parse = parsers.a.a;
+				var remainingParsers = parsers.b;
+				var _v1 = parse(s0);
+				if (_v1.$ === 'Good') {
+					var step = _v1;
+					return step;
+				} else {
+					var step = _v1;
+					var p = step.a;
+					var x = step.b;
+					if (p) {
+						return step;
+					} else {
+						var $temp$s0 = s0,
+							$temp$bag = A2($elm$parser$Parser$Advanced$Append, bag, x),
+							$temp$parsers = remainingParsers;
+						s0 = $temp$s0;
+						bag = $temp$bag;
+						parsers = $temp$parsers;
+						continue oneOfHelp;
+					}
+				}
+			}
+		}
+	});
+var $elm$parser$Parser$Advanced$oneOf = function (parsers) {
+	return $elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			return A3($elm$parser$Parser$Advanced$oneOfHelp, s, $elm$parser$Parser$Advanced$Empty, parsers);
+		});
+};
+var $elm$parser$Parser$oneOf = $elm$parser$Parser$Advanced$oneOf;
+var $elm$parser$Parser$Advanced$isSubChar = _Parser_isSubChar;
+var $elm$parser$Parser$Advanced$chompWhileHelp = F5(
+	function (isGood, offset, row, col, s0) {
+		chompWhileHelp:
+		while (true) {
+			var newOffset = A3($elm$parser$Parser$Advanced$isSubChar, isGood, offset, s0.src);
+			if (_Utils_eq(newOffset, -1)) {
+				return A3(
+					$elm$parser$Parser$Advanced$Good,
+					_Utils_cmp(s0.offset, offset) < 0,
+					_Utils_Tuple0,
+					{col: col, context: s0.context, indent: s0.indent, offset: offset, row: row, src: s0.src});
+			} else {
+				if (_Utils_eq(newOffset, -2)) {
+					var $temp$isGood = isGood,
+						$temp$offset = offset + 1,
+						$temp$row = row + 1,
+						$temp$col = 1,
+						$temp$s0 = s0;
+					isGood = $temp$isGood;
+					offset = $temp$offset;
+					row = $temp$row;
+					col = $temp$col;
+					s0 = $temp$s0;
+					continue chompWhileHelp;
+				} else {
+					var $temp$isGood = isGood,
+						$temp$offset = newOffset,
+						$temp$row = row,
+						$temp$col = col + 1,
+						$temp$s0 = s0;
+					isGood = $temp$isGood;
+					offset = $temp$offset;
+					row = $temp$row;
+					col = $temp$col;
+					s0 = $temp$s0;
+					continue chompWhileHelp;
+				}
+			}
+		}
+	});
+var $elm$parser$Parser$Advanced$chompWhile = function (isGood) {
+	return $elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			return A5($elm$parser$Parser$Advanced$chompWhileHelp, isGood, s.offset, s.row, s.col, s);
+		});
+};
+var $elm$parser$Parser$Advanced$spaces = $elm$parser$Parser$Advanced$chompWhile(
+	function (c) {
+		return _Utils_eq(
+			c,
+			_Utils_chr(' ')) || (_Utils_eq(
+			c,
+			_Utils_chr('\n')) || _Utils_eq(
+			c,
+			_Utils_chr('\r')));
+	});
+var $elm$parser$Parser$spaces = $elm$parser$Parser$Advanced$spaces;
+var $author$project$QuickInput$startSymbol = '--';
 var $elm$parser$Parser$Advanced$succeed = function (a) {
 	return $elm$parser$Parser$Advanced$Parser(
 		function (s) {
@@ -12530,8 +12747,13 @@ var $elm$parser$Parser$Advanced$succeed = function (a) {
 		});
 };
 var $elm$parser$Parser$succeed = $elm$parser$Parser$Advanced$succeed;
-var $elm$core$String$trim = _String_trim;
-var $elm$parser$Parser$ExpectingVariable = {$: 'ExpectingVariable'};
+var $elm$parser$Parser$ExpectingSymbol = function (a) {
+	return {$: 'ExpectingSymbol', a: a};
+};
+var $elm$parser$Parser$Advanced$Token = F2(
+	function (a, b) {
+		return {$: 'Token', a: a, b: b};
+	});
 var $elm$parser$Parser$Advanced$AddRight = F2(
 	function (a, b) {
 		return {$: 'AddRight', a: a, b: b};
@@ -12540,7 +12762,6 @@ var $elm$parser$Parser$Advanced$DeadEnd = F4(
 	function (row, col, problem, contextStack) {
 		return {col: col, contextStack: contextStack, problem: problem, row: row};
 	});
-var $elm$parser$Parser$Advanced$Empty = {$: 'Empty'};
 var $elm$parser$Parser$Advanced$fromState = F2(
 	function (s, x) {
 		return A2(
@@ -12548,7 +12769,41 @@ var $elm$parser$Parser$Advanced$fromState = F2(
 			$elm$parser$Parser$Advanced$Empty,
 			A4($elm$parser$Parser$Advanced$DeadEnd, s.row, s.col, x, s.context));
 	});
-var $elm$parser$Parser$Advanced$isSubChar = _Parser_isSubChar;
+var $elm$parser$Parser$Advanced$isSubString = _Parser_isSubString;
+var $elm$parser$Parser$Advanced$token = function (_v0) {
+	var str = _v0.a;
+	var expecting = _v0.b;
+	var progress = !$elm$core$String$isEmpty(str);
+	return $elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			var _v1 = A5($elm$parser$Parser$Advanced$isSubString, str, s.offset, s.row, s.col, s.src);
+			var newOffset = _v1.a;
+			var newRow = _v1.b;
+			var newCol = _v1.c;
+			return _Utils_eq(newOffset, -1) ? A2(
+				$elm$parser$Parser$Advanced$Bad,
+				false,
+				A2($elm$parser$Parser$Advanced$fromState, s, expecting)) : A3(
+				$elm$parser$Parser$Advanced$Good,
+				progress,
+				_Utils_Tuple0,
+				{col: newCol, context: s.context, indent: s.indent, offset: newOffset, row: newRow, src: s.src});
+		});
+};
+var $elm$parser$Parser$Advanced$symbol = $elm$parser$Parser$Advanced$token;
+var $elm$parser$Parser$symbol = function (str) {
+	return $elm$parser$Parser$Advanced$symbol(
+		A2(
+			$elm$parser$Parser$Advanced$Token,
+			str,
+			$elm$parser$Parser$ExpectingSymbol(str)));
+};
+var $author$project$QuickInput$correctLabelChar = F2(
+	function (fb, c) {
+		return !A2($elm$core$List$member, c, fb);
+	});
+var $elm$core$String$trim = _String_trim;
+var $elm$parser$Parser$ExpectingVariable = {$: 'ExpectingVariable'};
 var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
 		get:
@@ -12672,142 +12927,6 @@ var $author$project$QuickInput$labelParser = function (fb) {
 				start: $author$project$QuickInput$correctLabelChar(fb)
 			}));
 };
-var $elm$parser$Parser$Advanced$Append = F2(
-	function (a, b) {
-		return {$: 'Append', a: a, b: b};
-	});
-var $elm$parser$Parser$Advanced$oneOfHelp = F3(
-	function (s0, bag, parsers) {
-		oneOfHelp:
-		while (true) {
-			if (!parsers.b) {
-				return A2($elm$parser$Parser$Advanced$Bad, false, bag);
-			} else {
-				var parse = parsers.a.a;
-				var remainingParsers = parsers.b;
-				var _v1 = parse(s0);
-				if (_v1.$ === 'Good') {
-					var step = _v1;
-					return step;
-				} else {
-					var step = _v1;
-					var p = step.a;
-					var x = step.b;
-					if (p) {
-						return step;
-					} else {
-						var $temp$s0 = s0,
-							$temp$bag = A2($elm$parser$Parser$Advanced$Append, bag, x),
-							$temp$parsers = remainingParsers;
-						s0 = $temp$s0;
-						bag = $temp$bag;
-						parsers = $temp$parsers;
-						continue oneOfHelp;
-					}
-				}
-			}
-		}
-	});
-var $elm$parser$Parser$Advanced$oneOf = function (parsers) {
-	return $elm$parser$Parser$Advanced$Parser(
-		function (s) {
-			return A3($elm$parser$Parser$Advanced$oneOfHelp, s, $elm$parser$Parser$Advanced$Empty, parsers);
-		});
-};
-var $elm$parser$Parser$oneOf = $elm$parser$Parser$Advanced$oneOf;
-var $elm$parser$Parser$Advanced$chompWhileHelp = F5(
-	function (isGood, offset, row, col, s0) {
-		chompWhileHelp:
-		while (true) {
-			var newOffset = A3($elm$parser$Parser$Advanced$isSubChar, isGood, offset, s0.src);
-			if (_Utils_eq(newOffset, -1)) {
-				return A3(
-					$elm$parser$Parser$Advanced$Good,
-					_Utils_cmp(s0.offset, offset) < 0,
-					_Utils_Tuple0,
-					{col: col, context: s0.context, indent: s0.indent, offset: offset, row: row, src: s0.src});
-			} else {
-				if (_Utils_eq(newOffset, -2)) {
-					var $temp$isGood = isGood,
-						$temp$offset = offset + 1,
-						$temp$row = row + 1,
-						$temp$col = 1,
-						$temp$s0 = s0;
-					isGood = $temp$isGood;
-					offset = $temp$offset;
-					row = $temp$row;
-					col = $temp$col;
-					s0 = $temp$s0;
-					continue chompWhileHelp;
-				} else {
-					var $temp$isGood = isGood,
-						$temp$offset = newOffset,
-						$temp$row = row,
-						$temp$col = col + 1,
-						$temp$s0 = s0;
-					isGood = $temp$isGood;
-					offset = $temp$offset;
-					row = $temp$row;
-					col = $temp$col;
-					s0 = $temp$s0;
-					continue chompWhileHelp;
-				}
-			}
-		}
-	});
-var $elm$parser$Parser$Advanced$chompWhile = function (isGood) {
-	return $elm$parser$Parser$Advanced$Parser(
-		function (s) {
-			return A5($elm$parser$Parser$Advanced$chompWhileHelp, isGood, s.offset, s.row, s.col, s);
-		});
-};
-var $elm$parser$Parser$Advanced$spaces = $elm$parser$Parser$Advanced$chompWhile(
-	function (c) {
-		return _Utils_eq(
-			c,
-			_Utils_chr(' ')) || (_Utils_eq(
-			c,
-			_Utils_chr('\n')) || _Utils_eq(
-			c,
-			_Utils_chr('\r')));
-	});
-var $elm$parser$Parser$spaces = $elm$parser$Parser$Advanced$spaces;
-var $elm$parser$Parser$ExpectingSymbol = function (a) {
-	return {$: 'ExpectingSymbol', a: a};
-};
-var $elm$parser$Parser$Advanced$Token = F2(
-	function (a, b) {
-		return {$: 'Token', a: a, b: b};
-	});
-var $elm$parser$Parser$Advanced$isSubString = _Parser_isSubString;
-var $elm$parser$Parser$Advanced$token = function (_v0) {
-	var str = _v0.a;
-	var expecting = _v0.b;
-	var progress = !$elm$core$String$isEmpty(str);
-	return $elm$parser$Parser$Advanced$Parser(
-		function (s) {
-			var _v1 = A5($elm$parser$Parser$Advanced$isSubString, str, s.offset, s.row, s.col, s.src);
-			var newOffset = _v1.a;
-			var newRow = _v1.b;
-			var newCol = _v1.c;
-			return _Utils_eq(newOffset, -1) ? A2(
-				$elm$parser$Parser$Advanced$Bad,
-				false,
-				A2($elm$parser$Parser$Advanced$fromState, s, expecting)) : A3(
-				$elm$parser$Parser$Advanced$Good,
-				progress,
-				_Utils_Tuple0,
-				{col: newCol, context: s.context, indent: s.indent, offset: newOffset, row: newRow, src: s.src});
-		});
-};
-var $elm$parser$Parser$Advanced$symbol = $elm$parser$Parser$Advanced$token;
-var $elm$parser$Parser$symbol = function (str) {
-	return $elm$parser$Parser$Advanced$symbol(
-		A2(
-			$elm$parser$Parser$Advanced$Token,
-			str,
-			$elm$parser$Parser$ExpectingSymbol(str)));
-};
 var $author$project$QuickInput$vertexParser = $author$project$QuickInput$labelParser(
 	_List_fromArray(
 		[
@@ -12826,18 +12945,12 @@ var $author$project$QuickInput$edgeParser = $elm$parser$Parser$oneOf(
 					A2(
 						$elm$parser$Parser$ignorer,
 						$elm$parser$Parser$succeed($author$project$QuickInput$Edge),
-						$elm$parser$Parser$symbol('-')),
+						$elm$parser$Parser$symbol($author$project$QuickInput$startSymbol)),
 					$elm$parser$Parser$spaces),
 				A2(
 					$elm$parser$Parser$ignorer,
-					A2(
-						$elm$parser$Parser$ignorer,
-						$author$project$QuickInput$labelParser(
-							_List_fromArray(
-								[$author$project$QuickInput$endArrowChar])),
-						$elm$parser$Parser$spaces),
-					$elm$parser$Parser$symbol(
-						$elm$core$String$fromChar($author$project$QuickInput$endArrowChar)))),
+					A2($elm$parser$Parser$ignorer, $author$project$QuickInput$vertexParser, $elm$parser$Parser$spaces),
+					$elm$parser$Parser$symbol($author$project$QuickInput$endSymbol))),
 			$author$project$QuickInput$vertexParser)
 		]));
 var $elm$parser$Parser$Advanced$lazy = function (thunk) {
@@ -13118,7 +13231,7 @@ var $author$project$Main$graphQuickInput = F2(
 					_default,
 					A2(
 						$elm_community$maybe_extra$Maybe$Extra$or,
-						A2(split, d.lhs, eq1),
+						A2(split, d.lhs, eq2),
 						A2(split, d.rhs, eq2)));
 			}
 		}
@@ -13551,9 +13664,13 @@ var $author$project$Main$update = F2(
 					case 'SquareMode':
 						var state = _v1.a;
 						return A3($author$project$Modes$Square$update, state, msg, model);
-					default:
+					case 'SplitArrow':
 						var state = _v1.a;
 						return A3($author$project$Modes$SplitArrow$update, state, msg, model);
+					default:
+						var id = _v1.a;
+						var head = _v1.b;
+						return A4($author$project$Main$update_CutHead, id, head, msg, model);
 				}
 		}
 	});
@@ -15210,6 +15327,11 @@ var $author$project$Modes$Square$graphDrawing = F2(
 			info.edges,
 			A2($author$project$Model$collageGraphFromGraph, m, info.graph));
 	});
+var $author$project$Main$graphDrawing_CutHead = F3(
+	function (id, head, m) {
+		return $author$project$GraphDrawing$toDrawingGraph(
+			A3($author$project$Main$graphCutHead, id, head, m));
+	});
 var $author$project$Main$graphDrawingFromModel = function (m) {
 	var _v0 = m.mode;
 	switch (_v0.$) {
@@ -15284,9 +15406,13 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 		case 'SquareMode':
 			var state = _v0.a;
 			return A2($author$project$Modes$Square$graphDrawing, m, state);
-		default:
+		case 'SplitArrow':
 			var state = _v0.a;
 			return A2($author$project$Modes$SplitArrow$graphDrawing, m, state);
+		default:
+			var id = _v0.a;
+			var head = _v0.b;
+			return A3($author$project$Main$graphDrawing_CutHead, id, head, m);
 	}
 };
 var $elm$svg$Svg$defs = $elm$svg$Svg$trustedNode('defs');
@@ -15500,7 +15626,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle, ' + ('[shift] to keep previous selection)' + (', [C-c] copy selection' + (', [C-v] paste' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [r]ename selected object' + (', [g] move selected objects (also merge, if wanted)' + (', [/] split arrow' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + (', [hjkl] to move the selection from a point to another' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + (', [S]elect pointer surrounding subdiagram' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [L] and [K]: select subdiagram adjacent to selected edge'))))))))))))))))))))));
+			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle, ' + ('[shift] to keep previous selection)' + (', [C-c] copy selection' + (', [C-v] paste' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [r]ename selected object' + (', [g] move selected objects (also merge, if wanted)' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + (', [hjkl] to move the selection from a point to another' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + (', [S]elect pointer surrounding subdiagram' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [L] and [K]: select subdiagram adjacent to selected edge')))))))))))))))))))))));
 		case 'DebugMode':
 			return makeHelpDiv(
 				$elm$core$List$singleton(
@@ -15514,12 +15640,14 @@ var $author$project$Main$helpMsg = function (model) {
 			return msg('Mode Split Arrow. ' + $author$project$Modes$SplitArrow$help);
 		case 'Move':
 			return msg('Mode Move.' + ('Use mouse or h,j,k,l. [RET] or [click] to confirm.' + ' Hold [ctrl] to merge the selected point onto another node.'));
+		case 'CutHead':
+			return msg('Mode cut arrow.' + (' [RET] or [click] to confirm. [ESC] to cancel. ' + '[c] to switch between head/tail.'));
 		case 'RenameMode':
 			return msg('Rename mode: [RET] to confirm, [TAB] to next label, [ESC] to cancel');
 		case 'EnlargeMode':
 			return msg('Enlarge mode: draw a rectangle to create space');
 		case 'QuickInputMode':
-			return msg('Equation mode: enter equation in the textfield ' + ('(e.g., a - f ⟩ b - g ⟩ c =  a - h ⟩ d - k ⟩ c)' + (',  [RET] to confirm, [ESC] to cancel.' + (' If an incomplete subdiagram (i.e. a subdiagram ' + ('where one branch is a single arrow with empty label)' + (' is selected, it will replace the empty branch with' + ' the lhs or the rhs (depending on the orientation).'))))));
+			return msg('Equation mode: enter equation in the textfield ' + ('(e.g., a -- f -> b -- g -> c =  a -- h -> d -- k -> c)' + (',  [RET] to confirm, [ESC] to cancel.' + (' If an incomplete subdiagram (i.e. a subdiagram ' + ('where one branch is a single arrow with empty label)' + (' is selected, it will replace the empty branch with' + ' the lhs or the rhs (depending on the orientation).'))))));
 		default:
 			var txt = 'Mode: ' + ($elm$core$Debug$toString(model.mode) + ('. [ESC] to cancel and come back to the default' + ' mode.'));
 			return makeHelpDiv(
