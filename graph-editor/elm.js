@@ -14938,7 +14938,12 @@ var $author$project$GraphDrawing$make_input = F3(
 							$elm$html$Html$Events$onInput(onChange),
 							$author$project$Msg$onTabPreventDefault,
 							$elm$html$Html$Attributes$id($author$project$HtmlDefs$idInput),
-							$elm$html$Html$Attributes$autofocus(true)
+							$elm$html$Html$Attributes$autofocus(true),
+							A2(
+							$elm$html$Html$Attributes$style,
+							'width',
+							$elm$core$String$fromInt(
+								$elm$core$String$length(label) + 1) + 'ch')
 						]),
 					$author$project$HtmlDefs$onRendered(
 						$elm$core$Basics$always(
@@ -14960,7 +14965,17 @@ var $author$project$GraphDrawing$segmentLabel = F4(
 				A2(
 					$author$project$Geometry$Point$rotate,
 					angle,
-					A9($author$project$Geometry$determine_label_position, length, angle, 2, 0, 1, curve * length, label.style.labelPosition, label.style.labelAlignment, label.dims)));
+					A9(
+						$author$project$Geometry$determine_label_position,
+						length,
+						angle,
+						2,
+						0,
+						1,
+						curve * length,
+						label.style.labelPosition,
+						label.style.labelAlignment,
+						label.editable ? _Utils_Tuple2(2, 2) : label.dims)));
 		}();
 		return label.editable ? A3(
 			$author$project$GraphDrawing$make_input,
