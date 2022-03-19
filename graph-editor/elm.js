@@ -8308,10 +8308,7 @@ var $author$project$Polygraph$filterNodes = F2(
 	});
 var $author$project$GraphDefs$defaultDims = function (s) {
 	var height = 16;
-	var size = A2(
-		$elm$core$Basics$max,
-		1,
-		$elm$core$String$length(s));
+	var size = 1;
 	return _Utils_Tuple2((height / 2) * size, height);
 };
 var $author$project$GraphDefs$getNodeDims = function (n) {
