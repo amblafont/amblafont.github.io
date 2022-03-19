@@ -5886,6 +5886,7 @@ var $author$project$Model$createModel = F2(
 			fileName: 'graph.json',
 			graph: g,
 			hideGrid: true,
+			history: _List_Nil,
 			mode: $author$project$Modes$DefaultMode,
 			mousePos: _Utils_Tuple2(0, 0),
 			quickInput: '',
@@ -8631,46 +8632,55 @@ var $author$project$ArrowStyle$toggleLabelAlignement = function (s) {
 				s.labelAlignment)
 		});
 };
-var $author$project$ArrowStyle$keyUpdateStyle = F2(
+var $author$project$ArrowStyle$keyMaybeUpdateStyle = F2(
 	function (k, style) {
 		_v0$9:
 		while (true) {
 			if (k.$ === 'Character') {
 				switch (k.a.valueOf()) {
 					case '>':
-						return $author$project$ArrowStyle$toggleHead(style);
+						return $elm$core$Maybe$Just(
+							$author$project$ArrowStyle$toggleHead(style));
 					case '(':
-						return $author$project$ArrowStyle$toggleHook(style);
+						return $elm$core$Maybe$Just(
+							$author$project$ArrowStyle$toggleHook(style));
 					case '=':
-						return $author$project$ArrowStyle$toggleDouble(style);
+						return $elm$core$Maybe$Just(
+							$author$project$ArrowStyle$toggleDouble(style));
 					case '-':
-						return $author$project$ArrowStyle$toggleDashed(style);
+						return $elm$core$Maybe$Just(
+							$author$project$ArrowStyle$toggleDashed(style));
 					case 'b':
-						return _Utils_update(
-							style,
-							{
-								bend: $author$project$Geometry$Epsilon$norm0(style.bend + 0.1)
-							});
+						return $elm$core$Maybe$Just(
+							_Utils_update(
+								style,
+								{
+									bend: $author$project$Geometry$Epsilon$norm0(style.bend + 0.1)
+								}));
 					case 'B':
-						return _Utils_update(
-							style,
-							{
-								bend: $author$project$Geometry$Epsilon$norm0(style.bend - 0.1)
-							});
+						return $elm$core$Maybe$Just(
+							_Utils_update(
+								style,
+								{
+									bend: $author$project$Geometry$Epsilon$norm0(style.bend - 0.1)
+								}));
 					case 'A':
-						return $author$project$ArrowStyle$toggleLabelAlignement(style);
+						return $elm$core$Maybe$Just(
+							$author$project$ArrowStyle$toggleLabelAlignement(style));
 					case ']':
-						return _Utils_update(
-							style,
-							{
-								labelPosition: A2($elm$core$Basics$min, 0.9, style.labelPosition + 0.1)
-							});
+						return $elm$core$Maybe$Just(
+							_Utils_update(
+								style,
+								{
+									labelPosition: A2($elm$core$Basics$min, 0.9, style.labelPosition + 0.1)
+								}));
 					case '[':
-						return _Utils_update(
-							style,
-							{
-								labelPosition: A2($elm$core$Basics$max, 0.1, style.labelPosition - 0.1)
-							});
+						return $elm$core$Maybe$Just(
+							_Utils_update(
+								style,
+								{
+									labelPosition: A2($elm$core$Basics$max, 0.1, style.labelPosition - 0.1)
+								}));
 					default:
 						break _v0$9;
 				}
@@ -8678,16 +8688,23 @@ var $author$project$ArrowStyle$keyUpdateStyle = F2(
 				break _v0$9;
 			}
 		}
-		return style;
+		return $elm$core$Maybe$Nothing;
 	});
-var $author$project$Msg$updateArrowStyle = F2(
+var $author$project$Msg$mayUpdateArrowStyle = F2(
 	function (m, style) {
 		if ((m.$ === 'KeyChanged') && (!m.a)) {
 			var k = m.c;
-			return A2($author$project$ArrowStyle$keyUpdateStyle, k, style);
+			return A2($author$project$ArrowStyle$keyMaybeUpdateStyle, k, style);
 		} else {
-			return style;
+			return $elm$core$Maybe$Nothing;
 		}
+	});
+var $author$project$Msg$updateArrowStyle = F2(
+	function (m, style) {
+		return A2(
+			$elm$core$Maybe$withDefault,
+			style,
+			A2($author$project$Msg$mayUpdateArrowStyle, m, style));
 	});
 var $author$project$Modes$NewArrow = function (a) {
 	return {$: 'NewArrow', a: a};
@@ -11736,6 +11753,17 @@ var $author$project$GraphProof$proofStatementToString = function (st) {
 		'\n',
 		A2($elm$core$List$map, $author$project$GraphProof$proofStepToString, st.proof)) + ('\n apply idpath.' + '\nQed.'))));
 };
+var $author$project$Model$depthHistory = 20;
+var $author$project$Model$pushHistory = function (m) {
+	return _Utils_update(
+		m,
+		{
+			history: A2(
+				$elm$core$List$take,
+				$author$project$Model$depthHistory,
+				A2($elm$core$List$cons, m.graph, m.history))
+		});
+};
 var $author$project$Polygraph$drop = F3(
 	function (fn, fe, _v0) {
 		var g = _v0.a;
@@ -12064,6 +12092,13 @@ var $author$project$GraphDefs$selectedIncompleteDiagram = function (g) {
 				$author$project$GraphDefs$selectedEdges(g)),
 			gc));
 };
+var $author$project$Model$setSaveGraph = F2(
+	function (m, g) {
+		var m2 = $author$project$Model$pushHistory(m);
+		return _Utils_update(
+			m2,
+			{graph: g});
+	});
 var $elm$core$List$singleton = function (value) {
 	return _List_fromArray(
 		[value]);
@@ -12087,6 +12122,39 @@ var $author$project$GraphDefs$snapNodeToGrid = F2(
 				pos: A2($author$project$Geometry$Point$snapToGrid, sizeGrid, n.pos)
 			});
 	});
+var $author$project$Model$peekHistory = function (m) {
+	return A2(
+		$elm$core$Maybe$withDefault,
+		m.graph,
+		$elm$core$List$head(m.history));
+};
+var $elm$core$List$tail = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(xs);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Model$popHistory = function (m) {
+	return _Utils_update(
+		m,
+		{
+			history: A2(
+				$elm$core$Maybe$withDefault,
+				_List_Nil,
+				$elm$core$List$tail(m.history))
+		});
+};
+var $author$project$Model$undo = function (m) {
+	return $author$project$Model$popHistory(
+		_Utils_update(
+			m,
+			{
+				graph: $author$project$Model$peekHistory(m)
+			}));
+};
 var $author$project$Main$update_DefaultMode = F2(
 	function (msg, model) {
 		var delta_angle = $elm$core$Basics$pi / 5;
@@ -12160,7 +12228,7 @@ var $author$project$Main$update_DefaultMode = F2(
 						$author$project$GraphDefs$toProofGraph(model.graph))));
 			return A2(fillBottom, s, 'No diagram found!');
 		};
-		_v0$28:
+		_v0$29:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseDown':
@@ -12186,31 +12254,43 @@ var $author$project$Main$update_DefaultMode = F2(
 					var e = msg.b;
 					return $author$project$Model$noCmd(
 						A3($author$project$Model$addOrSetSel, e.keys.shift, n, model));
+				case 'PasteGraph':
+					var g = msg.a;
+					return $author$project$Model$noCmd(
+						$author$project$Main$initialiseMoveMode(
+							A2(
+								$author$project$Model$setSaveGraph,
+								model,
+								A2(
+									$author$project$Polygraph$union,
+									$author$project$GraphDefs$clearSelection(model.graph),
+									$author$project$GraphDefs$selectAll(g)))));
 				case 'KeyChanged':
 					if (!msg.a) {
 						if (msg.c.$ === 'Control') {
 							if (msg.c.a === 'Delete') {
 								return $author$project$Model$noCmd(
-									_Utils_update(
+									A2(
+										$author$project$Model$setSaveGraph,
 										model,
-										{
-											graph: $author$project$GraphDefs$removeSelected(model.graph)
-										}));
+										$author$project$GraphDefs$removeSelected(model.graph)));
 							} else {
-								break _v0$28;
+								break _v0$29;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
 								case 'e':
 									return $author$project$Model$noCmd(
-										_Utils_update(
-											model,
-											{
-												mode: $author$project$Modes$EnlargeMode(model.mousePos)
-											}));
+										$author$project$Model$pushHistory(
+											_Utils_update(
+												model,
+												{
+													mode: $author$project$Modes$EnlargeMode(model.mousePos)
+												})));
 								case 'a':
 									var k = msg.b;
-									return $author$project$Modes$NewArrow$initialise(model);
+									return $author$project$Modes$NewArrow$initialise(
+										$author$project$Model$pushHistory(model));
 								case 'd':
 									return $author$project$Model$noCmd(
 										_Utils_update(
@@ -12218,18 +12298,18 @@ var $author$project$Main$update_DefaultMode = F2(
 											{mode: $author$project$Modes$DebugMode}));
 								case 'g':
 									return $author$project$Model$noCmd(
-										$author$project$Main$initialiseMoveMode(model));
+										$author$project$Main$initialiseMoveMode(
+											$author$project$Model$pushHistory(model)));
 								case 'i':
 									return $author$project$Model$noCmd(
 										function () {
 											var _v1 = $author$project$GraphDefs$selectedEdgeId(model.graph);
 											if (_v1.$ === 'Just') {
 												var id = _v1.a;
-												return _Utils_update(
+												return A2(
+													$author$project$Model$setSaveGraph,
 													model,
-													{
-														graph: A2($author$project$Polygraph$invertEdge, id, model.graph)
-													});
+													A2($author$project$Polygraph$invertEdge, id, model.graph));
 											} else {
 												return model;
 											}
@@ -12277,23 +12357,18 @@ var $author$project$Main$update_DefaultMode = F2(
 										}
 									}
 								case 'C':
-									var k = msg.b;
-									if (k.ctrl) {
-										return $author$project$Model$noCmd(model);
-									} else {
-										var gc = $author$project$GraphDefs$toProofGraph(model.graph);
-										var s = A2(
-											$elm$core$Maybe$withDefault,
-											'',
+									var gc = $author$project$GraphDefs$toProofGraph(model.graph);
+									var s = A2(
+										$elm$core$Maybe$withDefault,
+										'',
+										A2(
+											$elm$core$Maybe$andThen,
 											A2(
-												$elm$core$Maybe$andThen,
-												A2(
-													$elm$core$Basics$composeR,
-													$author$project$GraphProof$generateIncompleteProofStepFromDiagram(gc),
-													$elm$core$Maybe$map($author$project$GraphProof$incompleteProofStepToString)),
-												$author$project$GraphDefs$selectedIncompleteDiagram(model.graph)));
-										return A2(fillBottom, s, 'No selected subdiagram found!');
-									}
+												$elm$core$Basics$composeR,
+												$author$project$GraphProof$generateIncompleteProofStepFromDiagram(gc),
+												$elm$core$Maybe$map($author$project$GraphProof$incompleteProofStepToString)),
+											$author$project$GraphDefs$selectedIncompleteDiagram(model.graph)));
+									return A2(fillBottom, s, 'No selected subdiagram found!');
 								case 'r':
 									var ids = A2(
 										$elm$core$Maybe$withDefault,
@@ -12303,9 +12378,13 @@ var $author$project$Main$update_DefaultMode = F2(
 											$elm$core$List$singleton,
 											$author$project$GraphDefs$selectedId(model.graph)));
 									return $author$project$Model$noCmd(
-										A2($author$project$Model$initialise_RenameMode, ids, model));
+										A2(
+											$author$project$Model$initialise_RenameMode,
+											ids,
+											$author$project$Model$pushHistory(model)));
 								case 's':
-									return $author$project$Modes$Square$initialise(model);
+									return $author$project$Modes$Square$initialise(
+										$author$project$Model$pushHistory(model));
 								case 'p':
 									var _v3 = A2(
 										$author$project$Polygraph$newNode,
@@ -12317,38 +12396,35 @@ var $author$project$Main$update_DefaultMode = F2(
 										$author$project$Model$addOrSetSel,
 										false,
 										newId,
-										_Utils_update(
-											model,
-											{graph: newGraph}));
+										A2($author$project$Model$setSaveGraph, model, newGraph));
 									return $author$project$Model$noCmd(
 										A2(
 											$author$project$Model$initialise_RenameMode,
 											_List_fromArray(
 												[newId]),
 											newModel));
+								case '/':
+									return $author$project$Modes$SplitArrow$initialise(
+										$author$project$Model$pushHistory(model));
 								case 'x':
 									return $author$project$Model$noCmd(
-										_Utils_update(
+										A2(
+											$author$project$Model$setSaveGraph,
 											model,
-											{
-												graph: $author$project$GraphDefs$removeSelected(model.graph)
-											}));
-								case '/':
-									return $author$project$Modes$SplitArrow$initialise(model);
+											$author$project$GraphDefs$removeSelected(model.graph)));
 								case 'f':
 									return $author$project$Model$noCmd(
-										_Utils_update(
+										A2(
+											$author$project$Model$setSaveGraph,
 											model,
-											{
-												graph: A3(
-													$author$project$Polygraph$map,
-													F2(
-														function (_v4, n) {
-															return n.selected ? A2($author$project$GraphDefs$snapNodeToGrid, model.sizeGrid, n) : n;
-														}),
-													$elm$core$Basics$always($elm$core$Basics$identity),
-													model.graph)
-											}));
+											A3(
+												$author$project$Polygraph$map,
+												F2(
+													function (_v4, n) {
+														return n.selected ? A2($author$project$GraphDefs$snapNodeToGrid, model.sizeGrid, n) : n;
+													}),
+												$elm$core$Basics$always($elm$core$Basics$identity),
+												model.graph)));
 								case 'h':
 									return move($elm$core$Basics$pi);
 								case 'j':
@@ -12357,27 +12433,19 @@ var $author$project$Main$update_DefaultMode = F2(
 									return move((3 * $elm$core$Basics$pi) / 2);
 								case 'l':
 									return move(0);
+								case 'z':
+									var k = msg.b;
+									return k.ctrl ? $author$project$Model$noCmd(
+										$author$project$Model$undo(model)) : $author$project$Model$noCmd(model);
 								default:
-									break _v0$28;
+									break _v0$29;
 							}
 						}
 					} else {
-						break _v0$28;
+						break _v0$29;
 					}
-				case 'PasteGraph':
-					var g = msg.a;
-					return $author$project$Model$noCmd(
-						$author$project$Main$initialiseMoveMode(
-							_Utils_update(
-								model,
-								{
-									graph: A2(
-										$author$project$Polygraph$union,
-										$author$project$GraphDefs$clearSelection(model.graph),
-										$author$project$GraphDefs$selectAll(g))
-								})));
 				default:
-					break _v0$28;
+					break _v0$29;
 			}
 		}
 		var _v5 = $author$project$GraphDefs$selectedEdgeId(model.graph);
@@ -12386,21 +12454,31 @@ var $author$project$Main$update_DefaultMode = F2(
 		} else {
 			var id = _v5.a;
 			return $author$project$Model$noCmd(
-				_Utils_update(
+				A2(
+					$elm$core$Maybe$withDefault,
 					model,
-					{
-						graph: A3(
-							$author$project$Polygraph$updateEdge,
-							id,
+					A2(
+						$elm$core$Maybe$map,
+						function (style) {
+							return A2(
+								$author$project$Model$setSaveGraph,
+								model,
+								A3(
+									$author$project$Polygraph$updateEdge,
+									id,
+									function (e) {
+										return _Utils_update(
+											e,
+											{style: style});
+									},
+									model.graph));
+						},
+						A2(
+							$elm$core$Maybe$andThen,
 							function (e) {
-								return _Utils_update(
-									e,
-									{
-										style: A2($author$project$Msg$updateArrowStyle, msg, e.style)
-									});
+								return A2($author$project$Msg$mayUpdateArrowStyle, msg, e.label.style);
 							},
-							model.graph)
-					}));
+							A2($author$project$Polygraph$getEdge, id, model.graph)))));
 		}
 	});
 var $author$project$Main$enlargeGraph = F2(
@@ -15734,7 +15812,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle, ' + ('[shift] to keep previous selection)' + (', [C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [r]ename selected object' + (', [g] move selected objects (also merge, if wanted)' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + (', [hjkl] to move the selection from a point to another' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + (', [S]elect pointer surrounding subdiagram' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [L] and [K]: select subdiagram adjacent to selected edge'))))))))))))))))))))))));
+			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle, ' + ('[shift] to keep previous selection)' + (', [C-z] undo' + (', [C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [r]ename selected object' + (', [g] move selected objects (also merge, if wanted)' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + (', [hjkl] to move the selection from a point to another' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + (', [S]elect pointer surrounding subdiagram' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [L] and [K]: select subdiagram adjacent to selected edge')))))))))))))))))))))))));
 		case 'DebugMode':
 			return makeHelpDiv(
 				$elm$core$List$singleton(
