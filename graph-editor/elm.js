@@ -6762,6 +6762,7 @@ var $author$project$Main$loadedGraph2 = _Platform_incomingPort(
 											},
 											A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))))))))))));
 var $author$project$Msg$noOp = $author$project$Msg$Do($elm$core$Platform$Cmd$none);
+var $elm$core$Basics$not = _Basics_not;
 var $elm$browser$Browser$Events$Document = {$: 'Document'};
 var $elm$browser$Browser$Events$MySub = F3(
 	function (a, b, c) {
@@ -7193,101 +7194,108 @@ var $elm$core$Result$withDefault = F2(
 	});
 var $author$project$Main$subscriptions = function (m) {
 	return $elm$core$Platform$Sub$batch(
-		_List_fromArray(
-			[
-				$author$project$Main$findReplace($author$project$Msg$FindReplace),
-				$author$project$Main$loadedGraph0(
-				function (r) {
-					return A2(
-						$author$project$Msg$Loaded,
-						$author$project$Format$Version0$fromJSGraph(r.graph),
-						r.fileName);
-				}),
-				$author$project$Main$loadedGraph1(
-				function (r) {
-					return A2(
-						$author$project$Msg$Loaded,
-						$author$project$Format$Version1$fromJSGraph(r.graph),
-						r.fileName);
-				}),
-				$author$project$Main$loadedGraph2(
-				function (r) {
-					return A2(
-						$author$project$Msg$Loaded,
-						$author$project$Format$Version2$fromJSGraph(r.graph),
-						r.fileName);
-				}),
-				$author$project$Main$clipboardGraph(
-				A2($elm$core$Basics$composeR, $author$project$Format$LastVersion$fromJSGraph, $author$project$Msg$PasteGraph)),
-				$author$project$Main$savedGraph($author$project$Msg$FileName),
-				$elm$browser$Browser$Events$onClick(
-				$elm$json$Json$Decode$succeed($author$project$Msg$MouseClick)),
-				$elm$browser$Browser$Events$onKeyUp(
-				A3(
-					$elm$json$Json$Decode$map2,
-					$author$project$Msg$KeyChanged(false),
-					$author$project$HtmlDefs$keysDecoder,
-					$author$project$HtmlDefs$keyDecoder)),
-				$author$project$Main$onMouseMoveFromJS($author$project$Msg$MouseMove),
-				$author$project$Main$onKeyDownActive(
-				function (e) {
-					return A2(
-						$elm$core$Result$withDefault,
-						$author$project$Msg$noOp,
-						A2(
-							$elm$json$Json$Decode$decodeValue,
-							A3(
-								$elm$json$Json$Decode$map2,
-								F2(
-									function (ks, k) {
-										var checkCtrl = (ks.ctrl && _Utils_eq(m.mode, $author$project$Modes$DefaultMode)) ? $author$project$Msg$Do(
-											$author$project$Main$preventDefault(e)) : $author$project$Msg$noOp;
-										_v0$2:
-										while (true) {
-											if (k.$ === 'Character') {
-												if ('/' === k.a.valueOf()) {
-													var _v1 = m.mode;
-													switch (_v1.$) {
-														case 'DefaultMode':
-															return $author$project$Msg$Do(
-																$author$project$Main$preventDefault(e));
-														case 'SplitArrow':
-															return $author$project$Msg$Do(
-																$author$project$Main$preventDefault(e));
+		_Utils_ap(
+			_List_fromArray(
+				[
+					$author$project$Main$findReplace($author$project$Msg$FindReplace),
+					$author$project$Main$loadedGraph0(
+					function (r) {
+						return A2(
+							$author$project$Msg$Loaded,
+							$author$project$Format$Version0$fromJSGraph(r.graph),
+							r.fileName);
+					}),
+					$author$project$Main$loadedGraph1(
+					function (r) {
+						return A2(
+							$author$project$Msg$Loaded,
+							$author$project$Format$Version1$fromJSGraph(r.graph),
+							r.fileName);
+					}),
+					$author$project$Main$loadedGraph2(
+					function (r) {
+						return A2(
+							$author$project$Msg$Loaded,
+							$author$project$Format$Version2$fromJSGraph(r.graph),
+							r.fileName);
+					}),
+					$author$project$Main$clipboardGraph(
+					A2($elm$core$Basics$composeR, $author$project$Format$LastVersion$fromJSGraph, $author$project$Msg$PasteGraph)),
+					$author$project$Main$savedGraph($author$project$Msg$FileName),
+					$elm$browser$Browser$Events$onClick(
+					$elm$json$Json$Decode$succeed($author$project$Msg$MouseClick))
+				]),
+			(!m.mouseOnCanvas) ? _List_Nil : _List_fromArray(
+				[
+					$elm$browser$Browser$Events$onKeyUp(
+					A3(
+						$elm$json$Json$Decode$map2,
+						$author$project$Msg$KeyChanged(false),
+						$author$project$HtmlDefs$keysDecoder,
+						$author$project$HtmlDefs$keyDecoder)),
+					$author$project$Main$onMouseMoveFromJS($author$project$Msg$MouseMove),
+					$author$project$Main$onKeyDownActive(
+					function (e) {
+						return A2(
+							$elm$core$Result$withDefault,
+							$author$project$Msg$noOp,
+							A2(
+								$elm$json$Json$Decode$decodeValue,
+								A3(
+									$elm$json$Json$Decode$map2,
+									F2(
+										function (ks, k) {
+											var checkCtrl = (ks.ctrl && _Utils_eq(m.mode, $author$project$Modes$DefaultMode)) ? $author$project$Msg$Do(
+												$author$project$Main$preventDefault(e)) : $author$project$Msg$noOp;
+											_v0$3:
+											while (true) {
+												if (k.$ === 'Character') {
+													switch (k.a.valueOf()) {
+														case '/':
+															var _v1 = m.mode;
+															switch (_v1.$) {
+																case 'DefaultMode':
+																	return $author$project$Msg$Do(
+																		$author$project$Main$preventDefault(e));
+																case 'SplitArrow':
+																	return $author$project$Msg$Do(
+																		$author$project$Main$preventDefault(e));
+																default:
+																	return $author$project$Msg$noOp;
+															}
+														case 'a':
+															return checkCtrl;
 														default:
-															return $author$project$Msg$noOp;
+															break _v0$3;
 													}
 												} else {
-													break _v0$2;
-												}
-											} else {
-												if (k.a === 'Tab') {
-													var _v2 = m.mode;
-													switch (_v2.$) {
-														case 'SquareMode':
-															return $author$project$Msg$Do(
-																$author$project$Main$preventDefault(e));
-														case 'SplitArrow':
-															return $author$project$Msg$Do(
-																$author$project$Main$preventDefault(e));
-														case 'NewArrow':
-															return $author$project$Msg$Do(
-																$author$project$Main$preventDefault(e));
-														default:
-															return $author$project$Msg$noOp;
+													if (k.a === 'Tab') {
+														var _v2 = m.mode;
+														switch (_v2.$) {
+															case 'SquareMode':
+																return $author$project$Msg$Do(
+																	$author$project$Main$preventDefault(e));
+															case 'SplitArrow':
+																return $author$project$Msg$Do(
+																	$author$project$Main$preventDefault(e));
+															case 'NewArrow':
+																return $author$project$Msg$Do(
+																	$author$project$Main$preventDefault(e));
+															default:
+																return $author$project$Msg$noOp;
+														}
+													} else {
+														break _v0$3;
 													}
-												} else {
-													break _v0$2;
 												}
 											}
-										}
-										return $author$project$Msg$noOp;
-									}),
-								$author$project$HtmlDefs$keysDecoder,
-								$author$project$HtmlDefs$keyDecoder),
-							e));
-				})
-			]));
+											return $author$project$Msg$noOp;
+										}),
+									$author$project$HtmlDefs$keysDecoder,
+									$author$project$HtmlDefs$keyDecoder),
+								e));
+					})
+				])));
 };
 var $author$project$Modes$QuickInputMode = function (a) {
 	return {$: 'QuickInputMode', a: a};
@@ -7434,7 +7442,6 @@ var $author$project$Polygraph$Waiting = F3(
 	function (a, b, c) {
 		return {$: 'Waiting', a: a, b: b, c: c};
 	});
-var $elm$core$Basics$not = _Basics_not;
 var $elm_community$intdict$IntDict$get = F2(
 	function (key, dict) {
 		get:
@@ -10963,6 +10970,390 @@ var $author$project$GraphProof$finishedProof = function (_v0) {
 var $author$project$Geometry$Point$flipAngle = function (a) {
 	return a + $elm$core$Basics$pi;
 };
+var $author$project$Polygraph$incidence = function (g) {
+	var es = $author$project$Polygraph$edges(g);
+	var emptyInfo = {incomings: _List_Nil, outgoings: _List_Nil};
+	var insertIn = F2(
+		function (e, i) {
+			return _Utils_update(
+				i,
+				{
+					incomings: A2($elm$core$List$cons, e, i.incomings)
+				});
+		});
+	var insertOut = F2(
+		function (e, i) {
+			return _Utils_update(
+				i,
+				{
+					outgoings: A2($elm$core$List$cons, e, i.outgoings)
+				});
+		});
+	var aux = F2(
+		function (l, d) {
+			if (!l.b) {
+				return d;
+			} else {
+				var e = l.a;
+				var q = l.b;
+				return A2(
+					aux,
+					q,
+					A3(
+						$elm_community$intdict$IntDict$update,
+						e.from,
+						A2(
+							$elm$core$Basics$composeR,
+							$elm$core$Maybe$withDefault(emptyInfo),
+							A2(
+								$elm$core$Basics$composeR,
+								insertOut(e),
+								$elm$core$Maybe$Just)),
+						A3(
+							$elm_community$intdict$IntDict$update,
+							e.to,
+							A2(
+								$elm$core$Basics$composeR,
+								$elm$core$Maybe$withDefault(emptyInfo),
+								A2(
+									$elm$core$Basics$composeR,
+									insertIn(e),
+									$elm$core$Maybe$Just)),
+							d)));
+			}
+		});
+	return A2(aux, es, $elm_community$intdict$IntDict$empty);
+};
+var $elm_community$list_extra$List$Extra$last = function (items) {
+	last:
+	while (true) {
+		if (!items.b) {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			if (!items.b.b) {
+				var x = items.a;
+				return $elm$core$Maybe$Just(x);
+			} else {
+				var rest = items.b;
+				var $temp$items = rest;
+				items = $temp$items;
+				continue last;
+			}
+		}
+	}
+};
+var $author$project$ListExtraExtra$permute = function (l) {
+	if (!l.b) {
+		return _List_Nil;
+	} else {
+		var t = l.a;
+		var q = l.b;
+		return _Utils_ap(
+			q,
+			_List_fromArray(
+				[t]));
+	}
+};
+var $elm$core$Tuple$pair = F2(
+	function (a, b) {
+		return _Utils_Tuple2(a, b);
+	});
+var $elm_community$list_extra$List$Extra$zip = $elm$core$List$map2($elm$core$Tuple$pair);
+var $author$project$ListExtraExtra$succCyclePairs = function (l) {
+	var _v0 = A2(
+		$elm_community$list_extra$List$Extra$zip,
+		l,
+		$author$project$ListExtraExtra$permute(l));
+	if (_v0.b && (!_v0.b.b)) {
+		return _List_Nil;
+	} else {
+		var r = _v0;
+		return r;
+	}
+};
+var $author$project$GraphProof$getAllValidDiagrams = function (g) {
+	var inc = A2(
+		$elm_community$intdict$IntDict$map,
+		F2(
+			function (_v10, i) {
+				return $author$project$ListExtraExtra$succCyclePairs(
+					A2(
+						$elm$core$List$sortBy,
+						function (_v11) {
+							var edge = _v11.edge;
+							var incoming = _v11.incoming;
+							return incoming ? edge.label.angle : $author$project$Geometry$Point$flipAngle(edge.label.angle);
+						},
+						_Utils_ap(
+							A2(
+								$elm$core$List$map,
+								function (e) {
+									return {edge: e, incoming: true};
+								},
+								i.incomings),
+							A2(
+								$elm$core$List$map,
+								function (e) {
+									return {edge: e, incoming: false};
+								},
+								i.outgoings))));
+			}),
+		$author$project$Polygraph$incidence(g));
+	var treatEdge = F2(
+		function (_v8, _v9) {
+			var e1 = _v8.a;
+			var e2 = _v8.b;
+			var start = _v9.a;
+			var next1 = _v9.b;
+			var next2 = _v9.c;
+			var _v7 = _Utils_Tuple2(e1.incoming, e2.incoming);
+			if (_v7.a) {
+				if (_v7.b) {
+					return _Utils_Tuple3(start, next1, next2);
+				} else {
+					return _Utils_Tuple3(
+						start,
+						A3($elm_community$intdict$IntDict$insert, e1.edge.id, e2.edge, next1),
+						next2);
+				}
+			} else {
+				if (!_v7.b) {
+					return _Utils_Tuple3(
+						A2(
+							$elm$core$List$cons,
+							_Utils_Tuple2(e2.edge, e1.edge),
+							start),
+						next1,
+						next2);
+				} else {
+					return _Utils_Tuple3(
+						start,
+						next1,
+						A3($elm_community$intdict$IntDict$insert, e2.edge.id, e1.edge, next2));
+				}
+			}
+		});
+	var buildNextStarts = F2(
+		function (es, _v6) {
+			var start = _v6.a;
+			var next1 = _v6.b;
+			var next2 = _v6.c;
+			return A3(
+				$elm$core$List$foldl,
+				treatEdge,
+				_Utils_Tuple3(start, next1, next2),
+				es);
+		});
+	var _v0 = A3(
+		$elm_community$intdict$IntDict$foldl,
+		function (_v1) {
+			return buildNextStarts;
+		},
+		_Utils_Tuple3(_List_Nil, $elm_community$intdict$IntDict$empty, $elm_community$intdict$IntDict$empty),
+		inc);
+	var start = _v0.a;
+	var next1 = _v0.b;
+	var next2 = _v0.c;
+	var buildBranch = F2(
+		function (next, startEdge) {
+			var _v2 = A2($elm_community$intdict$IntDict$get, startEdge.id, next);
+			if (_v2.$ === 'Nothing') {
+				return _List_fromArray(
+					[startEdge]);
+			} else {
+				var e = _v2.a;
+				return A2(
+					$elm$core$List$cons,
+					startEdge,
+					A2(buildBranch, next, e));
+			}
+		});
+	var diags = A2(
+		$elm$core$List$map,
+		function (_v5) {
+			var rhs = _v5.a;
+			var lhs = _v5.b;
+			return {
+				lhs: A2(buildBranch, next2, lhs),
+				rhs: A2(buildBranch, next1, rhs)
+			};
+		},
+		start);
+	var validDiag = function (_v4) {
+		var lhs = _v4.lhs;
+		var rhs = _v4.rhs;
+		var _v3 = _Utils_Tuple2(
+			$elm_community$list_extra$List$Extra$last(lhs),
+			$elm_community$list_extra$List$Extra$last(rhs));
+		if ((_v3.a.$ === 'Just') && (_v3.b.$ === 'Just')) {
+			var e1 = _v3.a.a;
+			var e2 = _v3.b.a;
+			return _Utils_eq(e1.to, e2.to);
+		} else {
+			return false;
+		}
+	};
+	var validDiags = A2($elm$core$List$filter, validDiag, diags);
+	return validDiags;
+};
+var $author$project$GraphProof$invertDiagram = function (_v0) {
+	var lhs = _v0.lhs;
+	var rhs = _v0.rhs;
+	return {lhs: rhs, rhs: lhs};
+};
+var $author$project$Geometry$Point$countRoundsAngle = function (a) {
+	return $elm$core$Basics$round(a / (2 * $elm$core$Basics$pi));
+};
+var $author$project$Geometry$Point$sumAngles = function (l) {
+	if (!l.b) {
+		return 0;
+	} else {
+		if (!l.b.b) {
+			return 0;
+		} else {
+			var a = l.a;
+			var _v1 = l.b;
+			var b = _v1.a;
+			var tl = _v1.b;
+			var sr = A2($author$project$Geometry$Point$distanceAngleSigned, a, b);
+			return sr + $author$project$Geometry$Point$sumAngles(
+				A2($elm$core$List$cons, b, tl));
+		}
+	}
+};
+var $author$project$Geometry$Point$countRounds = function (l) {
+	return $author$project$Geometry$Point$countRoundsAngle(
+		$author$project$Geometry$Point$sumAngles(l));
+};
+var $author$project$GraphProof$isBorder = function (_v0) {
+	var lhs = _v0.lhs;
+	var rhs = _v0.rhs;
+	var makeAngles = $elm$core$List$map(
+		A2(
+			$elm$core$Basics$composeR,
+			function ($) {
+				return $.label;
+			},
+			function ($) {
+				return $.angle;
+			}));
+	var anglesRhs = A2(
+		$elm$core$List$map,
+		$author$project$Geometry$Point$flipAngle,
+		makeAngles(rhs));
+	var anglesLhs = makeAngles(lhs);
+	var angles = A2(
+		$elm$core$List$cons,
+		A2(
+			$elm$core$Maybe$withDefault,
+			0,
+			$elm$core$List$head(anglesRhs)),
+		_Utils_ap(
+			anglesLhs,
+			$elm$core$List$reverse(anglesRhs)));
+	var _v1 = A2(
+		$elm$core$Debug$log,
+		'lhs',
+		A2(
+			$elm$core$List$map,
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.label;
+				},
+				function ($) {
+					return $.label;
+				}),
+			lhs));
+	var _v2 = A2($elm$core$Debug$log, 'lhs-angles', anglesLhs);
+	return _Utils_eq(
+		A2(
+			$elm$core$Debug$log,
+			'rounds',
+			$author$project$Geometry$Point$countRounds(angles)),
+		-1);
+};
+var $elm$core$List$partition = F2(
+	function (pred, list) {
+		var step = F2(
+			function (x, _v0) {
+				var trues = _v0.a;
+				var falses = _v0.b;
+				return pred(x) ? _Utils_Tuple2(
+					A2($elm$core$List$cons, x, trues),
+					falses) : _Utils_Tuple2(
+					trues,
+					A2($elm$core$List$cons, x, falses));
+			});
+		return A3(
+			$elm$core$List$foldr,
+			step,
+			_Utils_Tuple2(_List_Nil, _List_Nil),
+			list);
+	});
+var $author$project$GraphProof$statementToString = function (d) {
+	var edgeToString = A2(
+		$elm$core$Basics$composeR,
+		$elm$core$List$map(
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.label;
+				},
+				function ($) {
+					return $.label;
+				})),
+		$elm$core$String$join(' · '));
+	return '{ ' + (edgeToString(d.lhs) + (' = ' + (edgeToString(d.rhs) + ' }')));
+};
+var $author$project$GraphProof$fullProofs = function (g) {
+	var diags = $author$project$GraphProof$getAllValidDiagrams(g);
+	var _v0 = A2($elm$core$List$partition, $author$project$GraphProof$isBorder, diags);
+	var bigDiags = _v0.a;
+	var smallDiags = _v0.b;
+	var _v1 = A2(
+		$elm$core$Debug$log,
+		'nombre de gros diagrammes: ',
+		$elm$core$List$length(bigDiags));
+	var _v2 = A2(
+		$elm$core$List$map,
+		A2(
+			$elm$core$Basics$composeL,
+			$elm$core$Debug$log(' big:'),
+			$author$project$GraphProof$statementToString),
+		bigDiags);
+	var _v3 = A2(
+		$elm$core$Debug$log,
+		'nombre de petits diagrammes: ',
+		$elm$core$List$length(smallDiags));
+	var _v4 = A2(
+		$elm$core$List$map,
+		A2(
+			$elm$core$Basics$composeL,
+			$elm$core$Debug$log(' small:'),
+			$author$project$GraphProof$statementToString),
+		smallDiags);
+	return A2(
+		$elm$core$List$filter,
+		$author$project$GraphProof$finishedProof,
+		A2(
+			$elm$core$List$map,
+			function (d) {
+				return {
+					proof: A2(
+						$author$project$GraphProof$commuteProof,
+						smallDiags,
+						A2(
+							$elm$core$List$map,
+							function ($) {
+								return $.id;
+							},
+							d.lhs)),
+					statement: d
+				};
+			},
+			A2($elm$core$List$map, $author$project$GraphProof$invertDiagram, bigDiags)));
+};
 var $author$project$GraphProof$angleDir = F2(
 	function (dir, edge) {
 		return dir ? edge.angle : $author$project$Geometry$Point$flipAngle(edge.angle);
@@ -11063,24 +11454,6 @@ var $author$project$GraphProof$loopFrom = F3(
 			g,
 			e);
 	});
-var $elm$core$List$partition = F2(
-	function (pred, list) {
-		var step = F2(
-			function (x, _v0) {
-				var trues = _v0.a;
-				var falses = _v0.b;
-				return pred(x) ? _Utils_Tuple2(
-					A2($elm$core$List$cons, x, trues),
-					falses) : _Utils_Tuple2(
-					trues,
-					A2($elm$core$List$cons, x, falses));
-			});
-		return A3(
-			$elm$core$List$foldr,
-			step,
-			_Utils_Tuple2(_List_Nil, _List_Nil),
-			list);
-	});
 var $author$project$GraphProof$loopToDiagram = function (edges) {
 	var findInitial = function (l) {
 		if (!l.b) {
@@ -11119,235 +11492,6 @@ var $author$project$GraphProof$diagramFrom = F3(
 		var loopEdges = A3($author$project$GraphProof$loopFrom, dir, g, e);
 		return $author$project$GraphProof$loopToDiagram(loopEdges);
 	});
-var $elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
-	});
-var $elm$core$List$member = F2(
-	function (x, xs) {
-		return A2(
-			$elm$core$List$any,
-			function (a) {
-				return _Utils_eq(a, x);
-			},
-			xs);
-	});
-var $author$project$GraphProof$getDiagrams = F2(
-	function (g, edges) {
-		if (!edges.b) {
-			return _List_Nil;
-		} else {
-			var _v1 = edges.a;
-			var e = _v1.a;
-			var dir = _v1.b;
-			var tail = edges.b;
-			var d = A3($author$project$GraphProof$diagramFrom, dir, g, e);
-			var fromIds = A2(
-				$elm$core$List$map,
-				function ($) {
-					return $.id;
-				},
-				d.lhs);
-			var toIds = A2(
-				$elm$core$List$map,
-				function ($) {
-					return $.id;
-				},
-				d.rhs);
-			var tailBis = A2(
-				$elm_community$list_extra$List$Extra$filterNot,
-				function (_v2) {
-					var e2 = _v2.a;
-					var dir2 = _v2.b;
-					return A2(
-						$elm$core$List$member,
-						e2.id,
-						dir2 ? fromIds : toIds);
-				},
-				tail);
-			return A2(
-				$elm$core$List$cons,
-				d,
-				A2($author$project$GraphProof$getDiagrams, g, tailBis));
-		}
-	});
-var $author$project$GraphProof$isValidDiagram = function (d) {
-	return (!_Utils_eq(d.lhs, _List_Nil)) && (!_Utils_eq(d.rhs, _List_Nil));
-};
-var $author$project$GraphProof$getAllValidDiagrams = function (g) {
-	var edges = $author$project$Polygraph$edges(g);
-	var edgesR = A2(
-		$elm$core$List$map,
-		function (e) {
-			return _Utils_Tuple2(e, true);
-		},
-		edges);
-	var edgesL = A2(
-		$elm$core$List$map,
-		function (e) {
-			return _Utils_Tuple2(e, false);
-		},
-		edges);
-	var edgesFull = _Utils_ap(edgesR, edgesL);
-	return A2(
-		$elm$core$List$filter,
-		$author$project$GraphProof$isValidDiagram,
-		A2($author$project$GraphProof$getDiagrams, g, edgesFull));
-};
-var $author$project$GraphProof$invertDiagram = function (_v0) {
-	var lhs = _v0.lhs;
-	var rhs = _v0.rhs;
-	return {lhs: rhs, rhs: lhs};
-};
-var $author$project$Geometry$Point$sumAngles = function (l) {
-	if (!l.b) {
-		return 0;
-	} else {
-		if (!l.b.b) {
-			return 0;
-		} else {
-			var a = l.a;
-			var _v1 = l.b;
-			var b = _v1.a;
-			var tl = _v1.b;
-			var sr = A2($author$project$Geometry$Point$distanceAngleSigned, a, b);
-			return sr + $author$project$Geometry$Point$sumAngles(
-				A2($elm$core$List$cons, b, tl));
-		}
-	}
-};
-var $author$project$Geometry$Point$countRounds = function (l) {
-	return $elm$core$Basics$round(
-		$author$project$Geometry$Point$sumAngles(l) / (2 * $elm$core$Basics$pi));
-};
-var $author$project$GraphProof$isBorder = function (_v0) {
-	var lhs = _v0.lhs;
-	var rhs = _v0.rhs;
-	var makeAngles = $elm$core$List$map(
-		A2(
-			$elm$core$Basics$composeR,
-			function ($) {
-				return $.label;
-			},
-			function ($) {
-				return $.angle;
-			}));
-	var anglesRhs = A2(
-		$elm$core$List$map,
-		$author$project$Geometry$Point$flipAngle,
-		makeAngles(rhs));
-	var anglesLhs = makeAngles(lhs);
-	var angles = A2(
-		$elm$core$List$cons,
-		A2(
-			$elm$core$Maybe$withDefault,
-			0,
-			$elm$core$List$head(anglesRhs)),
-		_Utils_ap(
-			anglesLhs,
-			$elm$core$List$reverse(anglesRhs)));
-	var _v1 = A2(
-		$elm$core$Debug$log,
-		'lhs',
-		A2(
-			$elm$core$List$map,
-			A2(
-				$elm$core$Basics$composeR,
-				function ($) {
-					return $.label;
-				},
-				function ($) {
-					return $.label;
-				}),
-			lhs));
-	var _v2 = A2($elm$core$Debug$log, 'lhs-angles', anglesLhs);
-	return _Utils_eq(
-		A2(
-			$elm$core$Debug$log,
-			'rounds',
-			$author$project$Geometry$Point$countRounds(angles)),
-		-1);
-};
-var $author$project$GraphProof$statementToString = function (d) {
-	var edgeToString = A2(
-		$elm$core$Basics$composeR,
-		$elm$core$List$map(
-			A2(
-				$elm$core$Basics$composeR,
-				function ($) {
-					return $.label;
-				},
-				function ($) {
-					return $.label;
-				})),
-		$elm$core$String$join(' · '));
-	return '{ ' + (edgeToString(d.lhs) + (' = ' + (edgeToString(d.rhs) + ' }')));
-};
-var $author$project$GraphProof$fullProofs = function (g) {
-	var diags = $author$project$GraphProof$getAllValidDiagrams(g);
-	var _v0 = A2($elm$core$List$partition, $author$project$GraphProof$isBorder, diags);
-	var bigDiags = _v0.a;
-	var smallDiags = _v0.b;
-	var _v1 = A2(
-		$elm$core$Debug$log,
-		'nombre de gros diagrammes: ',
-		$elm$core$List$length(bigDiags));
-	var _v2 = A2(
-		$elm$core$List$map,
-		A2(
-			$elm$core$Basics$composeL,
-			$elm$core$Debug$log(' big:'),
-			$author$project$GraphProof$statementToString),
-		bigDiags);
-	var _v3 = A2(
-		$elm$core$Debug$log,
-		'nombre de petits diagrammes: ',
-		$elm$core$List$length(smallDiags));
-	var _v4 = A2(
-		$elm$core$List$map,
-		A2(
-			$elm$core$Basics$composeL,
-			$elm$core$Debug$log(' small:'),
-			$author$project$GraphProof$statementToString),
-		smallDiags);
-	return A2(
-		$elm$core$List$filter,
-		$author$project$GraphProof$finishedProof,
-		A2(
-			$elm$core$List$map,
-			function (d) {
-				return {
-					proof: A2(
-						$author$project$GraphProof$commuteProof,
-						smallDiags,
-						A2(
-							$elm$core$List$map,
-							function ($) {
-								return $.id;
-							},
-							d.lhs)),
-					statement: d
-				};
-			},
-			A2($elm$core$List$map, $author$project$GraphProof$invertDiagram, bigDiags)));
-};
 var $author$project$GraphProof$invertProofstepDiag = function (s) {
 	return _Utils_update(
 		s,
@@ -11722,10 +11866,6 @@ var $author$project$GraphDefs$selectAll = function (g) {
 		g,
 		$elm$core$Basics$always(true));
 };
-var $elm$core$Tuple$pair = F2(
-	function (a, b) {
-		return _Utils_Tuple2(a, b);
-	});
 var $author$project$IntDictExtra$getList = F2(
 	function (l, d) {
 		var d2 = A2($elm_community$intdict$IntDict$map, $elm$core$Tuple$pair, d);
@@ -12165,6 +12305,9 @@ var $author$project$Polygraph$getNodes = F2(
 			},
 			A2($author$project$IntDictExtra$getList, l, g));
 	});
+var $elm$core$List$sum = function (numbers) {
+	return A3($elm$core$List$foldl, $elm$core$Basics$add, 0, numbers);
+};
 var $author$project$Geometry$Point$isInPoly = F2(
 	function (pos, l) {
 		var angles = A2(
@@ -12174,18 +12317,16 @@ var $author$project$Geometry$Point$isInPoly = F2(
 				$author$project$Geometry$Point$subtract(pos),
 				$author$project$Geometry$Point$pointToAngle),
 			l);
-		var anglesLoop = function () {
-			if (angles.b) {
-				var t = angles.a;
-				return _Utils_ap(
-					angles,
-					_List_fromArray(
-						[t]));
-			} else {
-				return _List_Nil;
-			}
-		}();
-		return $author$project$Geometry$Point$countRounds(anglesLoop) === 1;
+		var anglesLoop = $elm$core$List$sum(
+			A2(
+				$elm$core$List$map,
+				function (_v0) {
+					var a = _v0.a;
+					var b = _v0.b;
+					return A2($author$project$Geometry$Point$distanceAngleSigned, a, b);
+				},
+				$author$project$ListExtraExtra$succCyclePairs(angles)));
+		return $author$project$Geometry$Point$countRoundsAngle(anglesLoop) === 1;
 	});
 var $author$project$GraphDefs$selectEdges = $elm$core$List$foldl(
 	function (e) {
@@ -12427,8 +12568,13 @@ var $author$project$Main$update_DefaultMode = F2(
 												})));
 								case 'a':
 									var k = msg.b;
-									return $author$project$Modes$NewArrow$initialise(
-										$author$project$Model$pushHistory(model));
+									return (!k.ctrl) ? $author$project$Modes$NewArrow$initialise(
+										$author$project$Model$pushHistory(model)) : $author$project$Model$noCmd(
+										_Utils_update(
+											model,
+											{
+												graph: $author$project$GraphDefs$selectAll(model.graph)
+											}));
 								case 'd':
 									return $author$project$Model$noCmd(
 										_Utils_update(
@@ -13047,6 +13193,36 @@ var $elm$parser$Parser$symbol = function (str) {
 			str,
 			$elm$parser$Parser$ExpectingSymbol(str)));
 };
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			$elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
+	});
 var $author$project$QuickInput$correctLabelChar = F2(
 	function (fb, c) {
 		return !A2($elm$core$List$member, c, fb);
@@ -13329,24 +13505,6 @@ var $author$project$QuickInput$buildGraphSegment = F2(
 			s.toId,
 			s.edges);
 	});
-var $elm_community$list_extra$List$Extra$last = function (items) {
-	last:
-	while (true) {
-		if (!items.b) {
-			return $elm$core$Maybe$Nothing;
-		} else {
-			if (!items.b.b) {
-				var x = items.a;
-				return $elm$core$Maybe$Just(x);
-			} else {
-				var rest = items.b;
-				var $temp$items = rest;
-				items = $temp$items;
-				continue last;
-			}
-		}
-	}
-};
 var $author$project$QuickInput$orientEquation = F4(
 	function (iniP, _v0, offset, g) {
 		var source = _v0.a;
@@ -13758,42 +13916,42 @@ var $author$project$Main$update_RenameMode = F3(
 var $author$project$Format$Version2$version = 2;
 var $author$project$Format$LastVersion$version = $author$project$Format$Version2$version;
 var $author$project$Main$update = F2(
-	function (msg0, modeli) {
+	function (msg, modeli) {
 		var model = function () {
-			switch (msg0.$) {
+			switch (msg.$) {
 				case 'FileName':
-					var s = msg0.a;
+					var s = msg.a;
 					return _Utils_update(
 						modeli,
 						{fileName: s});
 				case 'KeyChanged':
-					var r = msg0.b;
+					var r = msg.b;
 					return _Utils_update(
 						modeli,
 						{specialKeys: r});
 				case 'MouseMoveRaw':
-					var keys = msg0.b;
+					var keys = msg.b;
 					return _Utils_update(
 						modeli,
 						{mouseOnCanvas: true, specialKeys: keys});
 				case 'MouseMove':
-					var p = msg0.a;
+					var p = msg.a;
 					return _Utils_update(
 						modeli,
 						{mousePos: p});
 				case 'MouseDown':
-					var e = msg0.a;
+					var e = msg.a;
 					return _Utils_update(
 						modeli,
 						{specialKeys: e.keys});
 				case 'MouseLeaveCanvas':
-					var _v4 = A2($elm$core$Debug$log, 'mouseleave', _Utils_Tuple0);
+					var _v3 = A2($elm$core$Debug$log, 'mouseleave', _Utils_Tuple0);
 					return _Utils_update(
 						modeli,
 						{mouseOnCanvas: false});
 				case 'QuickInput':
-					var s = msg0.a;
-					var _v5 = A2($elm$core$Debug$log, 'coucou1!', _Utils_Tuple0);
+					var s = msg.a;
+					var _v4 = A2($elm$core$Debug$log, 'coucou1!', _Utils_Tuple0);
 					return _Utils_update(
 						modeli,
 						{
@@ -13802,17 +13960,6 @@ var $author$project$Main$update = F2(
 						});
 				default:
 					return modeli;
-			}
-		}();
-		var msg = function () {
-			if (msg0.$ === 'KeyChanged') {
-				if (((!msg0.a) && (msg0.c.$ === 'Control')) && (msg0.c.a === 'Escape')) {
-					return msg0;
-				} else {
-					return model.mouseOnCanvas ? msg0 : $author$project$Msg$noOp;
-				}
-			} else {
-				return msg0;
 			}
 		}();
 		switch (msg.$) {
@@ -15932,7 +16079,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle, ' + ('[shift] to keep previous selection)' + (', [C-z] undo' + (', [C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [r]ename selected object (or double click)' + (', [g] move selected objects (also merge, if wanted)' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + (', [hjkl] to move the selection from a point to another' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + (', [S]elect pointer surrounding subdiagram' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [L] and [K]: select subdiagram adjacent to selected edge')))))))))))))))))))))))));
+			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle, ' + ('[shift] to keep previous selection)' + (', [C-a] select all' + (', [C-z] undo' + (', [C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [r]ename selected object (or double click)' + (', [g] move selected objects (also merge, if wanted)' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + (', [hjkl] to move the selection from a point to another' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + (', [S]elect pointer surrounding subdiagram' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [L] and [K]: select subdiagram adjacent to selected edge'))))))))))))))))))))))))));
 		case 'DebugMode':
 			return makeHelpDiv(
 				$elm$core$List$singleton(
