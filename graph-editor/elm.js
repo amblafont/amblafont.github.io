@@ -8960,7 +8960,7 @@ var $author$project$ArrowStyle$toggleDouble = function (s) {
 		s,
 		{_double: !s._double});
 };
-var $author$project$ArrowStyle$prevInList = F2(
+var $author$project$ListExtraExtra$prevInList = F2(
 	function (l, a) {
 		prevInList:
 		while (true) {
@@ -8988,10 +8988,10 @@ var $author$project$ArrowStyle$prevInList = F2(
 			}
 		}
 	});
-var $author$project$ArrowStyle$nextInList = F2(
+var $author$project$ListExtraExtra$nextInList = F2(
 	function (l, a) {
 		return A2(
-			$author$project$ArrowStyle$prevInList,
+			$author$project$ListExtraExtra$prevInList,
 			$elm$core$List$reverse(l),
 			a);
 	});
@@ -9000,7 +9000,7 @@ var $author$project$ArrowStyle$toggleHead = function (s) {
 		s,
 		{
 			head: A2(
-				$author$project$ArrowStyle$nextInList,
+				$author$project$ListExtraExtra$nextInList,
 				_List_fromArray(
 					[$author$project$ArrowStyle$DefaultHead, $author$project$ArrowStyle$NoHead, $author$project$ArrowStyle$TwoHeads]),
 				s.head)
@@ -9011,7 +9011,7 @@ var $author$project$ArrowStyle$toggleHook = function (s) {
 		s,
 		{
 			tail: A2(
-				$author$project$ArrowStyle$nextInList,
+				$author$project$ListExtraExtra$nextInList,
 				_List_fromArray(
 					[$author$project$ArrowStyle$DefaultTail, $author$project$ArrowStyle$Hook, $author$project$ArrowStyle$HookAlt]),
 				s.tail)
@@ -9022,7 +9022,7 @@ var $author$project$ArrowStyle$toggleLabelAlignement = function (s) {
 		s,
 		{
 			labelAlignment: A2(
-				$author$project$ArrowStyle$nextInList,
+				$author$project$ListExtraExtra$nextInList,
 				_List_fromArray(
 					[$author$project$ArrowStyle$Left, $author$project$ArrowStyle$Right]),
 				s.labelAlignment)
@@ -10671,10 +10671,9 @@ var $author$project$Main$update_Clone = F2(
 		}
 		return $author$project$Model$noCmd(m);
 	});
-var $author$project$Modes$CutHead = F2(
-	function (a, b) {
-		return {$: 'CutHead', a: a, b: b};
-	});
+var $author$project$Modes$CutHead = function (a) {
+	return {$: 'CutHead', a: a};
+};
 var $author$project$Polygraph$getEdge = F2(
 	function (id, _v0) {
 		var g = _v0.a;
@@ -10747,8 +10746,26 @@ var $author$project$GraphDefs$mergeWithSameLoc = F2(
 			return _Utils_Tuple2(g, false);
 		}
 	});
-var $author$project$Main$graphCutHead = F3(
-	function (id, head, m) {
+var $author$project$GraphDefs$unselect = function (id) {
+	return A3(
+		$author$project$Polygraph$update,
+		id,
+		function (n) {
+			return _Utils_update(
+				n,
+				{selected: false});
+		},
+		function (e) {
+			return _Utils_update(
+				e,
+				{selected: false});
+		});
+};
+var $author$project$Main$graphCutHead = F2(
+	function (_v0, m) {
+		var id = _v0.id;
+		var head = _v0.head;
+		var duplicate = _v0.duplicate;
 		var pos = m.mousePos;
 		return A2(
 			$elm$core$Maybe$withDefault,
@@ -10759,18 +10776,18 @@ var $author$project$Main$graphCutHead = F3(
 					return A2(
 						$elm$core$Maybe$map,
 						function (nto) {
-							var g1 = A2($author$project$Polygraph$removeEdge, id, m.graph);
+							var g1 = duplicate ? A2($author$project$GraphDefs$unselect, id, m.graph) : A2($author$project$Polygraph$removeEdge, id, m.graph);
 							var label = _Utils_update(
 								nto,
 								{pos: pos});
-							var _v0 = A2($author$project$Polygraph$newNode, g1, label);
-							var g2 = _v0.a;
-							var newId = _v0.b;
-							var _v1 = head ? _Utils_Tuple2(e.from, newId) : _Utils_Tuple2(newId, e.to);
-							var n1 = _v1.a;
-							var n2 = _v1.b;
-							var _v2 = A4($author$project$Polygraph$newEdge, g2, n1, n2, e.label);
-							var g3 = _v2.a;
+							var _v1 = A2($author$project$Polygraph$newNode, g1, label);
+							var g2 = _v1.a;
+							var newId = _v1.b;
+							var _v2 = head ? _Utils_Tuple2(e.from, newId) : _Utils_Tuple2(newId, e.to);
+							var n1 = _v2.a;
+							var n2 = _v2.b;
+							var _v3 = A4($author$project$Polygraph$newEdge, g2, n1, n2, e.label);
+							var g3 = _v3.a;
 							var g4 = m.specialKeys.ctrl ? A2(
 								$author$project$GraphDefs$mergeWithSameLoc,
 								{id: newId, label: label},
@@ -10784,19 +10801,26 @@ var $author$project$Main$graphCutHead = F3(
 				},
 				A2($author$project$Polygraph$getEdge, id, m.graph)));
 	});
-var $author$project$Main$update_CutHead = F4(
-	function (id, head, msg, m) {
+var $author$project$Main$update_CutHead = F3(
+	function (state, msg, m) {
 		var finalise = function (_v1) {
 			return _Utils_Tuple2(
 				_Utils_update(
 					m,
 					{
-						graph: A3($author$project$Main$graphCutHead, id, head, m),
+						graph: A2($author$project$Main$graphCutHead, state, m),
 						mode: $author$project$Modes$DefaultMode
 					}),
 				$elm$core$Platform$Cmd$none);
 		};
-		_v0$4:
+		var changeState = function (s) {
+			return _Utils_update(
+				m,
+				{
+					mode: $author$project$Modes$CutHead(s)
+				});
+		};
+		_v0$5:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseClick':
@@ -10814,26 +10838,33 @@ var $author$project$Main$update_CutHead = F4(
 								case 'Enter':
 									return finalise(_Utils_Tuple0);
 								default:
-									break _v0$4;
+									break _v0$5;
 							}
 						} else {
-							if ('c' === msg.c.a.valueOf()) {
-								return _Utils_Tuple2(
-									_Utils_update(
-										m,
-										{
-											mode: A2($author$project$Modes$CutHead, id, !head)
-										}),
-									$elm$core$Platform$Cmd$none);
-							} else {
-								break _v0$4;
+							switch (msg.c.a.valueOf()) {
+								case 'c':
+									return _Utils_Tuple2(
+										changeState(
+											_Utils_update(
+												state,
+												{head: !state.head})),
+										$elm$core$Platform$Cmd$none);
+								case 'd':
+									return _Utils_Tuple2(
+										changeState(
+											_Utils_update(
+												state,
+												{duplicate: !state.duplicate})),
+										$elm$core$Platform$Cmd$none);
+								default:
+									break _v0$5;
 							}
 						}
 					} else {
-						break _v0$4;
+						break _v0$5;
 					}
 				default:
-					break _v0$4;
+					break _v0$5;
 			}
 		}
 		return $author$project$Model$noCmd(m);
@@ -10996,6 +11027,84 @@ var $author$project$Geometry$Point$distance = F2(
 	function (x, y) {
 		return $author$project$Geometry$Point$radius(
 			A2($author$project$Geometry$Point$subtract, y, x));
+	});
+var $author$project$GraphDefs$unnamedGraph = A2(
+	$author$project$Polygraph$keepBelow,
+	A2(
+		$elm$core$Basics$composeR,
+		function ($) {
+			return $.label;
+		},
+		$elm$core$String$isEmpty),
+	A2(
+		$elm$core$Basics$composeR,
+		function ($) {
+			return $.label;
+		},
+		$elm$core$String$isEmpty));
+var $author$project$GraphDefs$closestUnnamed = F2(
+	function (pos, g) {
+		var ug = $author$project$GraphDefs$unnamedGraph(g);
+		var ug2 = A5(
+			$author$project$Polygraph$mapRecAll,
+			function ($) {
+				return $.pos;
+			},
+			function ($) {
+				return $.pos;
+			},
+			F2(
+				function (_v0, n) {
+					return {
+						empty: $elm$core$String$isEmpty(n.label),
+						pos: n.pos
+					};
+				}),
+			F4(
+				function (_v1, p1, p2, e) {
+					return {
+						empty: $elm$core$String$isEmpty(e.label),
+						pos: A2($author$project$Geometry$Point$middle, p1, p2)
+					};
+				}),
+			ug);
+		var getEmptysDistance = function (l) {
+			return A2(
+				$elm$core$List$map,
+				function (o) {
+					return {
+						distance: A2($author$project$Geometry$Point$distance, o.label.pos, pos),
+						id: o.id
+					};
+				},
+				A2(
+					$elm$core$List$filter,
+					A2(
+						$elm$core$Basics$composeR,
+						function ($) {
+							return $.label;
+						},
+						function ($) {
+							return $.empty;
+						}),
+					l));
+		};
+		var unnamedEdges = getEmptysDistance(
+			$author$project$Polygraph$edges(ug2));
+		var unnamedNodes = getEmptysDistance(
+			$author$project$Polygraph$nodes(ug2));
+		var unnamedAll = A2(
+			$elm$core$List$map,
+			function ($) {
+				return $.id;
+			},
+			A2(
+				$elm$core$List$sortBy,
+				function ($) {
+					return $.distance;
+				},
+				_Utils_ap(unnamedEdges, unnamedNodes)));
+		return unnamedAll;
 	});
 var $author$project$GraphProof$prefixProofStep = F2(
 	function (id, r) {
@@ -12714,7 +12823,7 @@ var $author$project$Main$update_DefaultMode = F2(
 						$author$project$GraphDefs$toProofGraph(model.graph))));
 			return A2(fillBottom, s, 'No diagram found!');
 		};
-		_v0$31:
+		_v0$32:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseDown':
@@ -12773,7 +12882,7 @@ var $author$project$Main$update_DefaultMode = F2(
 										model,
 										$author$project$GraphDefs$removeSelected(model.graph)));
 							} else {
-								break _v0$31;
+								break _v0$32;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -12854,7 +12963,8 @@ var $author$project$Main$update_DefaultMode = F2(
 													_Utils_update(
 														model,
 														{
-															mode: A2($author$project$Modes$CutHead, id, true)
+															mode: $author$project$Modes$CutHead(
+																{duplicate: false, head: true, id: id})
 														}));
 											}
 										}
@@ -12928,19 +13038,25 @@ var $author$project$Main$update_DefaultMode = F2(
 									return move((3 * $elm$core$Basics$pi) / 2);
 								case 'l':
 									return move(0);
+								case 'u':
+									return $author$project$Model$noCmd(
+										A2(
+											$author$project$Model$initialise_RenameMode,
+											A2($author$project$GraphDefs$closestUnnamed, model.mousePos, model.graph),
+											$author$project$Model$pushHistory(model)));
 								case 'z':
 									var k = msg.b;
 									return k.ctrl ? $author$project$Model$noCmd(
 										$author$project$Model$undo(model)) : $author$project$Model$noCmd(model);
 								default:
-									break _v0$31;
+									break _v0$32;
 							}
 						}
 					} else {
-						break _v0$31;
+						break _v0$32;
 					}
 				default:
-					break _v0$31;
+					break _v0$32;
 			}
 		}
 		var _v5 = $author$project$GraphDefs$selectedEdgeId(model.graph);
@@ -14404,9 +14520,8 @@ var $author$project$Main$update = F2(
 						var state = _v1.a;
 						return A3($author$project$Modes$SplitArrow$update, state, msg, model);
 					case 'CutHead':
-						var id = _v1.a;
-						var head = _v1.b;
-						return A4($author$project$Main$update_CutHead, id, head, msg, model);
+						var state = _v1.a;
+						return A3($author$project$Main$update_CutHead, state, msg, model);
 					case 'CloneMode':
 						return A2($author$project$Main$update_Clone, msg, model);
 					default:
@@ -16181,10 +16296,9 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 			var state = _v0.a;
 			return A2($author$project$Modes$SplitArrow$graphDrawing, m, state);
 		case 'CutHead':
-			var id = _v0.a;
-			var head = _v0.b;
+			var state = _v0.a;
 			return $author$project$GraphDrawing$toDrawingGraph(
-				A3($author$project$Main$graphCutHead, id, head, m));
+				A2($author$project$Main$graphCutHead, state, m));
 		case 'CloneMode':
 			return $author$project$GraphDrawing$toDrawingGraph(
 				$author$project$Main$graphClone(m));
@@ -16405,7 +16519,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle, ' + ('[shift] to keep previous selection)' + (', [C-a] select all' + (', [C-z] undo' + (', [C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [r]ename selected object (or double click)' + (', [R]esize canvas and grid size' + (', [g] move selected objects (also merge, if wanted)' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + (', [hjkl] to move the selection from a point to another' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + (', [S]elect pointer surrounding subdiagram' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [L] and [K]: select subdiagram adjacent to selected edge')))))))))))))))))))))))))));
+			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle' + (', rename closest [u]nnamed objects (then [TAB] to alternate)' + (', [shift] to keep previous selection)' + (', [C-a] select all' + (', [C-z] undo' + (', [C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [r]ename selected object (or double click)' + (', [R]esize canvas and grid size' + (', [g] move selected objects (also merge, if wanted)' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + (', [hjkl] to move the selection from a point to another' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + (', [S]elect pointer surrounding subdiagram' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [L] and [K]: select subdiagram adjacent to selected edge'))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return makeHelpDiv(
 				$elm$core$List$singleton(
@@ -16420,7 +16534,7 @@ var $author$project$Main$helpMsg = function (model) {
 		case 'Move':
 			return msg('Mode Move.' + ('Use mouse or h,j,k,l. [RET] or [click] to confirm.' + ' Hold [ctrl] to merge the selected point onto another node.'));
 		case 'CutHead':
-			return msg('Mode cut arrow.' + (' [RET] or [click] to confirm, [ctrl] to merge the endpoint with existing node. [ESC] to cancel. ' + '[c] to switch between head/tail.'));
+			return msg('Mode cut arrow.' + (' [RET] or [click] to confirm, [ctrl] to merge the endpoint with existing node. [ESC] to cancel. ' + ('[c] to switch between head/tail' + ', [d] to duplicate (or not) the arrow.')));
 		case 'RenameMode':
 			return msg('Rename mode: [RET] to confirm, [TAB] to next label, [ESC] to cancel');
 		case 'EnlargeMode':
