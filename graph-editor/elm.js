@@ -11391,7 +11391,8 @@ var $author$project$GraphProof$getAllValidDiagrams = function (g) {
 						function (_v11) {
 							var edge = _v11.edge;
 							var incoming = _v11.incoming;
-							return incoming ? edge.label.angle : $author$project$Geometry$Point$flipAngle(edge.label.angle);
+							return incoming ? edge.label.angle : $author$project$Geometry$Point$normaliseAngle(
+								$author$project$Geometry$Point$flipAngle(edge.label.angle));
 						},
 						_Utils_ap(
 							A2(
@@ -11582,6 +11583,26 @@ var $author$project$GraphProof$isBorder = function (_v0) {
 			$author$project$Geometry$Point$countRounds(angles)),
 		-1);
 };
+var $author$project$GraphProof$nameIdentities = A4(
+	$author$project$Polygraph$mapRecAll,
+	function (n) {
+		return n.label;
+	},
+	function (n) {
+		return n.label;
+	},
+	F2(
+		function (_v0, n) {
+			return n;
+		}),
+	F4(
+		function (_v1, fromLabel, _v2, l) {
+			return _Utils_update(
+				l,
+				{
+					label: ((l.label === '') && l.identity) ? ('|' + (fromLabel + '|')) : l.label
+				});
+		}));
 var $elm$core$List$partition = F2(
 	function (pred, list) {
 		var step = F2(
@@ -11615,7 +11636,8 @@ var $author$project$GraphProof$statementToString = function (d) {
 		$elm$core$String$join(' · '));
 	return '{ ' + (edgeToString(d.lhs) + (' = ' + (edgeToString(d.rhs) + ' }')));
 };
-var $author$project$GraphProof$fullProofs = function (g) {
+var $author$project$GraphProof$fullProofs = function (g0) {
+	var g = $author$project$GraphProof$nameIdentities(g0);
 	var diags = $author$project$GraphProof$getAllValidDiagrams(g);
 	var _v0 = A2($elm$core$List$partition, $author$project$GraphProof$isBorder, diags);
 	var bigDiags = _v0.a;
@@ -12417,21 +12439,22 @@ var $author$project$GraphDefs$selectAll = function (g) {
 };
 var $author$project$GraphDefs$toProofGraph = A4(
 	$author$project$Polygraph$mapRecAll,
-	function ($) {
-		return $.pos;
+	function (n) {
+		return n.pos;
 	},
-	function ($) {
-		return $.pos;
+	function (n) {
+		return n.pos;
 	},
 	F2(
 		function (_v0, n) {
-			return {pos: n.pos};
+			return {label: n.label, pos: n.pos};
 		}),
 	F4(
 		function (_v1, fromP, toP, l) {
 			return {
 				angle: $author$project$Geometry$Point$pointToAngle(
 					A2($author$project$Geometry$Point$subtract, toP, fromP)),
+				identity: l.style._double,
 				label: l.label,
 				pos: A2($author$project$Geometry$Point$middle, fromP, toP)
 			};
