@@ -7409,9 +7409,9 @@ var $author$project$Main$subscriptions = function (m) {
 				var _v0 = m.mode;
 				switch (_v0.$) {
 					case 'ResizeMode':
-						return true;
+						return false;
 					case 'QuickInputMode':
-						return true;
+						return false;
 					default:
 						return !m.mouseOnCanvas;
 				}
@@ -8081,20 +8081,6 @@ var $author$project$GraphDefs$exportQuiver = F2(
 				_Utils_ap(jnodes, jedges)));
 	});
 var $author$project$Main$exportQuiver = _Platform_outgoingPort('exportQuiver', $elm$core$Basics$identity);
-var $author$project$GraphDefs$addWeaklySelected = A2(
-	$author$project$Polygraph$map,
-	F2(
-		function (_v0, n) {
-			return _Utils_update(
-				n,
-				{selected: n.weaklySelected || n.selected});
-		}),
-	F2(
-		function (_v1, n) {
-			return _Utils_update(
-				n,
-				{selected: n.weaklySelected || n.selected});
-		}));
 var $elm_community$intdict$IntDict$foldl = F3(
 	function (f, acc, dict) {
 		foldl:
@@ -8156,7 +8142,7 @@ var $author$project$Polygraph$any = F3(
 			},
 			g);
 	});
-var $author$project$GraphDefs$makeSelection = function (g) {
+var $author$project$GraphDefs$fieldSelect = function (g) {
 	return A3(
 		$author$project$Polygraph$any,
 		function ($) {
@@ -8165,7 +8151,11 @@ var $author$project$GraphDefs$makeSelection = function (g) {
 		function ($) {
 			return $.selected;
 		},
-		g) ? g : $author$project$GraphDefs$addWeaklySelected(g);
+		g) ? function ($) {
+		return $.selected;
+	} : function ($) {
+		return $.weaklySelected;
+	};
 };
 var $elm$core$String$replace = F3(
 	function (before, after, string) {
@@ -8180,6 +8170,7 @@ var $author$project$GraphDefs$findReplaceInSelected = F2(
 			function (sel, s) {
 				return sel ? A3($elm$core$String$replace, r.search, r.replace, s) : s;
 			});
+		var f = $author$project$GraphDefs$fieldSelect(g);
 		return A3(
 			$author$project$Polygraph$map,
 			F2(
@@ -8187,7 +8178,10 @@ var $author$project$GraphDefs$findReplaceInSelected = F2(
 					return _Utils_update(
 						n,
 						{
-							label: A2(repl, n.selected, n.label)
+							label: A2(
+								repl,
+								f(n),
+								n.label)
 						});
 				}),
 			F2(
@@ -8195,10 +8189,13 @@ var $author$project$GraphDefs$findReplaceInSelected = F2(
 					return _Utils_update(
 						e,
 						{
-							label: A2(repl, e.selected, e.label)
+							label: A2(
+								repl,
+								f(e),
+								e.label)
 						});
 				}),
-			$author$project$GraphDefs$makeSelection(g));
+			g);
 	});
 var $author$project$Model$noCmd = function (m) {
 	return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
@@ -8371,17 +8368,10 @@ var $author$project$Polygraph$keepBelow = F3(
 			$author$project$Polygraph$Graph(g));
 		return dict;
 	});
-var $author$project$GraphDefs$selectedGraph = A2(
-	$elm$core$Basics$composeR,
-	$author$project$GraphDefs$makeSelection,
-	A2(
-		$author$project$Polygraph$keepBelow,
-		function ($) {
-			return $.selected;
-		},
-		function ($) {
-			return $.selected;
-		}));
+var $author$project$GraphDefs$selectedGraph = function (g) {
+	var f = $author$project$GraphDefs$fieldSelect(g);
+	return A3($author$project$Polygraph$keepBelow, f, f, g);
+};
 var $author$project$Model$depthHistory = 20;
 var $elm$core$List$takeReverse = F3(
 	function (n, list, kept) {
@@ -8619,42 +8609,6 @@ var $author$project$GraphDefs$clearSelection = function (g) {
 			}),
 		g);
 };
-var $author$project$Polygraph$update = F3(
-	function (i, fn, fe) {
-		return $author$project$Polygraph$mapRep(
-			A2(
-				$elm_community$intdict$IntDict$update,
-				i,
-				$elm$core$Maybe$map(
-					A2($author$project$Polygraph$mapObj, fn, fe))));
-	});
-var $author$project$GraphDefs$addOrSetSel = F3(
-	function (keep, o, gi) {
-		var g = keep ? gi : $author$project$GraphDefs$clearSelection(gi);
-		var g2 = A4(
-			$author$project$Polygraph$update,
-			o,
-			function (n) {
-				return _Utils_update(
-					n,
-					{selected: true});
-			},
-			function (n) {
-				return _Utils_update(
-					n,
-					{selected: true});
-			},
-			g);
-		return g2;
-	});
-var $author$project$Model$addOrSetSel = F3(
-	function (keep, o, m) {
-		return _Utils_update(
-			m,
-			{
-				graph: A3($author$project$GraphDefs$addOrSetSel, keep, o, m.graph)
-			});
-	});
 var $author$project$Polygraph$get = F4(
 	function (id, fn, fe, _v0) {
 		var g = _v0.a;
@@ -8918,16 +8872,57 @@ var $author$project$Model$switch_Default = function (m) {
 			m,
 			{mode: $author$project$Modes$DefaultMode}));
 };
+var $author$project$Polygraph$update = F3(
+	function (i, fn, fe) {
+		return $author$project$Polygraph$mapRep(
+			A2(
+				$elm_community$intdict$IntDict$update,
+				i,
+				$elm$core$Maybe$map(
+					A2($author$project$Polygraph$mapObj, fn, fe))));
+	});
+var $author$project$GraphDefs$weaklySelect = function (id) {
+	return A2(
+		$elm$core$Basics$composeR,
+		A2(
+			$author$project$Polygraph$map,
+			F2(
+				function (_v0, n) {
+					return _Utils_update(
+						n,
+						{weaklySelected: false});
+				}),
+			F2(
+				function (_v1, e) {
+					return _Utils_update(
+						e,
+						{weaklySelected: false});
+				})),
+		A3(
+			$author$project$Polygraph$update,
+			id,
+			function (n) {
+				return _Utils_update(
+					n,
+					{weaklySelected: true});
+			},
+			function (e) {
+				return _Utils_update(
+					e,
+					{weaklySelected: true});
+			}));
+};
 var $author$project$Modes$NewArrow$nextStep = F3(
 	function (model, finish, state) {
 		var info = A2($author$project$Modes$NewArrow$moveNodeInfo, model, state);
-		var m2 = A3(
-			$author$project$Model$addOrSetSel,
-			false,
-			info.movedNode,
-			_Utils_update(
-				model,
-				{graph: info.graph}));
+		var m2 = _Utils_update(
+			model,
+			{
+				graph: A2(
+					$author$project$GraphDefs$weaklySelect,
+					info.movedNode,
+					$author$project$GraphDefs$clearSelection(info.graph))
+			});
 		if (finish) {
 			return $author$project$Model$switch_Default(m2);
 		} else {
@@ -9235,6 +9230,33 @@ var $author$project$Modes$NewArrow$update = F3(
 var $author$project$Modes$SplitArrow = function (a) {
 	return {$: 'SplitArrow', a: a};
 };
+var $author$project$GraphDefs$addOrSetSel = F3(
+	function (keep, o, gi) {
+		var g = keep ? gi : $author$project$GraphDefs$clearSelection(gi);
+		var g2 = A4(
+			$author$project$Polygraph$update,
+			o,
+			function (n) {
+				return _Utils_update(
+					n,
+					{selected: true});
+			},
+			function (n) {
+				return _Utils_update(
+					n,
+					{selected: true});
+			},
+			g);
+		return g2;
+	});
+var $author$project$Model$addOrSetSel = F3(
+	function (keep, o, m) {
+		return _Utils_update(
+			m,
+			{
+				graph: A3($author$project$GraphDefs$addOrSetSel, keep, o, m.graph)
+			});
+	});
 var $elm$json$Json$Encode$null = _Json_encodeNull;
 var $author$project$HtmlDefs$computeLayout = _Platform_outgoingPort(
 	'computeLayout',
@@ -10540,9 +10562,19 @@ var $author$project$Polygraph$updateNode = F3(
 	function (i, fn, g) {
 		return A4($author$project$Polygraph$update, i, fn, $elm$core$Basics$identity, g);
 	});
+var $author$project$GraphDefs$selectedNodes = function (g) {
+	return A2(
+		$elm$core$List$filter,
+		A2(
+			$elm$core$Basics$composeR,
+			function ($) {
+				return $.label;
+			},
+			$author$project$GraphDefs$fieldSelect(g)),
+		$author$project$Polygraph$nodes(g));
+};
 var $author$project$Model$allSelectedNodes = function (m) {
-	return $author$project$Polygraph$nodes(
-		$author$project$GraphDefs$selectedGraph(m.graph));
+	return $author$project$GraphDefs$selectedNodes(m.graph);
 };
 var $author$project$Geometry$Point$middle = F2(
 	function (_v0, _v1) {
@@ -11091,6 +11123,35 @@ var $author$project$Geometry$Point$distance = F2(
 		return $author$project$Geometry$Point$radius(
 			A2($author$project$Geometry$Point$subtract, y, x));
 	});
+var $author$project$Geometry$distanceToRect = F2(
+	function (_v0, r) {
+		var px = _v0.a;
+		var py = _v0.b;
+		var _v1 = r.topLeft;
+		var minx = _v1.a;
+		var miny = _v1.b;
+		var _v2 = r.bottomRight;
+		var maxx = _v2.a;
+		var maxy = _v2.b;
+		var dy = A2(
+			$elm$core$Basics$max,
+			miny - py,
+			A2($elm$core$Basics$max, 0, py - maxy));
+		var dx = A2(
+			$elm$core$Basics$max,
+			minx - px,
+			A2($elm$core$Basics$max, 0, px - maxx));
+		return $elm$core$Basics$sqrt((dx * dx) + (dy * dy));
+	});
+var $author$project$GraphDefs$distanceToNode = F2(
+	function (p, n) {
+		var posDims = {
+			dims: $author$project$GraphDefs$getNodeDims(n),
+			pos: n.pos
+		};
+		var rect = $author$project$Geometry$rectFromPosDims(posDims);
+		return A2($author$project$Geometry$distanceToRect, p, rect);
+	});
 var $elm_community$list_extra$List$Extra$minimumBy = F2(
 	function (f, ls) {
 		var minBy = F2(
@@ -11137,12 +11198,20 @@ var $author$project$GraphDefs$closest = F2(
 				},
 				F2(
 					function (_v1, n) {
-						return {pos: n.pos};
+						return {
+							distance: A2($author$project$GraphDefs$distanceToNode, pos, n),
+							pos: n.pos
+						};
 					}),
 				F4(
 					function (_v2, p1, p2, e) {
+						var epos = A2($author$project$Geometry$Point$middle, p1, p2);
 						return {
-							pos: A2($author$project$Geometry$Point$middle, p1, p2)
+							distance: A2(
+								$author$project$Geometry$Point$distance,
+								pos,
+								A2($author$project$Geometry$Point$middle, p1, p2)),
+							pos: epos
 						};
 					}),
 				ug);
@@ -11150,10 +11219,7 @@ var $author$project$GraphDefs$closest = F2(
 				return A2(
 					$elm$core$List$map,
 					function (o) {
-						return {
-							distance: A2($author$project$Geometry$Point$distance, o.label.pos, pos),
-							id: o.id
-						};
+						return {distance: o.label.distance, id: o.id};
 					},
 					l);
 			};
@@ -12130,25 +12196,8 @@ var $author$project$GraphDefs$selectedEdges = function (g) {
 			function ($) {
 				return $.label;
 			},
-			function ($) {
-				return $.selected;
-			}),
-		$author$project$Polygraph$edges(
-			$author$project$GraphDefs$makeSelection(g)));
-};
-var $author$project$GraphDefs$selectedNodes = function (g) {
-	return A2(
-		$elm$core$List$filter,
-		A2(
-			$elm$core$Basics$composeR,
-			function ($) {
-				return $.label;
-			},
-			function ($) {
-				return $.selected;
-			}),
-		$author$project$Polygraph$nodes(
-			$author$project$GraphDefs$makeSelection(g)));
+			$author$project$GraphDefs$fieldSelect(g)),
+		$author$project$Polygraph$edges(g));
 };
 var $author$project$GraphDefs$selectedId = function (g) {
 	var _v0 = _Utils_ap(
@@ -12254,10 +12303,23 @@ var $author$project$Modes$Move = function (a) {
 	return {$: 'Move', a: a};
 };
 var $author$project$GraphDefs$isEmptySelection = function (go) {
-	var g = $author$project$GraphDefs$makeSelection(go);
-	return $elm$core$List$isEmpty(
-		$author$project$GraphDefs$selectedNodes(g)) && $elm$core$List$isEmpty(
-		$author$project$GraphDefs$selectedEdges(g));
+	return (!A3(
+		$author$project$Polygraph$any,
+		function ($) {
+			return $.selected;
+		},
+		function ($) {
+			return $.selected;
+		},
+		go)) && (!A3(
+		$author$project$Polygraph$any,
+		function ($) {
+			return $.weaklySelected;
+		},
+		function ($) {
+			return $.weaklySelected;
+		},
+		go));
 };
 var $author$project$Main$initialiseMoveMode = function (model) {
 	return _Utils_update(
@@ -12503,17 +12565,10 @@ var $author$project$Polygraph$drop = F3(
 			$elm_community$intdict$IntDict$keys(g2),
 			$author$project$Polygraph$Graph(g));
 	});
-var $author$project$GraphDefs$removeSelected = A2(
-	$elm$core$Basics$composeR,
-	$author$project$GraphDefs$makeSelection,
-	A2(
-		$author$project$Polygraph$drop,
-		function ($) {
-			return $.selected;
-		},
-		function ($) {
-			return $.selected;
-		}));
+var $author$project$GraphDefs$removeSelected = function (g) {
+	var f = $author$project$GraphDefs$fieldSelect(g);
+	return A3($author$project$Polygraph$drop, f, f, g);
+};
 var $elm$core$List$singleton = function (value) {
 	return _List_fromArray(
 		[value]);
@@ -12563,6 +12618,28 @@ var $author$project$GraphDefs$selectAll = function (g) {
 		$author$project$GraphDefs$addNodesSelection,
 		g,
 		$elm$core$Basics$always(true));
+};
+var $author$project$GraphDefs$addWeaklySelected = A2(
+	$author$project$Polygraph$map,
+	F2(
+		function (_v0, n) {
+			return _Utils_update(
+				n,
+				{selected: n.weaklySelected || n.selected});
+		}),
+	F2(
+		function (_v1, n) {
+			return _Utils_update(
+				n,
+				{selected: n.weaklySelected || n.selected});
+		}));
+var $author$project$Main$selectByClick = function (model) {
+	return model.mouseOnCanvas ? _Utils_update(
+		model,
+		{
+			graph: $author$project$GraphDefs$addWeaklySelected(
+				model.specialKeys.shift ? model.graph : $author$project$GraphDefs$clearSelection(model.graph))
+		}) : model;
 };
 var $author$project$GraphDefs$toProofGraph = A4(
 	$author$project$Polygraph$mapRecAll,
@@ -12900,37 +12977,6 @@ var $author$project$Model$undo = function (m) {
 			m,
 			$author$project$Model$peekHistory(m)));
 };
-var $author$project$GraphDefs$weaklySelect = function (id) {
-	return A2(
-		$elm$core$Basics$composeR,
-		A2(
-			$author$project$Polygraph$map,
-			F2(
-				function (_v0, n) {
-					return _Utils_update(
-						n,
-						{weaklySelected: false});
-				}),
-			F2(
-				function (_v1, e) {
-					return _Utils_update(
-						e,
-						{weaklySelected: false});
-				})),
-		A3(
-			$author$project$Polygraph$update,
-			id,
-			function (n) {
-				return _Utils_update(
-					n,
-					{weaklySelected: true});
-			},
-			function (e) {
-				return _Utils_update(
-					e,
-					{weaklySelected: true});
-			}));
-};
 var $author$project$Main$update_DefaultMode = F2(
 	function (msg, model) {
 		var delta_angle = $elm$core$Basics$pi / 5;
@@ -13016,7 +13062,7 @@ var $author$project$Main$update_DefaultMode = F2(
 						graph: A2($author$project$GraphDefs$weaklySelect, id, model.graph)
 					}));
 		};
-		_v0$36:
+		_v0$34:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseOn':
@@ -13024,12 +13070,7 @@ var $author$project$Main$update_DefaultMode = F2(
 					return weaklySelect(id);
 				case 'MouseClick':
 					return $author$project$Model$noCmd(
-						_Utils_update(
-							model,
-							{
-								graph: $author$project$GraphDefs$addWeaklySelected(
-									model.specialKeys.shift ? model.graph : $author$project$GraphDefs$clearSelection(model.graph))
-							}));
+						$author$project$Main$selectByClick(model));
 				case 'MouseMove':
 					return weaklySelect(
 						A2($author$project$GraphDefs$closest, model.mousePos, model.graph));
@@ -13049,11 +13090,6 @@ var $author$project$Main$update_DefaultMode = F2(
 									$author$project$Format$GraphInfo$makeGraphInfo,
 									$author$project$GraphDefs$selectedGraph(model.graph),
 									model.sizeGrid))));
-				case 'NodeClick':
-					var n = msg.a;
-					var e = msg.b;
-					return $author$project$Model$noCmd(
-						A3($author$project$Model$addOrSetSel, e.keys.shift, n, model));
 				case 'EltDoubleClick':
 					var n = msg.a;
 					var e = msg.b;
@@ -13063,11 +13099,6 @@ var $author$project$Main$update_DefaultMode = F2(
 							_List_fromArray(
 								[n]),
 							model));
-				case 'EdgeClick':
-					var n = msg.a;
-					var e = msg.b;
-					return $author$project$Model$noCmd(
-						A3($author$project$Model$addOrSetSel, e.keys.shift, n, model));
 				case 'PasteGraph':
 					var g = msg.a;
 					return $author$project$Model$noCmd(
@@ -13097,7 +13128,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											model,
 											$author$project$GraphDefs$removeSelected(model.graph)));
 								default:
-									break _v0$36;
+									break _v0$34;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -13264,14 +13295,14 @@ var $author$project$Main$update_DefaultMode = F2(
 									return k.ctrl ? $author$project$Model$noCmd(
 										$author$project$Model$undo(model)) : $author$project$Model$noCmd(model);
 								default:
-									break _v0$36;
+									break _v0$34;
 							}
 						}
 					} else {
-						break _v0$36;
+						break _v0$34;
 					}
 				default:
-					break _v0$36;
+					break _v0$34;
 			}
 		}
 		var _v5 = $author$project$GraphDefs$selectedEdgeId(model.graph);
@@ -13386,9 +13417,9 @@ var $author$project$Main$info_MoveNode = F2(
 		var merge = model.specialKeys.ctrl;
 		var nodes = $author$project$Model$allSelectedNodes(model);
 		var updNode = F2(
-			function (delta, _v5) {
-				var id = _v5.id;
-				var label = _v5.label;
+			function (delta, _v7) {
+				var id = _v7.id;
+				var label = _v7.label;
 				return {
 					id: id,
 					label: _Utils_update(
@@ -13405,10 +13436,10 @@ var $author$project$Main$info_MoveNode = F2(
 				nodes);
 		};
 		var mkRet = function (movedNodes) {
-			return {
-				graph: A2($author$project$Polygraph$updateNodes, movedNodes, model.graph),
-				valid: !merge
-			};
+			var _v5 = A2($elm$core$Debug$log, 'selected', model.graph);
+			var g = A2($author$project$Polygraph$updateNodes, movedNodes, model.graph);
+			var _v6 = A2($elm$core$Debug$log, 'mkRet', g);
+			return {graph: g, valid: !merge};
 		};
 		var retMerge = function (movedNodes) {
 			if (movedNodes.b && (!movedNodes.b.b)) {
@@ -14349,8 +14380,9 @@ var $author$project$Main$update_RectSelect = F4(
 					} else {
 						break _v0$2;
 					}
-				case 'MouseUp':
-					return $author$project$Model$switch_Default(
+				case 'MouseClick':
+					return _Utils_eq(model.mousePos, orig) ? $author$project$Model$switch_Default(
+						$author$project$Main$selectByClick(model)) : $author$project$Model$switch_Default(
 						_Utils_update(
 							model,
 							{
@@ -14741,7 +14773,11 @@ var $author$project$Main$update = F2(
 						return A2($author$project$Main$update_Clone, msg, model);
 					default:
 						var s = _v1.a;
-						return A3($author$project$Main$update_Resize, s, msg, model);
+						return A3(
+							$author$project$Main$update_Resize,
+							s,
+							A2($elm$core$Debug$log, 'resize msg', msg),
+							model);
 				}
 		}
 	});
@@ -16341,6 +16377,17 @@ var $author$project$GraphDrawing$graphDrawing = function (g0) {
 	var drawings = _Utils_ap(nodes, edges);
 	return $author$project$Drawing$group(drawings);
 };
+var $author$project$GraphDefs$makeSelection = function (g) {
+	return A3(
+		$author$project$Polygraph$any,
+		function ($) {
+			return $.selected;
+		},
+		function ($) {
+			return $.selected;
+		},
+		g) ? g : $author$project$GraphDefs$addWeaklySelected(g);
+};
 var $author$project$GraphDrawing$MainActive = {$: 'MainActive'};
 var $author$project$GraphDrawing$NoActive = {$: 'NoActive'};
 var $author$project$GraphDrawing$WeakActive = {$: 'WeakActive'};
@@ -16482,9 +16529,7 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 			return A2($author$project$Model$collageGraphFromGraph, m, m.graph);
 		case 'RectSelect':
 			var p = _v0.a;
-			return A2(
-				$author$project$Model$collageGraphFromGraph,
-				m,
+			return $author$project$GraphDrawing$toDrawingGraph(
 				A3($author$project$Main$selectGraph, m, p, m.specialKeys.shift));
 		case 'EnlargeMode':
 			var p = _v0.a;
