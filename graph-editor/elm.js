@@ -10562,20 +10562,6 @@ var $author$project$Polygraph$updateNode = F3(
 	function (i, fn, g) {
 		return A4($author$project$Polygraph$update, i, fn, $elm$core$Basics$identity, g);
 	});
-var $author$project$GraphDefs$selectedNodes = function (g) {
-	return A2(
-		$elm$core$List$filter,
-		A2(
-			$elm$core$Basics$composeR,
-			function ($) {
-				return $.label;
-			},
-			$author$project$GraphDefs$fieldSelect(g)),
-		$author$project$Polygraph$nodes(g));
-};
-var $author$project$Model$allSelectedNodes = function (m) {
-	return $author$project$GraphDefs$selectedNodes(m.graph);
-};
 var $author$project$Geometry$Point$middle = F2(
 	function (_v0, _v1) {
 		var x1 = _v0.a;
@@ -10718,7 +10704,8 @@ var $author$project$GraphDefs$cloneSelected = F2(
 		return A2($author$project$Polygraph$union, gclearSel, g2);
 	});
 var $author$project$Main$graphClone = function (m) {
-	var nodes = $author$project$Model$allSelectedNodes(m);
+	var nodes = $author$project$Polygraph$nodes(
+		$author$project$GraphDefs$selectedGraph(m.graph));
 	var mouseDelta = A2(
 		$author$project$Geometry$Point$subtract,
 		m.mousePos,
@@ -12199,6 +12186,17 @@ var $author$project$GraphDefs$selectedEdges = function (g) {
 			$author$project$GraphDefs$fieldSelect(g)),
 		$author$project$Polygraph$edges(g));
 };
+var $author$project$GraphDefs$selectedNodes = function (g) {
+	return A2(
+		$elm$core$List$filter,
+		A2(
+			$elm$core$Basics$composeR,
+			function ($) {
+				return $.label;
+			},
+			$author$project$GraphDefs$fieldSelect(g)),
+		$author$project$Polygraph$nodes(g));
+};
 var $author$project$GraphDefs$selectedId = function (g) {
 	var _v0 = _Utils_ap(
 		A2(
@@ -13415,7 +13413,8 @@ var $author$project$Main$info_MoveNode = F2(
 		var orig = _v0.orig;
 		var pos = _v0.pos;
 		var merge = model.specialKeys.ctrl;
-		var nodes = $author$project$Model$allSelectedNodes(model);
+		var nodes = $author$project$Polygraph$nodes(
+			$author$project$GraphDefs$selectedGraph(model.graph));
 		var updNode = F2(
 			function (delta, _v7) {
 				var id = _v7.id;
@@ -14773,11 +14772,7 @@ var $author$project$Main$update = F2(
 						return A2($author$project$Main$update_Clone, msg, model);
 					default:
 						var s = _v1.a;
-						return A3(
-							$author$project$Main$update_Resize,
-							s,
-							A2($elm$core$Debug$log, 'resize msg', msg),
-							model);
+						return A3($author$project$Main$update_Resize, s, msg, model);
 				}
 		}
 	});
