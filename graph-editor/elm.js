@@ -12373,6 +12373,11 @@ var $author$project$Geometry$Point$pointToAngle = function (_v0) {
 		y / (x + $author$project$Geometry$Point$radius(
 			_Utils_Tuple2(x, y)))));
 };
+var $author$project$Main$promptFindReplace = _Platform_outgoingPort(
+	'promptFindReplace',
+	function ($) {
+		return $elm$json$Json$Encode$null;
+	});
 var $author$project$GraphProof$debugEdgeName = function (id) {
 	return 'e' + $elm$core$String$fromInt(id);
 };
@@ -13060,7 +13065,7 @@ var $author$project$Main$update_DefaultMode = F2(
 						graph: A2($author$project$GraphDefs$weaklySelect, id, model.graph)
 					}));
 		};
-		_v0$34:
+		_v0$35:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseOn':
@@ -13126,7 +13131,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											model,
 											$author$project$GraphDefs$removeSelected(model.graph)));
 								default:
-									break _v0$34;
+									break _v0$35;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -13226,6 +13231,10 @@ var $author$project$Main$update_DefaultMode = F2(
 												$elm$core$Maybe$map($author$project$GraphProof$incompleteProofStepToString)),
 											$author$project$GraphDefs$selectedIncompleteDiagram(model.graph)));
 									return A2(fillBottom, s, 'No selected subdiagram found!');
+								case 'q':
+									return _Utils_Tuple2(
+										model,
+										$author$project$Main$promptFindReplace(_Utils_Tuple0));
 								case 'R':
 									return $author$project$Model$noCmd(
 										$author$project$Main$initialise_Resize(model));
@@ -13293,14 +13302,14 @@ var $author$project$Main$update_DefaultMode = F2(
 									return k.ctrl ? $author$project$Model$noCmd(
 										$author$project$Model$undo(model)) : $author$project$Model$noCmd(model);
 								default:
-									break _v0$34;
+									break _v0$35;
 							}
 						}
 					} else {
-						break _v0$34;
+						break _v0$35;
 					}
 				default:
-					break _v0$34;
+					break _v0$35;
 			}
 		}
 		var _v5 = $author$project$GraphDefs$selectedEdgeId(model.graph);
@@ -16816,7 +16825,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle' + (', rename closest [u]nnamed objects (then [TAB] to alternate)' + (', [shift] to keep previous selection)' + (', [C-a] select all' + (', [ESC] clear selection' + (', [C-z] undo' + (', [C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [r]ename selected object (or double click)' + (', [R]esize canvas and grid size' + (', [g] move selected objects (also merge, if wanted)' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + (', [hjkl] to move the selection from a point to another' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + (', [S]elect pointer surrounding subdiagram' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [L] and [K]: select subdiagram adjacent to selected edge')))))))))))))))))))))))))))));
+			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle' + (', rename closest [u]nnamed objects (then [TAB] to alternate)' + (', [shift] to keep previous selection)' + (', [C-a] select all' + (', [ESC] clear selection' + (', [C-z] undo' + (', [C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', [R]esize canvas and grid size' + (', [g] move selected objects (also merge, if wanted)' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + (', [hjkl] to move the selection from a point to another' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + (', [S]elect pointer surrounding subdiagram' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [L] and [K]: select subdiagram adjacent to selected edge'))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return makeHelpDiv(
 				$elm$core$List$singleton(
