@@ -13160,7 +13160,13 @@ var $author$project$Main$update_DefaultMode = F2(
 						graph: A2($author$project$GraphDefs$weaklySelect, id, model.graph)
 					}));
 		};
-		_v0$36:
+		var clearSel = $author$project$Model$noCmd(
+			_Utils_update(
+				model,
+				{
+					graph: $author$project$GraphDefs$clearSelection(model.graph)
+				}));
+		_v0$37:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseOn':
@@ -13213,12 +13219,7 @@ var $author$project$Main$update_DefaultMode = F2(
 						if (msg.c.$ === 'Control') {
 							switch (msg.c.a) {
 								case 'Escape':
-									return $author$project$Model$noCmd(
-										_Utils_update(
-											model,
-											{
-												graph: $author$project$GraphDefs$clearSelection(model.graph)
-											}));
+									return clearSel;
 								case 'Delete':
 									return $author$project$Model$noCmd(
 										A2(
@@ -13226,10 +13227,12 @@ var $author$project$Main$update_DefaultMode = F2(
 											model,
 											$author$project$GraphDefs$removeSelected(model.graph)));
 								default:
-									break _v0$36;
+									break _v0$37;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
+								case 'w':
+									return clearSel;
 								case 'e':
 									return $author$project$Model$noCmd(
 										$author$project$Main$initialiseEnlarge(
@@ -13419,14 +13422,14 @@ var $author$project$Main$update_DefaultMode = F2(
 									return k.ctrl ? $author$project$Model$noCmd(
 										$author$project$Model$undo(model)) : $author$project$Model$noCmd(model);
 								default:
-									break _v0$36;
+									break _v0$37;
 							}
 						}
 					} else {
-						break _v0$36;
+						break _v0$37;
 					}
 				default:
-					break _v0$36;
+					break _v0$37;
 			}
 		}
 		var _v9 = $author$project$GraphDefs$selectedEdgeId(model.graph);
@@ -13550,24 +13553,32 @@ var $author$project$Main$enlargeGraph = F2(
 	});
 var $author$project$Main$update_Enlarge = F3(
 	function (msg, state, model) {
-		_v0$2:
+		var fin = $author$project$Model$switch_Default(
+			_Utils_update(
+				model,
+				{
+					graph: A2($author$project$Main$enlargeGraph, model, state)
+				}));
+		_v0$3:
 		while (true) {
 			switch (msg.$) {
-				case 'KeyChanged':
-					if (((!msg.a) && (msg.c.$ === 'Control')) && (msg.c.a === 'Escape')) {
-						return $author$project$Model$switch_Default(model);
-					} else {
-						break _v0$2;
-					}
 				case 'MouseUp':
-					return $author$project$Model$switch_Default(
-						_Utils_update(
-							model,
-							{
-								graph: A2($author$project$Main$enlargeGraph, model, state)
-							}));
+					return fin;
+				case 'KeyChanged':
+					if ((!msg.a) && (msg.c.$ === 'Control')) {
+						switch (msg.c.a) {
+							case 'Escape':
+								return $author$project$Model$switch_Default(model);
+							case 'Enter':
+								return fin;
+							default:
+								break _v0$3;
+						}
+					} else {
+						break _v0$3;
+					}
 				default:
-					break _v0$2;
+					break _v0$3;
 			}
 		}
 		return $author$project$Model$noCmd(
@@ -17014,7 +17025,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle' + (', rename closest [u]nnamed objects (then [TAB] to alternate)' + (', [shift] to keep previous selection)' + (', [C-a] select all' + (', [ESC] clear selection' + (', [C-z] undo' + (', [C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', [R]esize canvas and grid size' + (', [g] move selected objects (also merge, if wanted)' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + (', [hjkl] to move the selection from a point to another' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + (', [S]elect pointer surrounding subdiagram' + (', [K] select connected component' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [L] and [H]: select subdiagram adjacent to selected edge')))))))))))))))))))))))))))))));
+			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle' + (', rename closest [u]nnamed objects (then [TAB] to alternate)' + (', [shift] to keep previous selection)' + (', [C-a] select all' + (', [ESC] or [w] clear selection' + (', [C-z] undo' + (', [C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', [R]esize canvas and grid size' + (', [g] move selected objects (also merge, if wanted)' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + (', [hjkl] to move the selection from a point to another' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + (', [S]elect pointer surrounding subdiagram' + (', [K] select connected component' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [L] and [H]: select subdiagram adjacent to selected edge')))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return makeHelpDiv(
 				$elm$core$List$singleton(
@@ -17034,7 +17045,7 @@ var $author$project$Main$helpMsg = function (model) {
 			return msg('Rename mode: [RET] to confirm, [TAB] to next label, [ESC] to cancel');
 		case 'EnlargeMode':
 			var s = _v0.a;
-			return msg('Enlarge mode: draw a rectangle to create space. ' + ('Use mouse or h,j,k,l. ' + ' (press [s] to toggle).'));
+			return msg('Enlarge mode: draw a rectangle to create space. ' + 'Use mouse or h,j,k,l. [RET] or click to confirm.');
 		case 'QuickInputMode':
 			return msg('Equation mode: enter equation in the textfield ' + ('(e.g., a -- f -> b -- g -> c =  a -- h -> d -- k -> c)' + (',  [RET] to confirm, [ESC] to cancel.' + (' If an incomplete subdiagram (i.e. a subdiagram ' + ('where one branch is a single arrow with empty label)' + (' is selected, it will replace the empty branch with' + ' the lhs or the rhs (depending on the orientation).'))))));
 		case 'ResizeMode':
