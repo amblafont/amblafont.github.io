@@ -11636,84 +11636,6 @@ var $author$project$GraphDefs$closest = F2(
 			return unnamedAll;
 		}
 	});
-var $author$project$GraphDefs$unnamedGraph = A2(
-	$author$project$Polygraph$keepBelow,
-	A2(
-		$elm$core$Basics$composeR,
-		function ($) {
-			return $.label;
-		},
-		$elm$core$String$isEmpty),
-	A2(
-		$elm$core$Basics$composeR,
-		function ($) {
-			return $.label;
-		},
-		$elm$core$String$isEmpty));
-var $author$project$GraphDefs$closestUnnamed = F2(
-	function (pos, g) {
-		var ug = $author$project$GraphDefs$unnamedGraph(g);
-		var ug2 = A5(
-			$author$project$Polygraph$mapRecAll,
-			function ($) {
-				return $.pos;
-			},
-			function ($) {
-				return $.pos;
-			},
-			F2(
-				function (_v0, n) {
-					return {
-						empty: $elm$core$String$isEmpty(n.label),
-						pos: n.pos
-					};
-				}),
-			F4(
-				function (_v1, p1, p2, e) {
-					return {
-						empty: $elm$core$String$isEmpty(e.label),
-						pos: A2($author$project$Geometry$Point$middle, p1, p2)
-					};
-				}),
-			ug);
-		var getEmptysDistance = function (l) {
-			return A2(
-				$elm$core$List$map,
-				function (o) {
-					return {
-						distance: A2($author$project$Geometry$Point$distance, o.label.pos, pos),
-						id: o.id
-					};
-				},
-				A2(
-					$elm$core$List$filter,
-					A2(
-						$elm$core$Basics$composeR,
-						function ($) {
-							return $.label;
-						},
-						function ($) {
-							return $.empty;
-						}),
-					l));
-		};
-		var unnamedEdges = getEmptysDistance(
-			$author$project$Polygraph$edges(ug2));
-		var unnamedNodes = getEmptysDistance(
-			$author$project$Polygraph$nodes(ug2));
-		var unnamedAll = A2(
-			$elm$core$List$map,
-			function ($) {
-				return $.id;
-			},
-			A2(
-				$elm$core$List$sortBy,
-				function ($) {
-					return $.distance;
-				},
-				_Utils_ap(unnamedEdges, unnamedNodes)));
-		return unnamedAll;
-	});
 var $author$project$Polygraph$incidence = function (_v0) {
 	var g = _v0.a;
 	var es = $author$project$Polygraph$edges(
@@ -13574,7 +13496,7 @@ var $author$project$Main$update_DefaultMode = F2(
 				{
 					graph: $author$project$GraphDefs$clearSelection(model.graph)
 				}));
-		_v0$38:
+		_v0$37:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseOn':
@@ -13635,7 +13557,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											model,
 											$author$project$GraphDefs$removeSelected(model.graph)));
 								default:
-									break _v0$38;
+									break _v0$37;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -13683,32 +13605,6 @@ var $author$project$Main$update_DefaultMode = F2(
 								case 'H':
 									return $author$project$Model$noCmd(
 										A2($author$project$Main$selectLoop, false, model));
-								case 'K':
-									var f = $author$project$GraphDefs$fieldSelect(model.graph);
-									return $author$project$Model$noCmd(
-										_Utils_update(
-											model,
-											{
-												graph: A3(
-													$author$project$Polygraph$map,
-													F2(
-														function (_v2, _v3) {
-															var n = _v3.n;
-															var isIn = _v3.isIn;
-															return _Utils_update(
-																n,
-																{selected: isIn});
-														}),
-													F2(
-														function (_v4, _v5) {
-															var e = _v5.e;
-															var isIn = _v5.isIn;
-															return _Utils_update(
-																e,
-																{selected: isIn});
-														}),
-													A3($author$project$Polygraph$connectedClosure, f, f, model.graph))
-											}));
 								case 'G':
 									return generateProof($author$project$GraphProof$proofStatementToString);
 								case 'T':
@@ -13731,11 +13627,11 @@ var $author$project$Main$update_DefaultMode = F2(
 													model,
 													{mode: $author$project$Modes$CloneMode}));
 										} else {
-											var _v6 = $author$project$GraphDefs$selectedEdgeId(model.graph);
-											if (_v6.$ === 'Nothing') {
+											var _v2 = $author$project$GraphDefs$selectedEdgeId(model.graph);
+											if (_v2.$ === 'Nothing') {
 												return $author$project$Model$noCmd(model);
 											} else {
-												var id = _v6.a;
+												var id = _v2.a;
 												return $author$project$Model$noCmd(
 													_Utils_update(
 														model,
@@ -13780,12 +13676,12 @@ var $author$project$Main$update_DefaultMode = F2(
 									return $author$project$Modes$Square$initialise(
 										$author$project$Model$pushHistory(model));
 								case 'p':
-									var _v7 = A2(
+									var _v3 = A2(
 										$author$project$Polygraph$newNode,
 										model.graph,
 										A2($author$project$GraphDefs$newNodeLabel, model.mousePos, ''));
-									var newGraph = _v7.a;
-									var newId = _v7.b;
+									var newGraph = _v3.a;
+									var newId = _v3.b;
 									var newModel = A3(
 										$author$project$Model$addOrSetSel,
 										false,
@@ -13814,7 +13710,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											A3(
 												$author$project$Polygraph$map,
 												F2(
-													function (_v8, n) {
+													function (_v4, n) {
 														return n.selected ? A2($author$project$GraphDefs$snapNodeToGrid, model.sizeGrid, n) : n;
 													}),
 												$elm$core$Basics$always($elm$core$Basics$identity),
@@ -13828,24 +13724,44 @@ var $author$project$Main$update_DefaultMode = F2(
 								case 'l':
 									return move(0);
 								case 'u':
+									var f = $author$project$GraphDefs$fieldSelect(model.graph);
 									return $author$project$Model$noCmd(
-										A2(
-											$author$project$Model$initialise_RenameMode,
-											A2($author$project$GraphDefs$closestUnnamed, model.mousePos, model.graph),
-											$author$project$Model$pushHistory(model)));
+										_Utils_update(
+											model,
+											{
+												graph: A3(
+													$author$project$Polygraph$map,
+													F2(
+														function (_v5, _v6) {
+															var n = _v6.n;
+															var isIn = _v6.isIn;
+															return _Utils_update(
+																n,
+																{selected: isIn});
+														}),
+													F2(
+														function (_v7, _v8) {
+															var e = _v8.e;
+															var isIn = _v8.isIn;
+															return _Utils_update(
+																e,
+																{selected: isIn});
+														}),
+													A3($author$project$Polygraph$connectedClosure, f, f, model.graph))
+											}));
 								case 'z':
 									var k = msg.b;
 									return k.ctrl ? $author$project$Model$noCmd(
 										$author$project$Model$undo(model)) : $author$project$Model$noCmd(model);
 								default:
-									break _v0$38;
+									break _v0$37;
 							}
 						}
 					} else {
-						break _v0$38;
+						break _v0$37;
 					}
 				default:
-					break _v0$38;
+					break _v0$37;
 			}
 		}
 		var _v9 = $author$project$GraphDefs$selectedEdgeId(model.graph);
@@ -17420,7 +17336,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle' + (', rename closest [u]nnamed objects (then [TAB] to alternate)' + (', [shift] to keep previous selection)' + (', [C-a] select all' + (', [ESC] or [w] clear selection' + (', [C-z] undo' + (', [C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [q] find and replace in selection' + (', [Q]uicksave' + (', [r]ename selected object (or double click)' + (', [R]esize canvas and grid size' + (', [g] move selected objects (also merge, if wanted)' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + (', [hjkl] to move the selection from a point to another' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + (', [S]elect pointer surrounding subdiagram' + (', [K] select connected component' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [L] and [H]: select subdiagram adjacent to selected edge'))))))))))))))))))))))))))))))));
+			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle' + (', [shift] to keep previous selection)' + (', [C-a] select all' + (', [ESC] or [w] clear selection' + (', [C-z] undo' + (', [C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [q] find and replace in selection' + (', [Q]uicksave' + (', [r]ename selected object (or double click)' + (', [R]esize canvas and grid size' + (', [g] move selected objects (also merge, if wanted)' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + (', [hjkl] to move the selection from a point to another' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected component' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [L] and [H]: select subdiagram adjacent to selected edge')))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return makeHelpDiv(
 				$elm$core$List$singleton(
