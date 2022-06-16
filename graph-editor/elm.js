@@ -7490,6 +7490,12 @@ var $author$project$Main$subscriptions = function (m) {
 var $author$project$Modes$QuickInputMode = function (a) {
 	return {$: 'QuickInputMode', a: a};
 };
+var $elm$json$Json$Encode$null = _Json_encodeNull;
+var $author$project$HtmlDefs$computeLayout = _Platform_outgoingPort(
+	'computeLayout',
+	function ($) {
+		return $elm$json$Json$Encode$null;
+	});
 var $author$project$Polygraph$Edge = F4(
 	function (id, from, to, label) {
 		return {from: from, id: id, label: label, to: to};
@@ -8592,6 +8598,16 @@ var $author$project$Format$Version3$toJSGraph = function (m) {
 	return {edges: edges, nodes: nodes, sizeGrid: m.sizeGrid};
 };
 var $author$project$Format$LastVersion$toJSGraph = $author$project$Format$Version3$toJSGraph;
+var $author$project$Format$Version3$version = 3;
+var $author$project$Format$LastVersion$version = $author$project$Format$Version3$version;
+var $author$project$Main$toJsGraphInfo = function (model) {
+	return {
+		fileName: model.fileName,
+		graph: $author$project$Format$LastVersion$toJSGraph(
+			$author$project$Model$toGraphInfo(model)),
+		version: $author$project$Format$LastVersion$version
+	};
+};
 var $author$project$GraphDefs$clearSelection = function (g) {
 	return A3(
 		$author$project$Polygraph$map,
@@ -9256,12 +9272,6 @@ var $author$project$Model$addOrSetSel = F3(
 			{
 				graph: A3($author$project$GraphDefs$addOrSetSel, keep, o, m.graph)
 			});
-	});
-var $elm$json$Json$Encode$null = _Json_encodeNull;
-var $author$project$HtmlDefs$computeLayout = _Platform_outgoingPort(
-	'computeLayout',
-	function ($) {
-		return $elm$json$Json$Encode$null;
 	});
 var $author$project$GraphDefs$emptyEdge = A2($author$project$GraphDefs$newEdgeLabel, '', $author$project$ArrowStyle$empty);
 var $elm_community$intdict$IntDict$remove = F2(
@@ -12675,6 +12685,126 @@ var $author$project$GraphProof$proofStatementToString = function (st) {
 		'\n',
 		A2($elm$core$List$map, $author$project$GraphProof$proofStepToString, st.proof)) + ('\n apply idpath.' + '\nQed.'))));
 };
+var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
+	'quicksaveGraph',
+	function ($) {
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'fileName',
+					$elm$json$Json$Encode$string($.fileName)),
+					_Utils_Tuple2(
+					'graph',
+					function ($) {
+						return $elm$json$Json$Encode$object(
+							_List_fromArray(
+								[
+									_Utils_Tuple2(
+									'edges',
+									$elm$json$Json$Encode$list(
+										function ($) {
+											return $elm$json$Json$Encode$object(
+												_List_fromArray(
+													[
+														_Utils_Tuple2(
+														'from',
+														$elm$json$Json$Encode$int($.from)),
+														_Utils_Tuple2(
+														'id',
+														$elm$json$Json$Encode$int($.id)),
+														_Utils_Tuple2(
+														'label',
+														function ($) {
+															return $elm$json$Json$Encode$object(
+																_List_fromArray(
+																	[
+																		_Utils_Tuple2(
+																		'label',
+																		$elm$json$Json$Encode$string($.label)),
+																		_Utils_Tuple2(
+																		'style',
+																		function ($) {
+																			return $elm$json$Json$Encode$object(
+																				_List_fromArray(
+																					[
+																						_Utils_Tuple2(
+																						'alignment',
+																						$elm$json$Json$Encode$string($.alignment)),
+																						_Utils_Tuple2(
+																						'bend',
+																						$elm$json$Json$Encode$float($.bend)),
+																						_Utils_Tuple2(
+																						'dashed',
+																						$elm$json$Json$Encode$bool($.dashed)),
+																						_Utils_Tuple2(
+																						'double',
+																						$elm$json$Json$Encode$bool($._double)),
+																						_Utils_Tuple2(
+																						'head',
+																						$elm$json$Json$Encode$string($.head)),
+																						_Utils_Tuple2(
+																						'position',
+																						$elm$json$Json$Encode$float($.position)),
+																						_Utils_Tuple2(
+																						'tail',
+																						$elm$json$Json$Encode$string($.tail))
+																					]));
+																		}($.style))
+																	]));
+														}($.label)),
+														_Utils_Tuple2(
+														'to',
+														$elm$json$Json$Encode$int($.to))
+													]));
+										})($.edges)),
+									_Utils_Tuple2(
+									'nodes',
+									$elm$json$Json$Encode$list(
+										function ($) {
+											return $elm$json$Json$Encode$object(
+												_List_fromArray(
+													[
+														_Utils_Tuple2(
+														'id',
+														$elm$json$Json$Encode$int($.id)),
+														_Utils_Tuple2(
+														'label',
+														function ($) {
+															return $elm$json$Json$Encode$object(
+																_List_fromArray(
+																	[
+																		_Utils_Tuple2(
+																		'label',
+																		$elm$json$Json$Encode$string($.label)),
+																		_Utils_Tuple2(
+																		'pos',
+																		function ($) {
+																			var a = $.a;
+																			var b = $.b;
+																			return A2(
+																				$elm$json$Json$Encode$list,
+																				$elm$core$Basics$identity,
+																				_List_fromArray(
+																					[
+																						$elm$json$Json$Encode$float(a),
+																						$elm$json$Json$Encode$float(b)
+																					]));
+																		}($.pos))
+																	]));
+														}($.label))
+													]));
+										})($.nodes)),
+									_Utils_Tuple2(
+									'sizeGrid',
+									$elm$json$Json$Encode$int($.sizeGrid))
+								]));
+					}($.graph)),
+					_Utils_Tuple2(
+					'version',
+					$elm$json$Json$Encode$int($.version))
+				]));
+	});
 var $author$project$Polygraph$drop = F3(
 	function (fn, fe, _v0) {
 		var g = _v0.a;
@@ -13166,7 +13296,7 @@ var $author$project$Main$update_DefaultMode = F2(
 				{
 					graph: $author$project$GraphDefs$clearSelection(model.graph)
 				}));
-		_v0$37:
+		_v0$38:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseOn':
@@ -13227,7 +13357,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											model,
 											$author$project$GraphDefs$removeSelected(model.graph)));
 								default:
-									break _v0$37;
+									break _v0$38;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -13355,6 +13485,11 @@ var $author$project$Main$update_DefaultMode = F2(
 									return _Utils_Tuple2(
 										model,
 										$author$project$Main$promptFindReplace(_Utils_Tuple0));
+								case 'Q':
+									return _Utils_Tuple2(
+										model,
+										$author$project$Main$quicksaveGraph(
+											$author$project$Main$toJsGraphInfo(model)));
 								case 'R':
 									return $author$project$Model$noCmd(
 										$author$project$Main$initialise_Resize(model));
@@ -13422,14 +13557,14 @@ var $author$project$Main$update_DefaultMode = F2(
 									return k.ctrl ? $author$project$Model$noCmd(
 										$author$project$Model$undo(model)) : $author$project$Model$noCmd(model);
 								default:
-									break _v0$37;
+									break _v0$38;
 							}
 						}
 					} else {
-						break _v0$37;
+						break _v0$38;
 					}
 				default:
-					break _v0$37;
+					break _v0$38;
 			}
 		}
 		var _v9 = $author$project$GraphDefs$selectedEdgeId(model.graph);
@@ -14801,8 +14936,6 @@ var $author$project$Main$update_Resize = F3(
 		}
 		return $author$project$Model$noCmd(m);
 	});
-var $author$project$Format$Version3$version = 3;
-var $author$project$Format$LastVersion$version = $author$project$Format$Version3$version;
 var $author$project$Main$update = F2(
 	function (msg, modeli) {
 		var model = function () {
@@ -14855,12 +14988,7 @@ var $author$project$Main$update = F2(
 				return _Utils_Tuple2(
 					model,
 					$author$project$Main$saveGraph(
-						{
-							fileName: model.fileName,
-							graph: $author$project$Format$LastVersion$toJSGraph(
-								$author$project$Model$toGraphInfo(model)),
-							version: $author$project$Format$LastVersion$version
-						}));
+						$author$project$Main$toJsGraphInfo(model)));
 			case 'Clear':
 				return $author$project$Model$noCmd($author$project$Model$iniModel);
 			case 'ToggleHideGrid':
@@ -14925,10 +15053,11 @@ var $author$project$Main$update = F2(
 			case 'Loaded':
 				var g = msg.a;
 				var fileName = msg.b;
-				return $author$project$Model$noCmd(
+				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{fileName: fileName, graph: g.graph, mode: $author$project$Modes$DefaultMode, sizeGrid: g.sizeGrid}));
+						{fileName: fileName, graph: g.graph, mode: $author$project$Modes$DefaultMode, sizeGrid: g.sizeGrid}),
+					$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
 			case 'FindReplace':
 				var req = msg.a;
 				return $author$project$Model$noCmd(
@@ -15102,8 +15231,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
-var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$html$Html$Attributes$stringProperty = F2(
@@ -15118,10 +15245,7 @@ var $author$project$HtmlDefs$checkbox = F3(
 	function (msg, name, checked) {
 		return A2(
 			$elm$html$Html$label,
-			_List_fromArray(
-				[
-					A2($elm$html$Html$Attributes$style, 'padding', '20px')
-				]),
+			_List_Nil,
 			_List_fromArray(
 				[
 					A2(
@@ -16190,6 +16314,8 @@ var $author$project$Msg$onTabPreventDefault = A2(
 				k,
 				$author$project$HtmlDefs$Control('Tab'));
 		}));
+var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$GraphDrawing$make_input = F3(
 	function (pos, label, onChange) {
@@ -17025,7 +17151,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle' + (', rename closest [u]nnamed objects (then [TAB] to alternate)' + (', [shift] to keep previous selection)' + (', [C-a] select all' + (', [ESC] or [w] clear selection' + (', [C-z] undo' + (', [C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', [R]esize canvas and grid size' + (', [g] move selected objects (also merge, if wanted)' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + (', [hjkl] to move the selection from a point to another' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + (', [S]elect pointer surrounding subdiagram' + (', [K] select connected component' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [L] and [H]: select subdiagram adjacent to selected edge')))))))))))))))))))))))))))))));
+			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle' + (', rename closest [u]nnamed objects (then [TAB] to alternate)' + (', [shift] to keep previous selection)' + (', [C-a] select all' + (', [ESC] or [w] clear selection' + (', [C-z] undo' + (', [C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [q] find and replace in selection' + (', [Q]uicksave' + (', [r]ename selected object (or double click)' + (', [R]esize canvas and grid size' + (', [g] move selected objects (also merge, if wanted)' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + (', [hjkl] to move the selection from a point to another' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + (', [S]elect pointer surrounding subdiagram' + (', [K] select connected component' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [L] and [H]: select subdiagram adjacent to selected edge'))))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return makeHelpDiv(
 				$elm$core$List$singleton(
