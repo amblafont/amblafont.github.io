@@ -261,8 +261,12 @@
                // session storage, to avoid conflicts with
                // other possibly opened tabs
                var result = sessionStorage.getItem(storageKey);
-               if (!result) 
+               if (!result) {
                   result = localStorage.getItem(storageKey);
+                  if (result)
+                  // we put it in the temporary session storage
+                     sessionStorage.setItem(storageKey, result);                    
+               }
                if (result) {
                   var json = JSON.parse(result);
                   var fileName = json.fileName;                  
