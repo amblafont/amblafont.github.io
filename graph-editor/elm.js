@@ -17287,6 +17287,26 @@ try {
 } catch ($) {
 	throw 'Some top-level definitions from `Main` are causing infinite recursion:\n\n  ┌─────┐\n  │    helpMsgParser\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
 var $elm$html$Html$b = _VirtualDom_node('b');
+var $elm$html$Html$br = _VirtualDom_node('br');
+var $elm$core$List$intersperse = F2(
+	function (sep, xs) {
+		if (!xs.b) {
+			return _List_Nil;
+		} else {
+			var hd = xs.a;
+			var tl = xs.b;
+			var step = F2(
+				function (x, rest) {
+					return A2(
+						$elm$core$List$cons,
+						sep,
+						A2($elm$core$List$cons, x, rest));
+				});
+			var spersed = A3($elm$core$List$foldr, step, _List_Nil, tl);
+			return A2($elm$core$List$cons, hd, spersed);
+		}
+	});
+var $elm$core$String$lines = _String_lines;
 var $elm$html$Html$span = _VirtualDom_node('span');
 var $author$project$Main$helpStr_collage = function (_v0) {
 	var s = _v0.a;
@@ -17308,7 +17328,16 @@ var $author$project$Main$helpStr_collage = function (_v0) {
 					$elm$html$Html$text(']')
 				]));
 	} else {
-		return $elm$html$Html$text(s);
+		return A2(
+			$elm$html$Html$span,
+			_List_Nil,
+			A2(
+				$elm$core$List$intersperse,
+				A2($elm$html$Html$br, _List_Nil, _List_Nil),
+				A2(
+					$elm$core$List$map,
+					$elm$html$Html$text,
+					$elm$core$String$lines(s))));
 	}
 };
 var $author$project$Main$helpMsg = function (model) {
@@ -17336,7 +17365,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode (the basic tutorial can be completed before reading this). Commands: [click] for point/edge selection (hold for selection rectangle' + (', [shift] to keep previous selection)' + (', [C-a] select all' + (', [ESC] or [w] clear selection' + (', [C-z] undo' + (', [C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + (', new [a]rrow from selected point' + (', new [p]oint' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + (', [del]ete selected object (also [x])' + (', [d]ebug mode' + (', [q] find and replace in selection' + (', [Q]uicksave' + (', [r]ename selected object (or double click)' + (', [R]esize canvas and grid size' + (', [g] move selected objects (also merge, if wanted)' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + (', [hjkl] to move the selection from a point to another' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected component' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [L] and [H]: select subdiagram adjacent to selected edge')))))))))))))))))))))))))))))));
+			return msg('Default mode (the basic tutorial can be completed before reading this). ' + ('Sumary of commands:\n\n' + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected component' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\n\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\n\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + ('\n\n Basic editing: ' + ('new [p]oint' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\n\nArrows: ' + ('new [a]rrow from selected point' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + ('\n\nMoving objects:' + ('[g] move selected objects (also merge, if wanted)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + '(i.e., a subdiagram with an empty branch)'))))))))))))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return makeHelpDiv(
 				$elm$core$List$singleton(
@@ -17534,6 +17563,15 @@ var $author$project$Main$view = function (model) {
 	var contents = _Utils_ap(
 		_List_fromArray(
 			[
+				$elm$html$Html$text(model.statusMsg),
+				A2(
+				$elm$html$Html$p,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$author$project$Main$helpMsg(model),
+						$author$project$Main$quickInputView(model)
+					])),
 				A2(
 				$elm$html$Html$button,
 				_List_fromArray(
@@ -17580,15 +17618,6 @@ var $author$project$Main$view = function (model) {
 				]) : _List_Nil,
 			_List_fromArray(
 				[
-					$elm$html$Html$text(model.statusMsg),
-					A2(
-					$elm$html$Html$p,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$author$project$Main$helpMsg(model),
-							$author$project$Main$quickInputView(model)
-						])),
 					A2(
 					$elm$html$Html$p,
 					_List_Nil,
