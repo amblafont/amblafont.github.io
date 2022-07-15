@@ -8728,7 +8728,8 @@ var $author$project$GraphDefs$exportQuiver = F2(
 						$elm$json$Json$Encode$int(e.from),
 						$elm$json$Json$Encode$int(e.to),
 						$elm$json$Json$Encode$string(e.label.label),
-						$elm$json$Json$Encode$int(0),
+						$elm$json$Json$Encode$int(
+						_Utils_eq(e.label.style.labelAlignment, $author$project$ArrowStyle$Right) ? 2 : 0),
 						$elm$json$Json$Encode$object(
 						$author$project$ArrowStyle$quiverStyle(e.label.style))
 					]));
@@ -11816,109 +11817,120 @@ var $author$project$Main$clipboardWriteGraph = _Platform_outgoingPort(
 			_List_fromArray(
 				[
 					_Utils_Tuple2(
-					'edges',
-					$elm$json$Json$Encode$list(
-						function ($) {
-							return $elm$json$Json$Encode$object(
-								_List_fromArray(
-									[
-										_Utils_Tuple2(
-										'from',
-										$elm$json$Json$Encode$int($.from)),
-										_Utils_Tuple2(
-										'id',
-										$elm$json$Json$Encode$int($.id)),
-										_Utils_Tuple2(
-										'label',
+					'graph',
+					function ($) {
+						return $elm$json$Json$Encode$object(
+							_List_fromArray(
+								[
+									_Utils_Tuple2(
+									'edges',
+									$elm$json$Json$Encode$list(
 										function ($) {
 											return $elm$json$Json$Encode$object(
 												_List_fromArray(
 													[
 														_Utils_Tuple2(
-														'label',
-														$elm$json$Json$Encode$string($.label)),
+														'from',
+														$elm$json$Json$Encode$int($.from)),
 														_Utils_Tuple2(
-														'style',
+														'id',
+														$elm$json$Json$Encode$int($.id)),
+														_Utils_Tuple2(
+														'label',
 														function ($) {
 															return $elm$json$Json$Encode$object(
 																_List_fromArray(
 																	[
 																		_Utils_Tuple2(
-																		'alignment',
-																		$elm$json$Json$Encode$string($.alignment)),
+																		'label',
+																		$elm$json$Json$Encode$string($.label)),
 																		_Utils_Tuple2(
-																		'bend',
-																		$elm$json$Json$Encode$float($.bend)),
-																		_Utils_Tuple2(
-																		'dashed',
-																		$elm$json$Json$Encode$bool($.dashed)),
-																		_Utils_Tuple2(
-																		'double',
-																		$elm$json$Json$Encode$bool($._double)),
-																		_Utils_Tuple2(
-																		'head',
-																		$elm$json$Json$Encode$string($.head)),
-																		_Utils_Tuple2(
-																		'position',
-																		$elm$json$Json$Encode$float($.position)),
-																		_Utils_Tuple2(
-																		'tail',
-																		$elm$json$Json$Encode$string($.tail))
+																		'style',
+																		function ($) {
+																			return $elm$json$Json$Encode$object(
+																				_List_fromArray(
+																					[
+																						_Utils_Tuple2(
+																						'alignment',
+																						$elm$json$Json$Encode$string($.alignment)),
+																						_Utils_Tuple2(
+																						'bend',
+																						$elm$json$Json$Encode$float($.bend)),
+																						_Utils_Tuple2(
+																						'dashed',
+																						$elm$json$Json$Encode$bool($.dashed)),
+																						_Utils_Tuple2(
+																						'double',
+																						$elm$json$Json$Encode$bool($._double)),
+																						_Utils_Tuple2(
+																						'head',
+																						$elm$json$Json$Encode$string($.head)),
+																						_Utils_Tuple2(
+																						'position',
+																						$elm$json$Json$Encode$float($.position)),
+																						_Utils_Tuple2(
+																						'tail',
+																						$elm$json$Json$Encode$string($.tail))
+																					]));
+																		}($.style))
 																	]));
-														}($.style))
+														}($.label)),
+														_Utils_Tuple2(
+														'to',
+														$elm$json$Json$Encode$int($.to))
 													]));
-										}($.label)),
-										_Utils_Tuple2(
-										'to',
-										$elm$json$Json$Encode$int($.to))
-									]));
-						})($.edges)),
-					_Utils_Tuple2(
-					'latexPreamble',
-					$elm$json$Json$Encode$string($.latexPreamble)),
-					_Utils_Tuple2(
-					'nodes',
-					$elm$json$Json$Encode$list(
-						function ($) {
-							return $elm$json$Json$Encode$object(
-								_List_fromArray(
-									[
-										_Utils_Tuple2(
-										'id',
-										$elm$json$Json$Encode$int($.id)),
-										_Utils_Tuple2(
-										'label',
+										})($.edges)),
+									_Utils_Tuple2(
+									'latexPreamble',
+									$elm$json$Json$Encode$string($.latexPreamble)),
+									_Utils_Tuple2(
+									'nodes',
+									$elm$json$Json$Encode$list(
 										function ($) {
 											return $elm$json$Json$Encode$object(
 												_List_fromArray(
 													[
 														_Utils_Tuple2(
-														'isMath',
-														$elm$json$Json$Encode$bool($.isMath)),
+														'id',
+														$elm$json$Json$Encode$int($.id)),
 														_Utils_Tuple2(
 														'label',
-														$elm$json$Json$Encode$string($.label)),
-														_Utils_Tuple2(
-														'pos',
 														function ($) {
-															var a = $.a;
-															var b = $.b;
-															return A2(
-																$elm$json$Json$Encode$list,
-																$elm$core$Basics$identity,
+															return $elm$json$Json$Encode$object(
 																_List_fromArray(
 																	[
-																		$elm$json$Json$Encode$float(a),
-																		$elm$json$Json$Encode$float(b)
+																		_Utils_Tuple2(
+																		'isMath',
+																		$elm$json$Json$Encode$bool($.isMath)),
+																		_Utils_Tuple2(
+																		'label',
+																		$elm$json$Json$Encode$string($.label)),
+																		_Utils_Tuple2(
+																		'pos',
+																		function ($) {
+																			var a = $.a;
+																			var b = $.b;
+																			return A2(
+																				$elm$json$Json$Encode$list,
+																				$elm$core$Basics$identity,
+																				_List_fromArray(
+																					[
+																						$elm$json$Json$Encode$float(a),
+																						$elm$json$Json$Encode$float(b)
+																					]));
+																		}($.pos))
 																	]));
-														}($.pos))
+														}($.label))
 													]));
-										}($.label))
-									]));
-						})($.nodes)),
+										})($.nodes)),
+									_Utils_Tuple2(
+									'sizeGrid',
+									$elm$json$Json$Encode$int($.sizeGrid))
+								]));
+					}($.graph)),
 					_Utils_Tuple2(
-					'sizeGrid',
-					$elm$json$Json$Encode$int($.sizeGrid))
+					'version',
+					$elm$json$Json$Encode$int($.version))
 				]));
 	});
 var $elm$core$Basics$sqrt = _Basics_sqrt;
@@ -13223,14 +13235,6 @@ var $author$project$Polygraph$invertEdge = F2(
 				g));
 	});
 var $author$project$Main$jumpToId = _Platform_outgoingPort('jumpToId', $elm$json$Json$Encode$string);
-var $author$project$Format$GraphInfo$GraphInfo = F3(
-	function (graph, sizeGrid, latexPreamble) {
-		return {graph: graph, latexPreamble: latexPreamble, sizeGrid: sizeGrid};
-	});
-var $author$project$Format$GraphInfo$makeGraphInfo = F2(
-	function (g, s) {
-		return A3($author$project$Format$GraphInfo$GraphInfo, g, s, '');
-	});
 var $elm$core$Basics$atan = _Basics_atan;
 var $author$project$Geometry$Point$pointToAngle = function (_v0) {
 	var x = _v0.a;
@@ -13950,11 +13954,15 @@ var $author$project$Main$update_DefaultMode = F2(
 					return _Utils_Tuple2(
 						model,
 						$author$project$Main$clipboardWriteGraph(
-							$author$project$Format$LastVersion$toJSGraph(
-								A2(
-									$author$project$Format$GraphInfo$makeGraphInfo,
-									$author$project$GraphDefs$selectedGraph(model.graph),
-									model.sizeGrid))));
+							{
+								graph: $author$project$Format$LastVersion$toJSGraph(
+									{
+										graph: $author$project$GraphDefs$selectedGraph(model.graph),
+										latexPreamble: model.latexPreamble,
+										sizeGrid: model.sizeGrid
+									}),
+								version: $author$project$Format$LastVersion$version
+							}));
 				case 'EltDoubleClick':
 					var n = msg.a;
 					var e = msg.b;
