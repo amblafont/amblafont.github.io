@@ -16949,6 +16949,7 @@ var $author$project$Msg$onTabPreventDefault = A2(
 				k,
 				$author$project$HtmlDefs$Control('Tab'));
 		}));
+var $author$project$HtmlDefs$select = _Platform_outgoingPort('select', $elm$json$Json$Encode$string);
 var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
@@ -16974,10 +16975,15 @@ var $author$project$GraphDrawing$make_input = F3(
 							$elm$core$String$fromInt(
 								$elm$core$String$length(label) + 1) + 'ch')
 						]),
-					$author$project$HtmlDefs$onRendered(
-						$elm$core$Basics$always(
-							$author$project$Msg$Do(
-								$author$project$Msg$focusId($author$project$HtmlDefs$idInput))))),
+					_Utils_ap(
+						$author$project$HtmlDefs$onRendered(
+							$elm$core$Basics$always(
+								$author$project$Msg$Do(
+									$author$project$Msg$focusId($author$project$HtmlDefs$idInput)))),
+						$author$project$HtmlDefs$onRendered(
+							$elm$core$Basics$always(
+								$author$project$Msg$Do(
+									$author$project$HtmlDefs$select($author$project$HtmlDefs$idInput)))))),
 				_List_Nil));
 	});
 var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onMove = A2($mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions, 'mousemove', $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$defaultOptions);
