@@ -6000,6 +6000,10 @@ var $author$project$Msg$MouseMove = function (a) {
 var $author$project$Msg$PasteGraph = function (a) {
 	return {$: 'PasteGraph', a: a};
 };
+var $author$project$Msg$QuickInput = F2(
+	function (a, b) {
+		return {$: 'QuickInput', a: a, b: b};
+	});
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$json$Json$Decode$andThen = _Json_andThen;
 var $elm$json$Json$Decode$bool = _Json_decodeBool;
@@ -7994,6 +7998,7 @@ var $author$project$Main$onMouseMoveFromJS = _Platform_incomingPort(
 		},
 		A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)));
 var $author$project$Main$preventDefault = _Platform_outgoingPort('preventDefault', $elm$core$Basics$identity);
+var $author$project$Main$promptedEquation = _Platform_incomingPort('promptedEquation', $elm$json$Json$Decode$string);
 var $author$project$Main$savedGraph = _Platform_incomingPort('savedGraph', $elm$json$Json$Decode$string);
 var $elm$core$Result$withDefault = F2(
 	function (def, result) {
@@ -8084,6 +8089,8 @@ var $author$project$Main$subscriptions = function (m) {
 							$author$project$Msg$KeyChanged(false),
 							$author$project$HtmlDefs$keysDecoder,
 							$author$project$HtmlDefs$keyDecoder)),
+						$author$project$Main$promptedEquation(
+						$author$project$Msg$QuickInput(true)),
 						$author$project$Main$onMouseMoveFromJS($author$project$Msg$MouseMove),
 						$author$project$Main$onKeyDownActive(
 						function (e) {
@@ -13243,6 +13250,11 @@ var $author$project$Geometry$Point$pointToAngle = function (_v0) {
 		y / (x + $author$project$Geometry$Point$radius(
 			_Utils_Tuple2(x, y)))));
 };
+var $author$project$Main$promptEquation = _Platform_outgoingPort(
+	'promptEquation',
+	function ($) {
+		return $elm$json$Json$Encode$null;
+	});
 var $author$project$Main$promptFindReplace = _Platform_outgoingPort(
 	'promptFindReplace',
 	function ($) {
@@ -13931,7 +13943,7 @@ var $author$project$Main$update_DefaultMode = F2(
 						[newId]),
 					newModel));
 		};
-		_v0$38:
+		_v0$39:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseOn':
@@ -13996,7 +14008,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											model,
 											$author$project$GraphDefs$removeSelected(model.graph)));
 								default:
-									break _v0$38;
+									break _v0$39;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -14006,6 +14018,10 @@ var $author$project$Main$update_DefaultMode = F2(
 									return $author$project$Model$noCmd(
 										$author$project$Main$initialiseEnlarge(
 											$author$project$Model$pushHistory(model)));
+								case 'E':
+									return _Utils_Tuple2(
+										model,
+										$author$project$Main$promptEquation(_Utils_Tuple0));
 								case 'a':
 									var k = msg.b;
 									return (!k.ctrl) ? $author$project$Modes$NewArrow$initialise(
@@ -14187,14 +14203,14 @@ var $author$project$Main$update_DefaultMode = F2(
 									return k.ctrl ? $author$project$Model$noCmd(
 										$author$project$Model$undo(model)) : $author$project$Model$noCmd(model);
 								default:
-									break _v0$38;
+									break _v0$39;
 							}
 						}
 					} else {
-						break _v0$38;
+						break _v0$39;
 					}
 				default:
-					break _v0$38;
+					break _v0$39;
 			}
 		}
 		var _v9 = $author$project$GraphDefs$selectedEdgeId(model.graph);
@@ -15223,8 +15239,32 @@ var $elm$parser$Parser$run = F2(
 		}
 	});
 var $elm$core$Debug$toString = _Debug_toString;
+var $author$project$Msg$unfocusId = function (s) {
+	return A2(
+		$elm$core$Task$attempt,
+		function (_v0) {
+			return $author$project$Msg$noOp;
+		},
+		$elm$browser$Browser$Dom$blur(s));
+};
 var $author$project$Main$update_QuickInput = F3(
 	function (ch, msg, model) {
+		var finalRet = function (chain) {
+			return _Utils_Tuple2(
+				_Utils_update(
+					model,
+					{
+						graph: A2($author$project$Main$graphQuickInput, model, chain),
+						mode: $author$project$Modes$DefaultMode,
+						quickInput: ''
+					}),
+				$elm$core$Platform$Cmd$batch(
+					_List_fromArray(
+						[
+							$author$project$HtmlDefs$computeLayout(_Utils_Tuple0),
+							$author$project$Msg$unfocusId($author$project$HtmlDefs$quickInputId)
+						])));
+		};
 		_v0$3:
 		while (true) {
 			switch (msg.$) {
@@ -15243,15 +15283,7 @@ var $author$project$Main$update_QuickInput = F3(
 										},
 										$elm$browser$Browser$Dom$blur($author$project$HtmlDefs$quickInputId)));
 							case 'Enter':
-								return _Utils_Tuple2(
-									_Utils_update(
-										model,
-										{
-											graph: A2($author$project$Main$graphQuickInput, model, ch),
-											mode: $author$project$Modes$DefaultMode,
-											quickInput: ''
-										}),
-									$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
+								return finalRet(ch);
 							default:
 								break _v0$3;
 						}
@@ -15259,7 +15291,8 @@ var $author$project$Main$update_QuickInput = F3(
 						break _v0$3;
 					}
 				case 'QuickInput':
-					var s = msg.a;
+					var _final = msg.a;
+					var s = msg.b;
 					var _v2 = function () {
 						var _v3 = A2($elm$parser$Parser$run, $author$project$QuickInput$equalityParser, s);
 						if (_v3.$ === 'Ok') {
@@ -15276,7 +15309,7 @@ var $author$project$Main$update_QuickInput = F3(
 					}();
 					var statusMsg = _v2.a;
 					var chain = _v2.b;
-					return $author$project$Model$noCmd(
+					return _final ? finalRet(chain) : $author$project$Model$noCmd(
 						_Utils_update(
 							model,
 							{
@@ -15570,7 +15603,8 @@ var $author$project$Main$update = F2(
 						modeli,
 						{mouseOnCanvas: false});
 				case 'QuickInput':
-					var s = msg.a;
+					var _final = msg.a;
+					var s = msg.b;
 					var _v4 = A2($elm$core$Debug$log, 'coucou1!', _Utils_Tuple0);
 					return _Utils_update(
 						modeli,
@@ -15675,7 +15709,7 @@ var $author$project$Main$update = F2(
 						$author$project$Model$updateWithGraphInfo,
 						_Utils_update(
 							model,
-							{mode: $author$project$Modes$DefaultMode}),
+							{fileName: fileName, mode: $author$project$Modes$DefaultMode}),
 						g),
 					$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
 			case 'FindReplace':
@@ -17128,7 +17162,6 @@ var $author$project$Drawing$circle = F3(
 var $author$project$GraphDrawing$nodeLabelDrawing = F3(
 	function (cfg, attrs, node) {
 		var n = node.label;
-		var _v0 = A2($elm$core$Debug$log, 'pos', n.pos);
 		var id = node.id;
 		var color = $author$project$GraphDrawing$activityToColor(node.label.isActive);
 		if (n.editable) {
@@ -17839,7 +17872,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode (the basic tutorial can be completed before reading this). ' + ('Sumary of commands:\n' + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected component' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + ('\n Basic editing: ' + ('new [p]oint' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow from selected point' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + ('\nMoving objects:' + ('[g] move selected objects (also merge, if wanted)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + '(i.e., a subdiagram with an empty branch)')))))))))))))))))))))))))))))))))))))))));
+			return msg('Default mode (the basic tutorial can be completed before reading this). ' + ('Sumary of commands:\n' + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected component' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + ('\n Basic editing: ' + ('new [p]oint' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow from selected point' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow.' + ('\nMoving objects:' + ('[g] move selected objects (also merge, if wanted)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [E] enter an equation (prompt)'))))))))))))))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return makeHelpDiv(
 				$elm$core$List$singleton(
@@ -17932,9 +17965,6 @@ var $elm$html$Html$Events$onMouseUp = function (msg) {
 var $elm$html$Html$p = _VirtualDom_node('p');
 var $author$project$Main$pasteGraph = _Platform_outgoingPort('pasteGraph', $elm$core$Basics$identity);
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
-var $author$project$Msg$QuickInput = function (a) {
-	return {$: 'QuickInput', a: a};
-};
 var $author$project$Main$quickInputView = function (m) {
 	return A2(
 		$elm$html$Html$p,
@@ -17948,7 +17978,8 @@ var $author$project$Main$quickInputView = function (m) {
 					[
 						$elm$html$Html$Attributes$type_('text'),
 						$elm$html$Html$Attributes$id($author$project$HtmlDefs$quickInputId),
-						$elm$html$Html$Events$onInput($author$project$Msg$QuickInput),
+						$elm$html$Html$Events$onInput(
+						$author$project$Msg$QuickInput(false)),
 						$elm$html$Html$Attributes$value(m.quickInput)
 					]),
 				_List_Nil)
