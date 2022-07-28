@@ -5975,6 +5975,7 @@ var $author$project$Model$iniModel = function () {
 }();
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Msg$CopyGraph = {$: 'CopyGraph'};
 var $author$project$Msg$Do = function (a) {
 	return {$: 'Do', a: a};
 };
@@ -7980,6 +7981,10 @@ var $elm$browser$Browser$Events$on = F3(
 			A3($elm$browser$Browser$Events$MySub, node, name, decoder));
 	});
 var $elm$browser$Browser$Events$onClick = A2($elm$browser$Browser$Events$on, $elm$browser$Browser$Events$Document, 'click');
+var $elm$json$Json$Decode$null = _Json_decodeNull;
+var $author$project$Main$onCopy = _Platform_incomingPort(
+	'onCopy',
+	$elm$json$Json$Decode$null(_Utils_Tuple0));
 var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $author$project$Main$onKeyDownActive = _Platform_incomingPort('onKeyDownActive', $elm$json$Json$Decode$value);
 var $elm$browser$Browser$Events$onKeyUp = A2($elm$browser$Browser$Events$on, $elm$browser$Browser$Events$Document, 'keyup');
@@ -8089,6 +8094,8 @@ var $author$project$Main$subscriptions = function (m) {
 							$author$project$Msg$KeyChanged(false),
 							$author$project$HtmlDefs$keysDecoder,
 							$author$project$HtmlDefs$keyDecoder)),
+						$author$project$Main$onCopy(
+						$elm$core$Basics$always($author$project$Msg$CopyGraph)),
 						$author$project$Main$promptedEquation(
 						$author$project$Msg$QuickInput(true)),
 						$author$project$Main$onMouseMoveFromJS($author$project$Msg$MouseMove),
@@ -15762,7 +15769,6 @@ var $author$project$Main$update = F2(
 		}
 	});
 var $author$project$Msg$Clear = {$: 'Clear'};
-var $author$project$Msg$CopyGraph = {$: 'CopyGraph'};
 var $author$project$Msg$ExportQuiver = {$: 'ExportQuiver'};
 var $author$project$Msg$LatexPreambleEdit = function (a) {
 	return {$: 'LatexPreambleEdit', a: a};
@@ -18063,11 +18069,7 @@ var $author$project$Main$view = function (model) {
 				'mousedown',
 				{preventDefault: false, stopPropagation: false},
 				$author$project$Msg$MouseDown),
-				$elm$html$Html$Events$onMouseUp($author$project$Msg$MouseUp),
-				A2(
-				$elm$html$Html$Events$on,
-				'copy',
-				$elm$json$Json$Decode$succeed($author$project$Msg$CopyGraph))
+				$elm$html$Html$Events$onMouseUp($author$project$Msg$MouseUp)
 			]),
 		$author$project$Drawing$group(
 			_List_fromArray(
