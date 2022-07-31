@@ -10089,6 +10089,69 @@ var $author$project$Model$addOrSetSel = F3(
 			});
 	});
 var $author$project$GraphDefs$emptyEdge = A2($author$project$GraphDefs$newEdgeLabel, '', $author$project$ArrowStyle$empty);
+var $elm$core$Tuple$pair = F2(
+	function (a, b) {
+		return _Utils_Tuple2(a, b);
+	});
+var $author$project$IntDictExtra$getList = F2(
+	function (l, d) {
+		var d2 = A2($elm_community$intdict$IntDict$map, $elm$core$Tuple$pair, d);
+		return A2(
+			$elm$core$List$filterMap,
+			function (i) {
+				return A2($elm_community$intdict$IntDict$get, i, d2);
+			},
+			l);
+	});
+var $author$project$Polygraph$getNodes = F2(
+	function (l, _v0) {
+		var g = _v0.a;
+		return A2(
+			$elm$core$List$filterMap,
+			function (_v1) {
+				var id = _v1.a;
+				var e = _v1.b;
+				return A2(
+					$elm$core$Maybe$map,
+					$author$project$Polygraph$Node(id),
+					$author$project$Polygraph$objNode(e));
+			},
+			A2($author$project$IntDictExtra$getList, l, g));
+	});
+var $author$project$Geometry$Point$middle = F2(
+	function (_v0, _v1) {
+		var x1 = _v0.a;
+		var y1 = _v0.b;
+		var x2 = _v1.a;
+		var y2 = _v1.b;
+		return _Utils_Tuple2((x1 + x2) / 2, (y1 + y2) / 2);
+	});
+var $author$project$Modes$SplitArrow$guessPosition = F2(
+	function (m, s) {
+		var _v0 = A2(
+			$elm$core$List$map,
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.label;
+				},
+				function ($) {
+					return $.pos;
+				}),
+			A2(
+				$author$project$Polygraph$getNodes,
+				_List_fromArray(
+					[s.source, s.target]),
+				m.graph));
+		if ((_v0.b && _v0.b.b) && (!_v0.b.b.b)) {
+			var p1 = _v0.a;
+			var _v1 = _v0.b;
+			var p2 = _v1.a;
+			return A2($author$project$Geometry$Point$middle, p1, p2);
+		} else {
+			return m.mousePos;
+		}
+	});
 var $elm_community$intdict$IntDict$remove = F2(
 	function (key, dict) {
 		return A3(
@@ -10172,14 +10235,19 @@ var $author$project$Modes$SplitArrow$stateInfo = F2(
 			var makeInfo = function (pos) {
 				return A3($author$project$Model$mayCreateTargetNodeAt, m, pos, otherLabel);
 			};
-			var _v2 = state.pos;
-			if (_v2.$ === 'InputPosGraph') {
-				var id = _v2.a;
-				return _Utils_Tuple2(
-					_Utils_Tuple2(m.graph, id),
-					false);
+			if (state.guessPos) {
+				return makeInfo(
+					A2($author$project$Modes$SplitArrow$guessPosition, m, state));
 			} else {
-				return makeInfo(m.mousePos);
+				var _v2 = state.pos;
+				if (_v2.$ === 'InputPosGraph') {
+					var id = _v2.a;
+					return _Utils_Tuple2(
+						_Utils_Tuple2(m.graph, id),
+						false);
+				} else {
+					return makeInfo(m.mousePos);
+				}
 			}
 		}();
 		var _v1 = _v0.a;
@@ -10258,6 +10326,9 @@ var $author$project$Modes$SplitArrow$update = F3(
 					mode: $author$project$Modes$SplitArrow(st)
 				});
 		};
+		var updatePos = function (st) {
+			return A2($author$project$InputPosition$updateNoKeyboard, st.pos, msg);
+		};
 		_v0$5:
 		while (true) {
 			switch (msg.$) {
@@ -10294,13 +10365,25 @@ var $author$project$Modes$SplitArrow$update = F3(
 					break _v0$5;
 			}
 		}
+		var newPos = A2($author$project$InputPosition$updateNoKeyboard, state.pos, msg);
+		var guessPos = function () {
+			var _v1 = _Utils_Tuple2(msg, newPos);
+			if (_v1.a.$ === 'MouseMove') {
+				return false;
+			} else {
+				if (_v1.b.$ === 'InputPosMouse') {
+					var _v2 = _v1.b;
+					return state.guessPos;
+				} else {
+					return false;
+				}
+			}
+		}();
 		return $author$project$Model$noCmd(
 			updateState(
 				_Utils_update(
 					state,
-					{
-						pos: A2($author$project$InputPosition$updateNoKeyboard, state.pos, msg)
-					})));
+					{guessPos: guessPos, pos: newPos})));
 	});
 var $author$project$Modes$SquareMode = function (a) {
 	return {$: 'SquareMode', a: a};
@@ -10366,6 +10449,41 @@ var $elm_community$list_extra$List$Extra$getAt = F2(
 		return (idx < 0) ? $elm$core$Maybe$Nothing : $elm$core$List$head(
 			A2($elm$core$List$drop, idx, xs));
 	});
+var $author$project$Geometry$Point$diamondPave = F3(
+	function (p1, p2, p3) {
+		return A2(
+			$author$project$Geometry$Point$add,
+			p1,
+			A2($author$project$Geometry$Point$subtract, p3, p2));
+	});
+var $author$project$Modes$Square$guessPosition = F2(
+	function (m, s) {
+		var _v0 = A2(
+			$elm$core$List$map,
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.label;
+				},
+				function ($) {
+					return $.pos;
+				}),
+			A2(
+				$author$project$Polygraph$getNodes,
+				_List_fromArray(
+					[s.n1, s.chosenNode, s.n2]),
+				m.graph));
+		if (((_v0.b && _v0.b.b) && _v0.b.b.b) && (!_v0.b.b.b.b)) {
+			var p1 = _v0.a;
+			var _v1 = _v0.b;
+			var p2 = _v1.a;
+			var _v2 = _v1.b;
+			var p3 = _v2.a;
+			return A3($author$project$Geometry$Point$diamondPave, p1, p2, p3);
+		} else {
+			return m.mousePos;
+		}
+	});
 var $elm$core$List$isEmpty = function (xs) {
 	if (!xs.b) {
 		return true;
@@ -10376,10 +10494,6 @@ var $elm$core$List$isEmpty = function (xs) {
 var $author$project$Modes$Square$makeEdges = F3(
 	function (data, ne1, ne2) {
 		return {e1: data.e1.id, e2: data.e2.id, ne1: ne1, ne2: ne2};
-	});
-var $author$project$Model$mayCreateTargetNode = F2(
-	function (m, s) {
-		return A3($author$project$Model$mayCreateTargetNodeAt, m, m.mousePos, s);
 	});
 var $author$project$Modes$Square$nToMoved = F2(
 	function (nToChosen, otherNToChosen) {
@@ -11105,7 +11219,8 @@ var $author$project$Modes$Square$moveNodeViewInfo = F2(
 		var labelNode = _v0.a;
 		var labelEdge1 = _v0.b;
 		var labelEdge2 = _v0.c;
-		var _v4 = A2($author$project$Model$mayCreateTargetNode, m, labelNode);
+		var newPos = data.guessPos ? A2($author$project$Modes$Square$guessPosition, m, data) : m.mousePos;
+		var _v4 = A3($author$project$Model$mayCreateTargetNodeAt, m, newPos, labelNode);
 		var _v5 = _v4.a;
 		var g = _v5.a;
 		var n = _v5.b;
@@ -11290,7 +11405,7 @@ var $author$project$Modes$Square$possibleSquareStates = F2(
 				var l2 = _v4.a;
 				var n2 = _v4.b;
 				var i2 = _v3.c;
-				return {chosenLabel: chosenLabel, chosenNode: id, configuration: 0, e1: e1, e2: e2, labelConfiguration: 0, n1: n1, n1Label: l1, n1ToChosen: i1, n2: n2, n2Label: l2, n2ToChosen: i2};
+				return {chosenLabel: chosenLabel, chosenNode: id, configuration: 0, e1: e1, e2: e2, guessPos: false, labelConfiguration: 0, n1: n1, n1Label: l1, n1ToChosen: i1, n2: n2, n2Label: l2, n2ToChosen: i2};
 			},
 			$elm_community$list_extra$List$Extra$uniquePairs(
 				_Utils_ap(ins, outs)));
@@ -11312,8 +11427,8 @@ var $author$project$Modes$Square$square_setPossibility = F3(
 			},
 			A2($elm_community$list_extra$List$Extra$getAt, idx, possibilities));
 	});
-var $author$project$Modes$Square$square_updatePossibility = F3(
-	function (m, idx, node) {
+var $author$project$Modes$Square$square_updatePossibility = F4(
+	function (m, idx, guessPos, node) {
 		return $author$project$Model$noCmd(
 			A2(
 				$elm$core$Maybe$withDefault,
@@ -11324,7 +11439,10 @@ var $author$project$Modes$Square$square_updatePossibility = F3(
 						return _Utils_update(
 							m,
 							{
-								mode: $author$project$Modes$SquareMode(state)
+								mode: $author$project$Modes$SquareMode(
+									_Utils_update(
+										state,
+										{guessPos: guessPos}))
 							});
 					},
 					A3($author$project$Modes$Square$square_setPossibility, idx, m.graph, node))));
@@ -11334,17 +11452,27 @@ var $author$project$Modes$Square$update = F3(
 		var next = function (finish) {
 			return A3($author$project$Modes$Square$nextStep, model, finish, state);
 		};
-		_v0$6:
+		_v0$7:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseClick':
 					return next(false);
+				case 'MouseMove':
+					return $author$project$Model$noCmd(
+						_Utils_update(
+							model,
+							{
+								mode: $author$project$Modes$SquareMode(
+									_Utils_update(
+										state,
+										{guessPos: false}))
+							}));
 				case 'KeyChanged':
 					if (!msg.a) {
 						if (msg.c.$ === 'Character') {
 							switch (msg.c.a.valueOf()) {
 								case 's':
-									return A3($author$project$Modes$Square$square_updatePossibility, model, state.configuration, state.chosenNode);
+									return A4($author$project$Modes$Square$square_updatePossibility, model, state.configuration, state.guessPos, state.chosenNode);
 								case 'a':
 									return $author$project$Model$noCmd(
 										_Utils_update(
@@ -11356,7 +11484,7 @@ var $author$project$Modes$Square$update = F3(
 														{labelConfiguration: state.labelConfiguration + 1}))
 											}));
 								default:
-									break _v0$6;
+									break _v0$7;
 							}
 						} else {
 							switch (msg.c.a) {
@@ -11367,14 +11495,14 @@ var $author$project$Modes$Square$update = F3(
 								case 'Tab':
 									return next(false);
 								default:
-									break _v0$6;
+									break _v0$7;
 							}
 						}
 					} else {
-						break _v0$6;
+						break _v0$7;
 					}
 				default:
-					break _v0$6;
+					break _v0$7;
 			}
 		}
 		return $author$project$Model$noCmd(model);
@@ -11395,14 +11523,6 @@ var $author$project$Model$updateWithGraphInfo = F2(
 		return _Utils_update(
 			m,
 			{graph: graph, latexPreamble: latexPreamble, sizeGrid: sizeGrid});
-	});
-var $author$project$Geometry$Point$middle = F2(
-	function (_v0, _v1) {
-		var x1 = _v0.a;
-		var y1 = _v0.b;
-		var x2 = _v1.a;
-		var y2 = _v1.b;
-		return _Utils_Tuple2((x1 + x2) / 2, (y1 + y2) / 2);
 	});
 var $author$project$Geometry$centerRect = function (_v0) {
 	var bottomRight = _v0.bottomRight;
@@ -12444,10 +12564,6 @@ var $author$project$ListExtraExtra$permute = function (l) {
 				[t]));
 	}
 };
-var $elm$core$Tuple$pair = F2(
-	function (a, b) {
-		return _Utils_Tuple2(a, b);
-	});
 var $elm_community$list_extra$List$Extra$zip = $elm$core$List$map2($elm$core$Tuple$pair);
 var $author$project$ListExtraExtra$succCyclePairs = function (l) {
 	var _v0 = A2(
@@ -13146,7 +13262,7 @@ var $author$project$Modes$SplitArrow$initialise = function (m) {
 							m,
 							{
 								mode: $author$project$Modes$SplitArrow(
-									{chosenEdge: id, label: e.label, labelOnSource: true, pos: $author$project$InputPosition$InputPosMouse, source: e.from, target: e.to})
+									{chosenEdge: id, guessPos: true, label: e.label, labelOnSource: true, pos: $author$project$InputPosition$InputPosMouse, source: e.from, target: e.to})
 							}));
 				},
 				A2($author$project$Polygraph$getEdge, id, m.graph)));
@@ -13172,7 +13288,7 @@ var $author$project$Modes$Square$initialise = function (m) {
 				function ($) {
 					return $.id;
 				},
-				A2($author$project$Modes$Square$square_updatePossibility, m, 0)),
+				A3($author$project$Modes$Square$square_updatePossibility, m, 0, true)),
 			$author$project$GraphDefs$selectedNode(m.graph)));
 };
 var $author$project$Modes$EnlargeMode = function (a) {
@@ -13629,31 +13745,6 @@ var $author$project$Main$selectLoop = F2(
 							}),
 						edges))
 			});
-	});
-var $author$project$IntDictExtra$getList = F2(
-	function (l, d) {
-		var d2 = A2($elm_community$intdict$IntDict$map, $elm$core$Tuple$pair, d);
-		return A2(
-			$elm$core$List$filterMap,
-			function (i) {
-				return A2($elm_community$intdict$IntDict$get, i, d2);
-			},
-			l);
-	});
-var $author$project$Polygraph$getNodes = F2(
-	function (l, _v0) {
-		var g = _v0.a;
-		return A2(
-			$elm$core$List$filterMap,
-			function (_v1) {
-				var id = _v1.a;
-				var e = _v1.b;
-				return A2(
-					$elm$core$Maybe$map,
-					$author$project$Polygraph$Node(id),
-					$author$project$Polygraph$objNode(e));
-			},
-			A2($author$project$IntDictExtra$getList, l, g));
 	});
 var $elm$core$List$sum = function (numbers) {
 	return A3($elm$core$List$foldl, $elm$core$Basics$add, 0, numbers);
@@ -15409,12 +15500,18 @@ var $author$project$Main$next_RenameMode = F3(
 					m2,
 					{mode: $author$project$Modes$DefaultMode});
 			} else {
-				var q = labels.b;
-				return _Utils_update(
-					m2,
-					{
-						mode: $author$project$Modes$RenameMode(q)
-					});
+				if (!labels.b.b) {
+					return _Utils_update(
+						m2,
+						{mode: $author$project$Modes$DefaultMode});
+				} else {
+					var q = labels.b;
+					return _Utils_update(
+						m2,
+						{
+							mode: $author$project$Modes$RenameMode(q)
+						});
+				}
 			}
 		}
 	});
