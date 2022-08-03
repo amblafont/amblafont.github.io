@@ -15702,14 +15702,14 @@ var $author$project$Main$update = F2(
 						modeli,
 						{specialKeys: e.keys});
 				case 'MouseLeaveCanvas':
-					var _v3 = A2($elm$core$Debug$log, 'mouseleave', _Utils_Tuple0);
+					var _v4 = A2($elm$core$Debug$log, 'mouseleave', _Utils_Tuple0);
 					return _Utils_update(
 						modeli,
 						{mouseOnCanvas: false});
 				case 'QuickInput':
 					var _final = msg.a;
 					var s = msg.b;
-					var _v4 = A2($elm$core$Debug$log, 'coucou1!', _Utils_Tuple0);
+					var _v5 = A2($elm$core$Debug$log, 'coucou1!', _Utils_Tuple0);
 					return _Utils_update(
 						modeli,
 						{
@@ -15766,7 +15766,12 @@ var $author$project$Main$update = F2(
 					$author$project$Main$onMouseMove(v));
 			case 'NodeRendered':
 				var n = msg.a;
-				var dims = msg.b;
+				var _v1 = msg.b;
+				var x = _v1.a;
+				var y = _v1.b;
+				var dims = _Utils_Tuple2(
+					x,
+					(!y) ? 12 : y);
 				return $author$project$Model$noCmd(
 					_Utils_update(
 						model,
@@ -15824,43 +15829,43 @@ var $author$project$Main$update = F2(
 						model,
 						A2($author$project$GraphDefs$findReplaceInSelected, model.graph, req)));
 			default:
-				var _v1 = model.mode;
-				switch (_v1.$) {
+				var _v2 = model.mode;
+				switch (_v2.$) {
 					case 'QuickInputMode':
-						var c = _v1.a;
+						var c = _v2.a;
 						return A3($author$project$Main$update_QuickInput, c, msg, model);
 					case 'DefaultMode':
 						return A2($author$project$Main$update_DefaultMode, msg, model);
 					case 'RectSelect':
-						var orig = _v1.a;
+						var orig = _v2.a;
 						return A4($author$project$Main$update_RectSelect, msg, orig, model.specialKeys.shift, model);
 					case 'EnlargeMode':
-						var state = _v1.a;
+						var state = _v2.a;
 						return A3($author$project$Main$update_Enlarge, msg, state, model);
 					case 'NewArrow':
-						var astate = _v1.a;
+						var astate = _v2.a;
 						return A3($author$project$Modes$NewArrow$update, astate, msg, model);
 					case 'RenameMode':
-						var l = _v1.a;
+						var l = _v2.a;
 						return A3($author$project$Main$update_RenameMode, l, msg, model);
 					case 'Move':
-						var s = _v1.a;
+						var s = _v2.a;
 						return A3($author$project$Main$update_MoveNode, msg, s, model);
 					case 'DebugMode':
 						return A2($author$project$Main$update_DebugMode, msg, model);
 					case 'SquareMode':
-						var state = _v1.a;
+						var state = _v2.a;
 						return A3($author$project$Modes$Square$update, state, msg, model);
 					case 'SplitArrow':
-						var state = _v1.a;
+						var state = _v2.a;
 						return A3($author$project$Modes$SplitArrow$update, state, msg, model);
 					case 'CutHead':
-						var state = _v1.a;
+						var state = _v2.a;
 						return A3($author$project$Main$update_CutHead, state, msg, model);
 					case 'CloneMode':
 						return A2($author$project$Main$update_Clone, msg, model);
 					default:
-						var s = _v1.a;
+						var s = _v2.a;
 						return A3($author$project$Main$update_Resize, s, msg, model);
 				}
 		}
