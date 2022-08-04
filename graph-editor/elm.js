@@ -8695,13 +8695,21 @@ var $author$project$ArrowStyle$quiverStyle = function (st) {
 					'style',
 					$elm$json$Json$Encode$object(style))
 				]),
-			A2(
-				makeIf,
-				!(!st.bend),
-				_Utils_Tuple2(
-					'curve',
-					$elm$json$Json$Encode$int(
-						$elm$core$Basics$floor(st.bend * 10))))));
+			_Utils_ap(
+				A2(
+					makeIf,
+					!(!st.bend),
+					_Utils_Tuple2(
+						'curve',
+						$elm$json$Json$Encode$int(
+							$elm$core$Basics$floor(st.bend * 10)))),
+				A2(
+					makeIf,
+					st.labelPosition !== 0.5,
+					_Utils_Tuple2(
+						'label_position',
+						$elm$json$Json$Encode$int(
+							$elm$core$Basics$floor(st.labelPosition * 100)))))));
 };
 var $author$project$GraphDefs$exportQuiver = F2(
 	function (sizeGrid, g) {
@@ -15702,14 +15710,14 @@ var $author$project$Main$update = F2(
 						modeli,
 						{specialKeys: e.keys});
 				case 'MouseLeaveCanvas':
-					var _v4 = A2($elm$core$Debug$log, 'mouseleave', _Utils_Tuple0);
+					var _v5 = A2($elm$core$Debug$log, 'mouseleave', _Utils_Tuple0);
 					return _Utils_update(
 						modeli,
 						{mouseOnCanvas: false});
 				case 'QuickInput':
 					var _final = msg.a;
 					var s = msg.b;
-					var _v5 = A2($elm$core$Debug$log, 'coucou1!', _Utils_Tuple0);
+					var _v6 = A2($elm$core$Debug$log, 'coucou1!', _Utils_Tuple0);
 					return _Utils_update(
 						modeli,
 						{
@@ -15790,7 +15798,12 @@ var $author$project$Main$update = F2(
 						}));
 			case 'EdgeRendered':
 				var e = msg.a;
-				var dims = msg.b;
+				var _v2 = msg.b;
+				var x = _v2.a;
+				var y = _v2.b;
+				var dims = _Utils_Tuple2(
+					x,
+					(!y) ? 12 : y);
 				return $author$project$Model$noCmd(
 					_Utils_update(
 						model,
@@ -15829,43 +15842,43 @@ var $author$project$Main$update = F2(
 						model,
 						A2($author$project$GraphDefs$findReplaceInSelected, model.graph, req)));
 			default:
-				var _v2 = model.mode;
-				switch (_v2.$) {
+				var _v3 = model.mode;
+				switch (_v3.$) {
 					case 'QuickInputMode':
-						var c = _v2.a;
+						var c = _v3.a;
 						return A3($author$project$Main$update_QuickInput, c, msg, model);
 					case 'DefaultMode':
 						return A2($author$project$Main$update_DefaultMode, msg, model);
 					case 'RectSelect':
-						var orig = _v2.a;
+						var orig = _v3.a;
 						return A4($author$project$Main$update_RectSelect, msg, orig, model.specialKeys.shift, model);
 					case 'EnlargeMode':
-						var state = _v2.a;
+						var state = _v3.a;
 						return A3($author$project$Main$update_Enlarge, msg, state, model);
 					case 'NewArrow':
-						var astate = _v2.a;
+						var astate = _v3.a;
 						return A3($author$project$Modes$NewArrow$update, astate, msg, model);
 					case 'RenameMode':
-						var l = _v2.a;
+						var l = _v3.a;
 						return A3($author$project$Main$update_RenameMode, l, msg, model);
 					case 'Move':
-						var s = _v2.a;
+						var s = _v3.a;
 						return A3($author$project$Main$update_MoveNode, msg, s, model);
 					case 'DebugMode':
 						return A2($author$project$Main$update_DebugMode, msg, model);
 					case 'SquareMode':
-						var state = _v2.a;
+						var state = _v3.a;
 						return A3($author$project$Modes$Square$update, state, msg, model);
 					case 'SplitArrow':
-						var state = _v2.a;
+						var state = _v3.a;
 						return A3($author$project$Modes$SplitArrow$update, state, msg, model);
 					case 'CutHead':
-						var state = _v2.a;
+						var state = _v3.a;
 						return A3($author$project$Main$update_CutHead, state, msg, model);
 					case 'CloneMode':
 						return A2($author$project$Main$update_Clone, msg, model);
 					default:
-						var s = _v2.a;
+						var s = _v3.a;
 						return A3($author$project$Main$update_Resize, s, msg, model);
 				}
 		}
