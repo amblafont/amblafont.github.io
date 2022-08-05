@@ -11413,7 +11413,7 @@ var $author$project$Modes$Square$possibleSquareStates = F2(
 				var l2 = _v4.a;
 				var n2 = _v4.b;
 				var i2 = _v3.c;
-				return {chosenLabel: chosenLabel, chosenNode: id, configuration: 0, e1: e1, e2: e2, guessPos: false, labelConfiguration: 0, n1: n1, n1Label: l1, n1ToChosen: i1, n2: n2, n2Label: l2, n2ToChosen: i2};
+				return {chosenLabel: chosenLabel, chosenNode: id, configuration: 0, e1: e1, e2: e2, guessPos: true, labelConfiguration: 0, n1: n1, n1Label: l1, n1ToChosen: i1, n2: n2, n2Label: l2, n2ToChosen: i2};
 			},
 			$elm_community$list_extra$List$Extra$uniquePairs(
 				_Utils_ap(ins, outs)));
@@ -11435,8 +11435,8 @@ var $author$project$Modes$Square$square_setPossibility = F3(
 			},
 			A2($elm_community$list_extra$List$Extra$getAt, idx, possibilities));
 	});
-var $author$project$Modes$Square$square_updatePossibility = F4(
-	function (m, idx, guessPos, node) {
+var $author$project$Modes$Square$square_updatePossibility = F3(
+	function (m, idx, node) {
 		return $author$project$Model$noCmd(
 			A2(
 				$elm$core$Maybe$withDefault,
@@ -11447,10 +11447,7 @@ var $author$project$Modes$Square$square_updatePossibility = F4(
 						return _Utils_update(
 							m,
 							{
-								mode: $author$project$Modes$SquareMode(
-									_Utils_update(
-										state,
-										{guessPos: guessPos}))
+								mode: $author$project$Modes$SquareMode(state)
 							});
 					},
 					A3($author$project$Modes$Square$square_setPossibility, idx, m.graph, node))));
@@ -11480,7 +11477,7 @@ var $author$project$Modes$Square$update = F3(
 						if (msg.c.$ === 'Character') {
 							switch (msg.c.a.valueOf()) {
 								case 's':
-									return A4($author$project$Modes$Square$square_updatePossibility, model, state.configuration, state.guessPos, state.chosenNode);
+									return A3($author$project$Modes$Square$square_updatePossibility, model, state.configuration, state.chosenNode);
 								case 'a':
 									return $author$project$Model$noCmd(
 										_Utils_update(
@@ -13296,7 +13293,7 @@ var $author$project$Modes$Square$initialise = function (m) {
 				function ($) {
 					return $.id;
 				},
-				A3($author$project$Modes$Square$square_updatePossibility, m, 0, true)),
+				A2($author$project$Modes$Square$square_updatePossibility, m, 0)),
 			$author$project$GraphDefs$selectedNode(m.graph)));
 };
 var $author$project$Modes$EnlargeMode = function (a) {
