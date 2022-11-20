@@ -9618,6 +9618,21 @@ var $author$project$GraphDefs$getNodeDims = function (n) {
 		return p;
 	}
 };
+var $author$project$Geometry$Point$resize = F2(
+	function (s, _v0) {
+		var x1 = _v0.a;
+		var y1 = _v0.b;
+		return _Utils_Tuple2(x1 * s, y1 * s);
+	});
+var $author$project$GraphDefs$getNodePos = function (n) {
+	return n.isMath ? n.pos : A2(
+		$author$project$Geometry$Point$add,
+		n.pos,
+		A2(
+			$author$project$Geometry$Point$resize,
+			0.5,
+			$author$project$GraphDefs$getNodeDims(n)));
+};
 var $author$project$Geometry$isInRect = F2(
 	function (_v0, _v1) {
 		var topLeft = _v0.topLeft;
@@ -9635,12 +9650,6 @@ var $author$project$Geometry$isInRect = F2(
 var $author$project$Geometry$Rect = F2(
 	function (topLeft, bottomRight) {
 		return {bottomRight: bottomRight, topLeft: topLeft};
-	});
-var $author$project$Geometry$Point$resize = F2(
-	function (s, _v0) {
-		var x1 = _v0.a;
-		var y1 = _v0.b;
-		return _Utils_Tuple2(x1 * s, y1 * s);
 	});
 var $author$project$Geometry$Point$subtract = F2(
 	function (_v0, _v1) {
@@ -9681,7 +9690,7 @@ var $author$project$GraphDefs$getNodesAt = F2(
 						$author$project$Geometry$isInPosDims,
 						{
 							dims: $author$project$GraphDefs$getNodeDims(n),
-							pos: n.pos
+							pos: $author$project$GraphDefs$getNodePos(n)
 						},
 						p);
 				}));
@@ -17372,7 +17381,7 @@ var $author$project$GraphDrawing$nodeLabelDrawing = F3(
 		if (n.editable) {
 			return A3(
 				$author$project$GraphDrawing$make_input,
-				n.pos,
+				n.inputPos,
 				n.label,
 				$author$project$Msg$NodeLabelEdit(id));
 		} else {
@@ -17391,7 +17400,7 @@ var $author$project$GraphDrawing$nodeLabelDrawing = F3(
 					$author$project$Drawing$htmlAnchor,
 					n.pos,
 					n.dims,
-					n.isMath,
+					true,
 					A2(
 						$author$project$HtmlDefs$makeLatex,
 						_Utils_ap(
@@ -17656,13 +17665,15 @@ var $author$project$GraphDrawing$make_nodeDrawingLabel = F2(
 		var label = l.label;
 		var pos = l.pos;
 		var isMath = l.isMath;
+		var nodePos = $author$project$GraphDefs$getNodePos(l);
 		return {
 			dims: $author$project$GraphDefs$getNodeDims(l),
 			editable: editable,
+			inputPos: pos,
 			isActive: isActive,
 			isMath: isMath,
 			label: label,
-			pos: pos
+			pos: nodePos
 		};
 	});
 var $author$project$GraphDrawing$toDrawingGraph = function () {
@@ -18303,7 +18314,8 @@ var $author$project$Main$view = function (model) {
 				$elm$html$Html$button,
 				_List_fromArray(
 					[
-						$elm$html$Html$Events$onClick($author$project$Msg$Save)
+						$elm$html$Html$Events$onClick($author$project$Msg$Save),
+						$elm$html$Html$Attributes$id('save-button')
 					]),
 				_List_fromArray(
 					[
