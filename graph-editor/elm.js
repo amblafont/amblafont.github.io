@@ -6077,11 +6077,11 @@ var $author$project$Main$clipboardGraph = _Platform_incomingPort(
 																			function (label) {
 																				return A2(
 																					$elm$json$Json$Decode$andThen,
-																					function (isPullback) {
+																					function (isPullshout) {
 																						return $elm$json$Json$Decode$succeed(
-																							{isPullback: isPullback, label: label, style: style, zindex: zindex});
+																							{isPullshout: isPullshout, label: label, style: style, zindex: zindex});
 																					},
-																					A2($elm$json$Json$Decode$field, 'isPullback', $elm$json$Json$Decode$bool));
+																					A2($elm$json$Json$Decode$field, 'isPullshout', $elm$json$Json$Decode$bool));
 																			},
 																			A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																	},
@@ -6661,7 +6661,7 @@ var $author$project$Polygraph$map = F2(
 						fe(i));
 				}));
 	});
-var $author$project$GraphDefs$PullbackEdge = {$: 'PullbackEdge'};
+var $author$project$GraphDefs$PullshoutEdge = {$: 'PullshoutEdge'};
 var $author$project$ArrowStyle$Centre = {$: 'Centre'};
 var $author$project$ArrowStyle$Over = {$: 'Over'};
 var $author$project$ArrowStyle$Right = {$: 'Right'};
@@ -6705,13 +6705,13 @@ var $author$project$ArrowStyle$tailFromString = function (tail) {
 			return $author$project$ArrowStyle$DefaultTail;
 	}
 };
-var $author$project$Format$Version7$toEdgeLabel = function (_v0) {
+var $author$project$Format$Version8$toEdgeLabel = function (_v0) {
 	var label = _v0.label;
 	var style = _v0.style;
-	var isPullback = _v0.isPullback;
+	var isPullshout = _v0.isPullshout;
 	var zindex = _v0.zindex;
 	return {
-		details: isPullback ? $author$project$GraphDefs$PullbackEdge : $author$project$GraphDefs$NormalEdge(
+		details: isPullshout ? $author$project$GraphDefs$PullshoutEdge : $author$project$GraphDefs$NormalEdge(
 			{
 				dims: $elm$core$Maybe$Nothing,
 				label: label,
@@ -6733,13 +6733,13 @@ var $author$project$Format$Version7$toEdgeLabel = function (_v0) {
 		zindex: zindex
 	};
 };
-var $author$project$Format$Version7$toNodeLabel = function (_v0) {
+var $author$project$Format$Version8$toNodeLabel = function (_v0) {
 	var pos = _v0.pos;
 	var label = _v0.label;
 	var isMath = _v0.isMath;
 	return {dims: $elm$core$Maybe$Nothing, isMath: isMath, label: label, pos: pos, selected: false, weaklySelected: false};
 };
-var $author$project$Format$Version7$fromJSGraph = function (_v0) {
+var $author$project$Format$Version8$fromJSGraph = function (_v0) {
 	var nodes = _v0.nodes;
 	var edges = _v0.edges;
 	var sizeGrid = _v0.sizeGrid;
@@ -6748,17 +6748,17 @@ var $author$project$Format$Version7$fromJSGraph = function (_v0) {
 		graph: A3(
 			$author$project$Polygraph$map,
 			function (_v1) {
-				return $author$project$Format$Version7$toNodeLabel;
+				return $author$project$Format$Version8$toNodeLabel;
 			},
 			function (_v2) {
-				return $author$project$Format$Version7$toEdgeLabel;
+				return $author$project$Format$Version8$toEdgeLabel;
 			},
 			A2($author$project$Polygraph$fromNodesAndEdges, nodes, edges)),
 		latexPreamble: latexPreamble,
 		sizeGrid: sizeGrid
 	};
 };
-var $author$project$Format$LastVersion$fromJSGraph = $author$project$Format$Version7$fromJSGraph;
+var $author$project$Format$LastVersion$fromJSGraph = $author$project$Format$Version8$fromJSGraph;
 var $author$project$Polygraph$edgeMap = F2(
 	function (f, _v0) {
 		var id = _v0.id;
@@ -6772,6 +6772,31 @@ var $author$project$Polygraph$edgeMap = F2(
 			to: to
 		};
 	});
+var $author$project$Format$Version7$toNextEdge = function (_v0) {
+	var label = _v0.label;
+	var style = _v0.style;
+	var isPullback = _v0.isPullback;
+	return {isPullshout: isPullback, label: label, style: style, zindex: 0};
+};
+var $author$project$Format$Version7$toNextVersion = function (_v0) {
+	var nodes = _v0.nodes;
+	var edges = _v0.edges;
+	var sizeGrid = _v0.sizeGrid;
+	var latexPreamble = _v0.latexPreamble;
+	return {
+		edges: A2(
+			$elm$core$List$map,
+			$author$project$Polygraph$edgeMap($author$project$Format$Version7$toNextEdge),
+			edges),
+		latexPreamble: latexPreamble,
+		nodes: nodes,
+		sizeGrid: sizeGrid
+	};
+};
+var $author$project$Format$Version7$fromJSGraph = function (g) {
+	return $author$project$Format$Version8$fromJSGraph(
+		$author$project$Format$Version7$toNextVersion(g));
+};
 var $author$project$Format$Version6$toNextEdge = function (_v0) {
 	var label = _v0.label;
 	var style = _v0.style;
@@ -8235,6 +8260,185 @@ var $author$project$Main$loadedGraph7 = _Platform_incomingPort(
 						A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int))));
 		},
 		A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string)));
+var $author$project$Main$loadedGraph8 = _Platform_incomingPort(
+	'loadedGraph8',
+	A2(
+		$elm$json$Json$Decode$andThen,
+		function (scenario) {
+			return A2(
+				$elm$json$Json$Decode$andThen,
+				function (graph) {
+					return A2(
+						$elm$json$Json$Decode$andThen,
+						function (fileName) {
+							return $elm$json$Json$Decode$succeed(
+								{fileName: fileName, graph: graph, scenario: scenario});
+						},
+						A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+				},
+				A2(
+					$elm$json$Json$Decode$field,
+					'graph',
+					A2(
+						$elm$json$Json$Decode$andThen,
+						function (sizeGrid) {
+							return A2(
+								$elm$json$Json$Decode$andThen,
+								function (nodes) {
+									return A2(
+										$elm$json$Json$Decode$andThen,
+										function (latexPreamble) {
+											return A2(
+												$elm$json$Json$Decode$andThen,
+												function (edges) {
+													return $elm$json$Json$Decode$succeed(
+														{edges: edges, latexPreamble: latexPreamble, nodes: nodes, sizeGrid: sizeGrid});
+												},
+												A2(
+													$elm$json$Json$Decode$field,
+													'edges',
+													$elm$json$Json$Decode$list(
+														A2(
+															$elm$json$Json$Decode$andThen,
+															function (to) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (label) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (id) {
+																				return A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (from) {
+																						return $elm$json$Json$Decode$succeed(
+																							{from: from, id: id, label: label, to: to});
+																					},
+																					A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																			},
+																			A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																	},
+																	A2(
+																		$elm$json$Json$Decode$field,
+																		'label',
+																		A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (zindex) {
+																				return A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (style) {
+																						return A2(
+																							$elm$json$Json$Decode$andThen,
+																							function (label) {
+																								return A2(
+																									$elm$json$Json$Decode$andThen,
+																									function (isPullshout) {
+																										return $elm$json$Json$Decode$succeed(
+																											{isPullshout: isPullshout, label: label, style: style, zindex: zindex});
+																									},
+																									A2($elm$json$Json$Decode$field, 'isPullshout', $elm$json$Json$Decode$bool));
+																							},
+																							A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																					},
+																					A2(
+																						$elm$json$Json$Decode$field,
+																						'style',
+																						A2(
+																							$elm$json$Json$Decode$andThen,
+																							function (tail) {
+																								return A2(
+																									$elm$json$Json$Decode$andThen,
+																									function (position) {
+																										return A2(
+																											$elm$json$Json$Decode$andThen,
+																											function (head) {
+																												return A2(
+																													$elm$json$Json$Decode$andThen,
+																													function (_double) {
+																														return A2(
+																															$elm$json$Json$Decode$andThen,
+																															function (dashed) {
+																																return A2(
+																																	$elm$json$Json$Decode$andThen,
+																																	function (bend) {
+																																		return A2(
+																																			$elm$json$Json$Decode$andThen,
+																																			function (alignment) {
+																																				return $elm$json$Json$Decode$succeed(
+																																					{alignment: alignment, bend: bend, dashed: dashed, _double: _double, head: head, position: position, tail: tail});
+																																			},
+																																			A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
+																																	},
+																																	A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
+																															},
+																															A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
+																													},
+																													A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
+																											},
+																											A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
+																									},
+																									A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
+																							},
+																							A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))));
+																			},
+																			A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
+															},
+															A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+										},
+										A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
+								},
+								A2(
+									$elm$json$Json$Decode$field,
+									'nodes',
+									$elm$json$Json$Decode$list(
+										A2(
+											$elm$json$Json$Decode$andThen,
+											function (label) {
+												return A2(
+													$elm$json$Json$Decode$andThen,
+													function (id) {
+														return $elm$json$Json$Decode$succeed(
+															{id: id, label: label});
+													},
+													A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+											},
+											A2(
+												$elm$json$Json$Decode$field,
+												'label',
+												A2(
+													$elm$json$Json$Decode$andThen,
+													function (pos) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (label) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (isMath) {
+																		return $elm$json$Json$Decode$succeed(
+																			{isMath: isMath, label: label, pos: pos});
+																	},
+																	A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+															},
+															A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+													},
+													A2(
+														$elm$json$Json$Decode$field,
+														'pos',
+														A2(
+															$elm$json$Json$Decode$andThen,
+															function (_v0) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (_v1) {
+																		return $elm$json$Json$Decode$succeed(
+																			_Utils_Tuple2(_v0, _v1));
+																	},
+																	A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+															},
+															A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
+						},
+						A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int))));
+		},
+		A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string)));
 var $author$project$Msg$mapLoadGraphInfo = F2(
 	function (f, _v0) {
 		var graph = _v0.graph;
@@ -8529,6 +8733,11 @@ var $author$project$Main$subscriptions = function (m) {
 						$elm$core$Basics$composeR,
 						$author$project$Msg$mapLoadGraphInfo($author$project$Format$Version7$fromJSGraph),
 						$author$project$Msg$Loaded)),
+					$author$project$Main$loadedGraph8(
+					A2(
+						$elm$core$Basics$composeR,
+						$author$project$Msg$mapLoadGraphInfo($author$project$Format$Version8$fromJSGraph),
+						$author$project$Msg$Loaded)),
 					$author$project$Main$clipboardGraph(
 					A2($elm$core$Basics$composeR, $author$project$Format$LastVersion$fromJSGraph, $author$project$Msg$PasteGraph)),
 					$author$project$Main$savedGraph($author$project$Msg$FileName),
@@ -8718,7 +8927,7 @@ var $author$project$Polygraph$edges = function (_v0) {
 };
 var $elm$json$Json$Encode$int = _Json_wrap;
 var $author$project$GraphDefs$filterNormalEdges = function (d) {
-	if (d.$ === 'PullbackEdge') {
+	if (d.$ === 'PullshoutEdge') {
 		return $elm$core$Maybe$Nothing;
 	} else {
 		var l = d.a;
@@ -9458,8 +9667,8 @@ var $author$project$GraphDefs$fieldSelect = function (g) {
 };
 var $author$project$GraphDefs$mapEdgeType = F2(
 	function (f, e) {
-		if (e.$ === 'PullbackEdge') {
-			return $author$project$GraphDefs$PullbackEdge;
+		if (e.$ === 'PullshoutEdge') {
+			return $author$project$GraphDefs$PullshoutEdge;
 		} else {
 			var l = e.a;
 			return $author$project$GraphDefs$NormalEdge(
@@ -9559,8 +9768,8 @@ var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
 																				_List_fromArray(
 																					[
 																						_Utils_Tuple2(
-																						'isPullback',
-																						$elm$json$Json$Encode$bool($.isPullback)),
+																						'isPullshout',
+																						$elm$json$Json$Encode$bool($.isPullshout)),
 																						_Utils_Tuple2(
 																						'label',
 																						$elm$json$Json$Encode$string($.label)),
@@ -9693,8 +9902,8 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 																_List_fromArray(
 																	[
 																		_Utils_Tuple2(
-																		'isPullback',
-																		$elm$json$Json$Encode$bool($.isPullback)),
+																		'isPullshout',
+																		$elm$json$Json$Encode$bool($.isPullshout)),
 																		_Utils_Tuple2(
 																		'label',
 																		$elm$json$Json$Encode$string($.label)),
@@ -10028,17 +10237,17 @@ var $author$project$ArrowStyle$headToString = function (head) {
 			return 'none';
 	}
 };
-var $author$project$Format$Version7$Edge = F4(
-	function (label, style, isPullback, zindex) {
-		return {isPullback: isPullback, label: label, style: style, zindex: zindex};
+var $author$project$Format$Version8$Edge = F4(
+	function (label, style, isPullshout, zindex) {
+		return {isPullshout: isPullshout, label: label, style: style, zindex: zindex};
 	});
-var $author$project$Format$Version7$ArrowStyle = F7(
+var $author$project$Format$Version8$ArrowStyle = F7(
 	function (tail, head, _double, dashed, bend, alignment, position) {
 		return {alignment: alignment, bend: bend, dashed: dashed, _double: _double, head: head, position: position, tail: tail};
 	});
-var $author$project$Format$Version7$emptyArrowStyle = A7($author$project$Format$Version7$ArrowStyle, '', '', false, false, 0, '', 0);
-var $author$project$Format$Version7$pullbackEdge = function (z) {
-	return A4($author$project$Format$Version7$Edge, '', $author$project$Format$Version7$emptyArrowStyle, true, z);
+var $author$project$Format$Version8$emptyArrowStyle = A7($author$project$Format$Version8$ArrowStyle, '', '', false, false, 0, '', 0);
+var $author$project$Format$Version8$pullshoutEdge = function (z) {
+	return A4($author$project$Format$Version8$Edge, '', $author$project$Format$Version8$emptyArrowStyle, true, z);
 };
 var $author$project$ArrowStyle$tailToString = function (tail) {
 	switch (tail.$) {
@@ -10050,15 +10259,15 @@ var $author$project$ArrowStyle$tailToString = function (tail) {
 			return 'hookalt';
 	}
 };
-var $author$project$Format$Version7$fromEdgeLabel = function (e) {
+var $author$project$Format$Version8$fromEdgeLabel = function (e) {
 	var _v0 = e.details;
-	if (_v0.$ === 'PullbackEdge') {
-		return $author$project$Format$Version7$pullbackEdge(e.zindex);
+	if (_v0.$ === 'PullshoutEdge') {
+		return $author$project$Format$Version8$pullshoutEdge(e.zindex);
 	} else {
 		var label = _v0.a.label;
 		var style = _v0.a.style;
 		return {
-			isPullback: false,
+			isPullshout: false,
 			label: label,
 			style: {
 				alignment: $author$project$ArrowStyle$alignmentToString(style.labelAlignment),
@@ -10073,31 +10282,31 @@ var $author$project$Format$Version7$fromEdgeLabel = function (e) {
 		};
 	}
 };
-var $author$project$Format$Version7$fromNodeLabel = function (_v0) {
+var $author$project$Format$Version8$fromNodeLabel = function (_v0) {
 	var pos = _v0.pos;
 	var label = _v0.label;
 	var isMath = _v0.isMath;
 	return {isMath: isMath, label: label, pos: pos};
 };
-var $author$project$Format$Version7$toJSGraph = function (m) {
+var $author$project$Format$Version8$toJSGraph = function (m) {
 	var g = m.graph;
 	var gjs = $author$project$Polygraph$normalise(
 		A3(
 			$author$project$Polygraph$map,
 			function (_v0) {
-				return $author$project$Format$Version7$fromNodeLabel;
+				return $author$project$Format$Version8$fromNodeLabel;
 			},
 			function (_v1) {
-				return $author$project$Format$Version7$fromEdgeLabel;
+				return $author$project$Format$Version8$fromEdgeLabel;
 			},
 			g));
 	var nodes = $author$project$Polygraph$nodes(gjs);
 	var edges = $author$project$Polygraph$edges(gjs);
 	return {edges: edges, latexPreamble: m.latexPreamble, nodes: nodes, sizeGrid: m.sizeGrid};
 };
-var $author$project$Format$LastVersion$toJSGraph = $author$project$Format$Version7$toJSGraph;
-var $author$project$Format$Version7$version = 7;
-var $author$project$Format$LastVersion$version = $author$project$Format$Version7$version;
+var $author$project$Format$LastVersion$toJSGraph = $author$project$Format$Version8$toJSGraph;
+var $author$project$Format$Version8$version = 8;
+var $author$project$Format$LastVersion$version = $author$project$Format$Version8$version;
 var $author$project$Main$toJsGraphInfo = function (model) {
 	return {
 		fileName: model.fileName,
@@ -10110,9 +10319,10 @@ var $author$project$Modes$NewArrow = function (a) {
 	return {$: 'NewArrow', a: a};
 };
 var $author$project$Modes$Pullback = {$: 'Pullback'};
-var $author$project$Modes$PullbackMode = function (a) {
-	return {$: 'PullbackMode', a: a};
+var $author$project$Modes$PullshoutMode = function (a) {
+	return {$: 'PullshoutMode', a: a};
 };
+var $author$project$Modes$Pushout = {$: 'Pushout'};
 var $elm$core$Maybe$andThen = F2(
 	function (callback, maybeValue) {
 		if (maybeValue.$ === 'Just') {
@@ -10140,8 +10350,8 @@ var $author$project$Polygraph$incomings = F2(
 			},
 			$author$project$Polygraph$edges(g));
 	});
-var $author$project$GraphDefs$isPullback = function (e) {
-	return _Utils_eq(e.details, $author$project$GraphDefs$PullbackEdge);
+var $author$project$GraphDefs$isPullshout = function (e) {
+	return _Utils_eq(e.details, $author$project$GraphDefs$PullshoutEdge);
 };
 var $elm$core$List$any = F2(
 	function (isOkay, list) {
@@ -10222,7 +10432,7 @@ var $elm_community$list_extra$List$Extra$remove = F2(
 	function (x, xs) {
 		return A4($elm_community$list_extra$List$Extra$removeHelp, xs, x, xs, _List_Nil);
 	});
-var $author$project$Modes$Pullback$possibleDests = F3(
+var $author$project$Modes$Pullshout$possibleDests = F3(
 	function (g, id, k) {
 		var l = A2(
 			$elm_community$list_extra$List$Extra$remove,
@@ -10263,7 +10473,7 @@ var $author$project$Modes$Pullback$possibleDests = F3(
 					function ($) {
 						return $.label;
 					},
-					$author$project$GraphDefs$isPullback),
+					$author$project$GraphDefs$isPullshout),
 				A2($author$project$Polygraph$outgoings, id, g)));
 		return A2(
 			$elm$core$List$filter,
@@ -10272,9 +10482,9 @@ var $author$project$Modes$Pullback$possibleDests = F3(
 			},
 			l);
 	});
-var $author$project$Modes$Pullback$initialise = F3(
+var $author$project$Modes$Pullshout$initialise = F3(
 	function (g, id, k) {
-		var _v0 = A3($author$project$Modes$Pullback$possibleDests, g, id, k);
+		var _v0 = A3($author$project$Modes$Pullshout$possibleDests, g, id, k);
 		if (_v0.b) {
 			var t = _v0.a;
 			var q = _v0.b;
@@ -10881,7 +11091,21 @@ var $author$project$Modes$NewArrow$update = F3(
 		var next = function (finish) {
 			return A3($author$project$Modes$NewArrow$nextStep, model, finish, state);
 		};
-		_v0$6:
+		var pullshoutMode = function (k) {
+			return $author$project$Model$noCmd(
+				_Utils_update(
+					model,
+					{
+						mode: A2(
+							$elm$core$Maybe$withDefault,
+							$author$project$Modes$NewArrow(state),
+							A2(
+								$elm$core$Maybe$map,
+								$author$project$Modes$PullshoutMode,
+								A3($author$project$Modes$Pullshout$initialise, model.graph, state.chosenNode, k)))
+					}));
+		};
+		_v0$7:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseClick':
@@ -10897,7 +11121,7 @@ var $author$project$Modes$NewArrow$update = F3(
 								case 'Tab':
 									return next(false);
 								default:
-									break _v0$6;
+									break _v0$7;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -10910,27 +11134,18 @@ var $author$project$Modes$NewArrow$update = F3(
 												state,
 												{inverted: !state.inverted})));
 								case 'p':
-									return $author$project$Model$noCmd(
-										_Utils_update(
-											model,
-											{
-												mode: A2(
-													$elm$core$Maybe$withDefault,
-													$author$project$Modes$NewArrow(state),
-													A2(
-														$elm$core$Maybe$map,
-														$author$project$Modes$PullbackMode,
-														A3($author$project$Modes$Pullback$initialise, model.graph, state.chosenNode, $author$project$Modes$Pullback)))
-											}));
+									return pullshoutMode($author$project$Modes$Pullback);
+								case 'P':
+									return pullshoutMode($author$project$Modes$Pushout);
 								default:
-									break _v0$6;
+									break _v0$7;
 							}
 						}
 					} else {
-						break _v0$6;
+						break _v0$7;
 					}
 				default:
-					break _v0$6;
+					break _v0$7;
 			}
 		}
 		var st2 = _Utils_update(
@@ -10946,15 +11161,28 @@ var $author$project$Modes$NewArrow$update = F3(
 		return $author$project$Model$noCmd(
 			A2($author$project$Modes$NewArrow$updateState, model, st3));
 	});
-var $author$project$GraphDefs$newPullback = $author$project$GraphDefs$newGenericLabel($author$project$GraphDefs$PullbackEdge);
-var $author$project$Modes$Pullback$graph = F2(
+var $author$project$GraphDefs$newPullshout = $author$project$GraphDefs$newGenericLabel($author$project$GraphDefs$PullshoutEdge);
+var $author$project$Modes$Pullshout$graph = F2(
 	function (m, s) {
-		return A4($author$project$Polygraph$newEdge, m.graph, s.chosenEdge, s.currentDest, $author$project$GraphDefs$newPullback).a;
+		return A4($author$project$Polygraph$newEdge, m.graph, s.chosenEdge, s.currentDest, $author$project$GraphDefs$newPullshout).a;
 	});
-var $author$project$Modes$Pullback$nextPullback = F2(
-	function (m, st) {
-		nextPullback:
-		while (true) {
+var $author$project$Modes$Pullshout$nextPullshout = F3(
+	function (m, k, st) {
+		var recompute = function (_v2) {
+			var _v1 = A3($author$project$Modes$Pullshout$possibleDests, m.graph, st.chosenEdge, k);
+			if (!_v1.b) {
+				return st;
+			} else {
+				var t = _v1.a;
+				var q = _v1.b;
+				return _Utils_update(
+					st,
+					{currentDest: t, kind: k, possibilities: q});
+			}
+		};
+		if (!_Utils_eq(k, st.kind)) {
+			return recompute(_Utils_Tuple0);
+		} else {
 			var _v0 = st.possibilities;
 			if (_v0.b) {
 				var t = _v0.a;
@@ -10963,37 +11191,34 @@ var $author$project$Modes$Pullback$nextPullback = F2(
 					st,
 					{currentDest: t, possibilities: q});
 			} else {
-				var $temp$m = m,
-					$temp$st = _Utils_update(
-					st,
-					{
-						possibilities: A3($author$project$Modes$Pullback$possibleDests, m.graph, st.chosenEdge, st.kind)
-					});
-				m = $temp$m;
-				st = $temp$st;
-				continue nextPullback;
+				return recompute(_Utils_Tuple0);
 			}
 		}
 	});
-var $author$project$Modes$Pullback$update = F3(
+var $author$project$Modes$Pullshout$update = F3(
 	function (state, msg, model) {
 		var updateState = function (st) {
 			return _Utils_update(
 				model,
 				{
-					mode: $author$project$Modes$PullbackMode(st)
+					mode: $author$project$Modes$PullshoutMode(st)
 				});
 		};
-		_v0$3:
+		_v0$4:
 		while (true) {
 			if ((msg.$ === 'KeyChanged') && (!msg.a)) {
 				if (msg.c.$ === 'Character') {
-					if ('p' === msg.c.a.valueOf()) {
-						return $author$project$Model$noCmd(
-							updateState(
-								A2($author$project$Modes$Pullback$nextPullback, model, state)));
-					} else {
-						break _v0$3;
+					switch (msg.c.a.valueOf()) {
+						case 'p':
+							return $author$project$Model$noCmd(
+								updateState(
+									A3($author$project$Modes$Pullshout$nextPullshout, model, $author$project$Modes$Pullback, state)));
+						case 'P':
+							return $author$project$Model$noCmd(
+								updateState(
+									A3($author$project$Modes$Pullshout$nextPullshout, model, $author$project$Modes$Pushout, state)));
+						default:
+							break _v0$4;
 					}
 				} else {
 					switch (msg.c.a) {
@@ -11004,13 +11229,13 @@ var $author$project$Modes$Pullback$update = F3(
 								A2(
 									$author$project$Model$setSaveGraph,
 									model,
-									A2($author$project$Modes$Pullback$graph, model, state)));
+									A2($author$project$Modes$Pullshout$graph, model, state)));
 						default:
-							break _v0$3;
+							break _v0$4;
 					}
 				}
 			} else {
-				break _v0$3;
+				break _v0$4;
 			}
 		}
 		return $author$project$Model$noCmd(model);
@@ -12848,8 +13073,8 @@ var $author$project$Main$clipboardWriteGraph = _Platform_outgoingPort(
 																_List_fromArray(
 																	[
 																		_Utils_Tuple2(
-																		'isPullback',
-																		$elm$json$Json$Encode$bool($.isPullback)),
+																		'isPullshout',
+																		$elm$json$Json$Encode$bool($.isPullshout)),
 																		_Utils_Tuple2(
 																		'label',
 																		$elm$json$Json$Encode$string($.label)),
@@ -14014,7 +14239,7 @@ var $author$project$GraphProof$incompleteProofStepToString = function (_v0) {
 							['repeat rewrite assoc.'])),
 					symList))));
 };
-var $author$project$GraphDefs$isNormal = A2($elm$core$Basics$composeL, $elm$core$Basics$not, $author$project$GraphDefs$isPullback);
+var $author$project$GraphDefs$isNormal = A2($elm$core$Basics$composeL, $elm$core$Basics$not, $author$project$GraphDefs$isPullshout);
 var $author$project$GraphDefs$isNormalId = F2(
 	function (g, id) {
 		return A2(
@@ -16755,9 +16980,9 @@ var $author$project$Main$update = F2(
 					case 'NewArrow':
 						var astate = _v5.a;
 						return A3($author$project$Modes$NewArrow$update, astate, msg, model);
-					case 'PullbackMode':
+					case 'PullshoutMode':
 						var astate = _v5.a;
-						return A3($author$project$Modes$Pullback$update, astate, msg, model);
+						return A3($author$project$Modes$Pullshout$update, astate, msg, model);
 					case 'RenameMode':
 						var b = _v5.a;
 						var l = _v5.b;
@@ -17248,13 +17473,19 @@ var $author$project$Geometry$Point$towards = F3(
 				shift,
 				A2($author$project$Geometry$Point$subtract, to, source)));
 	});
-var $author$project$GraphDrawing$drawPullback = F4(
+var $author$project$GraphDrawing$drawPullshout = F4(
 	function (edgeId, a, _v0, _v1) {
-		var p1 = _v0.a;
-		var p2 = _v0.b;
-		var q1 = _v1.a;
-		var q2 = _v1.b;
+		var x1 = _v0.a;
+		var x2 = _v0.b;
+		var y1 = _v1.a;
+		var y2 = _v1.b;
 		var shift = 30;
+		var _v2 = _Utils_eq(x1, y1) ? _Utils_Tuple2(y1, y2) : _Utils_Tuple2(y2, y1);
+		var q1 = _v2.a;
+		var q2 = _v2.b;
+		var _v3 = _Utils_eq(x1, y1) ? _Utils_Tuple2(x1, x2) : _Utils_Tuple2(x2, x1);
+		var p1 = _v3.a;
+		var p2 = _v3.b;
 		var smallshift = 5;
 		var r2 = A3($author$project$Geometry$Point$towards, q1, q2, shift);
 		var r1 = A3($author$project$Geometry$Point$towards, p1, p2, shift);
@@ -18559,14 +18790,14 @@ var $author$project$GraphDrawing$graphDrawing = F2(
 		var drawEdge = F4(
 			function (id, n1, n2, e) {
 				var _v0 = e.details;
-				if (_v0.$ === 'PullbackEdge') {
+				if (_v0.$ === 'PullshoutEdge') {
 					return {
 						drawing: A2(
 							$elm$core$Maybe$withDefault,
 							$author$project$Drawing$empty,
 							A3(
 								$elm$core$Maybe$map2,
-								A2($author$project$GraphDrawing$drawPullback, id, e.isActive),
+								A2($author$project$GraphDrawing$drawPullshout, id, e.isActive),
 								n1.extrems,
 								n2.extrems)),
 						extrems: $elm$core$Maybe$Just(
@@ -18658,7 +18889,7 @@ var $author$project$GraphDrawing$WeakActive = {$: 'WeakActive'};
 var $author$project$GraphDrawing$NormalEdge = function (a) {
 	return {$: 'NormalEdge', a: a};
 };
-var $author$project$GraphDrawing$PullbackEdge = {$: 'PullbackEdge'};
+var $author$project$GraphDrawing$PullshoutEdge = {$: 'PullshoutEdge'};
 var $author$project$GraphDefs$getEdgeDims = function (n) {
 	var _v0 = n.dims;
 	if (_v0.$ === 'Nothing') {
@@ -18675,8 +18906,8 @@ var $author$project$GraphDrawing$make_edgeDrawingLabel = F2(
 		return {
 			details: function () {
 				var _v1 = e.details;
-				if (_v1.$ === 'PullbackEdge') {
-					return $author$project$GraphDrawing$PullbackEdge;
+				if (_v1.$ === 'PullshoutEdge') {
+					return $author$project$GraphDrawing$PullshoutEdge;
 				} else {
 					var l = _v1.a;
 					var label = l.label;
@@ -18754,12 +18985,12 @@ var $author$project$Modes$NewArrow$graphDrawing = F2(
 				return info.graph;
 			}());
 	});
-var $author$project$Modes$Pullback$graphDrawing = F2(
+var $author$project$Modes$Pullshout$graphDrawing = F2(
 	function (m, s) {
 		return A2(
 			$author$project$Model$collageGraphFromGraph,
 			m,
-			A2($author$project$Modes$Pullback$graph, m, s));
+			A2($author$project$Modes$Pullshout$graph, m, s));
 	});
 var $author$project$Modes$SplitArrow$graphDrawing = F2(
 	function (m, state) {
@@ -18808,8 +19039,8 @@ var $author$project$GraphDrawing$mapNormalEdge = F2(
 		return {
 			details: function () {
 				var _v0 = e.details;
-				if (_v0.$ === 'PullbackEdge') {
-					return $author$project$GraphDrawing$PullbackEdge;
+				if (_v0.$ === 'PullshoutEdge') {
+					return $author$project$GraphDrawing$PullshoutEdge;
 				} else {
 					var l = _v0.a;
 					return $author$project$GraphDrawing$NormalEdge(
@@ -18896,9 +19127,9 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 		case 'SplitArrow':
 			var state = _v0.a;
 			return A2($author$project$Modes$SplitArrow$graphDrawing, m, state);
-		case 'PullbackMode':
+		case 'PullshoutMode':
 			var state = _v0.a;
-			return A2($author$project$Modes$Pullback$graphDrawing, m, state);
+			return A2($author$project$Modes$Pullshout$graphDrawing, m, state);
 		case 'CutHead':
 			var state = _v0.a;
 			return $author$project$GraphDrawing$toDrawingGraph(
@@ -18965,8 +19196,8 @@ var $author$project$Drawing$grid = function (n) {
 };
 var $author$project$Main$Plain = {$: 'Plain'};
 var $author$project$ArrowStyle$controlChars = '>(=-bBA][';
-var $author$project$Modes$NewArrow$help = '[ESC] cancel, [click, TAB] name the point (if new), ' + ('[hjkl] position the new point with the keyboard, ' + ('[RET] terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[i]nvert arrow, ' + '[p]ullback mode.'))))));
-var $author$project$Modes$Pullback$help = '[ESC] cancel, ' + ('[p] cycle between pullback possibilities, ' + '[RET] confirm');
+var $author$project$Modes$NewArrow$help = '[ESC] cancel, [click, TAB] name the point (if new), ' + ('[hjkl] position the new point with the keyboard, ' + ('[RET] terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[i]nvert arrow, ' + '[p]ullback/[P]ushout mode.'))))));
+var $author$project$Modes$Pullshout$help = '[ESC] cancel, ' + ('cycle between [p]ullback/[P]ushout possibilities, ' + '[RET] confirm');
 var $author$project$Modes$SplitArrow$help = '[ESC] cancel, [click] name the point (if new), ' + ('[/] to move the existing label on the other edge, ' + '[RET] terminate the square creation');
 var $author$project$Modes$Square$help = '[ESC] cancel, [click] name the point (if new), ' + ('[RET] terminate the square creation, ' + (' alternative possible [s]quares, ' + ' [a]lternative possible labels.'));
 var $elm$parser$Parser$ExpectingEnd = {$: 'ExpectingEnd'};
@@ -19163,8 +19394,8 @@ var $author$project$Main$helpMsg = function (model) {
 						'Debug Mode. [ESC] to cancel and come back to the default mode. ' + $elm$core$Debug$toString(model))));
 		case 'NewArrow':
 			return msg('Mode NewArrow. ' + $author$project$Modes$NewArrow$help);
-		case 'PullbackMode':
-			return msg('Mode Pullback. ' + $author$project$Modes$Pullback$help);
+		case 'PullshoutMode':
+			return msg('Mode Pullback/Pullshout. ' + $author$project$Modes$Pullshout$help);
 		case 'SquareMode':
 			return msg('Mode Commutative square. ' + $author$project$Modes$Square$help);
 		case 'SplitArrow':
