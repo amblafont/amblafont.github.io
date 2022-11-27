@@ -11191,9 +11191,7 @@ var $author$project$Modes$SplitArrow$nextStep = F3(
 			$author$project$Model$addOrSetSel,
 			false,
 			info.movedNode,
-			_Utils_update(
-				model,
-				{graph: info.graph}));
+			A2($author$project$Model$setSaveGraph, model, info.graph));
 		if (finish) {
 			return _Utils_Tuple2(
 				_Utils_update(
@@ -12184,9 +12182,7 @@ var $author$project$Modes$Square$nextStep = F3(
 			$author$project$Model$addOrSetSel,
 			false,
 			movedNode,
-			_Utils_update(
-				model,
-				{graph: info.graph}));
+			A2($author$project$Model$setSaveGraph, model, info.graph));
 		if (finish) {
 			return _Utils_Tuple2(
 				_Utils_update(
@@ -14478,11 +14474,7 @@ var $author$project$Main$rename = function (model) {
 			$elm$core$List$singleton,
 			$author$project$GraphDefs$selectedId(model.graph)));
 	return $author$project$Model$noCmd(
-		A3(
-			$author$project$Model$initialise_RenameMode,
-			true,
-			ids,
-			$author$project$Model$pushHistory(model)));
+		A3($author$project$Model$initialise_RenameMode, true, ids, model));
 };
 var $author$project$GraphDefs$addNodesSelection = F2(
 	function (g, f) {
@@ -14916,12 +14908,12 @@ var $author$project$Main$update_DefaultMode = F2(
 					graph: $author$project$GraphDefs$clearSelection(model.graph)
 				}));
 		var createPoint = function (isMath) {
-			var _v12 = A2(
+			var _v11 = A2(
 				$author$project$Polygraph$newNode,
 				model.graph,
 				A3($author$project$GraphDefs$newNodeLabel, model.mousePos, '', isMath));
-			var newGraph = _v12.a;
-			var newId = _v12.b;
+			var newGraph = _v11.a;
+			var newId = _v11.b;
 			var newModel = A3(
 				$author$project$Model$addOrSetSel,
 				false,
@@ -14934,6 +14926,27 @@ var $author$project$Main$update_DefaultMode = F2(
 					_List_fromArray(
 						[newId]),
 					newModel));
+		};
+		var increaseZBy = function (offset) {
+			var _v10 = $author$project$GraphDefs$selectedEdgeId(model.graph);
+			if (_v10.$ === 'Nothing') {
+				return $author$project$Model$noCmd(model);
+			} else {
+				var id = _v10.a;
+				return $author$project$Model$noCmd(
+					A2(
+						$author$project$Model$setSaveGraph,
+						model,
+						A3(
+							$author$project$Polygraph$updateEdge,
+							id,
+							function (e) {
+								return _Utils_update(
+									e,
+									{zindex: e.zindex + offset});
+							},
+							model.graph)));
+			}
 		};
 		_v0$41:
 		while (true) {
@@ -15123,15 +15136,13 @@ var $author$project$Main$update_DefaultMode = F2(
 								case 'r':
 									return $author$project$Main$rename(model);
 								case 's':
-									return $author$project$Modes$Square$initialise(
-										$author$project$Model$pushHistory(model));
+									return $author$project$Modes$Square$initialise(model);
 								case 't':
 									return createPoint(false);
 								case 'p':
 									return createPoint(true);
 								case '/':
-									return $author$project$Modes$SplitArrow$initialise(
-										$author$project$Model$pushHistory(model));
+									return $author$project$Modes$SplitArrow$initialise(model);
 								case 'x':
 									return $author$project$Model$noCmd(
 										A2(
@@ -15199,46 +15210,10 @@ var $author$project$Main$update_DefaultMode = F2(
 										$author$project$Model$undo(model)) : $author$project$Model$noCmd(model);
 								case '+':
 									var k = msg.b;
-									var _v9 = $author$project$GraphDefs$selectedEdgeId(model.graph);
-									if (_v9.$ === 'Nothing') {
-										return $author$project$Model$noCmd(model);
-									} else {
-										var id = _v9.a;
-										return $author$project$Model$noCmd(
-											A2(
-												$author$project$Model$setSaveGraph,
-												model,
-												A3(
-													$author$project$Polygraph$updateEdge,
-													id,
-													function (e) {
-														return _Utils_update(
-															e,
-															{zindex: e.zindex + 1});
-													},
-													model.graph)));
-									}
+									return increaseZBy(1);
 								case '<':
 									var k = msg.b;
-									var _v10 = $author$project$GraphDefs$selectedEdgeId(model.graph);
-									if (_v10.$ === 'Nothing') {
-										return $author$project$Model$noCmd(model);
-									} else {
-										var id = _v10.a;
-										return $author$project$Model$noCmd(
-											A2(
-												$author$project$Model$setSaveGraph,
-												model,
-												A3(
-													$author$project$Polygraph$updateEdge,
-													id,
-													function (e) {
-														return _Utils_update(
-															e,
-															{zindex: e.zindex - 1});
-													},
-													model.graph)));
-									}
+									return increaseZBy(-1);
 								default:
 									break _v0$41;
 							}
@@ -15250,11 +15225,11 @@ var $author$project$Main$update_DefaultMode = F2(
 					break _v0$41;
 			}
 		}
-		var _v11 = $author$project$GraphDefs$selectedEdgeId(model.graph);
-		if (_v11.$ === 'Nothing') {
+		var _v9 = $author$project$GraphDefs$selectedEdgeId(model.graph);
+		if (_v9.$ === 'Nothing') {
 			return $author$project$Model$noCmd(model);
 		} else {
-			var id = _v11.a;
+			var id = _v9.a;
 			return $author$project$Model$noCmd(
 				A2(
 					$elm$core$Maybe$withDefault,
