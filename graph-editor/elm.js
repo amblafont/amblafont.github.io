@@ -10356,11 +10356,12 @@ var $author$project$GraphDefs$getLabelLabel = F2(
 							}))),
 				g));
 	});
-var $author$project$Modes$RenameMode = function (a) {
-	return {$: 'RenameMode', a: a};
-};
-var $author$project$Model$initialise_RenameModeWithDefault = F2(
-	function (l, m) {
+var $author$project$Modes$RenameMode = F2(
+	function (a, b) {
+		return {$: 'RenameMode', a: a, b: b};
+	});
+var $author$project$Model$initialise_RenameModeWithDefault = F3(
+	function (save, l, m) {
 		if (!l.b) {
 			return _Utils_update(
 				m,
@@ -10369,7 +10370,7 @@ var $author$project$Model$initialise_RenameModeWithDefault = F2(
 			return _Utils_update(
 				m,
 				{
-					mode: $author$project$Modes$RenameMode(l)
+					mode: A2($author$project$Modes$RenameMode, save, l)
 				});
 		}
 	});
@@ -10620,14 +10621,13 @@ var $author$project$GraphDefs$weaklySelect = function (id) {
 var $author$project$Modes$NewArrow$nextStep = F3(
 	function (model, finish, state) {
 		var info = A2($author$project$Modes$NewArrow$moveNodeInfo, model, state);
-		var m2 = _Utils_update(
+		var m2 = A2(
+			$author$project$Model$setSaveGraph,
 			model,
-			{
-				graph: A2(
-					$author$project$GraphDefs$weaklySelect,
-					info.movedNode,
-					$author$project$GraphDefs$clearSelection(info.graph))
-			});
+			A2(
+				$author$project$GraphDefs$weaklySelect,
+				info.movedNode,
+				$author$project$GraphDefs$clearSelection(info.graph)));
 		if (finish) {
 			return $author$project$Model$switch_Default(m2);
 		} else {
@@ -10645,7 +10645,7 @@ var $author$project$Modes$NewArrow$nextStep = F3(
 				},
 				ids);
 			return $author$project$Model$noCmd(
-				A2($author$project$Model$initialise_RenameModeWithDefault, ids_labels, m2));
+				A3($author$project$Model$initialise_RenameModeWithDefault, false, ids_labels, m2));
 		}
 	});
 var $author$project$InputPosition$InputPosKeyboard = function (a) {
@@ -11216,7 +11216,7 @@ var $author$project$Modes$SplitArrow$nextStep = F3(
 				]) : _List_fromArray(
 				[ne1, ne2]);
 			return _Utils_Tuple2(
-				A2($author$project$Model$initialise_RenameModeWithDefault, ids, m2),
+				A3($author$project$Model$initialise_RenameModeWithDefault, false, ids, m2),
 				$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
 		}
 	});
@@ -11294,8 +11294,8 @@ var $author$project$Modes$SplitArrow$update = F3(
 var $author$project$Modes$SquareMode = function (a) {
 	return {$: 'SquareMode', a: a};
 };
-var $author$project$Model$initialise_RenameMode = F2(
-	function (l, m) {
+var $author$project$Model$initialise_RenameMode = F3(
+	function (save, l, m) {
 		var ls = A2(
 			$elm$core$List$filterMap,
 			function (id) {
@@ -11307,7 +11307,7 @@ var $author$project$Model$initialise_RenameMode = F2(
 					A2($author$project$GraphDefs$getLabelLabel, id, m.graph));
 			},
 			l);
-		return A2($author$project$Model$initialise_RenameModeWithDefault, ls, m);
+		return A3($author$project$Model$initialise_RenameModeWithDefault, save, ls, m);
 	});
 var $elm$core$Basics$modBy = _Basics_modBy;
 var $author$project$Modes$Square$chooseAmong = F2(
@@ -12198,7 +12198,7 @@ var $author$project$Modes$Square$nextStep = F3(
 				[movedNode, info.edges.ne1, info.edges.ne2]) : _List_fromArray(
 				[info.edges.ne1, info.edges.ne2]);
 			return _Utils_Tuple2(
-				A2($author$project$Model$initialise_RenameMode, ids, m2),
+				A3($author$project$Model$initialise_RenameMode, false, ids, m2),
 				$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
 		}
 	});
@@ -14205,14 +14205,15 @@ var $author$project$GraphDefs$isEmptySelection = function (go) {
 		},
 		go));
 };
-var $author$project$Main$initialiseMoveMode = function (model) {
-	return _Utils_update(
-		model,
-		{
-			mode: $author$project$GraphDefs$isEmptySelection(model.graph) ? $author$project$Modes$DefaultMode : $author$project$Modes$Move(
-				{orig: model.mousePos, pos: $author$project$InputPosition$InputPosMouse})
-		});
-};
+var $author$project$Main$initialiseMoveMode = F2(
+	function (save, model) {
+		return _Utils_update(
+			model,
+			{
+				mode: $author$project$GraphDefs$isEmptySelection(model.graph) ? $author$project$Modes$DefaultMode : $author$project$Modes$Move(
+					{orig: model.mousePos, pos: $author$project$InputPosition$InputPosMouse, save: save})
+			});
+	});
 var $author$project$Modes$ResizeMode = function (a) {
 	return {$: 'ResizeMode', a: a};
 };
@@ -14477,8 +14478,9 @@ var $author$project$Main$rename = function (model) {
 			$elm$core$List$singleton,
 			$author$project$GraphDefs$selectedId(model.graph)));
 	return $author$project$Model$noCmd(
-		A2(
+		A3(
 			$author$project$Model$initialise_RenameMode,
+			true,
 			ids,
 			$author$project$Model$pushHistory(model)));
 };
@@ -14926,8 +14928,9 @@ var $author$project$Main$update_DefaultMode = F2(
 				newId,
 				A2($author$project$Model$setSaveGraph, model, newGraph));
 			return $author$project$Model$noCmd(
-				A2(
+				A3(
 					$author$project$Model$initialise_RenameMode,
+					false,
 					_List_fromArray(
 						[newId]),
 					newModel));
@@ -14968,15 +14971,18 @@ var $author$project$Main$update_DefaultMode = F2(
 					var n = msg.a;
 					var e = msg.b;
 					return $author$project$Model$noCmd(
-						A2(
+						A3(
 							$author$project$Model$initialise_RenameMode,
+							true,
 							_List_fromArray(
 								[n]),
 							model));
 				case 'PasteGraph':
 					var g = msg.a;
 					return $author$project$Model$noCmd(
-						$author$project$Main$initialiseMoveMode(
+						A2(
+							$author$project$Main$initialiseMoveMode,
+							false,
 							A2(
 								$author$project$Model$setSaveGraph,
 								model,
@@ -15005,16 +15011,14 @@ var $author$project$Main$update_DefaultMode = F2(
 									return clearSel;
 								case 'e':
 									return $author$project$Model$noCmd(
-										$author$project$Main$initialiseEnlarge(
-											$author$project$Model$pushHistory(model)));
+										$author$project$Main$initialiseEnlarge(model));
 								case 'E':
 									return _Utils_Tuple2(
 										model,
 										$author$project$Main$promptEquation(_Utils_Tuple0));
 								case 'a':
 									var k = msg.b;
-									return (!k.ctrl) ? $author$project$Modes$NewArrow$initialise(
-										$author$project$Model$pushHistory(model)) : $author$project$Model$noCmd(
+									return (!k.ctrl) ? $author$project$Modes$NewArrow$initialise(model) : $author$project$Model$noCmd(
 										_Utils_update(
 											model,
 											{
@@ -15027,8 +15031,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											{mode: $author$project$Modes$DebugMode}));
 								case 'g':
 									return $author$project$Model$noCmd(
-										$author$project$Main$initialiseMoveMode(
-											$author$project$Model$pushHistory(model)));
+										A2($author$project$Main$initialiseMoveMode, true, model));
 								case 'i':
 									return $author$project$Model$noCmd(
 										function () {
@@ -15372,11 +15375,10 @@ var $author$project$Main$enlargeGraph = F2(
 var $author$project$Main$update_Enlarge = F3(
 	function (msg, state, model) {
 		var fin = $author$project$Model$switch_Default(
-			_Utils_update(
+			A2(
+				$author$project$Model$setSaveGraph,
 				model,
-				{
-					graph: A2($author$project$Main$enlargeGraph, model, state)
-				}));
+				A2($author$project$Main$enlargeGraph, model, state)));
 		_v0$3:
 		while (true) {
 			switch (msg.$) {
@@ -15508,7 +15510,7 @@ var $author$project$Main$update_MoveNode = F3(
 		var movedRet = function () {
 			var info = A2($author$project$Main$info_MoveNode, model, state);
 			return info.valid ? $author$project$Model$switch_Default(
-				_Utils_update(
+				state.save ? A2($author$project$Model$setSaveGraph, model, info.graph) : _Utils_update(
 					model,
 					{graph: info.graph})) : $author$project$Model$noCmd(model);
 		}();
@@ -16394,10 +16396,10 @@ var $author$project$Main$graph_RenameMode = F2(
 				m.graph);
 		}
 	});
-var $author$project$Main$next_RenameMode = F3(
-	function (finish, labels, model) {
+var $author$project$Main$next_RenameMode = F4(
+	function (finish, save, labels, model) {
 		var g = A2($author$project$Main$graph_RenameMode, labels, model);
-		var m2 = _Utils_update(
+		var m2 = save ? A2($author$project$Model$setSaveGraph, model, g) : _Utils_update(
 			model,
 			{graph: g});
 		if (finish) {
@@ -16419,20 +16421,22 @@ var $author$project$Main$next_RenameMode = F3(
 					return _Utils_update(
 						m2,
 						{
-							mode: $author$project$Modes$RenameMode(q)
+							mode: A2($author$project$Modes$RenameMode, save, q)
 						});
 				}
 			}
 		}
 	});
-var $author$project$Main$update_RenameMode = F3(
-	function (labels, msg, model) {
+var $author$project$Main$update_RenameMode = F4(
+	function (save, labels, msg, model) {
 		var edit_label = function (s) {
 			return $author$project$Model$noCmd(
 				_Utils_update(
 					model,
 					{
-						mode: $author$project$Modes$RenameMode(
+						mode: A2(
+							$author$project$Modes$RenameMode,
+							save,
 							function () {
 								if (labels.b) {
 									var _v2 = labels.a;
@@ -16458,10 +16462,10 @@ var $author$project$Main$update_RenameMode = F3(
 								return $author$project$Model$switch_Default(model);
 							case 'Enter':
 								return $author$project$Model$noCmd(
-									A3($author$project$Main$next_RenameMode, true, labels, model));
+									A4($author$project$Main$next_RenameMode, true, save, labels, model));
 							case 'Tab':
 								return $author$project$Model$noCmd(
-									A3($author$project$Main$next_RenameMode, false, labels, model));
+									A4($author$project$Main$next_RenameMode, false, save, labels, model));
 							default:
 								break _v0$5;
 						}
@@ -16781,8 +16785,9 @@ var $author$project$Main$update = F2(
 						var astate = _v5.a;
 						return A3($author$project$Modes$Pullback$update, astate, msg, model);
 					case 'RenameMode':
-						var l = _v5.a;
-						return A3($author$project$Main$update_RenameMode, l, msg, model);
+						var b = _v5.a;
+						var l = _v5.b;
+						return A4($author$project$Main$update_RenameMode, b, l, msg, model);
 					case 'Move':
 						var s = _v5.a;
 						return A3($author$project$Main$update_MoveNode, msg, s, model);
@@ -16857,8 +16862,8 @@ var $author$project$Drawing$Drawing = function (a) {
 	return {$: 'Drawing', a: a};
 };
 var $author$project$Drawing$empty = $author$project$Drawing$Drawing(_List_Nil);
+var $author$project$GraphDrawing$foregroundZ = 10000;
 var $elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
-var $author$project$Drawing$defaultZ = 0;
 var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $author$project$Drawing$ofSvgs = F2(
@@ -16884,39 +16889,42 @@ var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
 var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
 var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
 var $elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
-var $author$project$Drawing$rect = function (_v0) {
-	var topLeft = _v0.topLeft;
-	var bottomRight = _v0.bottomRight;
-	var f = $elm$core$String$fromFloat;
-	var _v1 = bottomRight;
-	var tox = _v1.a;
-	var toy = _v1.b;
-	var _v2 = topLeft;
-	var fromx = _v2.a;
-	var fromy = _v2.b;
-	return A2(
-		$author$project$Drawing$ofSvg,
-		$author$project$Drawing$defaultZ,
-		A2(
-			$elm$svg$Svg$rect,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$x(
-					f(fromx)),
-					$elm$svg$Svg$Attributes$y(
-					f(fromy)),
-					$elm$svg$Svg$Attributes$width(
-					f(tox - fromx)),
-					$elm$svg$Svg$Attributes$height(
-					f(toy - fromy)),
-					$elm$svg$Svg$Attributes$class('rect-select')
-				]),
-			_List_Nil));
-};
+var $author$project$Drawing$rect = F2(
+	function (z, _v0) {
+		var topLeft = _v0.topLeft;
+		var bottomRight = _v0.bottomRight;
+		var f = $elm$core$String$fromFloat;
+		var _v1 = bottomRight;
+		var tox = _v1.a;
+		var toy = _v1.b;
+		var _v2 = topLeft;
+		var fromx = _v2.a;
+		var fromy = _v2.b;
+		return A2(
+			$author$project$Drawing$ofSvg,
+			z,
+			A2(
+				$elm$svg$Svg$rect,
+				_List_fromArray(
+					[
+						$elm$svg$Svg$Attributes$x(
+						f(fromx)),
+						$elm$svg$Svg$Attributes$y(
+						f(fromy)),
+						$elm$svg$Svg$Attributes$width(
+						f(tox - fromx)),
+						$elm$svg$Svg$Attributes$height(
+						f(toy - fromy)),
+						$elm$svg$Svg$Attributes$class('rect-select')
+					]),
+				_List_Nil));
+	});
 var $author$project$Main$additionnalDrawing = function (m) {
 	var drawSel = F2(
 		function (pos, orig) {
-			return $author$project$Drawing$rect(
+			return A2(
+				$author$project$Drawing$rect,
+				$author$project$GraphDrawing$foregroundZ,
 				A2(
 					$author$project$Geometry$makeRect,
 					orig,
@@ -17058,6 +17066,7 @@ var $author$project$Drawing$attributeToZIndex = function (a) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
+var $author$project$Drawing$defaultZ = 0;
 var $author$project$Drawing$attributesToZIndex = A2(
 	$elm$core$Basics$composeR,
 	$elm_community$list_extra$List$Extra$findMap($author$project$Drawing$attributeToZIndex),
@@ -17375,7 +17384,6 @@ var $author$project$Drawing$circle = F3(
 				_List_Nil));
 	});
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
-var $author$project$GraphDrawing$foregroundZ = 10000;
 var $elm$svg$Svg$foreignObject = $elm$svg$Svg$trustedNode('foreignObject');
 var $author$project$Drawing$htmlAnchor = F5(
 	function (z, _v0, _v1, center, h) {
@@ -18866,7 +18874,7 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 				m,
 				A2($author$project$Main$info_MoveNode, m, s).graph);
 		case 'RenameMode':
-			var l = _v0.a;
+			var l = _v0.b;
 			var g = A2($author$project$Main$graph_RenameMode, l, m);
 			var g2 = A2($author$project$Model$collageGraphFromGraph, m, g);
 			if (l.b) {
