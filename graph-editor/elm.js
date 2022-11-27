@@ -11001,11 +11001,10 @@ var $author$project$Modes$Pullback$update = F3(
 							return $author$project$Model$switch_Default(model);
 						case 'Enter':
 							return $author$project$Model$switch_Default(
-								_Utils_update(
+								A2(
+									$author$project$Model$setSaveGraph,
 									model,
-									{
-										graph: A2($author$project$Modes$Pullback$graph, model, state)
-									}));
+									A2($author$project$Modes$Pullback$graph, model, state)));
 						default:
 							break _v0$3;
 					}
