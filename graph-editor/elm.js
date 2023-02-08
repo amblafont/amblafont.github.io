@@ -9730,6 +9730,203 @@ var $author$project$GraphDefs$findReplaceInSelected = F2(
 				}),
 			g);
 	});
+var $elm$core$String$concat = function (strings) {
+	return A2($elm$core$String$join, '', strings);
+};
+var $elm$core$String$fromFloat = _String_fromNumber;
+var $author$project$Tikz$labelfromAlignment = function (a) {
+	switch (a.$) {
+		case 'Centre':
+			return 'labeloat';
+		case 'Over':
+			return 'labelonat';
+		case 'Left':
+			return 'labelrat';
+		default:
+			return 'labellat';
+	}
+};
+var $author$project$ArrowStyle$tikzStyle = function (stl) {
+	return _Utils_ap(
+		function () {
+			var _v0 = stl.tail;
+			switch (_v0.$) {
+				case 'DefaultTail':
+					return '';
+				case 'Hook':
+					return 'into, ';
+				default:
+					return 'linto, ';
+			}
+		}(),
+		_Utils_ap(
+			function () {
+				var _v1 = stl.head;
+				switch (_v1.$) {
+					case 'DefaultHead':
+						return '->, ';
+					case 'TwoHeads':
+						return 'onto, ';
+					default:
+						return '-';
+				}
+			}(),
+			_Utils_ap(
+				stl._double ? 'cell=0, ' : '',
+				stl.dashed ? 'dashed, ' : '')));
+};
+var $author$project$Tikz$encodeLabel = function (e) {
+	var _v0 = e.label.details;
+	if (_v0.$ === 'PullshoutEdge') {
+		return '';
+	} else {
+		var l = _v0.a;
+		return $author$project$Tikz$labelfromAlignment(l.style.labelAlignment) + ('={' + (l.label + ('}{' + ($elm$core$String$fromFloat(l.style.labelPosition) + ('}, ' + $author$project$ArrowStyle$tikzStyle(l.style))))));
+	}
+};
+var $author$project$Tikz$encodeEdgeTikZ = function (e) {
+	return '(' + ($elm$core$String$fromInt(e.from) + (') edge[' + ($author$project$Tikz$encodeLabel(e) + ('] (' + ($elm$core$String$fromInt(e.to) + ') \n')))));
+};
+var $author$project$Tikz$encodeFakeLabel = function (e) {
+	var _v0 = e.label.details;
+	if (_v0.$ === 'PullshoutEdge') {
+		return '';
+	} else {
+		var l = _v0.a;
+		return $author$project$ArrowStyle$tikzStyle(l.style);
+	}
+};
+var $author$project$Tikz$encodeFakeEdgeTikZ = function (e) {
+	return '(' + ($elm$core$String$fromInt(e.from) + (') to[' + ($author$project$Tikz$encodeFakeLabel(e) + ('] node[coordinate](' + ($elm$core$String$fromInt(e.id) + ('){} (' + ($elm$core$String$fromInt(e.to) + ') \n')))))));
+};
+var $author$project$Tikz$encodeNodeTikZ = F2(
+	function (sizeGrid, n) {
+		var _v0 = n.label.pos;
+		var x = _v0.a;
+		var y = _v0.b;
+		var coord = function (u) {
+			return $elm$core$Basics$floor(u / sizeGrid);
+		};
+		return '\\node (' + ($elm$core$String$fromInt(n.id) + (') at (' + ($elm$core$String$fromInt(
+			coord(x)) + (', ' + ($elm$core$String$fromInt(
+			0 - coord(y)) + (') {$' + (((n.label.label === '') ? '\\bullet' : n.label.label) + '$} ; \n')))))));
+	});
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Polygraph$getEdge = F2(
+	function (id, _v0) {
+		var g = _v0.a;
+		return A2(
+			$elm$core$Maybe$andThen,
+			$author$project$Polygraph$objEdge(id),
+			A2($elm_community$intdict$IntDict$get, id, g));
+	});
+var $author$project$Tikz$encodePullshoutTikZ = F2(
+	function (g, e) {
+		var _v0 = _Utils_Tuple2(
+			A2($author$project$Polygraph$getEdge, e.from, g),
+			A2($author$project$Polygraph$getEdge, e.to, g));
+		if ((_v0.a.$ === 'Just') && (_v0.b.$ === 'Just')) {
+			var s = _v0.a.a;
+			var t = _v0.b.a;
+			var _v1 = _Utils_eq(s.to, t.to) ? _Utils_Tuple3(
+				$elm$core$String$fromInt(s.from),
+				$elm$core$String$fromInt(s.to),
+				$elm$core$String$fromInt(t.from)) : _Utils_Tuple3(
+				$elm$core$String$fromInt(s.to),
+				$elm$core$String$fromInt(s.from),
+				$elm$core$String$fromInt(t.to));
+			var a = _v1.a;
+			var b = _v1.b;
+			var c = _v1.c;
+			return '\\pullbackk{' + (a + ('}{' + (b + ('}{' + (c + '}{draw} % \n')))));
+		} else {
+			return 'raté!';
+		}
+	});
+var $author$project$GraphDefs$filterEdgeNormal = function (e) {
+	return A2(
+		$elm$core$Maybe$map,
+		function (l) {
+			return A2(
+				$author$project$Polygraph$edgeMap,
+				$elm$core$Basics$always(l),
+				e);
+		},
+		$author$project$GraphDefs$filterLabelNormal(e.label));
+};
+var $elm_community$maybe_extra$Maybe$Extra$isJust = function (m) {
+	if (m.$ === 'Nothing') {
+		return false;
+	} else {
+		return true;
+	}
+};
+var $elm$core$List$partition = F2(
+	function (pred, list) {
+		var step = F2(
+			function (x, _v0) {
+				var trues = _v0.a;
+				var falses = _v0.b;
+				return pred(x) ? _Utils_Tuple2(
+					A2($elm$core$List$cons, x, trues),
+					falses) : _Utils_Tuple2(
+					trues,
+					A2($elm$core$List$cons, x, falses));
+			});
+		return A3(
+			$elm$core$List$foldr,
+			step,
+			_Utils_Tuple2(_List_Nil, _List_Nil),
+			list);
+	});
+var $author$project$Tikz$graphToTikz = F2(
+	function (sizeGrid, g) {
+		var gnorm = $author$project$Polygraph$normalise(g);
+		var nodes = $author$project$Polygraph$nodes(gnorm);
+		var all_edges = $author$project$Polygraph$edges(gnorm);
+		var _v0 = A2(
+			$elm$core$List$partition,
+			A2($elm$core$Basics$composeR, $author$project$GraphDefs$filterEdgeNormal, $elm_community$maybe_extra$Maybe$Extra$isJust),
+			all_edges);
+		var edges = _v0.a;
+		var pullshouts = _v0.b;
+		var tikzNodes = $elm$core$String$concat(
+			A2(
+				$elm$core$List$map,
+				$author$project$Tikz$encodeNodeTikZ(sizeGrid),
+				nodes));
+		var tikzFakeEdges = '\\path \n' + ($elm$core$String$concat(
+			A2($elm$core$List$map, $author$project$Tikz$encodeFakeEdgeTikZ, edges)) + '; \n');
+		var tikzEdges = '\\path[->] \n' + ($elm$core$String$concat(
+			A2(
+				$elm$core$List$map,
+				$author$project$Tikz$encodeEdgeTikZ,
+				A2(
+					$elm$core$List$sortBy,
+					A2(
+						$elm$core$Basics$composeR,
+						function ($) {
+							return $.label;
+						},
+						function ($) {
+							return $.zindex;
+						}),
+					edges))) + '; \n');
+		var tikzPullshouts = $elm$core$String$concat(
+			A2(
+				$elm$core$List$map,
+				$author$project$Tikz$encodePullshoutTikZ(gnorm),
+				pullshouts));
+		return '\\begin{tikzpicture}[every node/.style={inner sep=2pt,outer sep=0pt,anchor=base}] \n' + (tikzNodes + (tikzFakeEdges + (tikzEdges + (tikzPullshouts + '\\end{tikzpicture}'))));
+	});
 var $author$project$Main$onMouseMove = _Platform_outgoingPort('onMouseMove', $elm$core$Basics$identity);
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$json$Json$Encode$float = _Json_wrap;
@@ -9883,129 +10080,140 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 			_List_fromArray(
 				[
 					_Utils_Tuple2(
-					'fileName',
-					$elm$json$Json$Encode$string($.fileName)),
-					_Utils_Tuple2(
 					'graph',
 					function ($) {
 						return $elm$json$Json$Encode$object(
 							_List_fromArray(
 								[
 									_Utils_Tuple2(
-									'edges',
-									$elm$json$Json$Encode$list(
-										function ($) {
-											return $elm$json$Json$Encode$object(
-												_List_fromArray(
-													[
-														_Utils_Tuple2(
-														'from',
-														$elm$json$Json$Encode$int($.from)),
-														_Utils_Tuple2(
-														'id',
-														$elm$json$Json$Encode$int($.id)),
-														_Utils_Tuple2(
-														'label',
+									'fileName',
+									$elm$json$Json$Encode$string($.fileName)),
+									_Utils_Tuple2(
+									'graph',
+									function ($) {
+										return $elm$json$Json$Encode$object(
+											_List_fromArray(
+												[
+													_Utils_Tuple2(
+													'edges',
+													$elm$json$Json$Encode$list(
 														function ($) {
 															return $elm$json$Json$Encode$object(
 																_List_fromArray(
 																	[
 																		_Utils_Tuple2(
-																		'isPullshout',
-																		$elm$json$Json$Encode$bool($.isPullshout)),
+																		'from',
+																		$elm$json$Json$Encode$int($.from)),
+																		_Utils_Tuple2(
+																		'id',
+																		$elm$json$Json$Encode$int($.id)),
 																		_Utils_Tuple2(
 																		'label',
-																		$elm$json$Json$Encode$string($.label)),
-																		_Utils_Tuple2(
-																		'style',
 																		function ($) {
 																			return $elm$json$Json$Encode$object(
 																				_List_fromArray(
 																					[
 																						_Utils_Tuple2(
-																						'alignment',
-																						$elm$json$Json$Encode$string($.alignment)),
+																						'isPullshout',
+																						$elm$json$Json$Encode$bool($.isPullshout)),
 																						_Utils_Tuple2(
-																						'bend',
-																						$elm$json$Json$Encode$float($.bend)),
+																						'label',
+																						$elm$json$Json$Encode$string($.label)),
 																						_Utils_Tuple2(
-																						'dashed',
-																						$elm$json$Json$Encode$bool($.dashed)),
+																						'style',
+																						function ($) {
+																							return $elm$json$Json$Encode$object(
+																								_List_fromArray(
+																									[
+																										_Utils_Tuple2(
+																										'alignment',
+																										$elm$json$Json$Encode$string($.alignment)),
+																										_Utils_Tuple2(
+																										'bend',
+																										$elm$json$Json$Encode$float($.bend)),
+																										_Utils_Tuple2(
+																										'dashed',
+																										$elm$json$Json$Encode$bool($.dashed)),
+																										_Utils_Tuple2(
+																										'double',
+																										$elm$json$Json$Encode$bool($._double)),
+																										_Utils_Tuple2(
+																										'head',
+																										$elm$json$Json$Encode$string($.head)),
+																										_Utils_Tuple2(
+																										'position',
+																										$elm$json$Json$Encode$float($.position)),
+																										_Utils_Tuple2(
+																										'tail',
+																										$elm$json$Json$Encode$string($.tail))
+																									]));
+																						}($.style)),
 																						_Utils_Tuple2(
-																						'double',
-																						$elm$json$Json$Encode$bool($._double)),
-																						_Utils_Tuple2(
-																						'head',
-																						$elm$json$Json$Encode$string($.head)),
-																						_Utils_Tuple2(
-																						'position',
-																						$elm$json$Json$Encode$float($.position)),
-																						_Utils_Tuple2(
-																						'tail',
-																						$elm$json$Json$Encode$string($.tail))
+																						'zindex',
+																						$elm$json$Json$Encode$int($.zindex))
 																					]));
-																		}($.style)),
+																		}($.label)),
 																		_Utils_Tuple2(
-																		'zindex',
-																		$elm$json$Json$Encode$int($.zindex))
+																		'to',
+																		$elm$json$Json$Encode$int($.to))
 																	]));
-														}($.label)),
-														_Utils_Tuple2(
-														'to',
-														$elm$json$Json$Encode$int($.to))
-													]));
-										})($.edges)),
-									_Utils_Tuple2(
-									'latexPreamble',
-									$elm$json$Json$Encode$string($.latexPreamble)),
-									_Utils_Tuple2(
-									'nodes',
-									$elm$json$Json$Encode$list(
-										function ($) {
-											return $elm$json$Json$Encode$object(
-												_List_fromArray(
-													[
-														_Utils_Tuple2(
-														'id',
-														$elm$json$Json$Encode$int($.id)),
-														_Utils_Tuple2(
-														'label',
+														})($.edges)),
+													_Utils_Tuple2(
+													'latexPreamble',
+													$elm$json$Json$Encode$string($.latexPreamble)),
+													_Utils_Tuple2(
+													'nodes',
+													$elm$json$Json$Encode$list(
 														function ($) {
 															return $elm$json$Json$Encode$object(
 																_List_fromArray(
 																	[
 																		_Utils_Tuple2(
-																		'isMath',
-																		$elm$json$Json$Encode$bool($.isMath)),
+																		'id',
+																		$elm$json$Json$Encode$int($.id)),
 																		_Utils_Tuple2(
 																		'label',
-																		$elm$json$Json$Encode$string($.label)),
-																		_Utils_Tuple2(
-																		'pos',
 																		function ($) {
-																			var a = $.a;
-																			var b = $.b;
-																			return A2(
-																				$elm$json$Json$Encode$list,
-																				$elm$core$Basics$identity,
+																			return $elm$json$Json$Encode$object(
 																				_List_fromArray(
 																					[
-																						$elm$json$Json$Encode$float(a),
-																						$elm$json$Json$Encode$float(b)
+																						_Utils_Tuple2(
+																						'isMath',
+																						$elm$json$Json$Encode$bool($.isMath)),
+																						_Utils_Tuple2(
+																						'label',
+																						$elm$json$Json$Encode$string($.label)),
+																						_Utils_Tuple2(
+																						'pos',
+																						function ($) {
+																							var a = $.a;
+																							var b = $.b;
+																							return A2(
+																								$elm$json$Json$Encode$list,
+																								$elm$core$Basics$identity,
+																								_List_fromArray(
+																									[
+																										$elm$json$Json$Encode$float(a),
+																										$elm$json$Json$Encode$float(b)
+																									]));
+																						}($.pos))
 																					]));
-																		}($.pos))
+																		}($.label))
 																	]));
-														}($.label))
-													]));
-										})($.nodes)),
+														})($.nodes)),
+													_Utils_Tuple2(
+													'sizeGrid',
+													$elm$json$Json$Encode$int($.sizeGrid))
+												]));
+									}($.graph)),
 									_Utils_Tuple2(
-									'sizeGrid',
-									$elm$json$Json$Encode$int($.sizeGrid))
+									'version',
+									$elm$json$Json$Encode$int($.version))
 								]));
 					}($.graph)),
 					_Utils_Tuple2(
-					'version',
-					$elm$json$Json$Encode$int($.version))
+					'latex',
+					$elm$json$Json$Encode$string($.latex))
 				]));
 	});
 var $author$project$Msg$NoLoad = {$: 'NoLoad'};
@@ -10336,23 +10544,6 @@ var $author$project$Modes$PullshoutMode = function (a) {
 	return {$: 'PullshoutMode', a: a};
 };
 var $author$project$Modes$Pushout = {$: 'Pushout'};
-var $elm$core$Maybe$andThen = F2(
-	function (callback, maybeValue) {
-		if (maybeValue.$ === 'Just') {
-			var value = maybeValue.a;
-			return callback(value);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $author$project$Polygraph$getEdge = F2(
-	function (id, _v0) {
-		var g = _v0.a;
-		return A2(
-			$elm$core$Maybe$andThen,
-			$author$project$Polygraph$objEdge(id),
-			A2($elm_community$intdict$IntDict$get, id, g));
-	});
 var $author$project$Polygraph$incomings = F2(
 	function (id, g) {
 		return A2(
@@ -12435,17 +12626,6 @@ var $author$project$Modes$Square$nextStep = F3(
 				$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
 		}
 	});
-var $author$project$GraphDefs$filterEdgeNormal = function (e) {
-	return A2(
-		$elm$core$Maybe$map,
-		function (l) {
-			return A2(
-				$author$project$Polygraph$edgeMap,
-				$elm$core$Basics$always(l),
-				e);
-		},
-		$author$project$GraphDefs$filterLabelNormal(e.label));
-};
 var $elm_community$list_extra$List$Extra$uniquePairs = function (xs) {
 	if (!xs.b) {
 		return _List_Nil;
@@ -13883,24 +14063,6 @@ var $author$project$GraphProof$nameIdentities = A4(
 					label: ((l.label === '') && l.identity) ? ('|' + (fromLabel + '|')) : l.label
 				});
 		}));
-var $elm$core$List$partition = F2(
-	function (pred, list) {
-		var step = F2(
-			function (x, _v0) {
-				var trues = _v0.a;
-				var falses = _v0.b;
-				return pred(x) ? _Utils_Tuple2(
-					A2($elm$core$List$cons, x, trues),
-					falses) : _Utils_Tuple2(
-					trues,
-					A2($elm$core$List$cons, x, falses));
-			});
-		return A3(
-			$elm$core$List$foldr,
-			step,
-			_Utils_Tuple2(_List_Nil, _List_Nil),
-			list);
-	});
 var $author$project$GraphProof$statementToString = function (d) {
 	var edgeToString = A2(
 		$elm$core$Basics$composeR,
@@ -14209,13 +14371,6 @@ var $author$project$GraphProof$getToThePoint = F2(
 							_List_fromArray(
 								['  repeat rewrite assoc.']))))));
 	});
-var $elm_community$maybe_extra$Maybe$Extra$isJust = function (m) {
-	if (m.$ === 'Nothing') {
-		return false;
-	} else {
-		return true;
-	}
-};
 var $author$project$GraphProof$symmetryStr = 'apply pathsinv0.';
 var $author$project$GraphProof$incompleteProofStepToString = function (_v0) {
 	var startOffset = _v0.startOffset;
@@ -15185,7 +15340,7 @@ var $author$project$Main$update_DefaultMode = F2(
 							model.graph)));
 			}
 		};
-		_v0$41:
+		_v0$42:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseOn':
@@ -15253,7 +15408,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											model,
 											$author$project$GraphDefs$removeSelected(model.graph)));
 								default:
-									break _v0$41;
+									break _v0$42;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -15386,6 +15541,14 @@ var $author$project$Main$update_DefaultMode = F2(
 											$author$project$Model$setSaveGraph,
 											model,
 											$author$project$GraphDefs$removeSelected(model.graph)));
+								case 'X':
+									return A2(
+										fillBottom,
+										A2(
+											$author$project$Tikz$graphToTikz,
+											model.sizeGrid,
+											$author$project$GraphDefs$selectedGraph(model.graph)),
+										'No diagram found!');
 								case 'f':
 									return $author$project$Model$noCmd(
 										function () {
@@ -15452,14 +15615,14 @@ var $author$project$Main$update_DefaultMode = F2(
 									var k = msg.b;
 									return increaseZBy(-1);
 								default:
-									break _v0$41;
+									break _v0$42;
 							}
 						}
 					} else {
-						break _v0$41;
+						break _v0$42;
 					}
 				default:
-					break _v0$41;
+					break _v0$42;
 			}
 		}
 		var _v9 = $author$project$GraphDefs$selectedEdgeId(model.graph);
@@ -16856,7 +17019,10 @@ var $author$project$Main$update = F2(
 				return _Utils_Tuple2(
 					model,
 					$author$project$Main$saveGraph(
-						$author$project$Main$toJsGraphInfo(model)));
+						{
+							graph: $author$project$Main$toJsGraphInfo(model),
+							latex: A2($author$project$Tikz$graphToTikz, model.sizeGrid, model.graph)
+						}));
 			case 'MinuteTick':
 				return model.autoSave ? _Utils_Tuple2(
 					model,
@@ -17085,7 +17251,6 @@ var $author$project$Drawing$Drawing = function (a) {
 var $author$project$Drawing$empty = $author$project$Drawing$Drawing(_List_Nil);
 var $author$project$GraphDrawing$foregroundZ = 10000;
 var $elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
-var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $author$project$Drawing$ofSvgs = F2(
 	function (z, l) {
@@ -19418,7 +19583,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode (the basic tutorial can be completed before reading this). ' + ('Sumary of commands:\n' + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected component' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + ('\n Basic editing: ' + ('new [p]oint' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow from selected point' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background.' + ('\nMoving objects:' + ('[g] move selected objects (also merge, if wanted)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + ', [E] enter an equation (prompt)')))))))))))))))))))))))))))))))))))))))))));
+			return msg('Default mode (the basic tutorial can be completed before reading this). ' + ('Sumary of commands:\n' + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected component' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + (', [M-c] clone selection (same as C-c C-v)' + ('\n Basic editing: ' + ('new [p]oint' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow from selected point' + (', [/] split arrow' + (', [c]ut head of selected arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background.' + ('\nMoving objects:' + ('[g] move selected objects (also merge, if wanted)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [C] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with an empty branch)' + (', [E] enter an equation (prompt)' + ', export selection to LaTe[X]'))))))))))))))))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return makeHelpDiv(
 				$elm$core$List$singleton(
@@ -22700,7 +22865,7 @@ var $author$project$HtmlDefs$textHtml = function (t) {
 		return _List_Nil;
 	}
 };
-var $author$project$HtmlDefs$introHtml = $author$project$HtmlDefs$textHtml('\n   <p>\n            A vi-inspired diagram editor, with              \n            (latex) labelled nodes and edges, tested with Firefox, written in <a href="https://elm-lang.org/">Elm</a> (see the code on \n        <a href="https://github.com/amblafont/graph-editor-web">github</a>).\n            Higher cells are supported.\n	    You can draw anywhere, not just on the grid (whose size can be later adjusted).\n	    </p>\n	    <p>\n	    For a LaTeX export, first export to <a href="https://q.uiver.app">Quiver</a> (beware that vertices will be snapped\n            to the grid in the process).\n	    </p>\n	    <p>\n            Read the tutorial first, and then try some <a href="?scenario=exercise1">exercise</a>.\n        </p>');
+var $author$project$HtmlDefs$introHtml = $author$project$HtmlDefs$textHtml('\n   <p>\n            A vi-inspired diagram editor, with              \n            (latex) labelled nodes and edges, tested with Firefox, written in <a href="https://elm-lang.org/">Elm</a> (see the code on \n        <a href="https://github.com/amblafont/graph-editor-web">github</a>).\n            Higher cells are supported.\n	    You can draw anywhere, not just on the grid (whose size can be later adjusted).\n	    </p>\n	    <p>\n	    For a LaTeX export, press \'X\' after selection.\n	    </p>\n	    <p>\n            Read the tutorial first, and then try some <a href="?scenario=exercise1">exercise</a>.\n        </p>');
 var $author$project$Modes$isResizeMode = function (m) {
 	if (m.$ === 'ResizeMode') {
 		return true;
