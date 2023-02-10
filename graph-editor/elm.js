@@ -22865,7 +22865,7 @@ var $author$project$HtmlDefs$textHtml = function (t) {
 		return _List_Nil;
 	}
 };
-var $author$project$HtmlDefs$introHtml = $author$project$HtmlDefs$textHtml('\n   <p>\n            A vi-inspired diagram editor, with              \n            (latex) labelled nodes and edges, tested with Firefox, written in <a href="https://elm-lang.org/">Elm</a> (see the code on \n        <a href="https://github.com/amblafont/graph-editor-web">github</a>).\n            Higher cells are supported.\n	    You can draw anywhere, not just on the grid (whose size can be later adjusted).\n	    </p>\n	    <p>\n	    For a LaTeX export, press \'X\' after selection.\n	    </p>\n	    <p>\n            Read the tutorial first, and then try some <a href="?scenario=exercise1">exercise</a>.\n        </p>');
+var $author$project$HtmlDefs$introHtml = $author$project$HtmlDefs$textHtml('\n   <p>\n            A vi-inspired diagram editor, with              \n            (latex) labelled nodes and edges, tested with Firefox, written in <a href="https://elm-lang.org/">Elm</a> (see the code on \n        <a href="https://github.com/amblafont/graph-editor-web">github</a>).\n            Higher cells are supported.\n	    You can draw anywhere, not just on the grid (whose size can be later adjusted).\n	    </p>\n	    <p>\n	    For LaTeX export, press (capital) \'X\' after selection. The output code relies on\n      a custom <a href="https://raw.githubusercontent.com/amblafont/graph-editor-web/master/tools/yade.sty">latex package</a>.\n	    </p>\n	    <p>\n            Read the tutorial first, and then try some <a href="?scenario=exercise1">exercise</a>.\n        </p>');
 var $author$project$Modes$isResizeMode = function (m) {
 	if (m.$ === 'ResizeMode') {
 		return true;
