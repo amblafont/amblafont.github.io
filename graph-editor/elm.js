@@ -9925,7 +9925,7 @@ var $author$project$Tikz$graphToTikz = F2(
 				$elm$core$List$map,
 				$author$project$Tikz$encodePullshoutTikZ(gnorm),
 				pullshouts));
-		return '\\begin{tikzpicture}[every node/.style={inner sep=2pt,outer sep=0pt,anchor=base}] \n' + (tikzNodes + (tikzFakeEdges + (tikzEdges + (tikzPullshouts + '\\end{tikzpicture}'))));
+		return '\\begin{tikzpicture}[every node/.style={inner sep=2pt,outer sep=0pt,anchor=base,text height=1.2ex, text depth=0.25ex}] \n' + (tikzNodes + (tikzFakeEdges + (tikzEdges + (tikzPullshouts + '\\end{tikzpicture}'))));
 	});
 var $author$project$Main$onMouseMove = _Platform_outgoingPort('onMouseMove', $elm$core$Basics$identity);
 var $elm$json$Json$Encode$bool = _Json_wrap;
