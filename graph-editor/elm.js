@@ -9734,18 +9734,7 @@ var $elm$core$String$concat = function (strings) {
 	return A2($elm$core$String$join, '', strings);
 };
 var $elm$core$String$fromFloat = _String_fromNumber;
-var $author$project$Tikz$labelfromAlignment = function (a) {
-	switch (a.$) {
-		case 'Centre':
-			return 'labeloat';
-		case 'Over':
-			return 'labelonat';
-		case 'Left':
-			return 'labelrat';
-		default:
-			return 'labellat';
-	}
-};
+var $elm$core$Basics$pi = _Basics_pi;
 var $author$project$ArrowStyle$tikzStyle = function (stl) {
 	return _Utils_ap(
 		function () {
@@ -9773,7 +9762,12 @@ var $author$project$ArrowStyle$tikzStyle = function (stl) {
 			}(),
 			_Utils_ap(
 				stl._double ? 'cell=0, ' : '',
-				stl.dashed ? 'dashed, ' : '')));
+				_Utils_ap(
+					stl.dashed ? 'dashed, ' : '',
+					function () {
+						var bnd = (stl.bend * 180) / $elm$core$Basics$pi;
+						return (!(!stl.bend)) ? ('bend right={' + ($elm$core$String$fromFloat(bnd) + '}, ')) : '';
+					}()))));
 };
 var $author$project$Tikz$encodeLabel = function (e) {
 	var _v0 = e.label.details;
@@ -9781,7 +9775,20 @@ var $author$project$Tikz$encodeLabel = function (e) {
 		return '';
 	} else {
 		var l = _v0.a;
-		return $author$project$Tikz$labelfromAlignment(l.style.labelAlignment) + ('={' + (l.label + ('}{' + ($elm$core$String$fromFloat(l.style.labelPosition) + ('}, ' + $author$project$ArrowStyle$tikzStyle(l.style))))));
+		var lbl = '$' + (l.label + '$');
+		return function () {
+			var _v1 = l.style.labelAlignment;
+			switch (_v1.$) {
+				case 'Over':
+					return 'labelonat={' + (lbl + ('}{' + ($elm$core$String$fromFloat(l.style.labelPosition) + '}, ')));
+				case 'Centre':
+					return 'labelonat={' + (lbl + ('}{' + ($elm$core$String$fromFloat(l.style.labelPosition) + '}, ')));
+				case 'Left':
+					return '\"' + (lbl + '\", ');
+				default:
+					return '\"' + (lbl + '\"\', ');
+			}
+		}() + ('pos=' + ($elm$core$String$fromFloat(l.style.labelPosition) + (', ' + $author$project$ArrowStyle$tikzStyle(l.style))));
 	}
 };
 var $author$project$Tikz$encodeEdgeTikZ = function (e) {
@@ -13214,7 +13221,6 @@ var $author$project$Geometry$Point$closeRemainder = F2(
 	function (q, a) {
 		return a - ($elm$core$Basics$round(a / q) * q);
 	});
-var $elm$core$Basics$pi = _Basics_pi;
 var $author$project$Geometry$Point$normaliseAngle = function (alpha) {
 	return A2($author$project$Geometry$Point$closeRemainder, 2 * $elm$core$Basics$pi, alpha);
 };
