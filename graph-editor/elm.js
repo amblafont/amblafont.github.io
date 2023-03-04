@@ -5934,11 +5934,11 @@ var $author$project$Msg$Standard = {$: 'Standard'};
 var $author$project$Model$createModel = F2(
 	function (sizeGrid, g) {
 		return {
-			autoSave: true,
+			autoSave: false,
 			bottomText: '',
 			fileName: 'graph.json',
 			graph: g,
-			hideGrid: true,
+			hideGrid: false,
 			history: _List_Nil,
 			latexPreamble: '',
 			mode: $author$project$Modes$DefaultMode,
@@ -9749,19 +9749,19 @@ var $author$project$ArrowStyle$tikzStyle = function (stl) {
 			}
 		}(),
 		_Utils_ap(
-			function () {
-				var _v1 = stl.head;
-				switch (_v1.$) {
-					case 'DefaultHead':
-						return '->, ';
-					case 'TwoHeads':
-						return 'onto, ';
-					default:
-						return '-';
-				}
-			}(),
+			stl._double ? 'cell=0, ' : '',
 			_Utils_ap(
-				stl._double ? 'cell=0, ' : '',
+				function () {
+					var _v1 = stl.head;
+					switch (_v1.$) {
+						case 'DefaultHead':
+							return '->, ';
+						case 'TwoHeads':
+							return 'onto, ';
+						default:
+							return '-,';
+					}
+				}(),
 				_Utils_ap(
 					stl.dashed ? 'dashed, ' : '',
 					function () {
@@ -9775,7 +9775,7 @@ var $author$project$Tikz$encodeLabel = function (e) {
 		return '';
 	} else {
 		var l = _v0.a;
-		var lbl = '$' + (l.label + '$');
+		var lbl = '$\\scriptstyle ' + (l.label + '$');
 		return function () {
 			var _v1 = l.style.labelAlignment;
 			switch (_v1.$) {
@@ -9812,11 +9812,11 @@ var $author$project$Tikz$encodeNodeTikZ = F2(
 		var x = _v0.a;
 		var y = _v0.b;
 		var coord = function (u) {
-			return $elm$core$Basics$floor(u / sizeGrid);
+			return u / 21;
 		};
-		return '\\node (' + ($elm$core$String$fromInt(n.id) + (') at (' + ($elm$core$String$fromInt(
-			coord(x)) + (', ' + ($elm$core$String$fromInt(
-			0 - coord(y)) + (') {$' + (((n.label.label === '') ? '\\bullet' : n.label.label) + '$} ; \n')))))));
+		return '\\node (' + ($elm$core$String$fromInt(n.id) + (') at (' + ($elm$core$String$fromFloat(
+			coord(x)) + ('em, ' + ($elm$core$String$fromFloat(
+			0 - coord(y)) + ('em) {$' + (((n.label.label === '') ? '\\bullet' : n.label.label) + '$} ; \n')))))));
 	});
 var $elm$core$Maybe$andThen = F2(
 	function (callback, maybeValue) {
@@ -9932,7 +9932,7 @@ var $author$project$Tikz$graphToTikz = F2(
 				$elm$core$List$map,
 				$author$project$Tikz$encodePullshoutTikZ(gnorm),
 				pullshouts));
-		return '\\begin{tikzpicture}[every node/.style={inner sep=2pt,outer sep=0pt,anchor=base,text height=1.2ex, text depth=0.25ex}] \n' + (tikzNodes + (tikzFakeEdges + (tikzEdges + (tikzPullshouts + '\\end{tikzpicture}'))));
+		return '\\begin{tikzpicture}[every node/.style={inner sep=5pt,outer sep=0pt,anchor=base,text height=1.2ex, text depth=0.25ex}] \n' + (tikzNodes + (tikzFakeEdges + (tikzEdges + (tikzPullshouts + '\\end{tikzpicture}'))));
 	});
 var $author$project$Main$onMouseMove = _Platform_outgoingPort('onMouseMove', $elm$core$Basics$identity);
 var $elm$json$Json$Encode$bool = _Json_wrap;
@@ -18823,7 +18823,7 @@ var $author$project$GraphDrawing$segmentLabel = F6(
 							$author$project$GraphDrawing$activityToClasses(activity)),
 						$author$project$HtmlDefs$onRendered(
 							$author$project$Msg$EdgeRendered(edgeId)))),
-				cfg.latexPreamble + ('\n' + label.label))));
+				cfg.latexPreamble + ('\n\\scriptstyle ' + label.label))));
 	});
 var $author$project$Drawing$On = F2(
 	function (a, b) {
@@ -23157,7 +23157,8 @@ var $author$project$Main$viewGraph = function (model) {
 					A5(
 					$author$project$HtmlDefs$slider,
 					$author$project$Msg$SizeGrid,
-					'Grid size',
+					'Grid size (' + ($elm$core$String$fromInt(
+						$author$project$Model$modedSizeGrid(model)) + ')'),
 					$author$project$Model$minSizeGrid,
 					$author$project$Model$maxSizeGrid,
 					$author$project$Model$modedSizeGrid(model))
