@@ -8661,7 +8661,7 @@ var $author$project$Main$onMouseMoveFromJS = _Platform_incomingPort(
 		A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)));
 var $author$project$Main$preventDefault = _Platform_outgoingPort('preventDefault', $elm$core$Basics$identity);
 var $author$project$Main$promptedEquation = _Platform_incomingPort('promptedEquation', $elm$json$Json$Decode$string);
-var $author$project$Main$savedGraph = _Platform_incomingPort('savedGraph', $elm$json$Json$Decode$string);
+var $author$project$Main$renameFile = _Platform_incomingPort('renameFile', $elm$json$Json$Decode$string);
 var $author$project$Main$simpleMsg = _Platform_incomingPort('simpleMsg', $elm$json$Json$Decode$string);
 var $elm$core$Result$withDefault = F2(
 	function (def, result) {
@@ -8679,6 +8679,7 @@ var $author$project$Main$subscriptions = function (m) {
 				[
 					$author$project$Main$findReplace($author$project$Msg$FindReplace),
 					$author$project$Main$simpleMsg($author$project$Msg$SimpleMsg),
+					$author$project$Main$renameFile($author$project$Msg$FileName),
 					$author$project$Main$loadedGraph0(
 					A2(
 						$elm$core$Basics$composeR,
@@ -8726,7 +8727,6 @@ var $author$project$Main$subscriptions = function (m) {
 						$author$project$Msg$Loaded)),
 					$author$project$Main$clipboardGraph(
 					A2($elm$core$Basics$composeR, $author$project$Format$LastVersion$fromJSGraph, $author$project$Msg$PasteGraph)),
-					$author$project$Main$savedGraph($author$project$Msg$FileName),
 					$elm$browser$Browser$Events$onClick(
 					$elm$json$Json$Decode$succeed($author$project$Msg$MouseClick))
 				]),
@@ -10208,13 +10208,13 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 				]));
 	});
 var $author$project$Main$saveGridSize = _Platform_outgoingPort('saveGridSize', $elm$json$Json$Encode$int);
-var $author$project$Msg$NoLoad = {$: 'NoLoad'};
+var $author$project$Msg$Watch = {$: 'Watch'};
 var $author$project$Msg$scenarioOfString = function (s) {
 	switch (s) {
 		case 'exercise1':
 			return $author$project$Msg$Exercise1;
-		case 'noload':
-			return $author$project$Msg$NoLoad;
+		case 'watch':
+			return $author$project$Msg$Watch;
 		default:
 			return $author$project$Msg$Standard;
 	}
@@ -23074,7 +23074,7 @@ var $author$project$Main$viewGraph = function (model) {
 				_List_Nil,
 				_Utils_ap(
 					$author$project$HtmlDefs$introHtml,
-					(!_Utils_eq(model.scenario, $author$project$Msg$NoLoad)) ? _List_fromArray(
+					(!_Utils_eq(model.scenario, $author$project$Msg$Watch)) ? _List_fromArray(
 						[
 							A2(
 							$elm$html$Html$button,
@@ -23111,119 +23111,137 @@ var $author$project$Main$viewGraph = function (model) {
 					[
 						$author$project$Main$helpMsg(model),
 						$author$project$Main$quickInputView(model)
-					])),
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Events$onClick($author$project$Msg$Save),
-						$elm$html$Html$Attributes$id('save-button')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Save')
-					])),
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Events$onClick($author$project$Msg$Clear)
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Clear')
-					])),
-				A2(
-				$elm$html$Html$a,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$href('#' + $author$project$HtmlDefs$latexPreambleId)
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Latex preamble')
-					])),
-				A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleHideGrid, 'Show grid', '', !model.hideGrid),
-				A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleAutosave, 'Autosave', 'Quicksave every minute', model.autoSave),
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Events$onClick($author$project$Msg$ExportQuiver)
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Export selection to quiver')
-					])),
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Events$onClick($author$project$Msg$SaveGridSize)
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Save grid size preferences')
 					]))
 			]),
 		_Utils_ap(
-			$author$project$Modes$isResizeMode(model.mode) ? _List_fromArray(
+			_Utils_eq(model.scenario, $author$project$Msg$Watch) ? _List_Nil : _List_fromArray(
 				[
-					A5(
-					$author$project$HtmlDefs$slider,
-					$author$project$Msg$SizeGrid,
-					'Grid size (' + ($elm$core$String$fromInt(
-						$author$project$Model$modedSizeGrid(model)) + ')'),
-					$author$project$Model$minSizeGrid,
-					$author$project$Model$maxSizeGrid,
-					$author$project$Model$modedSizeGrid(model))
-				]) : _List_Nil,
-			_List_fromArray(
-				[
+					$elm$html$Html$text('Filename: '),
 					A2(
-					$elm$html$Html$p,
-					_List_Nil,
+					$elm$html$Html$input,
 					_List_fromArray(
 						[
-							$elm$html$Html$text(
-							(nmissings > 0) ? ($elm$core$String$fromInt(nmissings) + ' nodes or edges could not be rendered.') : '')
-						])),
-					A3(
-					$author$project$HtmlDefs$makePasteCapture,
-					A2($elm$core$Basics$composeL, $author$project$Msg$Do, $author$project$Main$pasteGraph),
-					_List_Nil,
-					_List_fromArray(
-						[svg])),
-					A2(
-					$elm$html$Html$p,
-					_List_Nil,
+							$elm$html$Html$Attributes$type_('text'),
+							$elm$html$Html$Events$onInput($author$project$Msg$FileName),
+							$elm$html$Html$Attributes$value(model.fileName)
+						]),
+					_List_Nil)
+				]),
+			_Utils_ap(
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$button,
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onClick($author$project$Msg$Save),
+								$elm$html$Html$Attributes$id('save-button')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Save')
+							])),
+						A2(
+						$elm$html$Html$button,
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onClick($author$project$Msg$Clear)
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Clear')
+							])),
+						A2(
+						$elm$html$Html$a,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$href('#' + $author$project$HtmlDefs$latexPreambleId)
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Latex preamble')
+							])),
+						A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleHideGrid, 'Show grid', '', !model.hideGrid),
+						A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleAutosave, 'Autosave', 'Quicksave every minute', model.autoSave),
+						A2(
+						$elm$html$Html$button,
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onClick($author$project$Msg$ExportQuiver)
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Export selection to quiver')
+							])),
+						A2(
+						$elm$html$Html$button,
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onClick($author$project$Msg$SaveGridSize)
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Save grid size preferences')
+							]))
+					]),
+				_Utils_ap(
+					$author$project$Modes$isResizeMode(model.mode) ? _List_fromArray(
+						[
+							A5(
+							$author$project$HtmlDefs$slider,
+							$author$project$Msg$SizeGrid,
+							'Grid size (' + ($elm$core$String$fromInt(
+								$author$project$Model$modedSizeGrid(model)) + ')'),
+							$author$project$Model$minSizeGrid,
+							$author$project$Model$maxSizeGrid,
+							$author$project$Model$modedSizeGrid(model))
+						]) : _List_Nil,
 					_List_fromArray(
 						[
 							A2(
-							$elm$html$Html$textarea,
+							$elm$html$Html$p,
+							_List_Nil,
 							_List_fromArray(
 								[
-									$elm$html$Html$Attributes$cols(100),
-									$elm$html$Html$Attributes$rows(100),
-									$elm$html$Html$Attributes$value(model.bottomText),
-									$elm$html$Html$Attributes$id($author$project$HtmlDefs$bottomTextId)
-								]),
-							_List_Nil),
-							$elm$html$Html$text('latex preamble'),
+									$elm$html$Html$text(
+									(nmissings > 0) ? ($elm$core$String$fromInt(nmissings) + ' nodes or edges could not be rendered.') : '')
+								])),
+							A3(
+							$author$project$HtmlDefs$makePasteCapture,
+							A2($elm$core$Basics$composeL, $author$project$Msg$Do, $author$project$Main$pasteGraph),
+							_List_Nil,
+							_List_fromArray(
+								[svg])),
 							A2(
-							$elm$html$Html$textarea,
+							$elm$html$Html$p,
+							_List_Nil,
 							_List_fromArray(
 								[
-									$elm$html$Html$Attributes$cols(100),
-									$elm$html$Html$Attributes$rows(100),
-									$elm$html$Html$Attributes$placeholder('latex Preamble'),
-									$elm$html$Html$Attributes$value(model.latexPreamble),
-									$elm$html$Html$Attributes$id($author$project$HtmlDefs$latexPreambleId),
-									$elm$html$Html$Events$onInput($author$project$Msg$LatexPreambleEdit)
-								]),
-							_List_Nil)
-						]))
-				])));
+									A2(
+									$elm$html$Html$textarea,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$cols(100),
+											$elm$html$Html$Attributes$rows(100),
+											$elm$html$Html$Attributes$value(model.bottomText),
+											$elm$html$Html$Attributes$id($author$project$HtmlDefs$bottomTextId)
+										]),
+									_List_Nil),
+									$elm$html$Html$text('latex preamble'),
+									A2(
+									$elm$html$Html$textarea,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$cols(100),
+											$elm$html$Html$Attributes$rows(100),
+											$elm$html$Html$Attributes$placeholder('latex Preamble'),
+											$elm$html$Html$Attributes$value(model.latexPreamble),
+											$elm$html$Html$Attributes$id($author$project$HtmlDefs$latexPreambleId),
+											$elm$html$Html$Events$onInput($author$project$Msg$LatexPreambleEdit)
+										]),
+									_List_Nil)
+								]))
+						])))));
 	return A2($elm$html$Html$div, _List_Nil, contents);
 };
 var $author$project$Main$view = function (m) {
