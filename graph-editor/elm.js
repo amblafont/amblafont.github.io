@@ -16288,6 +16288,57 @@ var $author$project$GraphProof$finishedProof = function (_v0) {
 var $author$project$Geometry$Point$flipAngle = function (a) {
 	return a + $elm$core$Basics$pi;
 };
+var $elm_community$intdict$IntDict$values = function (dict) {
+	return A3(
+		$elm_community$intdict$IntDict$foldr,
+		F3(
+			function (key, value, valueList) {
+				return A2($elm$core$List$cons, value, valueList);
+			}),
+		_List_Nil,
+		dict);
+};
+var $author$project$GraphProof$adjacentEdges = function (g) {
+	return A2(
+		$elm$core$List$concatMap,
+		function (i) {
+			return $author$project$ListExtraExtra$succCyclePairs(
+				A2(
+					$elm$core$List$sortBy,
+					function (_v0) {
+						var edge = _v0.edge;
+						var incoming = _v0.incoming;
+						return incoming ? edge.label.angle : $author$project$Geometry$Point$normaliseAngle(
+							$author$project$Geometry$Point$flipAngle(edge.label.angle));
+					},
+					_Utils_ap(
+						A2(
+							$elm$core$List$map,
+							function (e) {
+								return {edge: e, incoming: true};
+							},
+							i.incomings),
+						A2(
+							$elm$core$List$map,
+							function (e) {
+								return {edge: e, incoming: false};
+							},
+							i.outgoings))));
+		},
+		$elm_community$intdict$IntDict$values(
+			$author$project$Polygraph$incidence(g)));
+};
+var $author$project$GraphProof$adjacentListToDict = function (l) {
+	return $elm_community$intdict$IntDict$fromList(
+		A2(
+			$elm$core$List$map,
+			function (_v0) {
+				var e1 = _v0.a;
+				var e2 = _v0.b;
+				return _Utils_Tuple2(e1.edge.id, e2.edge);
+			},
+			l));
+};
 var $elm_community$list_extra$List$Extra$last = function (items) {
 	last:
 	while (true) {
@@ -16306,98 +16357,73 @@ var $elm_community$list_extra$List$Extra$last = function (items) {
 		}
 	}
 };
+var $elm$core$Debug$log = _Debug_log;
+var $author$project$GraphProof$checkEndPoints = function (_v0) {
+	var lhs = _v0.lhs;
+	var rhs = _v0.rhs;
+	var _v1 = _Utils_Tuple2(
+		$elm_community$list_extra$List$Extra$last(lhs),
+		$elm_community$list_extra$List$Extra$last(rhs));
+	if ((_v1.a.$ === 'Just') && (_v1.b.$ === 'Just')) {
+		var e1 = _v1.a.a;
+		var e2 = _v1.b.a;
+		var _v2 = A2(
+			$elm$core$Debug$log,
+			'final id',
+			_Utils_Tuple2(e1.to, e2.to));
+		return _Utils_eq(e1.to, e2.to);
+	} else {
+		return false;
+	}
+};
 var $author$project$GraphProof$getAllValidDiagrams = function (g) {
-	var inc = A2(
-		$elm_community$intdict$IntDict$map,
-		F2(
-			function (_v10, i) {
-				return $author$project$ListExtraExtra$succCyclePairs(
-					A2(
-						$elm$core$List$sortBy,
-						function (_v11) {
-							var edge = _v11.edge;
-							var incoming = _v11.incoming;
-							return incoming ? edge.label.angle : $author$project$Geometry$Point$normaliseAngle(
-								$author$project$Geometry$Point$flipAngle(edge.label.angle));
-						},
-						_Utils_ap(
-							A2(
-								$elm$core$List$map,
-								function (e) {
-									return {edge: e, incoming: true};
-								},
-								i.incomings),
-							A2(
-								$elm$core$List$map,
-								function (e) {
-									return {edge: e, incoming: false};
-								},
-								i.outgoings))));
-			}),
-		$author$project$Polygraph$incidence(g));
-	var treatEdge = F2(
-		function (_v8, _v9) {
-			var e1 = _v8.a;
-			var e2 = _v8.b;
-			var start = _v9.a;
-			var next1 = _v9.b;
-			var next2 = _v9.c;
-			var _v7 = _Utils_Tuple2(e1.incoming, e2.incoming);
-			if (_v7.a) {
-				if (_v7.b) {
-					return _Utils_Tuple3(start, next1, next2);
-				} else {
-					return _Utils_Tuple3(
-						start,
-						A3($elm_community$intdict$IntDict$insert, e1.edge.id, e2.edge, next1),
-						next2);
-				}
-			} else {
-				if (!_v7.b) {
-					return _Utils_Tuple3(
-						A2(
-							$elm$core$List$cons,
-							_Utils_Tuple2(e2.edge, e1.edge),
-							start),
-						next1,
-						next2);
-				} else {
-					return _Utils_Tuple3(
-						start,
-						next1,
-						A3($elm_community$intdict$IntDict$insert, e2.edge.id, e1.edge, next2));
-				}
-			}
-		});
-	var buildNextStarts = F2(
-		function (es, _v6) {
-			var start = _v6.a;
-			var next1 = _v6.b;
-			var next2 = _v6.c;
-			return A3(
-				$elm$core$List$foldl,
-				treatEdge,
-				_Utils_Tuple3(start, next1, next2),
-				es);
-		});
-	var _v0 = A3(
-		$elm_community$intdict$IntDict$foldl,
-		function (_v1) {
-			return buildNextStarts;
+	var inc = $author$project$GraphProof$adjacentEdges(g);
+	var starts = A2(
+		$elm$core$List$map,
+		function (_v6) {
+			var e1 = _v6.a;
+			var e2 = _v6.b;
+			return _Utils_Tuple2(e2, e1);
 		},
-		_Utils_Tuple3(_List_Nil, $elm_community$intdict$IntDict$empty, $elm_community$intdict$IntDict$empty),
+		A2(
+			$elm$core$List$filter,
+			function (_v5) {
+				var e1 = _v5.a;
+				var e2 = _v5.b;
+				return (!e1.incoming) && (!e2.incoming);
+			},
+			inc));
+	var nextRights = A2(
+		$elm$core$List$map,
+		function (_v4) {
+			var e1 = _v4.a;
+			var e2 = _v4.b;
+			return _Utils_Tuple2(e2, e1);
+		},
+		A2(
+			$elm$core$List$filter,
+			function (_v3) {
+				var e1 = _v3.a;
+				var e2 = _v3.b;
+				return (!e1.incoming) && e2.incoming;
+			},
+			inc));
+	var nextLefts = A2(
+		$elm$core$List$filter,
+		function (_v2) {
+			var e1 = _v2.a;
+			var e2 = _v2.b;
+			return e1.incoming && (!e2.incoming);
+		},
 		inc);
-	var start = _v0.a;
-	var next1 = _v0.b;
-	var next2 = _v0.c;
 	var buildBranch = F2(
 		function (next, startEdge) {
-			var _v2 = A2($elm_community$intdict$IntDict$get, startEdge.id, next);
-			if (_v2.$ === 'Nothing') {
+			var _v0 = A2($elm_community$intdict$IntDict$get, startEdge.id, next);
+			if (_v0.$ === 'Nothing') {
 				return _List_fromArray(
 					[startEdge]);
 			} else {
-				var e = _v2.a;
+				var e = _v0.a;
 				return A2(
 					$elm$core$List$cons,
 					startEdge,
@@ -16406,30 +16432,22 @@ var $author$project$GraphProof$getAllValidDiagrams = function (g) {
 		});
 	var diags = A2(
 		$elm$core$List$map,
-		function (_v5) {
-			var rhs = _v5.a;
-			var lhs = _v5.b;
+		function (_v1) {
+			var rhs = _v1.a;
+			var lhs = _v1.b;
 			return {
-				lhs: A2(buildBranch, next2, lhs),
-				rhs: A2(buildBranch, next1, rhs)
+				lhs: A2(
+					buildBranch,
+					$author$project$GraphProof$adjacentListToDict(nextRights),
+					lhs.edge),
+				rhs: A2(
+					buildBranch,
+					$author$project$GraphProof$adjacentListToDict(nextLefts),
+					rhs.edge)
 			};
 		},
-		start);
-	var validDiag = function (_v4) {
-		var lhs = _v4.lhs;
-		var rhs = _v4.rhs;
-		var _v3 = _Utils_Tuple2(
-			$elm_community$list_extra$List$Extra$last(lhs),
-			$elm_community$list_extra$List$Extra$last(rhs));
-		if ((_v3.a.$ === 'Just') && (_v3.b.$ === 'Just')) {
-			var e1 = _v3.a.a;
-			var e2 = _v3.b.a;
-			return _Utils_eq(e1.to, e2.to);
-		} else {
-			return false;
-		}
-	};
-	var validDiags = A2($elm$core$List$filter, validDiag, diags);
+		starts);
+	var validDiags = A2($elm$core$List$filter, $author$project$GraphProof$checkEndPoints, diags);
 	return validDiags;
 };
 var $author$project$GraphProof$invertDiagram = function (_v0) {
@@ -16458,7 +16476,7 @@ var $author$project$Geometry$Point$countRounds = function (l) {
 	return $author$project$Geometry$Point$countRoundsAngle(
 		$author$project$Geometry$Point$sumAngles(l));
 };
-var $author$project$GraphProof$isBorder = function (_v0) {
+var $author$project$GraphProof$isOuterDiagram = function (_v0) {
 	var lhs = _v0.lhs;
 	var rhs = _v0.rhs;
 	var makeAngles = $elm$core$List$map(
@@ -16523,7 +16541,7 @@ var $author$project$GraphProof$nameIdentities = A4(
 var $author$project$GraphProof$fullProofs = function (g0) {
 	var g = $author$project$GraphProof$nameIdentities(g0);
 	var diags = $author$project$GraphProof$getAllValidDiagrams(g);
-	var _v0 = A2($elm$core$List$partition, $author$project$GraphProof$isBorder, diags);
+	var _v0 = A2($elm$core$List$partition, $author$project$GraphProof$isOuterDiagram, diags);
 	var bigDiags = _v0.a;
 	var smallDiags = _v0.b;
 	return A2(
@@ -16814,7 +16832,7 @@ var $author$project$GraphProof$incompleteProofStepToString = function (_v0) {
 						'  (* remove this after copying the goal *)',
 						'  duplicate_goal.',
 						'  admit.',
-						'  (* copy the result in the proof editor *)',
+						'  (* copy the result in the diagram editor (input field \'Enter equation\') *)',
 						'  norm_graph.',
 						'  admit.',
 						'}'
@@ -17643,7 +17661,8 @@ var $author$project$Main$update_DefaultMode = F2(
 					$elm$core$List$map,
 					stToString,
 					$author$project$GraphProof$fullProofs(
-						$author$project$GraphDefs$toProofGraph(model.graph))));
+						$author$project$GraphDefs$toProofGraph(
+							$author$project$GraphDefs$selectedGraph(model.graph)))));
 			return A2(fillBottom, s, 'No diagram found!');
 		};
 		var weaklySelect = function (id) {
@@ -19020,13 +19039,12 @@ var $author$project$Main$update_QuickInput = F3(
 	function (ch, msg, model) {
 		var finalRet = function (chain) {
 			return _Utils_Tuple2(
-				_Utils_update(
-					model,
-					{
-						graph: A2($author$project$Main$graphQuickInput, model, chain),
-						mode: $author$project$Modes$DefaultMode,
-						quickInput: ''
-					}),
+				A2(
+					$author$project$Model$setSaveGraph,
+					_Utils_update(
+						model,
+						{mode: $author$project$Modes$DefaultMode, quickInput: ''}),
+					A2($author$project$Main$graphQuickInput, model, chain)),
 				$elm$core$Platform$Cmd$batch(
 					_List_fromArray(
 						[
@@ -23784,7 +23802,8 @@ var $author$project$Main$viewGraph = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$Events$onClick($author$project$Msg$Save),
-								$elm$html$Html$Attributes$id('save-button')
+								$elm$html$Html$Attributes$id('save-button'),
+								$elm$html$Html$Attributes$title('Opens a save dialog box')
 							]),
 						_List_fromArray(
 							[
