@@ -11200,8 +11200,10 @@ var $author$project$Drawing$colorToString = function (c) {
 			return 'black';
 		case 'Red':
 			return 'red';
-		default:
+		case 'Blue':
 			return 'blue';
+		default:
+			return 'white';
 	}
 };
 var $author$project$String$Html$GhostAttribute = function (a) {
@@ -11323,6 +11325,8 @@ var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions = F3(
 	});
 var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onClick = A2($mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions, 'click', $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$defaultOptions);
 var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDoubleClick = A2($mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions, 'dblclick', $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$defaultOptions);
+var $author$project$String$Svg$strokeWidth = $author$project$String$Html$attribute('stroke-width');
+var $author$project$String$Svg$style = $author$project$String$Html$attribute('style');
 var $author$project$Drawing$attrToSvgAttr = F2(
 	function (col, a) {
 		switch (a.$) {
@@ -11335,6 +11339,14 @@ var $author$project$Drawing$attrToSvgAttr = F2(
 				var s = a.a;
 				return $elm$core$Maybe$Just(
 					$author$project$String$Svg$class(s));
+			case 'Style':
+				var s = a.a;
+				return $elm$core$Maybe$Just(
+					$author$project$String$Svg$style(s));
+			case 'StrokeWidth':
+				var s = a.a;
+				return $elm$core$Maybe$Just(
+					$author$project$String$Svg$strokeWidth(s));
 			case 'On':
 				var e = a.a;
 				var d = a.b;
@@ -11877,10 +11889,6 @@ var $author$project$GraphDrawing$nodeDrawing = F2(
 var $author$project$Msg$MouseOn = function (a) {
 	return {$: 'MouseOn', a: a};
 };
-var $author$project$Drawing$Class = function (a) {
-	return {$: 'Class', a: a};
-};
-var $author$project$Drawing$class = $author$project$Drawing$Class;
 var $author$project$ArrowStyle$doubleSize = 2.5;
 var $author$project$ArrowStyle$isDouble = function (_v0) {
 	var _double = _v0._double;
@@ -11984,7 +11992,7 @@ var $author$project$ArrowStyle$makeHeadTailImgs = F2(
 			]);
 	});
 var $author$project$ArrowStyle$dashedStr = '7, 3';
-var $author$project$String$Svg$strokeDasharray = $author$project$String$Html$attribute('stroke-dash-array');
+var $author$project$String$Svg$strokeDasharray = $author$project$String$Html$attribute('stroke-dasharray');
 var $author$project$Drawing$dashedToAttrs = function (dashed) {
 	return dashed ? _List_fromArray(
 		[
@@ -12054,10 +12062,18 @@ var $author$project$Geometry$QuadraticBezier$orthoVectPx = F2(
 			to: A2($author$project$Geometry$Point$add, deltaTo, to)
 		};
 	});
+var $author$project$Drawing$StrokeWidth = function (a) {
+	return {$: 'StrokeWidth', a: a};
+};
+var $author$project$Drawing$strokeWidth = $author$project$Drawing$StrokeWidth;
+var $author$project$Drawing$Style = function (a) {
+	return {$: 'Style', a: a};
+};
+var $author$project$Drawing$style = $author$project$Drawing$Style;
 var $author$project$Drawing$arrow = F3(
-	function (attrs, style, q) {
+	function (attrs, arrowStyle, q) {
 		var zindex = $author$project$Drawing$attributesToZIndex(attrs);
-		var imgs = A2($author$project$ArrowStyle$makeHeadTailImgs, q, style);
+		var imgs = A2($author$project$ArrowStyle$makeHeadTailImgs, q, arrowStyle);
 		var mkgen = F2(
 			function (d, l) {
 				return A2(
@@ -12065,20 +12081,21 @@ var $author$project$Drawing$arrow = F3(
 					d,
 					_Utils_ap(l, attrs));
 			});
-		var mkl = A2(mkgen, style.dashed, _List_Nil);
+		var mkl = A2(mkgen, arrowStyle.dashed, _List_Nil);
 		var mkshadow = A2(
 			mkgen,
 			false,
 			_List_fromArray(
 				[
-					$author$project$Drawing$class('shadow-line')
+					$author$project$Drawing$style('stroke: white;'),
+					$author$project$Drawing$strokeWidth('4')
 				]));
 		var mkall = function (l) {
 			return _Utils_ap(
 				A2($elm$core$List$map, mkshadow, l),
 				A2($elm$core$List$map, mkl, l));
 		};
-		var lines = $author$project$ArrowStyle$isDouble(style) ? mkall(
+		var lines = $author$project$ArrowStyle$isDouble(arrowStyle) ? mkall(
 			_List_fromArray(
 				[
 					A2($author$project$Geometry$QuadraticBezier$orthoVectPx, 0 - $author$project$ArrowStyle$doubleSize, q),
@@ -20097,7 +20114,6 @@ var $author$project$String$Svg$defs = $author$project$String$Svg$node('defs');
 var $author$project$String$Svg$id = $author$project$String$Html$attribute('id');
 var $author$project$String$Svg$pattern = $author$project$String$Svg$node('pattern');
 var $author$project$String$Svg$patternUnits = $author$project$String$Html$attribute('patternUnits');
-var $author$project$String$Svg$strokeWidth = $author$project$String$Html$attribute('stroke-width');
 var $author$project$Drawing$grid = function (n) {
 	var sn = $elm$core$String$fromInt(n);
 	return A2(
