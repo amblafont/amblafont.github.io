@@ -87,8 +87,7 @@ main {
   grid-template-areas:
     "me"
     "pb"
-    "tk"
-    "pj";
+    "tk";
   grid-gap: 15pt;
 
   text-align: center;
@@ -124,10 +123,6 @@ main section.publications {
 
 main section.talks {
   grid-area: tk;
-}
-
-main section.projects {
-  grid-area: pj;
 }
 
 main section h3 {
@@ -195,16 +190,15 @@ span.speaker {
     grid-template-columns: repeat(2, 1fr);
     grid-template-areas:
       "me pb"
-      "me tk"
-      "me pj";
+      "me tk";
   }
 }
 
 @media only screen and (min-width: 65em) {
   main {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr 2fr;
     grid-template-areas:
-      "me pb pb"
-      "me tk pj";
+      "me pb"
+      "me tk";
   }
 }
