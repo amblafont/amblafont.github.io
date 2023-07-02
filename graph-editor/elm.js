@@ -17834,6 +17834,7 @@ var $author$project$Polygraph$invertEdge = F2(
 				g));
 	});
 var $author$project$Main$jumpToId = _Platform_outgoingPort('jumpToId', $elm$json$Json$Encode$string);
+var $author$project$Main$latexToClipboard = _Platform_outgoingPort('latexToClipboard', $elm$json$Json$Encode$string);
 var $author$project$Msg$mayUpdateArrowStyle = F2(
 	function (m, style) {
 		if ((m.$ === 'KeyChanged') && (!m.a)) {
@@ -18493,13 +18494,12 @@ var $author$project$Main$update_DefaultMode = F2(
 											model,
 											$author$project$GraphDefs$removeSelected(model.graph)));
 								case 'X':
-									return A2(
-										fillBottom,
-										A2(
-											$author$project$Tikz$graphToTikz,
-											model.sizeGrid,
-											$author$project$GraphDefs$selectedGraph(model.graph)),
-										'No diagram found!');
+									var latex = A2(
+										$author$project$Tikz$graphToTikz,
+										model.sizeGrid,
+										$author$project$GraphDefs$selectedGraph(model.graph));
+									var cmd = (latex === '') ? $author$project$Main$alert('No diagram found!') : $author$project$Main$latexToClipboard(latex);
+									return _Utils_Tuple2(model, cmd);
 								case 'V':
 									var s = A2(
 										$author$project$Main$svgExport,
