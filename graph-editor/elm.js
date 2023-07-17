@@ -6003,6 +6003,14 @@ var $author$project$Msg$Watch = {$: 'Watch'};
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$Main$clear = _Platform_incomingPort('clear', $elm$json$Json$Decode$string);
+var $elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Main$decodeGraph = _Platform_outgoingPort('decodeGraph', $elm$json$Json$Encode$string);
+var $elm$json$Json$Decode$decodeValue = _Json_run;
 var $elm$json$Json$Decode$andThen = _Json_andThen;
 var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $elm$json$Json$Decode$field = _Json_decodeField;
@@ -6010,8 +6018,8 @@ var $elm$json$Json$Decode$float = _Json_decodeFloat;
 var $elm$json$Json$Decode$index = _Json_decodeIndex;
 var $elm$json$Json$Decode$int = _Json_decodeInt;
 var $elm$json$Json$Decode$list = _Json_decodeList;
-var $author$project$Main$clipboardGraph = _Platform_incomingPort(
-	'clipboardGraph',
+var $author$project$Main$decodedGraph = _Platform_incomingPort(
+	'decodedGraph',
 	A2(
 		$elm$json$Json$Decode$andThen,
 		function (sizeGrid) {
@@ -6175,7 +6183,6 @@ var $author$project$Main$clipboardGraph = _Platform_incomingPort(
 											A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
 		},
 		A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int)));
-var $elm$json$Json$Decode$decodeValue = _Json_run;
 var $elm$time$Time$Every = F2(
 	function (a, b) {
 		return {$: 'Every', a: a, b: b};
@@ -6569,11 +6576,6 @@ var $elm$time$Time$onSelfMsg = F3(
 				},
 				A2($elm$core$Task$andThen, tellTaggers, $elm$time$Time$now));
 		}
-	});
-var $elm$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
 	});
 var $elm$time$Time$subMap = F2(
 	function (f, _v0) {
@@ -8915,6 +8917,7 @@ var $author$project$Main$onMouseMoveFromJS = _Platform_incomingPort(
 				A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
 		},
 		A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)));
+var $author$project$Main$onPaste = _Platform_incomingPort('onPaste', $elm$json$Json$Decode$string);
 var $author$project$Main$preventDefault = _Platform_outgoingPort('preventDefault', $elm$core$Basics$identity);
 var $author$project$Main$promptedEquation = _Platform_incomingPort('promptedEquation', $elm$json$Json$Decode$string);
 var $author$project$Main$renameFile = _Platform_incomingPort('renameFile', $elm$json$Json$Decode$string);
@@ -8999,7 +9002,7 @@ var $author$project$Main$subscriptions = function (m) {
 						$elm$core$Basics$composeR,
 						$author$project$Msg$mapLoadGraphInfo($author$project$Format$Version9$fromJSGraph),
 						$author$project$Msg$Loaded)),
-					$author$project$Main$clipboardGraph(
+					$author$project$Main$decodedGraph(
 					A2($elm$core$Basics$composeR, $author$project$Format$LastVersion$fromJSGraph, $author$project$Msg$PasteGraph)),
 					$elm$browser$Browser$Events$onClick(
 					$elm$json$Json$Decode$succeed($author$project$Msg$MouseClick))
@@ -9018,101 +9021,107 @@ var $author$project$Main$subscriptions = function (m) {
 							$author$project$Main$promptedEquation(
 							$author$project$Msg$QuickInput(true))
 						]) : _List_Nil,
-					function () {
-						var _v0 = m.mode;
-						switch (_v0.$) {
-							case 'ResizeMode':
-								return false;
-							case 'QuickInputMode':
-								return false;
-							default:
-								return !m.mouseOnCanvas;
-						}
-					}() ? _List_Nil : _Utils_ap(
-						_Utils_eq(m.scenario, $author$project$Msg$Watch) ? _List_Nil : _List_fromArray(
+					_Utils_ap(
+						(_Utils_eq(m.mode, $author$project$Modes$DefaultMode) && m.mouseOnCanvas) ? _List_fromArray(
 							[
-								$author$project$Main$promptedEquation(
-								$author$project$Msg$QuickInput(true))
-							]),
-						_List_fromArray(
-							[
-								$elm$browser$Browser$Events$onKeyUp(
-								A3(
-									$elm$json$Json$Decode$map2,
-									$author$project$Msg$KeyChanged(false),
-									$author$project$HtmlDefs$keysDecoder,
-									$author$project$HtmlDefs$keyDecoder)),
-								$elm$browser$Browser$Events$onKeyDown(
-								A3(
-									$elm$json$Json$Decode$map2,
-									$author$project$Msg$KeyChanged(true),
-									$author$project$HtmlDefs$keysDecoder,
-									$author$project$HtmlDefs$keyDecoder)),
-								$author$project$Main$onCopy(
-								$elm$core$Basics$always($author$project$Msg$CopyGraph)),
-								$author$project$Main$onMouseMoveFromJS($author$project$Msg$MouseMove),
-								$author$project$Main$onKeyDownActive(
-								function (e) {
-									return A2(
-										$elm$core$Result$withDefault,
-										$author$project$Msg$noOp,
-										A2(
-											$elm$json$Json$Decode$decodeValue,
-											A3(
-												$elm$json$Json$Decode$map2,
-												F2(
-													function (ks, k) {
-														var checkCtrl = (ks.ctrl && _Utils_eq(m.mode, $author$project$Modes$DefaultMode)) ? $author$project$Msg$Do(
-															$author$project$Main$preventDefault(e)) : $author$project$Msg$noOp;
-														_v1$3:
-														while (true) {
-															if (k.$ === 'Character') {
-																switch (k.a.valueOf()) {
-																	case '/':
-																		var _v2 = m.mode;
-																		switch (_v2.$) {
-																			case 'DefaultMode':
+								$author$project$Main$onPaste(
+								A2($elm$core$Basics$composeL, $author$project$Msg$Do, $author$project$Main$decodeGraph))
+							]) : _List_Nil,
+						function () {
+							var _v0 = m.mode;
+							switch (_v0.$) {
+								case 'ResizeMode':
+									return false;
+								case 'QuickInputMode':
+									return false;
+								default:
+									return !m.mouseOnCanvas;
+							}
+						}() ? _List_Nil : _Utils_ap(
+							_Utils_eq(m.scenario, $author$project$Msg$Watch) ? _List_Nil : _List_fromArray(
+								[
+									$author$project$Main$promptedEquation(
+									$author$project$Msg$QuickInput(true))
+								]),
+							_List_fromArray(
+								[
+									$elm$browser$Browser$Events$onKeyUp(
+									A3(
+										$elm$json$Json$Decode$map2,
+										$author$project$Msg$KeyChanged(false),
+										$author$project$HtmlDefs$keysDecoder,
+										$author$project$HtmlDefs$keyDecoder)),
+									$elm$browser$Browser$Events$onKeyDown(
+									A3(
+										$elm$json$Json$Decode$map2,
+										$author$project$Msg$KeyChanged(true),
+										$author$project$HtmlDefs$keysDecoder,
+										$author$project$HtmlDefs$keyDecoder)),
+									$author$project$Main$onCopy(
+									$elm$core$Basics$always($author$project$Msg$CopyGraph)),
+									$author$project$Main$onMouseMoveFromJS($author$project$Msg$MouseMove),
+									$author$project$Main$onKeyDownActive(
+									function (e) {
+										return A2(
+											$elm$core$Result$withDefault,
+											$author$project$Msg$noOp,
+											A2(
+												$elm$json$Json$Decode$decodeValue,
+												A3(
+													$elm$json$Json$Decode$map2,
+													F2(
+														function (ks, k) {
+															var checkCtrl = (ks.ctrl && _Utils_eq(m.mode, $author$project$Modes$DefaultMode)) ? $author$project$Msg$Do(
+																$author$project$Main$preventDefault(e)) : $author$project$Msg$noOp;
+															_v1$3:
+															while (true) {
+																if (k.$ === 'Character') {
+																	switch (k.a.valueOf()) {
+																		case '/':
+																			var _v2 = m.mode;
+																			switch (_v2.$) {
+																				case 'DefaultMode':
+																					return $author$project$Msg$Do(
+																						$author$project$Main$preventDefault(e));
+																				case 'SplitArrow':
+																					return $author$project$Msg$Do(
+																						$author$project$Main$preventDefault(e));
+																				default:
+																					return $author$project$Msg$noOp;
+																			}
+																		case 'a':
+																			return checkCtrl;
+																		default:
+																			break _v1$3;
+																	}
+																} else {
+																	if (k.a === 'Tab') {
+																		var _v3 = m.mode;
+																		switch (_v3.$) {
+																			case 'SquareMode':
 																				return $author$project$Msg$Do(
 																					$author$project$Main$preventDefault(e));
 																			case 'SplitArrow':
 																				return $author$project$Msg$Do(
 																					$author$project$Main$preventDefault(e));
+																			case 'NewArrow':
+																				return $author$project$Msg$Do(
+																					$author$project$Main$preventDefault(e));
 																			default:
 																				return $author$project$Msg$noOp;
 																		}
-																	case 'a':
-																		return checkCtrl;
-																	default:
+																	} else {
 																		break _v1$3;
-																}
-															} else {
-																if (k.a === 'Tab') {
-																	var _v3 = m.mode;
-																	switch (_v3.$) {
-																		case 'SquareMode':
-																			return $author$project$Msg$Do(
-																				$author$project$Main$preventDefault(e));
-																		case 'SplitArrow':
-																			return $author$project$Msg$Do(
-																				$author$project$Main$preventDefault(e));
-																		case 'NewArrow':
-																			return $author$project$Msg$Do(
-																				$author$project$Main$preventDefault(e));
-																		default:
-																			return $author$project$Msg$noOp;
 																	}
-																} else {
-																	break _v1$3;
 																}
 															}
-														}
-														return $author$project$Msg$noOp;
-													}),
-												$author$project$HtmlDefs$keysDecoder,
-												$author$project$HtmlDefs$keyDecoder),
-											e));
-								})
-							]))))));
+															return $author$project$Msg$noOp;
+														}),
+													$author$project$HtmlDefs$keysDecoder,
+													$author$project$HtmlDefs$keyDecoder),
+												e));
+									})
+								])))))));
 };
 var $author$project$Model$noCmd = function (m) {
 	return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
@@ -9676,7 +9685,6 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			_Json_emptyObject(_Utils_Tuple0),
 			pairs));
 };
-var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$ArrowStyle$quiverStyle = function (st) {
 	var _v0 = st;
 	var tail = _v0.tail;
@@ -11112,7 +11120,7 @@ var $author$project$Tikz$encodeLabel = function (e) {
 		return '';
 	} else {
 		var l = _v0.a;
-		var lbl = '$\\scriptstyle ' + (l.label + '$');
+		var lbl = '$\\scriptstyle ' + (A3($elm$core$String$replace, ',', '{,}', l.label) + '$');
 		return function () {
 			var _v1 = l.style.labelAlignment;
 			switch (_v1.$) {
@@ -24091,25 +24099,6 @@ var $author$project$Modes$isResizeMode = function (m) {
 	}
 };
 var $author$project$HtmlDefs$latexPreambleId = 'latex-preamble';
-var $author$project$HtmlDefs$pasteEvent = 'pasteData';
-var $author$project$HtmlDefs$onPaste = function (handler) {
-	return A2(
-		$elm$html$Html$Events$on,
-		$author$project$HtmlDefs$pasteEvent,
-		A2($elm$json$Json$Decode$map, handler, $elm$json$Json$Decode$value));
-};
-var $author$project$HtmlDefs$pasteElement = 'paste-capture';
-var $author$project$HtmlDefs$makePasteCapture = F3(
-	function (handler, attrs, s) {
-		return A3(
-			$elm$html$Html$node,
-			$author$project$HtmlDefs$pasteElement,
-			A2(
-				$elm$core$List$cons,
-				$author$project$HtmlDefs$onPaste(handler),
-				attrs),
-			s);
-	});
 var $author$project$Model$modedSizeGrid = function (m) {
 	var _v0 = m.mode;
 	if (_v0.$ === 'ResizeMode') {
@@ -24137,7 +24126,6 @@ var $author$project$Main$openFile = _Platform_outgoingPort(
 		return $elm$json$Json$Encode$null;
 	});
 var $elm$html$Html$p = _VirtualDom_node('p');
-var $author$project$Main$pasteGraph = _Platform_outgoingPort('pasteGraph', $elm$core$Basics$identity);
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
 var $author$project$Main$quickInputView = function (m) {
 	return A2(
@@ -24439,12 +24427,7 @@ var $author$project$Main$viewGraph = function (model) {
 									$elm$html$Html$text(
 									(nmissings > 0) ? ($elm$core$String$fromInt(nmissings) + ' nodes or edges could not be rendered.') : '')
 								])),
-							A3(
-							$author$project$HtmlDefs$makePasteCapture,
-							A2($elm$core$Basics$composeL, $author$project$Msg$Do, $author$project$Main$pasteGraph),
-							_List_Nil,
-							_List_fromArray(
-								[svg])),
+							svg,
 							A2(
 							$elm$html$Html$p,
 							_List_Nil,
