@@ -33,23 +33,22 @@
               width: 4000px;
               height: 4000px;
           }
+          .active-edge {
+            stroke-width: 4px; 
+            
+          }
+          .weak-active-edge {
+            filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));            
+          }
          .active-label { 
-             border-color: red;
+             border-color: black;
              border-style: solid;
-             border-width: 1px;
-             /* the outline is nice because it does not
-             affect the width and height. Unfortunately,
-             it does not behave nicely with \int_x */
-             /* outline-style: solid; outline-color: red; */
+             border-width: 2px;
              }
              .weak-active-label { 
-             border-color: blue;
+             border-color: black;
              border-style: dashed;
              border-width: 2px;
-             /* the outline is nice because it does not
-             affect the width and height. Unfortunately,
-             it does not behave nicely with \int_x */
-             /* outline-style: solid; outline-color: red; */
              }
              /* selection rectangle */
              .rect-select {
@@ -61,6 +60,17 @@
             .help-div {
                 height: 10em;
                 overflow: scroll;
+            }
+            .overlay .help-div {
+                position:fixed;
+                top:0;
+                bottom:0;
+                height:auto;
+                right:2px;
+                width:50%;                
+            }
+            .overlay .help-div div {
+                background-color: lightgrey;
             }
             path:hover {
                 stroke-width : 4;
@@ -131,7 +141,8 @@
         <math-latex> </math-latex>
         <div id="myapp"></div>
         <script>
-         var appDiv = document.getElementById('myapp');
+        const isElectron = window.electronAPI != undefined;
+        var appDiv = document.getElementById('myapp');
 
        
      
@@ -269,6 +280,13 @@
              input.click();
          };
 
+         if (isElectron)
+            app.ports.openFile.subscribe(function (d) {
+                window.electronAPI.openFile();
+            });
+         else
+            app.ports.openFile.subscribe(openFile);
+
         // load a json graph file, from local storage
         function quickloadGraph() {
             if (!supportStorage) {           
@@ -295,17 +313,14 @@
             sendGraphToElm(json, json.fileName);     
          };
 
-         app.ports.openFile.subscribe(openFile);
+
+
          app.ports.quickLoad.subscribe(quickloadGraph);
 
          app.ports.alert.subscribe(function(s) {
              alert(s);
          });
 
-         app.ports.jumpToId.subscribe(function(s) {             
-             var elmnt = document.getElementById(s);
-             elmnt.scrollIntoView(); 
-         });
 
          app.ports.select.subscribe(function(id) {
             var elmnt = document.getElementById(id);
@@ -356,7 +371,15 @@
                 alert("Successful quicksave"); 
          }
 
-         app.ports.quicksaveGraph.subscribe(quicksaveStorage);
+         if (isElectron)
+            app.ports.quicksaveGraph.subscribe(function (a) {
+                    var d = a.info;
+                    var g = fromElmGraph(d);
+                    window.electronAPI.quicksaveGraph(d.fileName, g, a.export, a.feedback);
+            });
+         else
+            app.ports.quicksaveGraph.subscribe(quicksaveStorage);
+
          app.ports.saveGridSize.subscribe(function(arg) {
             console.log("Saving grid size preferences.");
             // Check browser support
@@ -375,7 +398,7 @@
               window.open(s);             
          });
 
-         saveGraph = function (b) {
+         function saveGraph(b) {
             var a = b.graph;
             var name = a.fileName;
             var d = fromElmGraph(a);
@@ -384,7 +407,12 @@
             document.title = name;
          };
 
-         app.ports.saveGraph.subscribe(saveGraph);
+         if (isElectron)
+            app.ports.saveGraph.subscribe(function (d) {
+                window.electronAPI.saveGraph(d.graph.fileName, fromElmGraph(d.graph), d.export);
+            });
+         else
+            app.ports.saveGraph.subscribe(saveGraph);
 
 
          // this event handler computes the relative position
@@ -446,18 +474,55 @@
          );
 
          triggerElmCopy = makeElmRequest('onCopy', 'clipboardWriteGraph', function(g) {
-            navigator.clipboard.writeText(JSON.stringify(g));                     
+            navigator.clipboard.writeText(JSON.stringify(g));                                     
          })
 
-         app.ports.latexToClipboard.subscribe(function(tex) {
-            navigator.clipboard.writeText(tex).then(
+         function toClipboard({content, success, failure}) {
+            navigator.clipboard.writeText(content).then(
             () => {
-                alert("latex successfully copied.");
+                success && alert(success);
             },
             () => {
-                alert("unable to copy latex.");
+                failure && alert(failure);
             });
+         };
+
+         app.ports.toClipboard.subscribe(toClipboard);
+
+         if (isElectron) 
+            app.ports.incompleteEquation.subscribe(function(statement){
+                window.electronAPI.incompleteEquation(statement)
+            });
+         else
+            app.ports.incompleteEquation.subscribe((statement) =>
+              alert("This feature is only enabled when running the appropriate vscode extension"));
+
+         function copyErr(s, emptyErr, success, failure) {
+            if (s == "") {
+                alert("No selected subdiagram found!");
+                return;
+            }
+            toClipboard(
+                {   content : s,
+                    success : success,
+                    failure : failure});
+         }
+
+         app.ports.generateProofJs.subscribe(function(script) {
+            copyErr(script, 
+              "No selected diagram found!",
+              "Coq script successfully copied",
+              "Copy failed"
+              );
          });
+         app.ports.generateSvg.subscribe(function(svg) {
+            copyErr(svg, 
+              "No selected diagram found!",
+              "SVG code successfully copied",
+              "Copy failed"
+              );
+         });
+
 
          document.addEventListener("copy", function(event) {
                     triggerElmCopy(null);
@@ -473,20 +538,14 @@
          });
 
          // Setting up interaction with electron
-         if (window.electronAPI) {
+         if (isElectron) {
             customPrompt = function (question, defaut, callback) {
                 window.electronAPI.answerPrompt( function (event, ret) {
-                        console.log("youpi");
-                        console.log(ret);
                         callback(ret);
  
                     });
                 window.electronAPI.prompt(question, defaut);
             };
-                
-                
-            
-            
 
             console.log("electron detected");
             // window.electronAPI.loadGraph((event, json, fileName, scenario) => alert('coucou') );
@@ -494,31 +553,24 @@
             window.electronAPI.clearGraph((event, scenario) => app.ports.clear.send(scenario));
             window.electronAPI.loadEquation(function (event, equation, scenario) {
                    console.log(equation);
-                //   console.log("c'est quoi ton blem");                
                   app.ports.clear.send(scenario);
-//                  app.ports.promptedEquation.send({ equation: equation, final:true, scenario: scenario}) ;
                   app.ports.promptedEquation.send(equation) ;
             }
             );
             window.electronAPI.rename((event, fileName) => app.ports.renameFile.send(fileName));
             window.electronAPI.simpleMsg((event, msg) => app.ports.simpleMsg.send(msg));
-            // if (urlParams.has("electronSave")) {
-            app.ports.saveGraph.unsubscribe(saveGraph);
-            app.ports.saveGraph.subscribe(function (d) {
-                window.electronAPI.saveGraph(d.graph.fileName, fromElmGraph(d.graph), d.export);
-            });
+ 
             // }
-            app.ports.quicksaveGraph.unsubscribe(quicksaveStorage);
-            app.ports.quicksaveGraph.subscribe(function (a) {
-                    var d = a.info;
-                    var g = fromElmGraph(d);
-                    window.electronAPI.quicksaveGraph(d.fileName, g, a.export);
-            });
 
-            app.ports.openFile.unsubscribe(openFile);
-            app.ports.openFile.subscribe(function (d) {
-                window.electronAPI.openFile();
+
+
+
+            app.ports.generateProofJs.subscribe(function(script){
+                window.electronAPI.generateProof(script)
             });
+            window.electronAPI.completeEquation((event, content) =>
+                app.ports.completeEquation.send(content)
+            );
          }
         
          
