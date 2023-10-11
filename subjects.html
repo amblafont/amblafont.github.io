@@ -14,7 +14,7 @@
       <h2> Categorical semantics for untyped syntax and typing judgements</h2>
       Type theories are typically defined "extrinsically" as a syntax and typing judgements, whereas categorical semantics
       assume an "intrinsic" definition of type theories based on generalised algebraic theories (GATs).
-      In some specific cases, the formal link between those two approaches is formally established (cf, for example, the case of SOGATs in Uemura's phd, or the correspondance between GATs and EATs in Adamek-Rosicky).
+      In some specific cases, the formal link between those two approaches is formally established (cf, for example, the case of SOGATs in Uemura's phd, or the correspondance between GATs and EATs in Cartmell's phd).
       All these proofs achieve similar goals; can we unify them in a single setting? 
       Here are some possible research directions:
       <ul>
@@ -25,6 +25,9 @@
 	      </li>
 	      <li>
 		      Extend the <a href="https://drops.dagstuhl.de/opus/volltexte/2020/13070/">construction</a> (in Agda) of finitary quotient inductive-inductive types (QIITs) from indexed inductive types to infinitary ones (QIITs).
+	      </li>
+	      <li>
+		      Handle sort equations in the reduction from GATs to EATs.
 	      </li>
       </ul>
       <h2>Mechanising category theory</h2>
@@ -38,7 +41,7 @@ Here are some possible research directions:
 	<li> mechanise category theory in Coq using this editor and <a href="https://github.com/CohenCyril/hierarchy-builder">hierarchy builder</a>, a state-of-the-art Coq tool to help building hierarchies of algebraic structures.
 	</li>
 	</li>
-	<li>in particular, mechanise <a href="https://ncatlab.org/nlab/show/locally+presentable+category">locally presentable categories</a>, a ubiquitous categorical notion (this is not obvious as it relies on the set-theoretic notion of regular cardinal);
+	<li>in particular, mechanise <a href="https://ncatlab.org/nlab/show/locally+presentable+category">locally presentable categories</a>, a ubiquitous categorical notion, based on <a href="https://arxiv.org/abs/2105.03252">recent work on constructive ordinals</a>.
 	</li> 
 	<li>	exploit this library to mechanise general proofs about programming languages, for example, <a href="articles/wow2.pdf">congruence of bisimilarity based on Howe's method</a>. 
 	</li>
