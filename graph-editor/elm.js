@@ -9578,13 +9578,7 @@ var $author$project$Model$getActiveTab = function (m) {
 	return $author$project$Model$getActiveTabInTabs(m.tabs);
 };
 var $author$project$Model$getActiveSizeGrid = function (m) {
-	var _v0 = m.mode;
-	if (_v0.$ === 'ResizeMode') {
-		var s = _v0.a;
-		return s.sizeGrid;
-	} else {
-		return $author$project$Model$getActiveTab(m).sizeGrid;
-	}
+	return $author$project$Model$getActiveTab(m).sizeGrid;
 };
 var $author$project$Model$createNewTab = F2(
 	function (m, title) {
@@ -21078,6 +21072,15 @@ var $author$project$Drawing$emptyForeign = A2(
 				$author$project$String$Svg$height('100%')
 			]),
 		_List_Nil));
+var $author$project$Model$getCurrentSizeGrid = function (m) {
+	var _v0 = m.mode;
+	if (_v0.$ === 'ResizeMode') {
+		var s = _v0.a;
+		return s.sizeGrid;
+	} else {
+		return $author$project$Model$getActiveSizeGrid(m);
+	}
+};
 var $author$project$GraphDefs$makeSelection = function (g) {
 	return A3(
 		$author$project$Polygraph$any,
@@ -25058,7 +25061,7 @@ var $author$project$Main$viewGraph = function (model) {
 		model,
 		$author$project$Main$graphDrawingFromModel(model));
 	var grid = model.hideGrid ? $author$project$Drawing$empty : $author$project$Drawing$grid(
-		$author$project$Model$getActiveSizeGrid(model));
+		$author$project$Model$getCurrentSizeGrid(model));
 	var nmissings = $elm$core$List$length(missings);
 	var svg = A2(
 		$author$project$Drawing$svg,
