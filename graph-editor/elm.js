@@ -25230,10 +25230,10 @@ var $author$project$Main$viewGraph = function (model) {
 							$author$project$HtmlDefs$slider,
 							$author$project$Msg$SizeGrid,
 							'Grid size (' + ($elm$core$String$fromInt(
-								$author$project$Model$getActiveSizeGrid(model)) + ')'),
+								$author$project$Model$getCurrentSizeGrid(model)) + ')'),
 							$author$project$Model$minSizeGrid,
 							$author$project$Model$maxSizeGrid,
-							$author$project$Model$getActiveSizeGrid(model))
+							$author$project$Model$getCurrentSizeGrid(model))
 						]) : _List_Nil,
 					_List_fromArray(
 						[
