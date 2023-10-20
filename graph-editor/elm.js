@@ -20802,10 +20802,11 @@ var $author$project$Main$update = F2(
 					A2(
 						$author$project$Model$updateFirstTab,
 						model,
-						$elm$core$Basics$always(
-							_Utils_update(
+						function (t) {
+							return _Utils_update(
 								tab,
-								{title: 'preview'}))),
+								{active: t.active, title: t.title});
+						}),
 					$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
 			case 'Loaded':
 				var g = msg.a;
