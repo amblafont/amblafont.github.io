@@ -5919,7 +5919,7 @@ var $author$project$Model$createModel = F2(
 			fileName: 'graph.json',
 			hideGrid: false,
 			history: _List_Nil,
-			latexPreamble: '\\newcommand{\\' + ($author$project$GraphDefs$coqProofTexCommand + '}[1]{=}'),
+			latexPreamble: '\\newcommand{\\' + ($author$project$GraphDefs$coqProofTexCommand + '}[1]{\\checkmark}'),
 			mode: $author$project$Modes$DefaultMode,
 			mouseOnCanvas: false,
 			mousePos: _Utils_Tuple2(0, 0),
@@ -16787,19 +16787,40 @@ var $author$project$Modes$SplitArrow$guessPosition = F2(
 			return m.mousePos;
 		}
 	});
-var $author$project$Polygraph$removeList = F2(
-	function (l, _v0) {
-		var d = _v0.a;
-		return $author$project$Polygraph$sanitise(
-			$author$project$Polygraph$Graph(
-				A2($author$project$IntDictExtra$removeList, l, d)));
+var $author$project$Polygraph$rawMerge = F3(
+	function (i1, i2, _v0) {
+		var g = _v0.a;
+		var repl = function (k) {
+			return _Utils_eq(k, i2) ? i1 : k;
+		};
+		return $author$project$Polygraph$Graph(
+			A2(
+				$elm_community$intdict$IntDict$remove,
+				i2,
+				A2(
+					$elm_community$intdict$IntDict$map,
+					F2(
+						function (_v1, o) {
+							if (o.$ === 'EdgeObj') {
+								var j1 = o.a;
+								var j2 = o.b;
+								var e = o.c;
+								return A3(
+									$author$project$Polygraph$EdgeObj,
+									repl(j1),
+									repl(j2),
+									e);
+							} else {
+								return o;
+							}
+						}),
+					g)));
 	});
-var $author$project$Polygraph$remove = function (id) {
-	return $author$project$Polygraph$removeList(
-		_List_fromArray(
-			[id]));
-};
-var $author$project$Polygraph$removeEdge = $author$project$Polygraph$remove;
+var $author$project$Polygraph$merge = F3(
+	function (i1, i2, g) {
+		return $author$project$Polygraph$sanitise(
+			A3($author$project$Polygraph$rawMerge, i1, i2, g));
+	});
 var $author$project$Modes$SplitArrow$stateInfo = F3(
 	function (finish, m, state) {
 		var modelGraph = $author$project$Model$getActiveGraph(m);
@@ -16854,7 +16875,11 @@ var $author$project$Modes$SplitArrow$stateInfo = F3(
 		var ne2 = _v7.b;
 		return {
 			created: created,
-			graph: A2($author$project$Polygraph$removeEdge, state.chosenEdge, g2),
+			graph: A3(
+				$author$project$Polygraph$merge,
+				state.labelOnSource ? ne1 : ne2,
+				state.chosenEdge,
+				g2),
 			le1: d1,
 			le2: d2,
 			movedNode: n,
@@ -18168,35 +18193,44 @@ var $elm_community$list_extra$List$Extra$filterNot = F2(
 			A2($elm$core$Basics$composeL, $elm$core$Basics$not, pred),
 			list);
 	});
-var $author$project$Polygraph$merge = F3(
+var $author$project$Polygraph$recursiveMerge = F3(
+	function (i1, i2, g) {
+		return $author$project$Polygraph$sanitise(
+			A3($author$project$Polygraph$recursiveMergeAux, i1, i2, g));
+	});
+var $author$project$Polygraph$recursiveMergeAux = F3(
 	function (i1, i2, _v0) {
 		var g = _v0.a;
-		return $author$project$Polygraph$sanitise(
-			$author$project$Polygraph$Graph(
-				A2(
-					$elm_community$intdict$IntDict$remove,
-					i2,
-					A2(
-						$elm_community$intdict$IntDict$map,
-						F2(
-							function (_v1, o) {
-								if (o.$ === 'EdgeObj') {
-									var j1 = o.a;
-									var j2 = o.b;
-									var e = o.c;
-									var repl = function (k) {
-										return _Utils_eq(k, i2) ? i1 : k;
-									};
-									return A3(
-										$author$project$Polygraph$EdgeObj,
-										repl(j1),
-										repl(j2),
-										e);
-								} else {
-									return o;
-								}
-							}),
-						g))));
+		var _v1 = _Utils_Tuple2(
+			A2($elm_community$intdict$IntDict$get, i1, g),
+			A2($elm_community$intdict$IntDict$get, i2, g));
+		if ((((_v1.a.$ === 'Just') && (_v1.a.a.$ === 'EdgeObj')) && (_v1.b.$ === 'Just')) && (_v1.b.a.$ === 'EdgeObj')) {
+			var _v2 = _v1.a.a;
+			var a1 = _v2.a;
+			var a2 = _v2.b;
+			var _v3 = _v1.b.a;
+			var b1 = _v3.a;
+			var b2 = _v3.b;
+			return A3(
+				$author$project$Polygraph$rawMerge,
+				i1,
+				i2,
+				A3(
+					$author$project$Polygraph$recursiveMerge,
+					a2,
+					b2,
+					A3(
+						$author$project$Polygraph$recursiveMerge,
+						a1,
+						b1,
+						$author$project$Polygraph$Graph(g))));
+		} else {
+			return A3(
+				$author$project$Polygraph$rawMerge,
+				i1,
+				i2,
+				$author$project$Polygraph$Graph(g));
+		}
 	});
 var $author$project$Polygraph$removeLoops = A2(
 	$elm$core$Basics$composeR,
@@ -18219,12 +18253,25 @@ var $author$project$GraphDefs$mergeWithSameLoc = F2(
 			var i = _v0.a;
 			return _Utils_Tuple2(
 				$author$project$Polygraph$removeLoops(
-					A3($author$project$Polygraph$merge, i, n.id, g)),
+					A3($author$project$Polygraph$recursiveMerge, i, n.id, g)),
 				true);
 		} else {
 			return _Utils_Tuple2(g, false);
 		}
 	});
+var $author$project$Polygraph$removeList = F2(
+	function (l, _v0) {
+		var d = _v0.a;
+		return $author$project$Polygraph$sanitise(
+			$author$project$Polygraph$Graph(
+				A2($author$project$IntDictExtra$removeList, l, d)));
+	});
+var $author$project$Polygraph$remove = function (id) {
+	return $author$project$Polygraph$removeList(
+		_List_fromArray(
+			[id]));
+};
+var $author$project$Polygraph$removeEdge = $author$project$Polygraph$remove;
 var $author$project$GraphDefs$unselect = function (id) {
 	return A3(
 		$author$project$Polygraph$update,
@@ -20364,8 +20411,8 @@ var $author$project$Main$info_MoveNode = F2(
 		var pos = _v0.pos;
 		var merge = model.specialKeys.ctrl;
 		var modelGraph = $author$project$Model$getActiveGraph(model);
-		var nodes = $author$project$Polygraph$nodes(
-			$author$project$GraphDefs$selectedGraph(modelGraph));
+		var selectedGraph = $author$project$GraphDefs$selectedGraph(modelGraph);
+		var nodes = $author$project$Polygraph$nodes(selectedGraph);
 		var updNode = F2(
 			function (delta, _v5) {
 				var id = _v5.id;
@@ -20419,10 +20466,11 @@ var $author$project$Main$info_MoveNode = F2(
 				if (!merge) {
 					return retDelta(mouseDelta);
 				} else {
-					if (nodes.b && (!nodes.b.b)) {
-						var n = nodes.a;
+					var _v2 = $author$project$GraphDefs$selectedId(modelGraph);
+					if (_v2.$ === 'Just') {
+						var selId = _v2.a;
 						return {
-							graph: A3($author$project$Polygraph$merge, id, n.id, modelGraph),
+							graph: A3($author$project$Polygraph$recursiveMerge, id, selId, modelGraph),
 							valid: true
 						};
 					} else {
