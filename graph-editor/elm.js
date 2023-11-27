@@ -15903,6 +15903,350 @@ var $author$project$Main$toJsGraphInfo = function (model) {
 		version: $author$project$Format$LastVersion$version
 	};
 };
+var $author$project$Modes$CutHead = function (a) {
+	return {$: 'CutHead', a: a};
+};
+var $author$project$GraphDefs$edgeToNodeLabel = F2(
+	function (pos, l) {
+		var nodeLabel = {dims: $elm$core$Maybe$Nothing, isMath: true, label: '', pos: pos, selected: l.selected, weaklySelected: l.weaklySelected, zindex: l.zindex};
+		var _v0 = l.details;
+		if (_v0.$ === 'PullshoutEdge') {
+			return nodeLabel;
+		} else {
+			var label = _v0.a.label;
+			var dims = _v0.a.dims;
+			return _Utils_update(
+				nodeLabel,
+				{dims: dims, label: label});
+		}
+	});
+var $author$project$Polygraph$get = F4(
+	function (id, fn, fe, _v0) {
+		var g = _v0.a;
+		var _v1 = A2($elm_community$intdict$IntDict$get, id, g);
+		if (_v1.$ === 'Just') {
+			if (_v1.a.$ === 'NodeObj') {
+				var n = _v1.a.a;
+				return $elm$core$Maybe$Just(
+					fn(n));
+			} else {
+				var _v2 = _v1.a;
+				var i1 = _v2.a;
+				var i2 = _v2.b;
+				var e = _v2.c;
+				return $elm$core$Maybe$Just(
+					fe(e));
+			}
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Polygraph$rawMerge = F3(
+	function (i1, i2, _v0) {
+		var g = _v0.a;
+		var repl = function (k) {
+			return _Utils_eq(k, i2) ? i1 : k;
+		};
+		return $author$project$Polygraph$Graph(
+			A2(
+				$elm_community$intdict$IntDict$remove,
+				i2,
+				A2(
+					$elm_community$intdict$IntDict$map,
+					F2(
+						function (_v1, o) {
+							if (o.$ === 'EdgeObj') {
+								var j1 = o.a;
+								var j2 = o.b;
+								var e = o.c;
+								return A3(
+									$author$project$Polygraph$EdgeObj,
+									repl(j1),
+									repl(j2),
+									e);
+							} else {
+								return o;
+							}
+						}),
+					g)));
+	});
+var $author$project$Polygraph$merge = F3(
+	function (i1, i2, g) {
+		return $author$project$Polygraph$sanitise(
+			A3($author$project$Polygraph$rawMerge, i1, i2, g));
+	});
+var $elm_community$list_extra$List$Extra$filterNot = F2(
+	function (pred, list) {
+		return A2(
+			$elm$core$List$filter,
+			A2($elm$core$Basics$composeL, $elm$core$Basics$not, pred),
+			list);
+	});
+var $author$project$Polygraph$filterNodes = F2(
+	function (g, f) {
+		return A2(
+			$elm$core$List$filter,
+			A2(
+				$elm$core$Basics$composeL,
+				f,
+				function ($) {
+					return $.label;
+				}),
+			$author$project$Polygraph$nodes(g));
+	});
+var $author$project$Geometry$isInRect = F2(
+	function (_v0, _v1) {
+		var topLeft = _v0.topLeft;
+		var bottomRight = _v0.bottomRight;
+		var x = _v1.a;
+		var y = _v1.b;
+		var _v2 = bottomRight;
+		var x2 = _v2.a;
+		var y2 = _v2.b;
+		var _v3 = topLeft;
+		var x1 = _v3.a;
+		var y1 = _v3.b;
+		return (_Utils_cmp(x1, x) < 0) && ((_Utils_cmp(x, x2) < 0) && ((_Utils_cmp(y1, y) < 0) && (_Utils_cmp(y, y2) < 0)));
+	});
+var $author$project$Geometry$isInPosDims = F2(
+	function (dims, p) {
+		return A2(
+			$author$project$Geometry$isInRect,
+			$author$project$Geometry$rectFromPosDims(dims),
+			p);
+	});
+var $author$project$GraphDefs$getNodesAt = F2(
+	function (g, p) {
+		return A2(
+			$elm$core$List$map,
+			function ($) {
+				return $.id;
+			},
+			A2(
+				$author$project$Polygraph$filterNodes,
+				g,
+				function (n) {
+					return A2(
+						$author$project$Geometry$isInPosDims,
+						{
+							dims: $author$project$GraphDefs$getNodeDims(n),
+							pos: $author$project$GraphDefs$getNodePos(n)
+						},
+						p);
+				}));
+	});
+var $author$project$Polygraph$recursiveMerge = F3(
+	function (i1, i2, g) {
+		return $author$project$Polygraph$sanitise(
+			A3($author$project$Polygraph$recursiveMergeAux, i1, i2, g));
+	});
+var $author$project$Polygraph$recursiveMergeAux = F3(
+	function (i1, i2, _v0) {
+		var g = _v0.a;
+		var _v1 = _Utils_Tuple2(
+			A2($elm_community$intdict$IntDict$get, i1, g),
+			A2($elm_community$intdict$IntDict$get, i2, g));
+		if ((((_v1.a.$ === 'Just') && (_v1.a.a.$ === 'EdgeObj')) && (_v1.b.$ === 'Just')) && (_v1.b.a.$ === 'EdgeObj')) {
+			var _v2 = _v1.a.a;
+			var a1 = _v2.a;
+			var a2 = _v2.b;
+			var _v3 = _v1.b.a;
+			var b1 = _v3.a;
+			var b2 = _v3.b;
+			return A3(
+				$author$project$Polygraph$rawMerge,
+				i1,
+				i2,
+				A3(
+					$author$project$Polygraph$recursiveMerge,
+					a2,
+					b2,
+					A3(
+						$author$project$Polygraph$recursiveMerge,
+						a1,
+						b1,
+						$author$project$Polygraph$Graph(g))));
+		} else {
+			return A3(
+				$author$project$Polygraph$rawMerge,
+				i1,
+				i2,
+				$author$project$Polygraph$Graph(g));
+		}
+	});
+var $author$project$Polygraph$removeLoops = A2(
+	$elm$core$Basics$composeR,
+	$author$project$Polygraph$sanitise,
+	$author$project$Polygraph$mapRep(
+		A2(
+			$author$project$Polygraph$rawFilterIds,
+			$elm$core$Basics$always(true),
+			F3(
+				function (id1, id2, _v0) {
+					return !_Utils_eq(id1, id2);
+				}))));
+var $author$project$GraphDefs$mergeWithSameLoc = F2(
+	function (n, g) {
+		var _v0 = A2(
+			$elm_community$list_extra$List$Extra$filterNot,
+			$elm$core$Basics$eq(n.id),
+			A2($author$project$GraphDefs$getNodesAt, g, n.label.pos));
+		if (_v0.b && (!_v0.b.b)) {
+			var i = _v0.a;
+			return _Utils_Tuple2(
+				$author$project$Polygraph$removeLoops(
+					A3($author$project$Polygraph$recursiveMerge, i, n.id, g)),
+				true);
+		} else {
+			return _Utils_Tuple2(g, false);
+		}
+	});
+var $author$project$Polygraph$update = F3(
+	function (i, fn, fe) {
+		return $author$project$Polygraph$mapRep(
+			A2(
+				$elm_community$intdict$IntDict$update,
+				i,
+				$elm$core$Maybe$map(
+					A2($author$project$Polygraph$mapObj, fn, fe))));
+	});
+var $author$project$GraphDefs$unselect = function (id) {
+	return A3(
+		$author$project$Polygraph$update,
+		id,
+		function (n) {
+			return _Utils_update(
+				n,
+				{selected: false});
+		},
+		function (e) {
+			return _Utils_update(
+				e,
+				{selected: false});
+		});
+};
+var $author$project$Modes$CutHead$makeGraph = F2(
+	function (_v0, m) {
+		var id = _v0.id;
+		var head = _v0.head;
+		var duplicate = _v0.duplicate;
+		var modelGraph = $author$project$Model$getActiveGraph(m);
+		var pos = m.mousePos;
+		return A2(
+			$elm$core$Maybe$withDefault,
+			modelGraph,
+			A2(
+				$elm$core$Maybe$andThen,
+				function (e) {
+					return A2(
+						$elm$core$Maybe$map,
+						function (label) {
+							var g1 = modelGraph;
+							var _v1 = A2($author$project$Polygraph$newNode, g1, label);
+							var g2 = _v1.a;
+							var newId = _v1.b;
+							var _v2 = head ? _Utils_Tuple2(e.from, newId) : _Utils_Tuple2(newId, e.to);
+							var n1 = _v2.a;
+							var n2 = _v2.b;
+							var _v3 = A4($author$project$Polygraph$newEdge, g2, n1, n2, e.label);
+							var g3 = _v3.a;
+							var edgeId = _v3.b;
+							var g4 = duplicate ? A2($author$project$GraphDefs$unselect, id, g3) : A3($author$project$Polygraph$merge, edgeId, id, g3);
+							var g5 = m.specialKeys.ctrl ? A2(
+								$author$project$GraphDefs$mergeWithSameLoc,
+								{id: newId, label: label},
+								g4).a : g4;
+							return g5;
+						},
+						A4(
+							$author$project$Polygraph$get,
+							head ? e.to : e.from,
+							function (label) {
+								return _Utils_update(
+									label,
+									{pos: pos});
+							},
+							$author$project$GraphDefs$edgeToNodeLabel(pos),
+							modelGraph));
+				},
+				A2($author$project$Polygraph$getEdge, id, modelGraph)));
+	});
+var $author$project$Model$toggleHelpOverlay = function (model) {
+	return _Utils_update(
+		model,
+		{showOverlayHelp: !model.showOverlayHelp});
+};
+var $author$project$Modes$CutHead$update = F3(
+	function (state, msg, m) {
+		var finalise = function (_v1) {
+			return _Utils_Tuple2(
+				A2(
+					$author$project$Model$setActiveGraph,
+					_Utils_update(
+						m,
+						{mode: $author$project$Modes$DefaultMode}),
+					A2($author$project$Modes$CutHead$makeGraph, state, m)),
+				$elm$core$Platform$Cmd$none);
+		};
+		var changeState = function (s) {
+			return _Utils_update(
+				m,
+				{
+					mode: $author$project$Modes$CutHead(s)
+				});
+		};
+		_v0$6:
+		while (true) {
+			switch (msg.$) {
+				case 'MouseClick':
+					return finalise(_Utils_Tuple0);
+				case 'KeyChanged':
+					if (!msg.a) {
+						if (msg.c.$ === 'Control') {
+							switch (msg.c.a) {
+								case 'Escape':
+									return _Utils_Tuple2(
+										_Utils_update(
+											m,
+											{mode: $author$project$Modes$DefaultMode}),
+										$elm$core$Platform$Cmd$none);
+								case 'Enter':
+									return finalise(_Utils_Tuple0);
+								default:
+									break _v0$6;
+							}
+						} else {
+							switch (msg.c.a.valueOf()) {
+								case '?':
+									return $author$project$Model$noCmd(
+										$author$project$Model$toggleHelpOverlay(m));
+								case 'c':
+									return _Utils_Tuple2(
+										changeState(
+											_Utils_update(
+												state,
+												{head: !state.head})),
+										$elm$core$Platform$Cmd$none);
+								case 'd':
+									return _Utils_Tuple2(
+										changeState(
+											_Utils_update(
+												state,
+												{duplicate: !state.duplicate})),
+										$elm$core$Platform$Cmd$none);
+								default:
+									break _v0$6;
+							}
+						}
+					} else {
+						break _v0$6;
+					}
+				default:
+					break _v0$6;
+			}
+		}
+		return $author$project$Model$noCmd(m);
+	});
 var $author$project$Modes$NewArrow = function (a) {
 	return {$: 'NewArrow', a: a};
 };
@@ -16182,27 +16526,6 @@ var $author$project$ArrowStyle$keyMaybeUpdateStyle = F2(
 		}
 		return $elm$core$Maybe$Nothing;
 	});
-var $author$project$Polygraph$get = F4(
-	function (id, fn, fe, _v0) {
-		var g = _v0.a;
-		var _v1 = A2($elm_community$intdict$IntDict$get, id, g);
-		if (_v1.$ === 'Just') {
-			if (_v1.a.$ === 'NodeObj') {
-				var n = _v1.a.a;
-				return $elm$core$Maybe$Just(
-					fn(n));
-			} else {
-				var _v2 = _v1.a;
-				var i1 = _v2.a;
-				var i2 = _v2.b;
-				var e = _v2.c;
-				return $elm$core$Maybe$Just(
-					fe(e));
-			}
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
 var $elm_community$maybe_extra$Maybe$Extra$join = function (mx) {
 	if (mx.$ === 'Just') {
 		var x = mx.a;
@@ -16287,59 +16610,6 @@ var $author$project$Model$keyboardPosToPoint = F3(
 		}
 	});
 var $author$project$Zindex$backgroundZ = -10000;
-var $author$project$Polygraph$filterNodes = F2(
-	function (g, f) {
-		return A2(
-			$elm$core$List$filter,
-			A2(
-				$elm$core$Basics$composeL,
-				f,
-				function ($) {
-					return $.label;
-				}),
-			$author$project$Polygraph$nodes(g));
-	});
-var $author$project$Geometry$isInRect = F2(
-	function (_v0, _v1) {
-		var topLeft = _v0.topLeft;
-		var bottomRight = _v0.bottomRight;
-		var x = _v1.a;
-		var y = _v1.b;
-		var _v2 = bottomRight;
-		var x2 = _v2.a;
-		var y2 = _v2.b;
-		var _v3 = topLeft;
-		var x1 = _v3.a;
-		var y1 = _v3.b;
-		return (_Utils_cmp(x1, x) < 0) && ((_Utils_cmp(x, x2) < 0) && ((_Utils_cmp(y1, y) < 0) && (_Utils_cmp(y, y2) < 0)));
-	});
-var $author$project$Geometry$isInPosDims = F2(
-	function (dims, p) {
-		return A2(
-			$author$project$Geometry$isInRect,
-			$author$project$Geometry$rectFromPosDims(dims),
-			p);
-	});
-var $author$project$GraphDefs$getNodesAt = F2(
-	function (g, p) {
-		return A2(
-			$elm$core$List$map,
-			function ($) {
-				return $.id;
-			},
-			A2(
-				$author$project$Polygraph$filterNodes,
-				g,
-				function (n) {
-					return A2(
-						$author$project$Geometry$isInPosDims,
-						{
-							dims: $author$project$GraphDefs$getNodeDims(n),
-							pos: $author$project$GraphDefs$getNodePos(n)
-						},
-						p);
-				}));
-	});
 var $author$project$Model$mayCreateTargetNodeAt = F4(
 	function (m, pos, s, isDefaultZ) {
 		var g = $author$project$Model$getActiveGraph(m);
@@ -16408,15 +16678,6 @@ var $author$project$Model$switch_Default = function (m) {
 			m,
 			{mode: $author$project$Modes$DefaultMode}));
 };
-var $author$project$Polygraph$update = F3(
-	function (i, fn, fe) {
-		return $author$project$Polygraph$mapRep(
-			A2(
-				$elm_community$intdict$IntDict$update,
-				i,
-				$elm$core$Maybe$map(
-					A2($author$project$Polygraph$mapObj, fn, fe))));
-	});
 var $author$project$GraphDefs$weaklySelect = function (id) {
 	return A2(
 		$elm$core$Basics$composeR,
@@ -16478,11 +16739,6 @@ var $author$project$Modes$NewArrow$nextStep = F3(
 				A3($author$project$Model$initialise_RenameModeWithDefault, false, ids_labels, m2));
 		}
 	});
-var $author$project$Model$toggleHelpOverlay = function (model) {
-	return _Utils_update(
-		model,
-		{showOverlayHelp: !model.showOverlayHelp});
-};
 var $author$project$InputPosition$InputPosKeyboard = function (a) {
 	return {$: 'InputPosKeyboard', a: a};
 };
@@ -16786,40 +17042,6 @@ var $author$project$Modes$SplitArrow$guessPosition = F2(
 		} else {
 			return m.mousePos;
 		}
-	});
-var $author$project$Polygraph$rawMerge = F3(
-	function (i1, i2, _v0) {
-		var g = _v0.a;
-		var repl = function (k) {
-			return _Utils_eq(k, i2) ? i1 : k;
-		};
-		return $author$project$Polygraph$Graph(
-			A2(
-				$elm_community$intdict$IntDict$remove,
-				i2,
-				A2(
-					$elm_community$intdict$IntDict$map,
-					F2(
-						function (_v1, o) {
-							if (o.$ === 'EdgeObj') {
-								var j1 = o.a;
-								var j2 = o.b;
-								var e = o.c;
-								return A3(
-									$author$project$Polygraph$EdgeObj,
-									repl(j1),
-									repl(j2),
-									e);
-							} else {
-								return o;
-							}
-						}),
-					g)));
-	});
-var $author$project$Polygraph$merge = F3(
-	function (i1, i2, g) {
-		return $author$project$Polygraph$sanitise(
-			A3($author$project$Polygraph$rawMerge, i1, i2, g));
 	});
 var $author$project$Modes$SplitArrow$stateInfo = F3(
 	function (finish, m, state) {
@@ -18183,222 +18405,6 @@ var $author$project$Main$update_Color = F3(
 				A2($author$project$Model$setSaveGraph, model, g));
 		}
 	});
-var $author$project$Modes$CutHead = function (a) {
-	return {$: 'CutHead', a: a};
-};
-var $elm_community$list_extra$List$Extra$filterNot = F2(
-	function (pred, list) {
-		return A2(
-			$elm$core$List$filter,
-			A2($elm$core$Basics$composeL, $elm$core$Basics$not, pred),
-			list);
-	});
-var $author$project$Polygraph$recursiveMerge = F3(
-	function (i1, i2, g) {
-		return $author$project$Polygraph$sanitise(
-			A3($author$project$Polygraph$recursiveMergeAux, i1, i2, g));
-	});
-var $author$project$Polygraph$recursiveMergeAux = F3(
-	function (i1, i2, _v0) {
-		var g = _v0.a;
-		var _v1 = _Utils_Tuple2(
-			A2($elm_community$intdict$IntDict$get, i1, g),
-			A2($elm_community$intdict$IntDict$get, i2, g));
-		if ((((_v1.a.$ === 'Just') && (_v1.a.a.$ === 'EdgeObj')) && (_v1.b.$ === 'Just')) && (_v1.b.a.$ === 'EdgeObj')) {
-			var _v2 = _v1.a.a;
-			var a1 = _v2.a;
-			var a2 = _v2.b;
-			var _v3 = _v1.b.a;
-			var b1 = _v3.a;
-			var b2 = _v3.b;
-			return A3(
-				$author$project$Polygraph$rawMerge,
-				i1,
-				i2,
-				A3(
-					$author$project$Polygraph$recursiveMerge,
-					a2,
-					b2,
-					A3(
-						$author$project$Polygraph$recursiveMerge,
-						a1,
-						b1,
-						$author$project$Polygraph$Graph(g))));
-		} else {
-			return A3(
-				$author$project$Polygraph$rawMerge,
-				i1,
-				i2,
-				$author$project$Polygraph$Graph(g));
-		}
-	});
-var $author$project$Polygraph$removeLoops = A2(
-	$elm$core$Basics$composeR,
-	$author$project$Polygraph$sanitise,
-	$author$project$Polygraph$mapRep(
-		A2(
-			$author$project$Polygraph$rawFilterIds,
-			$elm$core$Basics$always(true),
-			F3(
-				function (id1, id2, _v0) {
-					return !_Utils_eq(id1, id2);
-				}))));
-var $author$project$GraphDefs$mergeWithSameLoc = F2(
-	function (n, g) {
-		var _v0 = A2(
-			$elm_community$list_extra$List$Extra$filterNot,
-			$elm$core$Basics$eq(n.id),
-			A2($author$project$GraphDefs$getNodesAt, g, n.label.pos));
-		if (_v0.b && (!_v0.b.b)) {
-			var i = _v0.a;
-			return _Utils_Tuple2(
-				$author$project$Polygraph$removeLoops(
-					A3($author$project$Polygraph$recursiveMerge, i, n.id, g)),
-				true);
-		} else {
-			return _Utils_Tuple2(g, false);
-		}
-	});
-var $author$project$Polygraph$removeList = F2(
-	function (l, _v0) {
-		var d = _v0.a;
-		return $author$project$Polygraph$sanitise(
-			$author$project$Polygraph$Graph(
-				A2($author$project$IntDictExtra$removeList, l, d)));
-	});
-var $author$project$Polygraph$remove = function (id) {
-	return $author$project$Polygraph$removeList(
-		_List_fromArray(
-			[id]));
-};
-var $author$project$Polygraph$removeEdge = $author$project$Polygraph$remove;
-var $author$project$GraphDefs$unselect = function (id) {
-	return A3(
-		$author$project$Polygraph$update,
-		id,
-		function (n) {
-			return _Utils_update(
-				n,
-				{selected: false});
-		},
-		function (e) {
-			return _Utils_update(
-				e,
-				{selected: false});
-		});
-};
-var $author$project$Main$graphCutHead = F2(
-	function (_v0, m) {
-		var id = _v0.id;
-		var head = _v0.head;
-		var duplicate = _v0.duplicate;
-		var modelGraph = $author$project$Model$getActiveGraph(m);
-		var pos = m.mousePos;
-		return A2(
-			$elm$core$Maybe$withDefault,
-			modelGraph,
-			A2(
-				$elm$core$Maybe$andThen,
-				function (e) {
-					return A2(
-						$elm$core$Maybe$map,
-						function (nto) {
-							var g1 = duplicate ? A2($author$project$GraphDefs$unselect, id, modelGraph) : A2($author$project$Polygraph$removeEdge, id, modelGraph);
-							var label = _Utils_update(
-								nto,
-								{pos: pos});
-							var _v1 = A2($author$project$Polygraph$newNode, g1, label);
-							var g2 = _v1.a;
-							var newId = _v1.b;
-							var _v2 = head ? _Utils_Tuple2(e.from, newId) : _Utils_Tuple2(newId, e.to);
-							var n1 = _v2.a;
-							var n2 = _v2.b;
-							var _v3 = A4($author$project$Polygraph$newEdge, g2, n1, n2, e.label);
-							var g3 = _v3.a;
-							var g4 = m.specialKeys.ctrl ? A2(
-								$author$project$GraphDefs$mergeWithSameLoc,
-								{id: newId, label: label},
-								g3).a : g3;
-							return g4;
-						},
-						A2(
-							$author$project$Polygraph$getNode,
-							head ? e.to : e.from,
-							modelGraph));
-				},
-				A2($author$project$Polygraph$getEdge, id, modelGraph)));
-	});
-var $author$project$Main$update_CutHead = F3(
-	function (state, msg, m) {
-		var finalise = function (_v1) {
-			return _Utils_Tuple2(
-				A2(
-					$author$project$Model$setActiveGraph,
-					_Utils_update(
-						m,
-						{mode: $author$project$Modes$DefaultMode}),
-					A2($author$project$Main$graphCutHead, state, m)),
-				$elm$core$Platform$Cmd$none);
-		};
-		var changeState = function (s) {
-			return _Utils_update(
-				m,
-				{
-					mode: $author$project$Modes$CutHead(s)
-				});
-		};
-		_v0$6:
-		while (true) {
-			switch (msg.$) {
-				case 'MouseClick':
-					return finalise(_Utils_Tuple0);
-				case 'KeyChanged':
-					if (!msg.a) {
-						if (msg.c.$ === 'Control') {
-							switch (msg.c.a) {
-								case 'Escape':
-									return _Utils_Tuple2(
-										_Utils_update(
-											m,
-											{mode: $author$project$Modes$DefaultMode}),
-										$elm$core$Platform$Cmd$none);
-								case 'Enter':
-									return finalise(_Utils_Tuple0);
-								default:
-									break _v0$6;
-							}
-						} else {
-							switch (msg.c.a.valueOf()) {
-								case '?':
-									return $author$project$Model$noCmd(
-										$author$project$Model$toggleHelpOverlay(m));
-								case 'c':
-									return _Utils_Tuple2(
-										changeState(
-											_Utils_update(
-												state,
-												{head: !state.head})),
-										$elm$core$Platform$Cmd$none);
-								case 'd':
-									return _Utils_Tuple2(
-										changeState(
-											_Utils_update(
-												state,
-												{duplicate: !state.duplicate})),
-										$elm$core$Platform$Cmd$none);
-								default:
-									break _v0$6;
-							}
-						}
-					} else {
-						break _v0$6;
-					}
-				default:
-					break _v0$6;
-			}
-		}
-		return $author$project$Model$noCmd(m);
-	});
 var $author$project$Main$update_DebugMode = F2(
 	function (msg, model) {
 		if ((((msg.$ === 'KeyChanged') && (!msg.a)) && (msg.c.$ === 'Control')) && (msg.c.a === 'Escape')) {
@@ -19222,6 +19228,19 @@ var $elm_community$list_extra$List$Extra$maximumBy = F2(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
+var $author$project$Polygraph$removeList = F2(
+	function (l, _v0) {
+		var d = _v0.a;
+		return $author$project$Polygraph$sanitise(
+			$author$project$Polygraph$Graph(
+				A2($author$project$IntDictExtra$removeList, l, d)));
+	});
+var $author$project$Polygraph$remove = function (id) {
+	return $author$project$Polygraph$removeList(
+		_List_fromArray(
+			[id]));
+};
+var $author$project$Polygraph$removeEdge = $author$project$Polygraph$remove;
 var $author$project$GraphProof$extremePath = F4(
 	function (direction, target, gi, e) {
 		var g = A2($author$project$Polygraph$removeEdge, e.id, gi);
@@ -21243,7 +21262,7 @@ var $author$project$Main$update = F2(
 						return A3($author$project$Modes$SplitArrow$update, state, msg, model);
 					case 'CutHead':
 						var state = _v4.a;
-						return A3($author$project$Main$update_CutHead, state, msg, model);
+						return A3($author$project$Modes$CutHead$update, state, msg, model);
 					case 'ResizeMode':
 						var s = _v4.a;
 						return A3($author$project$Main$update_Resize, s, msg, model);
@@ -21612,7 +21631,7 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 		case 'CutHead':
 			var state = _v0.a;
 			return $author$project$GraphDrawing$toDrawingGraph(
-				A2($author$project$Main$graphCutHead, state, m));
+				A2($author$project$Modes$CutHead$makeGraph, state, m));
 		default:
 			var sizeGrid = _v0.a;
 			return $author$project$GraphDrawing$toDrawingGraph(
@@ -21671,6 +21690,7 @@ var $author$project$Drawing$grid = function (n) {
 };
 var $author$project$Main$Plain = {$: 'Plain'};
 var $author$project$ArrowStyle$controlChars = '>(=-bBA][';
+var $author$project$Modes$CutHead$help = '[?] to toggle help overlay,' + (' [RET] or [click] to confirm, [ctrl] to merge the endpoint with existing node. [ESC] to cancel. ' + ('[c] to switch between head/tail' + ', [d] to duplicate (or not) the arrow.'));
 var $author$project$Drawing$Color$helpMsg = 'bla[c]k, bl[u]e, [g]reen, [o]range, [r]ed, [v]iolet, [y]ellow';
 var $author$project$Modes$NewArrow$help = '[?] toggle help overlay, [ESC] cancel, [click, TAB] name the point (if new), ' + ('[hjkl] position the new point with the keyboard, ' + ('[RET] terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[i]nvert arrow, ' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + $author$project$Drawing$Color$helpMsg))))))));
 var $author$project$Modes$Pullshout$help = '[ESC] cancel, ' + ('[?] to toggle help overlay, ' + ('cycle between [p]ullback/[P]ushout possibilities, ' + '[RET] confirm'));
@@ -21927,7 +21947,7 @@ var $author$project$Main$helpMsg = function (model) {
 					}
 				}()))));
 		case 'CutHead':
-			return msg('Mode cut arrow. ' + ($author$project$Main$overlayHelpMsg + (' [RET] or [click] to confirm, [ctrl] to merge the endpoint with existing node. [ESC] to cancel. ' + ('[c] to switch between head/tail' + ', [d] to duplicate (or not) the arrow.'))));
+			return msg('Mode cut arrow. ' + $author$project$Modes$CutHead$help);
 		case 'RenameMode':
 			return msg('Rename mode: [RET] to confirm, [TAB] to next label, [ESC] to cancel');
 		case 'EnlargeMode':
