@@ -9630,6 +9630,9 @@ var $author$project$Model$noCmd = function (m) {
 var $author$project$Modes$QuickInputMode = function (a) {
 	return {$: 'QuickInputMode', a: a};
 };
+var $elm$core$Basics$abs = function (n) {
+	return (n < 0) ? (-n) : n;
+};
 var $author$project$Model$clearActiveTabs = function (tabs) {
 	return A2(
 		$elm$core$List$map,
@@ -11858,10 +11861,7 @@ var $author$project$ArrowStyle$tikzStyle = function (stl) {
 			var hd = _v1.a;
 			return $author$project$ArrowStyle$headTikzStyle(hd);
 		}
-	}() + ((stl.dashed ? 'dashed, ' : '') + function () {
-		var bnd = (stl.bend * 180) / $elm$core$Basics$pi;
-		return (!(!stl.bend)) ? ('bend right={' + ($elm$core$String$fromFloat(bnd) + '}, ')) : '';
-	}())))));
+	}() + ((stl.dashed ? 'dashed, ' : '') + ((!(!stl.bend)) ? ('curve={ratio=' + ($elm$core$String$fromFloat(stl.bend) + '}, ')) : ''))))));
 };
 var $author$project$Tikz$encodeLabel = function (e) {
 	var _v0 = e.label.details;
@@ -11992,7 +11992,7 @@ var $author$project$Tikz$graphToTikz = F2(
 				$elm$core$List$map,
 				$author$project$Tikz$encodePullshoutTikZ(gnorm),
 				pullshouts));
-		return '\\begin{tikzpicture}[every node/.style={inner sep=5pt,outer sep=0pt,anchor=base,text height=1.2ex, text depth=0.25ex}] \n' + (tikzNodes + (tikzFakeEdges + (tikzEdges + (tikzPullshouts + '\\end{tikzpicture}'))));
+		return '\\begin{tikzpicture}[every node/.style={inner sep=2pt,outer sep=0pt,anchor=base,text height=1.2ex, text depth=0.25ex}] \n' + (tikzNodes + (tikzFakeEdges + (tikzEdges + (tikzPullshouts + '\\end{tikzpicture}'))));
 	});
 var $author$project$GraphDefs$clearSelection = function (g) {
 	return A3(
@@ -12989,9 +12989,6 @@ var $author$project$Drawing$mkPath = F3(
 						$author$project$Drawing$dashedToAttrs(dashed)))),
 			_List_Nil);
 	});
-var $elm$core$Basics$abs = function (n) {
-	return (n < 0) ? (-n) : n;
-};
 var $author$project$Geometry$Point$orthogonal = function (_v0) {
 	var x = _v0.a;
 	var y = _v0.b;
@@ -14575,6 +14572,23 @@ var $author$project$Model$nextTabName = function (m) {
 	return $elm$core$String$fromInt(1 + n);
 };
 var $author$project$Main$onMouseMove = _Platform_outgoingPort('onMouseMove', $elm$core$Basics$identity);
+var $author$project$Model$depthHistory = 20;
+var $author$project$Model$toGraphInfo = function (m) {
+	return {latexPreamble: m.latexPreamble, tabs: m.tabs};
+};
+var $author$project$Model$pushHistory = function (m) {
+	return _Utils_update(
+		m,
+		{
+			history: A2(
+				$elm$core$List$take,
+				$author$project$Model$depthHistory,
+				A2(
+					$elm$core$List$cons,
+					$author$project$Model$toGraphInfo(m),
+					m.history))
+		});
+};
 var $elm$json$Json$Encode$float = _Json_wrap;
 var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
 	'quicksaveGraph',
@@ -14759,23 +14773,6 @@ var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
 	});
 var $author$project$Model$activateFirstTab = function (m) {
 	return A2($author$project$Model$activateNthTab, m, 0);
-};
-var $author$project$Model$depthHistory = 20;
-var $author$project$Model$toGraphInfo = function (m) {
-	return {latexPreamble: m.latexPreamble, tabs: m.tabs};
-};
-var $author$project$Model$pushHistory = function (m) {
-	return _Utils_update(
-		m,
-		{
-			history: A2(
-				$elm$core$List$take,
-				$author$project$Model$depthHistory,
-				A2(
-					$elm$core$List$cons,
-					$author$project$Model$toGraphInfo(m),
-					m.history))
-		});
 };
 var $author$project$Model$removeActiveTabs = function (m) {
 	var tabs = A2(
@@ -15069,6 +15066,17 @@ var $author$project$GraphDefs$selectedGraph = function (g) {
 	var f = $author$project$GraphDefs$fieldSelect(g);
 	return A3($author$project$Polygraph$keepBelow, f, f, g);
 };
+var $author$project$Model$setActiveSizeGrid = F2(
+	function (m, s) {
+		return A2(
+			$author$project$Model$updateActiveTab,
+			m,
+			function (t) {
+				return _Utils_update(
+					t,
+					{sizeGrid: s});
+			});
+	});
 var $author$project$QuickInput$handSideFromShort = function (_v0) {
 	var start = _v0.start;
 	var edges = _v0.edges;
@@ -20886,17 +20894,6 @@ var $author$project$Main$graphResize = F2(
 	});
 var $author$project$Model$maxSizeGrid = 500;
 var $author$project$Model$minSizeGrid = 2;
-var $author$project$Model$setActiveSizeGrid = F2(
-	function (m, s) {
-		return A2(
-			$author$project$Model$updateActiveTab,
-			m,
-			function (t) {
-				return _Utils_update(
-					t,
-					{sizeGrid: s});
-			});
-	});
 var $author$project$Main$update_Resize = F3(
 	function (st, msg, m) {
 		var finalise = function (_v1) {
@@ -21076,6 +21073,27 @@ var $author$project$Main$update = F2(
 				return _Utils_Tuple2(
 					model,
 					$author$project$Main$saveGridSize(sizeGrid));
+			case 'OptimalGridSize':
+				var selGraph = $author$project$GraphDefs$selectedGraph(modelGraph);
+				var _v1 = $author$project$Polygraph$nodes(selGraph);
+				if ((_v1.b && _v1.b.b) && (!_v1.b.b.b)) {
+					var n1 = _v1.a;
+					var _v2 = _v1.b;
+					var n2 = _v2.a;
+					var _v3 = A2($author$project$Geometry$Point$subtract, n1.label.pos, n2.label.pos);
+					var x = _v3.a;
+					var y = _v3.b;
+					var newGridSize = $elm$core$Basics$round(
+						A2(
+							$elm$core$Basics$max,
+							$elm$core$Basics$abs(x),
+							$elm$core$Basics$abs(y)));
+					var m2 = $author$project$Model$pushHistory(model);
+					return $author$project$Model$noCmd(
+						A2($author$project$Model$setActiveSizeGrid, m2, newGridSize));
+				} else {
+					return $author$project$Model$noCmd(model);
+				}
 			case 'MinuteTick':
 				return model.autoSave ? _Utils_Tuple2(
 					model,
@@ -21116,9 +21134,9 @@ var $author$project$Main$update = F2(
 					$author$project$Main$onMouseMove(v));
 			case 'NodeRendered':
 				var n = msg.a;
-				var _v1 = msg.b;
-				var x = _v1.a;
-				var y = _v1.b;
+				var _v4 = msg.b;
+				var x = _v4.a;
+				var y = _v4.b;
 				var dims = _Utils_Tuple2(
 					x,
 					(!y) ? 12 : y);
@@ -21138,9 +21156,9 @@ var $author$project$Main$update = F2(
 							})));
 			case 'EdgeRendered':
 				var e = msg.a;
-				var _v2 = msg.b;
-				var x = _v2.a;
-				var y = _v2.b;
+				var _v5 = msg.b;
+				var x = _v5.a;
+				var y = _v5.b;
 				var dims = _Utils_Tuple2(
 					x,
 					(!y) ? 12 : y);
@@ -21202,7 +21220,7 @@ var $author$project$Main$update = F2(
 										graph: A3(
 											$author$project$Polygraph$map,
 											F2(
-												function (_v3, n) {
+												function (_v6, n) {
 													return _Utils_update(
 														n,
 														{
@@ -21226,48 +21244,48 @@ var $author$project$Main$update = F2(
 						model,
 						A2($author$project$GraphDefs$findReplaceInSelected, modelGraph, req)));
 			default:
-				var _v4 = model.mode;
-				switch (_v4.$) {
+				var _v7 = model.mode;
+				switch (_v7.$) {
 					case 'QuickInputMode':
-						var c = _v4.a;
+						var c = _v7.a;
 						return A3($author$project$Main$update_QuickInput, c, msg, model);
 					case 'DefaultMode':
 						return A2($author$project$Main$update_DefaultMode, msg, model);
 					case 'RectSelect':
-						var orig = _v4.a;
+						var orig = _v7.a;
 						return A4($author$project$Main$update_RectSelect, msg, orig, model.specialKeys.shift, model);
 					case 'EnlargeMode':
-						var state = _v4.a;
+						var state = _v7.a;
 						return A3($author$project$Main$update_Enlarge, msg, state, model);
 					case 'NewArrow':
-						var astate = _v4.a;
+						var astate = _v7.a;
 						return A3($author$project$Modes$NewArrow$update, astate, msg, model);
 					case 'PullshoutMode':
-						var astate = _v4.a;
+						var astate = _v7.a;
 						return A3($author$project$Modes$Pullshout$update, astate, msg, model);
 					case 'RenameMode':
-						var b = _v4.a;
-						var l = _v4.b;
+						var b = _v7.a;
+						var l = _v7.b;
 						return A4($author$project$Main$update_RenameMode, b, l, msg, model);
 					case 'Move':
-						var s = _v4.a;
+						var s = _v7.a;
 						return A3($author$project$Main$update_MoveNode, msg, s, model);
 					case 'DebugMode':
 						return A2($author$project$Main$update_DebugMode, msg, model);
 					case 'SquareMode':
-						var state = _v4.a;
+						var state = _v7.a;
 						return A3($author$project$Modes$Square$update, state, msg, model);
 					case 'SplitArrow':
-						var state = _v4.a;
+						var state = _v7.a;
 						return A3($author$project$Modes$SplitArrow$update, state, msg, model);
 					case 'CutHead':
-						var state = _v4.a;
+						var state = _v7.a;
 						return A3($author$project$Modes$CutHead$update, state, msg, model);
 					case 'ResizeMode':
-						var s = _v4.a;
+						var s = _v7.a;
 						return A3($author$project$Main$update_Resize, s, msg, model);
 					default:
-						var ids = _v4.a;
+						var ids = _v7.a;
 						return A3($author$project$Main$update_Color, ids, msg, model);
 				}
 		}
@@ -21313,6 +21331,7 @@ var $author$project$Msg$MouseMoveRaw = F2(
 		return {$: 'MouseMoveRaw', a: a, b: b};
 	});
 var $author$project$Msg$MouseUp = {$: 'MouseUp'};
+var $author$project$Msg$OptimalGridSize = {$: 'OptimalGridSize'};
 var $author$project$Msg$Save = {$: 'Save'};
 var $author$project$Msg$SaveGridSize = {$: 'SaveGridSize'};
 var $author$project$Msg$SizeGrid = function (a) {
@@ -25595,6 +25614,17 @@ var $author$project$Main$viewGraph = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text('Save grid size preferences')
+							])),
+						A2(
+						$elm$html$Html$button,
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onClick($author$project$Msg$OptimalGridSize),
+								$elm$html$Html$Attributes$title('Select two nodes. The new grid size is the max of the coordinate differences.')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Calibrate grid size')
 							]))
 					]),
 				_Utils_ap(
