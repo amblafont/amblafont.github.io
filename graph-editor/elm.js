@@ -20579,11 +20579,11 @@ var $author$project$Main$update_MoveNode = F3(
 										default:
 											return $author$project$Model$noCmd(model);
 									}
-								case 'F':
+								case 'f':
 									return updateDirection($author$project$Modes$Free);
-								case 'H':
+								case 'x':
 									return updateDirection($author$project$Modes$Horizontal);
-								case 'V':
+								case 'y':
 									return updateDirection($author$project$Modes$Vertical);
 								default:
 									break _v0$9;
@@ -21983,7 +21983,7 @@ var $author$project$Main$helpMsg = function (model) {
 		case 'Move':
 			var s = _v0.a;
 			return msg(
-				'Mode Move. ' + ($author$project$Main$overlayHelpMsg + ('Use mouse or h,j,k,l.' + (' Hold [ctrl] to merge the selected point onto another node,' + (' Restrict to [H]orizontal / [V]ertical directions, or let it [F]ree ' + ('(currently, ' + (function () {
+				'Mode Move. ' + ($author$project$Main$overlayHelpMsg + ('Use mouse or h,j,k,l.' + (' Hold [ctrl] to merge the selected point onto another node,' + (' Press [x] or [y] to restrict to horizontal / vertical directions, or let it [f]ree ' + ('(currently, ' + (function () {
 					var _v1 = s.direction;
 					switch (_v1.$) {
 						case 'Vertical':
