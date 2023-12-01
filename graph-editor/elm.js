@@ -19014,6 +19014,7 @@ var $author$project$Main$initialiseEnlarge = function (model) {
 				{orig: model.mousePos, pos: $author$project$InputPosition$InputPosMouse})
 		});
 };
+var $author$project$Modes$Free = {$: 'Free'};
 var $author$project$Modes$Move = function (a) {
 	return {$: 'Move', a: a};
 };
@@ -19043,7 +19044,7 @@ var $author$project$Main$initialiseMoveMode = F3(
 			model,
 			{
 				mode: $author$project$GraphDefs$isEmptySelection(modelGraph) ? $author$project$Modes$DefaultMode : $author$project$Modes$Move(
-					{mode: mode, orig: model.mousePos, pos: $author$project$InputPosition$InputPosMouse, save: save})
+					{direction: $author$project$Modes$Free, mode: mode, orig: model.mousePos, pos: $author$project$InputPosition$InputPosMouse, save: save})
 			});
 	});
 var $author$project$Modes$ResizeMode = function (a) {
@@ -20411,7 +20412,9 @@ var $author$project$Main$update_Enlarge = F3(
 							}))
 				}));
 	});
+var $author$project$Modes$Horizontal = {$: 'Horizontal'};
 var $author$project$Modes$PressMove = {$: 'PressMove'};
+var $author$project$Modes$Vertical = {$: 'Vertical'};
 var $author$project$Geometry$centerRect = function (_v0) {
 	var bottomRight = _v0.bottomRight;
 	var topLeft = _v0.topLeft;
@@ -20436,14 +20439,15 @@ var $author$project$Main$info_MoveNode = F2(
 	function (model, _v0) {
 		var orig = _v0.orig;
 		var pos = _v0.pos;
+		var direction = _v0.direction;
 		var merge = model.specialKeys.ctrl;
 		var modelGraph = $author$project$Model$getActiveGraph(model);
 		var selectedGraph = $author$project$GraphDefs$selectedGraph(modelGraph);
 		var nodes = $author$project$Polygraph$nodes(selectedGraph);
 		var updNode = F2(
-			function (delta, _v5) {
-				var id = _v5.id;
-				var label = _v5.label;
+			function (delta, _v7) {
+				var id = _v7.id;
+				var label = _v7.label;
 				return {
 					id: id,
 					label: _Utils_update(
@@ -20466,9 +20470,9 @@ var $author$project$Main$info_MoveNode = F2(
 		var retMerge = function (movedNodes) {
 			if (movedNodes.b && (!movedNodes.b.b)) {
 				var n = movedNodes.a;
-				var _v4 = A2($author$project$GraphDefs$mergeWithSameLoc, n, modelGraph);
-				var g = _v4.a;
-				var valid = _v4.b;
+				var _v6 = A2($author$project$GraphDefs$mergeWithSameLoc, n, modelGraph);
+				var g = _v6.a;
+				var valid = _v6.b;
 				return valid ? {graph: g, valid: true} : mkRet(movedNodes);
 			} else {
 				return mkRet(movedNodes);
@@ -20478,10 +20482,22 @@ var $author$project$Main$info_MoveNode = F2(
 			var movedNodes = moveNodes(delta);
 			return merge ? retMerge(movedNodes) : mkRet(movedNodes);
 		};
-		var mouseDelta = A2(
-			$author$project$Geometry$Point$subtract,
-			model.mousePos,
-			$author$project$GraphDefs$centerOfNodes(nodes));
+		var mouseDelta = function () {
+			var _v3 = A2(
+				$author$project$Geometry$Point$subtract,
+				model.mousePos,
+				$author$project$GraphDefs$centerOfNodes(nodes));
+			var dx = _v3.a;
+			var dy = _v3.b;
+			switch (direction.$) {
+				case 'Free':
+					return _Utils_Tuple2(dx, dy);
+				case 'Vertical':
+					return _Utils_Tuple2(0, dy);
+				default:
+					return _Utils_Tuple2(dx, 0);
+			}
+		}();
 		var sizeGrid = $author$project$Model$getActiveSizeGrid(model);
 		switch (pos.$) {
 			case 'InputPosKeyboard':
@@ -20524,7 +20540,14 @@ var $author$project$Main$update_MoveNode = F3(
 					mode: $author$project$Modes$Move(st)
 				});
 		};
-		_v0$6:
+		var updateDirection = function (direction) {
+			return $author$project$Model$noCmd(
+				updateState(
+					_Utils_update(
+						state,
+						{direction: direction})));
+		};
+		_v0$9:
 		while (true) {
 			switch (msg.$) {
 				case 'PressTimeout':
@@ -20556,8 +20579,14 @@ var $author$project$Main$update_MoveNode = F3(
 										default:
 											return $author$project$Model$noCmd(model);
 									}
+								case 'f':
+									return updateDirection($author$project$Modes$Free);
+								case 'h':
+									return updateDirection($author$project$Modes$Horizontal);
+								case 'v':
+									return updateDirection($author$project$Modes$Vertical);
 								default:
-									break _v0$6;
+									break _v0$9;
 							}
 						} else {
 							switch (msg.c.a) {
@@ -20566,14 +20595,14 @@ var $author$project$Main$update_MoveNode = F3(
 								case 'Enter':
 									return terminedRet;
 								default:
-									break _v0$6;
+									break _v0$9;
 							}
 						}
 					} else {
-						break _v0$6;
+						break _v0$9;
 					}
 				default:
-					break _v0$6;
+					break _v0$9;
 			}
 		}
 		return $author$project$Model$noCmd(
@@ -21954,9 +21983,19 @@ var $author$project$Main$helpMsg = function (model) {
 		case 'Move':
 			var s = _v0.a;
 			return msg(
-				'Mode Move. ' + ($author$project$Main$overlayHelpMsg + ('Use mouse or h,j,k,l.' + (' Hold [ctrl] to merge the selected point onto another node.' + function () {
-					var _v1 = s.mode;
+				'Mode Move. ' + ($author$project$Main$overlayHelpMsg + ('Use mouse or h,j,k,l.' + (' Hold [ctrl] to merge the selected point onto another node,' + (' Restrict to [h]orizontal / [v]ertical directions, or let it [f]ree ' + ('(currently, ' + (function () {
+					var _v1 = s.direction;
 					switch (_v1.$) {
+						case 'Vertical':
+							return 'vertical';
+						case 'Horizontal':
+							return 'horizontal';
+						default:
+							return 'free';
+					}
+				}() + (').' + function () {
+					var _v2 = s.mode;
+					switch (_v2.$) {
 						case 'FreeMove':
 							return ' [RET] or [click] to confirm.';
 						case 'PressMove':
@@ -21964,7 +22003,7 @@ var $author$project$Main$helpMsg = function (model) {
 						default:
 							return '';
 					}
-				}()))));
+				}()))))))));
 		case 'CutHead':
 			return msg('Mode cut arrow. ' + $author$project$Modes$CutHead$help);
 		case 'RenameMode':
