@@ -5969,6 +5969,9 @@ var $author$project$Model$iniModel = function () {
 }();
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Msg$AppliedProof = function (a) {
+	return {$: 'AppliedProof', a: a};
+};
 var $author$project$Msg$Clear = function (a) {
 	return {$: 'Clear', a: a};
 };
@@ -6008,9 +6011,10 @@ var $author$project$Msg$SimpleMsg = function (a) {
 	return {$: 'SimpleMsg', a: a};
 };
 var $author$project$Msg$Watch = {$: 'Watch'};
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$Main$appliedProof = _Platform_incomingPort('appliedProof', $elm$json$Json$Decode$string);
 var $author$project$Main$autosaveTickMs = 60000;
 var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$Main$clear = _Platform_incomingPort('clear', $elm$json$Json$Decode$string);
 var $elm$json$Json$Decode$andThen = _Json_andThen;
 var $elm$json$Json$Decode$field = _Json_decodeField;
@@ -9512,7 +9516,8 @@ var $author$project$Main$subscriptions = function (m) {
 					$author$project$Main$setFirstTabEquation($author$project$Msg$SetFirstTabEquation),
 					$elm$browser$Browser$Events$onClick(
 					$elm$json$Json$Decode$succeed($author$project$Msg$MouseClick)),
-					$author$project$Main$completeEquation($author$project$Msg$CompleteEquation)
+					$author$project$Main$completeEquation($author$project$Msg$CompleteEquation),
+					$author$project$Main$appliedProof($author$project$Msg$AppliedProof)
 				]),
 			$author$project$Msg$isSimpleScenario(m.scenario) ? _List_Nil : _Utils_ap(
 				m.autoSave ? _List_fromArray(
@@ -9886,6 +9891,22 @@ var $author$project$Model$createNewTab = F2(
 					_List_fromArray(
 						[
 							{active: true, graph: $author$project$Polygraph$empty, sizeGrid: sizeGrid, title: title}
+						]))
+			});
+	});
+var $author$project$Model$duplicateTab = F2(
+	function (m, title) {
+		var tab = $author$project$Model$getActiveTab(m);
+		return _Utils_update(
+			m,
+			{
+				tabs: _Utils_ap(
+					$author$project$Model$clearActiveTabs(m.tabs),
+					_List_fromArray(
+						[
+							_Utils_update(
+							tab,
+							{active: true, title: title})
 						]))
 			});
 	});
@@ -18443,6 +18464,20 @@ var $author$project$Geometry$Point$angleWithInRange = F3(
 			A2($author$project$Geometry$Point$distanceAngle, alpha, beta),
 			$elm$core$Basics$abs(delta)) < 1;
 	});
+var $author$project$Main$applyProof = _Platform_outgoingPort(
+	'applyProof',
+	function ($) {
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'script',
+					$elm$json$Json$Encode$string($.script)),
+					_Utils_Tuple2(
+					'statement',
+					$elm$json$Json$Encode$string($.statement))
+				]));
+	});
 var $author$project$Geometry$Point$barycenter = function (pts) {
 	var _v0 = $elm$core$List$unzip(pts);
 	var xs = _v0.a;
@@ -18838,6 +18873,11 @@ var $author$project$GraphDefs$getProofNodes = function (g) {
 		},
 		$author$project$Polygraph$nodes(g));
 };
+var $author$project$GraphDefs$JustDiagram = function (a) {
+	return {$: 'JustDiagram', a: a};
+};
+var $author$project$GraphDefs$NoDiagram = {$: 'NoDiagram'};
+var $author$project$GraphDefs$NoProofNode = {$: 'NoProofNode'};
 var $author$project$GraphDefs$getSurroundingDiagrams = F2(
 	function (pos, gi) {
 		var gp = $author$project$GraphDefs$toProofGraph(gi);
@@ -18846,6 +18886,69 @@ var $author$project$GraphDefs$getSurroundingDiagrams = F2(
 			A2($author$project$GraphProof$isInDiag, gp, pos),
 			$author$project$GraphProof$getAllValidDiagrams(gp));
 	});
+var $author$project$GraphDefs$selectedNodes = function (g) {
+	return A2(
+		$elm$core$List$filter,
+		A2(
+			$elm$core$Basics$composeR,
+			function ($) {
+				return $.label;
+			},
+			$author$project$GraphDefs$fieldSelect(g)),
+		$author$project$Polygraph$nodes(g));
+};
+var $author$project$GraphDefs$selectedNode = function (g) {
+	var _v0 = $author$project$GraphDefs$selectedNodes(g);
+	if (_v0.b && (!_v0.b.b)) {
+		var x = _v0.a;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$GraphDefs$selectedProofNode = function (g) {
+	var _v0 = A2(
+		$elm$core$Maybe$map,
+		function (n) {
+			return _Utils_Tuple2(
+				n,
+				$author$project$GraphDefs$getProofFromLabel(n.label.label));
+		},
+		$author$project$GraphDefs$selectedNode(g));
+	if (_v0.$ === 'Nothing') {
+		return $elm$core$Maybe$Nothing;
+	} else {
+		if (_v0.a.b.$ === 'Nothing') {
+			var _v1 = _v0.a;
+			var _v2 = _v1.b;
+			return $elm$core$Maybe$Nothing;
+		} else {
+			var _v3 = _v0.a;
+			var n = _v3.a;
+			var s = _v3.b.a;
+			return $elm$core$Maybe$Just(
+				_Utils_Tuple2(n, s));
+		}
+	}
+};
+var $author$project$GraphDefs$getSelectedProofDiagram = function (g) {
+	var _v0 = $author$project$GraphDefs$selectedProofNode(g);
+	if (_v0.$ === 'Nothing') {
+		return $author$project$GraphDefs$NoProofNode;
+	} else {
+		var _v1 = _v0.a;
+		var n = _v1.a;
+		var s = _v1.b;
+		var _v2 = A2($author$project$GraphDefs$getSurroundingDiagrams, n.label.pos, g);
+		if (!_v2.b) {
+			return $author$project$GraphDefs$NoDiagram;
+		} else {
+			var d = _v2.a;
+			return $author$project$GraphDefs$JustDiagram(
+				{diagram: d, proof: s});
+		}
+	}
+};
 var $author$project$Main$incompleteEquation = _Platform_outgoingPort('incompleteEquation', $elm$json$Json$Encode$string);
 var $author$project$GraphDefs$isNormal = A2($elm$core$Basics$composeL, $elm$core$Basics$not, $author$project$GraphDefs$isPullshout);
 var $author$project$GraphDefs$isNormalId = F2(
@@ -18870,17 +18973,6 @@ var $author$project$GraphDefs$selectedEdges = function (g) {
 			},
 			$author$project$GraphDefs$fieldSelect(g)),
 		$author$project$Polygraph$edges(g));
-};
-var $author$project$GraphDefs$selectedNodes = function (g) {
-	return A2(
-		$elm$core$List$filter,
-		A2(
-			$elm$core$Basics$composeR,
-			function ($) {
-				return $.label;
-			},
-			$author$project$GraphDefs$fieldSelect(g)),
-		$author$project$Polygraph$nodes(g));
 };
 var $author$project$GraphDefs$selectedId = function (g) {
 	var _v0 = _Utils_ap(
@@ -18978,15 +19070,6 @@ var $author$project$Modes$SplitArrow$initialise = function (m) {
 					A2($author$project$Polygraph$getEdge, id, modelGraph));
 			},
 			$author$project$GraphDefs$selectedEdgeId(modelGraph)));
-};
-var $author$project$GraphDefs$selectedNode = function (g) {
-	var _v0 = $author$project$GraphDefs$selectedNodes(g);
-	if (_v0.b && (!_v0.b.b)) {
-		var x = _v0.a;
-		return $elm$core$Maybe$Just(x);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
 };
 var $author$project$Modes$Square$initialise = function (m) {
 	var modelGraph = $author$project$Model$getActiveGraph(m);
@@ -19103,7 +19186,6 @@ var $author$project$Main$latexToClipboard = function (tex) {
 	return $author$project$Main$toClipboard(
 		{content: tex, failure: 'unable to copy latex', success: 'latex successfully copied.'});
 };
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$Main$promptEquation = _Platform_outgoingPort(
 	'promptEquation',
 	function ($) {
@@ -19500,30 +19582,6 @@ var $author$project$GraphDefs$snapNodeToGrid = F2(
 				pos: A2($author$project$Geometry$Point$snapToGrid, sizeGrid, n.pos)
 			});
 	});
-var $author$project$QuickInput$splitWithChain = F3(
-	function (g, ch, id) {
-		return A2(
-			$elm$core$Maybe$withDefault,
-			g,
-			A2(
-				$elm$core$Maybe$map,
-				function (edge) {
-					var on2 = A2($author$project$Polygraph$getNode, edge.to, g);
-					var on1 = A2($author$project$Polygraph$getNode, edge.from, g);
-					var _v0 = _Utils_Tuple2(on1, on2);
-					if ((_v0.a.$ === 'Just') && (_v0.b.$ === 'Just')) {
-						var n1 = _v0.a.a;
-						var n2 = _v0.b.a;
-						return A2(
-							$author$project$QuickInput$buildGraphSegment,
-							{alignLeft: true, edges: ch, from: n1.pos, fromId: edge.from, to: n2.pos, toId: edge.to},
-							A2($author$project$Polygraph$removeEdge, id, g));
-					} else {
-						return g;
-					}
-				},
-				A2($author$project$Polygraph$getEdge, id, g)));
-	});
 var $author$project$Model$peekHistory = function (m) {
 	return A2(
 		$elm$core$Maybe$withDefault,
@@ -19556,6 +19614,31 @@ var $author$project$Model$undo = function (m) {
 			m,
 			$author$project$Model$peekHistory(m)));
 };
+var $elm$core$Debug$log = _Debug_log;
+var $author$project$QuickInput$splitWithChain = F3(
+	function (g, ch, id) {
+		return A2(
+			$elm$core$Maybe$withDefault,
+			g,
+			A2(
+				$elm$core$Maybe$map,
+				function (edge) {
+					var on2 = A2($author$project$Polygraph$getNode, edge.to, g);
+					var on1 = A2($author$project$Polygraph$getNode, edge.from, g);
+					var _v0 = _Utils_Tuple2(on1, on2);
+					if ((_v0.a.$ === 'Just') && (_v0.b.$ === 'Just')) {
+						var n1 = _v0.a.a;
+						var n2 = _v0.b.a;
+						return A2(
+							$author$project$QuickInput$buildGraphSegment,
+							{alignLeft: true, edges: ch, from: n1.pos, fromId: edge.from, to: n2.pos, toId: edge.to},
+							A2($author$project$Polygraph$removeEdge, id, g));
+					} else {
+						return g;
+					}
+				},
+				A2($author$project$Polygraph$getEdge, id, g)));
+	});
 var $elm_community$list_extra$List$Extra$count = function (predicate) {
 	return A2(
 		$elm$core$List$foldl,
@@ -19603,6 +19686,58 @@ var $author$project$Unification$unify = F3(
 			var length1 = $elm$core$List$length(l1);
 			var length2 = $elm$core$List$length(l2);
 			return (_Utils_cmp(length2, length1) < 0) ? $elm$core$Result$Err('The solved handside cannot be smaller') : A4($author$project$Unification$unifyAux, cfg, (1 + length2) - length1, l1, l2);
+		}
+	});
+var $author$project$Unification$unifyDiagram = F3(
+	function (_v0, d, graph) {
+		var eq1 = _v0.a;
+		var eq2 = _v0.b;
+		var mayUnify = F2(
+			function (l, e) {
+				return A3(
+					$author$project$Unification$unify,
+					{
+						isMetavariable: A2(
+							$elm$core$Basics$composeR,
+							function ($) {
+								return $.label;
+							},
+							A2(
+								$elm$core$Basics$composeR,
+								function ($) {
+									return $.label;
+								},
+								$elm$core$String$isEmpty))
+					},
+					l,
+					e);
+			});
+		var _v1 = _Utils_Tuple2(
+			A2(mayUnify, d.lhs, eq1),
+			A2(mayUnify, d.rhs, eq2));
+		if (_v1.a.$ === 'Err') {
+			var s1 = _v1.a.a;
+			return $elm$core$Result$Err(s1);
+		} else {
+			if (_v1.b.$ === 'Err') {
+				var s2 = _v1.b.a;
+				return $elm$core$Result$Err(s2);
+			} else {
+				var l1 = _v1.a.a;
+				var l2 = _v1.b.a;
+				var f = F2(
+					function (_v2, g) {
+						var a = _v2.a;
+						var edges = _v2.b;
+						return A3($author$project$QuickInput$splitWithChain, g, edges, a.id);
+					});
+				var ltot = A2(
+					$elm$core$Debug$log,
+					'total unified',
+					_Utils_ap(l1, l2));
+				var finalg = A3($elm$core$List$foldl, f, graph, ltot);
+				return $elm$core$Result$Ok(finalg);
+			}
 		}
 	});
 var $author$project$Polygraph$addId = F2(
@@ -19734,12 +19869,12 @@ var $author$project$Main$update_DefaultMode = F2(
 				model,
 				$author$project$GraphDefs$clearSelection(modelGraph)));
 		var createPoint = function (isMath) {
-			var _v20 = A2(
+			var _v22 = A2(
 				$author$project$Polygraph$newNode,
 				modelGraph,
 				A4($author$project$GraphDefs$newNodeLabel, model.mousePos, '', isMath, $author$project$Zindex$defaultZ));
-			var newGraph = _v20.a;
-			var newId = _v20.b;
+			var newGraph = _v22.a;
+			var newId = _v22.b;
 			var newModel = A3(
 				$author$project$Model$addOrSetSel,
 				false,
@@ -19754,11 +19889,11 @@ var $author$project$Main$update_DefaultMode = F2(
 					newModel));
 		};
 		var increaseZBy = function (offset) {
-			var _v19 = $author$project$GraphDefs$selectedId(modelGraph);
-			if (_v19.$ === 'Nothing') {
+			var _v21 = $author$project$GraphDefs$selectedId(modelGraph);
+			if (_v21.$ === 'Nothing') {
 				return $author$project$Model$noCmd(model);
 			} else {
-				var id = _v19.a;
+				var id = _v21.a;
 				return $author$project$Model$noCmd(
 					A2(
 						$author$project$Model$setSaveGraph,
@@ -19779,9 +19914,9 @@ var $author$project$Main$update_DefaultMode = F2(
 							modelGraph)));
 			}
 		};
-		_v0$46:
+		_v0$47:
 		while (true) {
-			_v0$47:
+			_v0$48:
 			while (true) {
 				switch (msg.$) {
 					case 'MouseOn':
@@ -19818,6 +19953,37 @@ var $author$project$Main$update_DefaultMode = F2(
 							model,
 							$author$project$Main$clipboardWriteGraph(
 								$author$project$Main$toJsGraphInfo(selectedModel)));
+					case 'AppliedProof':
+						var statement = msg.a;
+						var failWith = function (s) {
+							return _Utils_Tuple2(
+								model,
+								$author$project$Main$alert(s));
+						};
+						var _v5 = $author$project$GraphDefs$getSelectedProofDiagram(modelGraph);
+						switch (_v5.$) {
+							case 'NoProofNode':
+								return failWith('No proof node selected.');
+							case 'NoDiagram':
+								return failWith('no diagram around selected proof node.');
+							default:
+								var diagram = _v5.a.diagram;
+								var _v6 = A2($elm$parser$Parser$run, $author$project$QuickInput$equalityParser, statement);
+								if (_v6.$ === 'Err') {
+									return failWith('fail to parse ' + statement);
+								} else {
+									var eqs = _v6.a;
+									var _v7 = A3($author$project$Unification$unifyDiagram, eqs, diagram, modelGraph);
+									if (_v7.$ === 'Err') {
+										var s = _v7.a;
+										return failWith(s);
+									} else {
+										var finalg = _v7.a;
+										return $author$project$Model$noCmd(
+											A2($author$project$Model$setSaveGraph, model, finalg));
+									}
+								}
+						}
 					case 'CompleteEquation':
 						var statement = msg.a.statement;
 						var script = msg.a.script;
@@ -19826,85 +19992,44 @@ var $author$project$Main$update_DefaultMode = F2(
 								model,
 								$author$project$Main$alert(s));
 						};
-						var _v4 = _Utils_Tuple2(
+						var _v8 = _Utils_Tuple2(
 							A2($elm$parser$Parser$run, $author$project$QuickInput$equalityParser, statement),
 							$author$project$GraphDefs$selectedIncompleteDiagram(modelGraph));
-						if (_v4.a.$ === 'Err') {
+						if (_v8.a.$ === 'Err') {
 							return failWith('fail to parse ' + statement);
 						} else {
-							if (_v4.b.$ === 'Nothing') {
-								var _v5 = _v4.b;
+							if (_v8.b.$ === 'Nothing') {
+								var _v9 = _v8.b;
 								return failWith('no incomplete diagram selected');
 							} else {
-								var _v6 = _v4.a.a;
-								var eq1 = _v6.a;
-								var eq2 = _v6.b;
-								var d = _v4.b.a;
-								var unify = F2(
-									function (l, e) {
-										return A3(
-											$author$project$Unification$unify,
-											{
-												isMetavariable: A2(
+								var eqs = _v8.a.a;
+								var d = _v8.b.a;
+								var _v10 = A3($author$project$Unification$unifyDiagram, eqs, d, modelGraph);
+								if (_v10.$ === 'Err') {
+									var s = _v10.a;
+									return failWith(s);
+								} else {
+									var finalg = _v10.a;
+									var selectedNodes = $author$project$Polygraph$nodes(
+										$author$project$GraphDefs$selectedGraph(modelGraph));
+									var g_with_proof = A3(
+										$author$project$GraphDefs$createProofNode,
+										finalg,
+										script,
+										$author$project$Geometry$Point$barycenter(
+											A2(
+												$elm$core$List$map,
+												A2(
 													$elm$core$Basics$composeR,
 													function ($) {
 														return $.label;
 													},
-													A2(
-														$elm$core$Basics$composeR,
-														function ($) {
-															return $.label;
-														},
-														$elm$core$String$isEmpty))
-											},
-											l,
-											e);
-									});
-								var _v7 = _Utils_Tuple2(
-									A2(unify, d.lhs, eq1),
-									A2(unify, d.rhs, eq2));
-								if (_v7.a.$ === 'Err') {
-									var s1 = _v7.a.a;
-									return failWith(s1);
-								} else {
-									if (_v7.b.$ === 'Err') {
-										var s2 = _v7.b.a;
-										return failWith(s2);
-									} else {
-										var l1 = _v7.a.a;
-										var l2 = _v7.b.a;
-										var f = F2(
-											function (_v8, g) {
-												var a = _v8.a;
-												var edges = _v8.b;
-												return A3($author$project$QuickInput$splitWithChain, g, edges, a.id);
-											});
-										var ltot = A2(
-											$elm$core$Debug$log,
-											'total unified',
-											_Utils_ap(l1, l2));
-										var finalg = A3($elm$core$List$foldl, f, modelGraph, ltot);
-										var selectedNodes = $author$project$Polygraph$nodes(
-											$author$project$GraphDefs$selectedGraph(modelGraph));
-										var g_with_proof = A3(
-											$author$project$GraphDefs$createProofNode,
-											finalg,
-											script,
-											$author$project$Geometry$Point$barycenter(
-												A2(
-													$elm$core$List$map,
-													A2(
-														$elm$core$Basics$composeR,
-														function ($) {
-															return $.label;
-														},
-														function ($) {
-															return $.pos;
-														}),
-													selectedNodes)));
-										return $author$project$Model$noCmd(
-											A2($author$project$Model$setSaveGraph, model, g_with_proof));
-									}
+													function ($) {
+														return $.pos;
+													}),
+												selectedNodes)));
+									return $author$project$Model$noCmd(
+										A2($author$project$Model$setSaveGraph, model, g_with_proof));
 								}
 							}
 						}
@@ -19923,16 +20048,16 @@ var $author$project$Main$update_DefaultMode = F2(
 						if (!model.mouseOnCanvas) {
 							return $author$project$Model$noCmd(model);
 						} else {
-							var _v11 = A2(
+							var _v13 = A2(
 								$elm_community$list_extra$List$Extra$find,
 								function ($) {
 									return $.active;
 								},
 								gi.tabs);
-							if (_v11.$ === 'Nothing') {
+							if (_v13.$ === 'Nothing') {
 								return $author$project$Model$noCmd(model);
 							} else {
-								var tab = _v11.a;
+								var tab = _v13.a;
 								return $author$project$Model$noCmd(
 									A3(
 										$author$project$Main$initialiseMoveMode,
@@ -19958,7 +20083,7 @@ var $author$project$Main$update_DefaultMode = F2(
 										$elm$core$Basics$always($author$project$Msg$PressTimeout),
 										$elm$core$Process$sleep(pressTimeoutMs)));
 							} else {
-								break _v0$47;
+								break _v0$48;
 							}
 						} else {
 							if (msg.c.$ === 'Control') {
@@ -19972,7 +20097,7 @@ var $author$project$Main$update_DefaultMode = F2(
 												model,
 												$author$project$GraphDefs$removeSelected(modelGraph)));
 									default:
-										break _v0$46;
+										break _v0$47;
 								}
 							} else {
 								switch (msg.c.a.valueOf()) {
@@ -20078,7 +20203,21 @@ var $author$project$Main$update_DefaultMode = F2(
 										var cmd = function () {
 											var _v3 = $author$project$GraphDefs$selectedIncompleteDiagram(modelGraph);
 											if (_v3.$ === 'Nothing') {
-												return $author$project$Main$alert('Selected subdiagram not found.');
+												var _v4 = $author$project$GraphDefs$getSelectedProofDiagram(modelGraph);
+												switch (_v4.$) {
+													case 'NoProofNode':
+														return $author$project$Main$alert('Selected subdiagram or proof node not found.');
+													case 'NoDiagram':
+														return $author$project$Main$alert('No diagram found around node.');
+													default:
+														var proof = _v4.a.proof;
+														var diagram = _v4.a.diagram;
+														return $author$project$Main$applyProof(
+															{
+																script: proof,
+																statement: $author$project$GraphProof$statementToString(diagram)
+															});
+												}
 											} else {
 												var d = _v3.a;
 												return $author$project$Main$incompleteEquation(
@@ -20137,8 +20276,8 @@ var $author$project$Main$update_DefaultMode = F2(
 										return $author$project$Model$noCmd(
 											function () {
 												var isSel = $author$project$GraphDefs$fieldSelect(modelGraph);
-												var _v9 = $author$project$GraphDefs$selectedNodes(modelGraph);
-												if (!_v9.b) {
+												var _v11 = $author$project$GraphDefs$selectedNodes(modelGraph);
+												if (!_v11.b) {
 													return model;
 												} else {
 													return A2(
@@ -20147,7 +20286,7 @@ var $author$project$Main$update_DefaultMode = F2(
 														A3(
 															$author$project$Polygraph$map,
 															F2(
-																function (_v10, n) {
+																function (_v12, n) {
 																	return isSel(n) ? A2($author$project$GraphDefs$snapNodeToGrid, sizeGrid, n) : n;
 																}),
 															$elm$core$Basics$always($elm$core$Basics$identity),
@@ -20167,16 +20306,16 @@ var $author$project$Main$update_DefaultMode = F2(
 										var connectedGraph = A3($author$project$Polygraph$connectedClosure, f, f, modelGraph);
 										var isIncomplete = A3(
 											$author$project$Polygraph$any,
-											function (_v16) {
-												var n = _v16.n;
-												var isIn = _v16.isIn;
+											function (_v18) {
+												var n = _v18.n;
+												var isIn = _v18.isIn;
 												return !_Utils_eq(
 													f(n),
 													isIn);
 											},
-											function (_v17) {
-												var e = _v17.e;
-												var isIn = _v17.isIn;
+											function (_v19) {
+												var e = _v19.e;
+												var isIn = _v19.isIn;
 												return !_Utils_eq(
 													f(e),
 													isIn);
@@ -20187,17 +20326,17 @@ var $author$project$Main$update_DefaultMode = F2(
 												return A3(
 													$author$project$Polygraph$map,
 													F2(
-														function (_v12, _v13) {
-															var n = _v13.n;
-															var isIn = _v13.isIn;
+														function (_v14, _v15) {
+															var n = _v15.n;
+															var isIn = _v15.isIn;
 															return _Utils_update(
 																n,
 																{selected: isIn});
 														}),
 													F2(
-														function (_v14, _v15) {
-															var e = _v15.e;
-															var isIn = _v15.isIn;
+														function (_v16, _v17) {
+															var e = _v17.e;
+															var isIn = _v17.isIn;
 															return _Utils_update(
 																e,
 																{selected: isIn});
@@ -20248,12 +20387,12 @@ var $author$project$Main$update_DefaultMode = F2(
 										var k = msg.b;
 										return increaseZBy(-1);
 									default:
-										break _v0$46;
+										break _v0$47;
 								}
 							}
 						}
 					default:
-						break _v0$47;
+						break _v0$48;
 				}
 			}
 			return $author$project$Model$noCmd(model);
@@ -20261,15 +20400,15 @@ var $author$project$Main$update_DefaultMode = F2(
 		var k = msg.c;
 		return $author$project$Model$noCmd(
 			function () {
-				var _v18 = A3(
+				var _v20 = A3(
 					$author$project$GraphDefs$updateStyleEdges,
 					$author$project$ArrowStyle$keyMaybeUpdateStyle(k),
 					$author$project$GraphDefs$selectedEdges(modelGraph),
 					modelGraph);
-				if (_v18.$ === 'Nothing') {
+				if (_v20.$ === 'Nothing') {
 					return model;
 				} else {
-					var g = _v18.a;
+					var g = _v20.a;
 					return A2($author$project$Model$setSaveGraph, model, g);
 				}
 			}());
@@ -21033,6 +21172,13 @@ var $author$project$Main$update = F2(
 				case 'NewTab':
 					return A2(
 						$author$project$Model$createNewTab,
+						_Utils_update(
+							modeli,
+							{mode: $author$project$Modes$DefaultMode}),
+						$author$project$Model$nextTabName(modeli));
+				case 'DuplicateTab':
+					return A2(
+						$author$project$Model$duplicateTab,
 						_Utils_update(
 							modeli,
 							{mode: $author$project$Modes$DefaultMode}),
@@ -21967,7 +22113,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsg + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow from selected point' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]olor arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [I] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with unnamed arrows to be unified)' + (', [E] enter an equation (prompt)' + ', export selection to LaTe[X]/s[V]g')))))))))))))))))))))))))))))))))))))))))))))));
+			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsg + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow from selected point' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]olor arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [I] generate Coq script to address selected incomplete subdiagram ' + ('(i.e., a subdiagram with unnamed arrows to be unified), ' + (' or use the selected proof node to complete the surrounding diagram (with unnamed arrows)' + (', [E] enter an equation (prompt)' + ', export selection to LaTe[X]/s[V]g'))))))))))))))))))))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return $elm$html$Html$text('Debug Mode. [ESC] to cancel and come back to the default mode. ' + '');
 		case 'NewArrow':
@@ -25319,6 +25465,7 @@ var $author$project$Main$quickLoad = _Platform_outgoingPort(
 	function ($) {
 		return $elm$json$Json$Encode$null;
 	});
+var $author$project$Msg$DuplicateTab = {$: 'DuplicateTab'};
 var $author$project$Msg$NewTab = {$: 'NewTab'};
 var $author$project$Msg$RemoveTab = {$: 'RemoveTab'};
 var $author$project$Msg$SwitchTab = function (a) {
@@ -25360,6 +25507,16 @@ var $author$project$Main$renderTabs = function (tabs) {
 			[
 				$elm$html$Html$text('New tab')
 			]));
+	var dupButton = A2(
+		$elm$html$Html$button,
+		_List_fromArray(
+			[
+				$elm$html$Html$Events$onClick($author$project$Msg$DuplicateTab)
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text('Duplicate tab')
+			]));
 	var removeButton = A2(
 		$elm$html$Html$button,
 		_List_fromArray(
@@ -25384,7 +25541,7 @@ var $author$project$Main$renderTabs = function (tabs) {
 			]));
 	return _Utils_ap(
 		_List_fromArray(
-			[newButton, removeButton, renameButton]),
+			[newButton, dupButton, removeButton, renameButton]),
 		A2($elm$core$List$indexedMap, renderTab, tabs));
 };
 var $elm$html$Html$Attributes$rows = function (n) {
