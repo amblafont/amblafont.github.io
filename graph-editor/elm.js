@@ -4358,43 +4358,6 @@ function _Browser_load(url)
 
 
 
-var _Bitwise_and = F2(function(a, b)
-{
-	return a & b;
-});
-
-var _Bitwise_or = F2(function(a, b)
-{
-	return a | b;
-});
-
-var _Bitwise_xor = F2(function(a, b)
-{
-	return a ^ b;
-});
-
-function _Bitwise_complement(a)
-{
-	return ~a;
-};
-
-var _Bitwise_shiftLeftBy = F2(function(offset, a)
-{
-	return a << offset;
-});
-
-var _Bitwise_shiftRightBy = F2(function(offset, a)
-{
-	return a >> offset;
-});
-
-var _Bitwise_shiftRightZfBy = F2(function(offset, a)
-{
-	return a >>> offset;
-});
-
-
-
 function _Time_now(millisToPosix)
 {
 	return _Scheduler_binding(function(callback)
@@ -4438,6 +4401,43 @@ function _Time_getZoneName()
 		callback(_Scheduler_succeed(name));
 	});
 }
+
+
+
+var _Bitwise_and = F2(function(a, b)
+{
+	return a & b;
+});
+
+var _Bitwise_or = F2(function(a, b)
+{
+	return a | b;
+});
+
+var _Bitwise_xor = F2(function(a, b)
+{
+	return a ^ b;
+});
+
+function _Bitwise_complement(a)
+{
+	return ~a;
+};
+
+var _Bitwise_shiftLeftBy = F2(function(offset, a)
+{
+	return a << offset;
+});
+
+var _Bitwise_shiftRightBy = F2(function(offset, a)
+{
+	return a >> offset;
+});
+
+var _Bitwise_shiftRightZfBy = F2(function(offset, a)
+{
+	return a >>> offset;
+});
 
 
 
@@ -5043,6 +5043,43 @@ var $elm$core$Result$isOk = function (result) {
 		return false;
 	}
 };
+var $elm$json$Json$Decode$andThen = _Json_andThen;
+var $author$project$Modes$DefaultMode = {$: 'DefaultMode'};
+var $author$project$Msg$Standard = {$: 'Standard'};
+var $author$project$GraphDefs$coqProofTexCommand = 'coqproof';
+var $elm$core$Basics$identity = function (x) {
+	return x;
+};
+var $author$project$Polygraph$Graph = function (a) {
+	return {$: 'Graph', a: a};
+};
+var $elm_community$intdict$IntDict$Empty = {$: 'Empty'};
+var $elm_community$intdict$IntDict$empty = $elm_community$intdict$IntDict$Empty;
+var $author$project$Polygraph$empty = $author$project$Polygraph$Graph($elm_community$intdict$IntDict$empty);
+var $author$project$Model$createModel = function (sizeGrid) {
+	var g = $author$project$Polygraph$empty;
+	return {
+		autoSave: false,
+		defaultGridSize: sizeGrid,
+		fileName: 'graph.json',
+		hideGrid: false,
+		history: _List_Nil,
+		latexPreamble: '\\newcommand{\\' + ($author$project$GraphDefs$coqProofTexCommand + '}[1]{\\checkmark}'),
+		mode: $author$project$Modes$DefaultMode,
+		mouseOnCanvas: false,
+		mousePos: _Utils_Tuple2(0, 0),
+		quickInput: '',
+		scenario: $author$project$Msg$Standard,
+		showOverlayHelp: false,
+		specialKeys: {alt: false, ctrl: false, shift: false},
+		squareModeProof: false,
+		statusMsg: '',
+		tabs: _List_fromArray(
+			[
+				{active: true, graph: g, sizeGrid: sizeGrid, title: '1'}
+			])
+	};
+};
 var $elm$json$Json$Decode$map = _Json_map1;
 var $elm$json$Json$Decode$map2 = _Json_map2;
 var $elm$json$Json$Decode$succeed = _Json_succeed;
@@ -5063,9 +5100,6 @@ var $elm$browser$Browser$External = function (a) {
 };
 var $elm$browser$Browser$Internal = function (a) {
 	return {$: 'Internal', a: a};
-};
-var $elm$core$Basics$identity = function (x) {
-	return x;
 };
 var $elm$browser$Browser$Dom$NotFound = function (a) {
 	return {$: 'NotFound', a: a};
@@ -5357,616 +5391,8 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
-		}
-	});
-var $elm$core$List$concat = function (lists) {
-	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
-};
-var $author$project$Zindex$defaultZ = 0;
-var $author$project$ArrowStyle$DefaultHead = {$: 'DefaultHead'};
-var $author$project$ArrowStyle$DefaultTail = {$: 'DefaultTail'};
-var $author$project$Geometry$Left = {$: 'Left'};
-var $author$project$Drawing$Color$Black = {$: 'Black'};
-var $author$project$Drawing$Color$black = $author$project$Drawing$Color$Black;
-var $author$project$ArrowStyle$empty = {bend: 0, color: $author$project$Drawing$Color$black, dashed: false, _double: false, head: $author$project$ArrowStyle$DefaultHead, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, tail: $author$project$ArrowStyle$DefaultTail};
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
-var $author$project$Polygraph$EdgeObj = F3(
-	function (a, b, c) {
-		return {$: 'EdgeObj', a: a, b: b, c: c};
-	});
-var $author$project$Polygraph$Graph = function (a) {
-	return {$: 'Graph', a: a};
-};
-var $author$project$Polygraph$NodeObj = function (a) {
-	return {$: 'NodeObj', a: a};
-};
-var $elm_community$intdict$IntDict$Empty = {$: 'Empty'};
-var $elm_community$intdict$IntDict$empty = $elm_community$intdict$IntDict$Empty;
-var $elm$core$Basics$always = F2(
-	function (a, _v0) {
-		return a;
-	});
-var $elm_community$intdict$IntDict$Inner = function (a) {
-	return {$: 'Inner', a: a};
-};
-var $elm_community$intdict$IntDict$size = function (dict) {
-	switch (dict.$) {
-		case 'Empty':
-			return 0;
-		case 'Leaf':
-			return 1;
-		default:
-			var i = dict.a;
-			return i.size;
-	}
-};
-var $elm_community$intdict$IntDict$inner = F3(
-	function (p, l, r) {
-		var _v0 = _Utils_Tuple2(l, r);
-		if (_v0.a.$ === 'Empty') {
-			var _v1 = _v0.a;
-			return r;
-		} else {
-			if (_v0.b.$ === 'Empty') {
-				var _v2 = _v0.b;
-				return l;
-			} else {
-				return $elm_community$intdict$IntDict$Inner(
-					{
-						left: l,
-						prefix: p,
-						right: r,
-						size: $elm_community$intdict$IntDict$size(l) + $elm_community$intdict$IntDict$size(r)
-					});
-			}
-		}
-	});
-var $elm$core$Bitwise$and = _Bitwise_and;
-var $elm$core$Basics$composeR = F3(
-	function (f, g, x) {
-		return g(
-			f(x));
-	});
-var $elm$core$Basics$neq = _Utils_notEqual;
-var $elm$core$Bitwise$complement = _Bitwise_complement;
-var $elm$core$Bitwise$or = _Bitwise_or;
-var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
-var $elm_community$intdict$IntDict$highestBitSet = function (n) {
-	var shiftOr = F2(
-		function (i, shift) {
-			return i | (i >>> shift);
-		});
-	var n1 = A2(shiftOr, n, 1);
-	var n2 = A2(shiftOr, n1, 2);
-	var n3 = A2(shiftOr, n2, 4);
-	var n4 = A2(shiftOr, n3, 8);
-	var n5 = A2(shiftOr, n4, 16);
-	return n5 & (~(n5 >>> 1));
-};
-var $elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var $elm_community$intdict$IntDict$signBit = $elm_community$intdict$IntDict$highestBitSet(-1);
-var $elm$core$Bitwise$xor = _Bitwise_xor;
-var $elm_community$intdict$IntDict$isBranchingBitSet = function (p) {
-	return A2(
-		$elm$core$Basics$composeR,
-		$elm$core$Bitwise$xor($elm_community$intdict$IntDict$signBit),
-		A2(
-			$elm$core$Basics$composeR,
-			$elm$core$Bitwise$and(p.branchingBit),
-			$elm$core$Basics$neq(0)));
-};
-var $elm_community$intdict$IntDict$higherBitMask = function (branchingBit) {
-	return branchingBit ^ (~(branchingBit - 1));
-};
-var $elm_community$intdict$IntDict$lcp = F2(
-	function (x, y) {
-		var branchingBit = $elm_community$intdict$IntDict$highestBitSet(x ^ y);
-		var mask = $elm_community$intdict$IntDict$higherBitMask(branchingBit);
-		var prefixBits = x & mask;
-		return {branchingBit: branchingBit, prefixBits: prefixBits};
-	});
-var $elm_community$intdict$IntDict$Leaf = function (a) {
-	return {$: 'Leaf', a: a};
-};
-var $elm_community$intdict$IntDict$leaf = F2(
-	function (k, v) {
-		return $elm_community$intdict$IntDict$Leaf(
-			{key: k, value: v});
-	});
-var $elm_community$intdict$IntDict$prefixMatches = F2(
-	function (p, n) {
-		return _Utils_eq(
-			n & $elm_community$intdict$IntDict$higherBitMask(p.branchingBit),
-			p.prefixBits);
-	});
-var $elm_community$intdict$IntDict$update = F3(
-	function (key, alter, dict) {
-		var join = F2(
-			function (_v2, _v3) {
-				var k1 = _v2.a;
-				var l = _v2.b;
-				var k2 = _v3.a;
-				var r = _v3.b;
-				var prefix = A2($elm_community$intdict$IntDict$lcp, k1, k2);
-				return A2($elm_community$intdict$IntDict$isBranchingBitSet, prefix, k2) ? A3($elm_community$intdict$IntDict$inner, prefix, l, r) : A3($elm_community$intdict$IntDict$inner, prefix, r, l);
-			});
-		var alteredNode = function (mv) {
-			var _v1 = alter(mv);
-			if (_v1.$ === 'Just') {
-				var v = _v1.a;
-				return A2($elm_community$intdict$IntDict$leaf, key, v);
-			} else {
-				return $elm_community$intdict$IntDict$empty;
-			}
-		};
-		switch (dict.$) {
-			case 'Empty':
-				return alteredNode($elm$core$Maybe$Nothing);
-			case 'Leaf':
-				var l = dict.a;
-				return _Utils_eq(l.key, key) ? alteredNode(
-					$elm$core$Maybe$Just(l.value)) : A2(
-					join,
-					_Utils_Tuple2(
-						key,
-						alteredNode($elm$core$Maybe$Nothing)),
-					_Utils_Tuple2(l.key, dict));
-			default:
-				var i = dict.a;
-				return A2($elm_community$intdict$IntDict$prefixMatches, i.prefix, key) ? (A2($elm_community$intdict$IntDict$isBranchingBitSet, i.prefix, key) ? A3(
-					$elm_community$intdict$IntDict$inner,
-					i.prefix,
-					i.left,
-					A3($elm_community$intdict$IntDict$update, key, alter, i.right)) : A3(
-					$elm_community$intdict$IntDict$inner,
-					i.prefix,
-					A3($elm_community$intdict$IntDict$update, key, alter, i.left),
-					i.right)) : A2(
-					join,
-					_Utils_Tuple2(
-						key,
-						alteredNode($elm$core$Maybe$Nothing)),
-					_Utils_Tuple2(i.prefix.prefixBits, dict));
-		}
-	});
-var $elm_community$intdict$IntDict$insert = F3(
-	function (key, value, dict) {
-		return A3(
-			$elm_community$intdict$IntDict$update,
-			key,
-			$elm$core$Basics$always(
-				$elm$core$Maybe$Just(value)),
-			dict);
-	});
-var $elm_community$intdict$IntDict$fromList = function (pairs) {
-	return A3(
-		$elm$core$List$foldl,
-		function (_v0) {
-			var a = _v0.a;
-			var b = _v0.b;
-			return A2($elm_community$intdict$IntDict$insert, a, b);
-		},
-		$elm_community$intdict$IntDict$empty,
-		pairs);
-};
-var $elm_community$intdict$IntDict$Disjunct = F2(
-	function (a, b) {
-		return {$: 'Disjunct', a: a, b: b};
-	});
-var $elm_community$intdict$IntDict$Left = {$: 'Left'};
-var $elm_community$intdict$IntDict$Parent = F2(
-	function (a, b) {
-		return {$: 'Parent', a: a, b: b};
-	});
-var $elm_community$intdict$IntDict$Right = {$: 'Right'};
-var $elm_community$intdict$IntDict$SamePrefix = {$: 'SamePrefix'};
-var $elm_community$intdict$IntDict$combineBits = F3(
-	function (a, b, mask) {
-		return (a & (~mask)) | (b & mask);
-	});
-var $elm_community$intdict$IntDict$mostSignificantBranchingBit = F2(
-	function (a, b) {
-		return (_Utils_eq(a, $elm_community$intdict$IntDict$signBit) || _Utils_eq(b, $elm_community$intdict$IntDict$signBit)) ? $elm_community$intdict$IntDict$signBit : A2($elm$core$Basics$max, a, b);
-	});
-var $elm_community$intdict$IntDict$determineBranchRelation = F2(
-	function (l, r) {
-		var rp = r.prefix;
-		var lp = l.prefix;
-		var mask = $elm_community$intdict$IntDict$highestBitSet(
-			A2($elm_community$intdict$IntDict$mostSignificantBranchingBit, lp.branchingBit, rp.branchingBit));
-		var modifiedRightPrefix = A3($elm_community$intdict$IntDict$combineBits, rp.prefixBits, ~lp.prefixBits, mask);
-		var prefix = A2($elm_community$intdict$IntDict$lcp, lp.prefixBits, modifiedRightPrefix);
-		var childEdge = F2(
-			function (branchPrefix, c) {
-				return A2($elm_community$intdict$IntDict$isBranchingBitSet, branchPrefix, c.prefix.prefixBits) ? $elm_community$intdict$IntDict$Right : $elm_community$intdict$IntDict$Left;
-			});
-		return _Utils_eq(lp, rp) ? $elm_community$intdict$IntDict$SamePrefix : (_Utils_eq(prefix, lp) ? A2(
-			$elm_community$intdict$IntDict$Parent,
-			$elm_community$intdict$IntDict$Left,
-			A2(childEdge, l.prefix, r)) : (_Utils_eq(prefix, rp) ? A2(
-			$elm_community$intdict$IntDict$Parent,
-			$elm_community$intdict$IntDict$Right,
-			A2(childEdge, r.prefix, l)) : A2(
-			$elm_community$intdict$IntDict$Disjunct,
-			prefix,
-			A2(childEdge, prefix, l))));
-	});
-var $elm_community$intdict$IntDict$uniteWith = F3(
-	function (merger, l, r) {
-		var mergeWith = F3(
-			function (key, left, right) {
-				var _v14 = _Utils_Tuple2(left, right);
-				if (_v14.a.$ === 'Just') {
-					if (_v14.b.$ === 'Just') {
-						var l2 = _v14.a.a;
-						var r2 = _v14.b.a;
-						return $elm$core$Maybe$Just(
-							A3(merger, key, l2, r2));
-					} else {
-						return left;
-					}
-				} else {
-					if (_v14.b.$ === 'Just') {
-						return right;
-					} else {
-						var _v15 = _v14.a;
-						var _v16 = _v14.b;
-						return $elm$core$Maybe$Nothing;
-					}
-				}
-			});
-		var _v0 = _Utils_Tuple2(l, r);
-		_v0$1:
-		while (true) {
-			_v0$2:
-			while (true) {
-				switch (_v0.a.$) {
-					case 'Empty':
-						var _v1 = _v0.a;
-						return r;
-					case 'Leaf':
-						switch (_v0.b.$) {
-							case 'Empty':
-								break _v0$1;
-							case 'Leaf':
-								break _v0$2;
-							default:
-								break _v0$2;
-						}
-					default:
-						switch (_v0.b.$) {
-							case 'Empty':
-								break _v0$1;
-							case 'Leaf':
-								var r2 = _v0.b.a;
-								return A3(
-									$elm_community$intdict$IntDict$update,
-									r2.key,
-									function (l_) {
-										return A3(
-											mergeWith,
-											r2.key,
-											l_,
-											$elm$core$Maybe$Just(r2.value));
-									},
-									l);
-							default:
-								var il = _v0.a.a;
-								var ir = _v0.b.a;
-								var _v3 = A2($elm_community$intdict$IntDict$determineBranchRelation, il, ir);
-								switch (_v3.$) {
-									case 'SamePrefix':
-										return A3(
-											$elm_community$intdict$IntDict$inner,
-											il.prefix,
-											A3($elm_community$intdict$IntDict$uniteWith, merger, il.left, ir.left),
-											A3($elm_community$intdict$IntDict$uniteWith, merger, il.right, ir.right));
-									case 'Parent':
-										if (_v3.a.$ === 'Left') {
-											if (_v3.b.$ === 'Right') {
-												var _v4 = _v3.a;
-												var _v5 = _v3.b;
-												return A3(
-													$elm_community$intdict$IntDict$inner,
-													il.prefix,
-													il.left,
-													A3($elm_community$intdict$IntDict$uniteWith, merger, il.right, r));
-											} else {
-												var _v8 = _v3.a;
-												var _v9 = _v3.b;
-												return A3(
-													$elm_community$intdict$IntDict$inner,
-													il.prefix,
-													A3($elm_community$intdict$IntDict$uniteWith, merger, il.left, r),
-													il.right);
-											}
-										} else {
-											if (_v3.b.$ === 'Right') {
-												var _v6 = _v3.a;
-												var _v7 = _v3.b;
-												return A3(
-													$elm_community$intdict$IntDict$inner,
-													ir.prefix,
-													ir.left,
-													A3($elm_community$intdict$IntDict$uniteWith, merger, l, ir.right));
-											} else {
-												var _v10 = _v3.a;
-												var _v11 = _v3.b;
-												return A3(
-													$elm_community$intdict$IntDict$inner,
-													ir.prefix,
-													A3($elm_community$intdict$IntDict$uniteWith, merger, l, ir.left),
-													ir.right);
-											}
-										}
-									default:
-										if (_v3.b.$ === 'Left') {
-											var parentPrefix = _v3.a;
-											var _v12 = _v3.b;
-											return A3($elm_community$intdict$IntDict$inner, parentPrefix, l, r);
-										} else {
-											var parentPrefix = _v3.a;
-											var _v13 = _v3.b;
-											return A3($elm_community$intdict$IntDict$inner, parentPrefix, r, l);
-										}
-								}
-						}
-				}
-			}
-			var l2 = _v0.a.a;
-			return A3(
-				$elm_community$intdict$IntDict$update,
-				l2.key,
-				function (r_) {
-					return A3(
-						mergeWith,
-						l2.key,
-						$elm$core$Maybe$Just(l2.value),
-						r_);
-				},
-				r);
-		}
-		var _v2 = _v0.b;
-		return l;
-	});
-var $elm_community$intdict$IntDict$union = $elm_community$intdict$IntDict$uniteWith(
-	F3(
-		function (key, old, _new) {
-			return old;
-		}));
-var $author$project$Polygraph$fromNodesAndEdges = F2(
-	function (ln, le) {
-		var dn = $elm_community$intdict$IntDict$fromList(
-			A2(
-				$elm$core$List$map,
-				function (_v1) {
-					var id = _v1.id;
-					var label = _v1.label;
-					return _Utils_Tuple2(
-						id,
-						$author$project$Polygraph$NodeObj(label));
-				},
-				ln));
-		var de = $elm_community$intdict$IntDict$fromList(
-			A2(
-				$elm$core$List$map,
-				function (_v0) {
-					var id = _v0.id;
-					var from = _v0.from;
-					var to = _v0.to;
-					var label = _v0.label;
-					return _Utils_Tuple2(
-						id,
-						A3($author$project$Polygraph$EdgeObj, from, to, label));
-				},
-				le));
-		return $author$project$Polygraph$Graph(
-			A2($elm_community$intdict$IntDict$union, dn, de));
-	});
-var $author$project$Polygraph$mapRep = F2(
-	function (f, _v0) {
-		var g = _v0.a;
-		return $author$project$Polygraph$Graph(
-			f(g));
-	});
-var $elm_community$intdict$IntDict$findMax = function (dict) {
-	findMax:
-	while (true) {
-		switch (dict.$) {
-			case 'Empty':
-				return $elm$core$Maybe$Nothing;
-			case 'Leaf':
-				var l = dict.a;
-				return $elm$core$Maybe$Just(
-					_Utils_Tuple2(l.key, l.value));
-			default:
-				var i = dict.a;
-				var $temp$dict = i.right;
-				dict = $temp$dict;
-				continue findMax;
-		}
-	}
-};
-var $author$project$Polygraph$supId = function (g) {
-	var _v0 = $elm_community$intdict$IntDict$findMax(g);
-	if (_v0.$ === 'Just') {
-		var _v1 = _v0.a;
-		var id = _v1.a;
-		return id + 1;
-	} else {
-		return 0;
-	}
-};
-var $author$project$Polygraph$nextId = function (_v0) {
-	var g = _v0.a;
-	return $author$project$Polygraph$supId(g);
-};
-var $author$project$Polygraph$newObject = F2(
-	function (g, o) {
-		var id = $author$project$Polygraph$nextId(g);
-		return _Utils_Tuple2(
-			A2(
-				$author$project$Polygraph$mapRep,
-				A2($elm_community$intdict$IntDict$insert, id, o),
-				g),
-			id);
-	});
-var $author$project$Polygraph$newEdge = F4(
-	function (g, i1, i2, e) {
-		return A2(
-			$author$project$Polygraph$newObject,
-			g,
-			A3($author$project$Polygraph$EdgeObj, i1, i2, e));
-	});
-var $author$project$GraphDefs$NormalEdge = function (a) {
-	return {$: 'NormalEdge', a: a};
-};
-var $author$project$GraphDefs$newGenericLabel = function (d) {
-	return {details: d, selected: false, weaklySelected: false, zindex: $author$project$Zindex$defaultZ};
-};
-var $author$project$GraphDefs$newEdgeLabel = F2(
-	function (s, style) {
-		return $author$project$GraphDefs$newGenericLabel(
-			$author$project$GraphDefs$NormalEdge(
-				{dims: $elm$core$Maybe$Nothing, label: s, style: style}));
-	});
-var $author$project$GraphDefs$newNodeLabel = F4(
-	function (p, s, isMath, zindex) {
-		return {dims: $elm$core$Maybe$Nothing, isMath: isMath, label: s, pos: p, selected: false, weaklySelected: false, zindex: zindex};
-	});
-var $author$project$ParseLatex$buildGraph = F2(
-	function (offset, _v0) {
-		var nodes = _v0.a;
-		var edges = _v0.b;
-		var maxX = $elm$core$List$length(nodes) + 1;
-		var mkPos = F2(
-			function (x, y) {
-				return _Utils_Tuple2((y + 0.5) * offset, (x + 0.5) * offset);
-			});
-		var mkId = function (_v3) {
-			var x = _v3.a;
-			var y = _v3.b;
-			return (y * maxX) + x;
-		};
-		var nodesPos = A2(
-			$elm$core$List$filter,
-			function (_v2) {
-				var label = _v2.label;
-				return label.label !== '';
-			},
-			$elm$core$List$concat(
-				A2(
-					$elm$core$List$indexedMap,
-					function (x) {
-						return $elm$core$List$indexedMap(
-							F2(
-								function (y, s) {
-									return {
-										id: mkId(
-											_Utils_Tuple2(x + 1, y + 1)),
-										label: A4(
-											$author$project$GraphDefs$newNodeLabel,
-											A2(mkPos, x, y),
-											s,
-											true,
-											$author$project$Zindex$defaultZ)
-									};
-								}));
-					},
-					nodes)));
-		return A3(
-			$elm$core$List$foldl,
-			F2(
-				function (_v1, g) {
-					var from = _v1.from;
-					var to = _v1.to;
-					var label = _v1.label;
-					return A4(
-						$author$project$Polygraph$newEdge,
-						g,
-						mkId(from),
-						mkId(to),
-						A2($author$project$GraphDefs$newEdgeLabel, label, $author$project$ArrowStyle$empty)).a;
-				}),
-			A2($author$project$Polygraph$fromNodesAndEdges, nodesPos, _List_Nil),
-			edges);
-	});
-var $author$project$Modes$DefaultMode = {$: 'DefaultMode'};
-var $author$project$Msg$Standard = {$: 'Standard'};
-var $author$project$GraphDefs$coqProofTexCommand = 'coqproof';
-var $author$project$Model$createModel = F2(
-	function (sizeGrid, g) {
-		return {
-			autoSave: false,
-			fileName: 'graph.json',
-			hideGrid: false,
-			history: _List_Nil,
-			latexPreamble: '\\newcommand{\\' + ($author$project$GraphDefs$coqProofTexCommand + '}[1]{\\checkmark}'),
-			mode: $author$project$Modes$DefaultMode,
-			mouseOnCanvas: false,
-			mousePos: _Utils_Tuple2(0, 0),
-			quickInput: '',
-			scenario: $author$project$Msg$Standard,
-			showOverlayHelp: false,
-			specialKeys: {alt: false, ctrl: false, shift: false},
-			squareModeProof: false,
-			statusMsg: '',
-			tabs: _List_fromArray(
-				[
-					{active: true, graph: g, sizeGrid: sizeGrid, title: '1'}
-				])
-		};
-	});
-var $author$project$Format$GraphInfo$defaultGridSize = 200;
-var $author$project$Polygraph$empty = $author$project$Polygraph$Graph($elm_community$intdict$IntDict$empty);
-var $elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return $elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
-var $author$project$Model$iniModel = function () {
-	var sizeGrid = $author$project$Format$GraphInfo$defaultGridSize;
-	var graph = A2(
-		$elm$core$Maybe$withDefault,
-		$author$project$Polygraph$empty,
-		A2(
-			$elm$core$Maybe$map,
-			$author$project$ParseLatex$buildGraph(sizeGrid),
-			$elm$core$Maybe$Nothing));
-	return A2($author$project$Model$createModel, sizeGrid, graph);
-}();
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$int = _Json_decodeInt;
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Msg$AppliedProof = function (a) {
@@ -6011,13 +5437,15 @@ var $author$project$Msg$SimpleMsg = function (a) {
 	return {$: 'SimpleMsg', a: a};
 };
 var $author$project$Msg$Watch = {$: 'Watch'};
+var $elm$core$Basics$always = F2(
+	function (a, _v0) {
+		return a;
+	});
 var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$Main$appliedProof = _Platform_incomingPort('appliedProof', $elm$json$Json$Decode$string);
 var $author$project$Main$autosaveTickMs = 60000;
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $author$project$Main$clear = _Platform_incomingPort('clear', $elm$json$Json$Decode$string);
-var $elm$json$Json$Decode$andThen = _Json_andThen;
-var $elm$json$Json$Decode$field = _Json_decodeField;
 var $author$project$Main$completeEquation = _Platform_incomingPort(
 	'completeEquation',
 	A2(
@@ -6032,6 +5460,11 @@ var $author$project$Main$completeEquation = _Platform_incomingPort(
 				A2($elm$json$Json$Decode$field, 'script', $elm$json$Json$Decode$string));
 		},
 		A2($elm$json$Json$Decode$field, 'statement', $elm$json$Json$Decode$string)));
+var $elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
 var $elm$json$Json$Decode$decodeValue = _Json_run;
 var $elm$time$Time$Every = F2(
 	function (a, b) {
@@ -6462,6 +5895,387 @@ var $author$project$Main$findReplace = _Platform_incomingPort(
 				A2($elm$json$Json$Decode$field, 'replace', $elm$json$Json$Decode$string));
 		},
 		A2($elm$json$Json$Decode$field, 'search', $elm$json$Json$Decode$string)));
+var $author$project$Polygraph$EdgeObj = F3(
+	function (a, b, c) {
+		return {$: 'EdgeObj', a: a, b: b, c: c};
+	});
+var $author$project$Polygraph$NodeObj = function (a) {
+	return {$: 'NodeObj', a: a};
+};
+var $elm_community$intdict$IntDict$Inner = function (a) {
+	return {$: 'Inner', a: a};
+};
+var $elm_community$intdict$IntDict$size = function (dict) {
+	switch (dict.$) {
+		case 'Empty':
+			return 0;
+		case 'Leaf':
+			return 1;
+		default:
+			var i = dict.a;
+			return i.size;
+	}
+};
+var $elm_community$intdict$IntDict$inner = F3(
+	function (p, l, r) {
+		var _v0 = _Utils_Tuple2(l, r);
+		if (_v0.a.$ === 'Empty') {
+			var _v1 = _v0.a;
+			return r;
+		} else {
+			if (_v0.b.$ === 'Empty') {
+				var _v2 = _v0.b;
+				return l;
+			} else {
+				return $elm_community$intdict$IntDict$Inner(
+					{
+						left: l,
+						prefix: p,
+						right: r,
+						size: $elm_community$intdict$IntDict$size(l) + $elm_community$intdict$IntDict$size(r)
+					});
+			}
+		}
+	});
+var $elm$core$Bitwise$and = _Bitwise_and;
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $elm$core$Bitwise$complement = _Bitwise_complement;
+var $elm$core$Bitwise$or = _Bitwise_or;
+var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var $elm_community$intdict$IntDict$highestBitSet = function (n) {
+	var shiftOr = F2(
+		function (i, shift) {
+			return i | (i >>> shift);
+		});
+	var n1 = A2(shiftOr, n, 1);
+	var n2 = A2(shiftOr, n1, 2);
+	var n3 = A2(shiftOr, n2, 4);
+	var n4 = A2(shiftOr, n3, 8);
+	var n5 = A2(shiftOr, n4, 16);
+	return n5 & (~(n5 >>> 1));
+};
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $elm_community$intdict$IntDict$signBit = $elm_community$intdict$IntDict$highestBitSet(-1);
+var $elm$core$Bitwise$xor = _Bitwise_xor;
+var $elm_community$intdict$IntDict$isBranchingBitSet = function (p) {
+	return A2(
+		$elm$core$Basics$composeR,
+		$elm$core$Bitwise$xor($elm_community$intdict$IntDict$signBit),
+		A2(
+			$elm$core$Basics$composeR,
+			$elm$core$Bitwise$and(p.branchingBit),
+			$elm$core$Basics$neq(0)));
+};
+var $elm_community$intdict$IntDict$higherBitMask = function (branchingBit) {
+	return branchingBit ^ (~(branchingBit - 1));
+};
+var $elm_community$intdict$IntDict$lcp = F2(
+	function (x, y) {
+		var branchingBit = $elm_community$intdict$IntDict$highestBitSet(x ^ y);
+		var mask = $elm_community$intdict$IntDict$higherBitMask(branchingBit);
+		var prefixBits = x & mask;
+		return {branchingBit: branchingBit, prefixBits: prefixBits};
+	});
+var $elm_community$intdict$IntDict$Leaf = function (a) {
+	return {$: 'Leaf', a: a};
+};
+var $elm_community$intdict$IntDict$leaf = F2(
+	function (k, v) {
+		return $elm_community$intdict$IntDict$Leaf(
+			{key: k, value: v});
+	});
+var $elm_community$intdict$IntDict$prefixMatches = F2(
+	function (p, n) {
+		return _Utils_eq(
+			n & $elm_community$intdict$IntDict$higherBitMask(p.branchingBit),
+			p.prefixBits);
+	});
+var $elm_community$intdict$IntDict$update = F3(
+	function (key, alter, dict) {
+		var join = F2(
+			function (_v2, _v3) {
+				var k1 = _v2.a;
+				var l = _v2.b;
+				var k2 = _v3.a;
+				var r = _v3.b;
+				var prefix = A2($elm_community$intdict$IntDict$lcp, k1, k2);
+				return A2($elm_community$intdict$IntDict$isBranchingBitSet, prefix, k2) ? A3($elm_community$intdict$IntDict$inner, prefix, l, r) : A3($elm_community$intdict$IntDict$inner, prefix, r, l);
+			});
+		var alteredNode = function (mv) {
+			var _v1 = alter(mv);
+			if (_v1.$ === 'Just') {
+				var v = _v1.a;
+				return A2($elm_community$intdict$IntDict$leaf, key, v);
+			} else {
+				return $elm_community$intdict$IntDict$empty;
+			}
+		};
+		switch (dict.$) {
+			case 'Empty':
+				return alteredNode($elm$core$Maybe$Nothing);
+			case 'Leaf':
+				var l = dict.a;
+				return _Utils_eq(l.key, key) ? alteredNode(
+					$elm$core$Maybe$Just(l.value)) : A2(
+					join,
+					_Utils_Tuple2(
+						key,
+						alteredNode($elm$core$Maybe$Nothing)),
+					_Utils_Tuple2(l.key, dict));
+			default:
+				var i = dict.a;
+				return A2($elm_community$intdict$IntDict$prefixMatches, i.prefix, key) ? (A2($elm_community$intdict$IntDict$isBranchingBitSet, i.prefix, key) ? A3(
+					$elm_community$intdict$IntDict$inner,
+					i.prefix,
+					i.left,
+					A3($elm_community$intdict$IntDict$update, key, alter, i.right)) : A3(
+					$elm_community$intdict$IntDict$inner,
+					i.prefix,
+					A3($elm_community$intdict$IntDict$update, key, alter, i.left),
+					i.right)) : A2(
+					join,
+					_Utils_Tuple2(
+						key,
+						alteredNode($elm$core$Maybe$Nothing)),
+					_Utils_Tuple2(i.prefix.prefixBits, dict));
+		}
+	});
+var $elm_community$intdict$IntDict$insert = F3(
+	function (key, value, dict) {
+		return A3(
+			$elm_community$intdict$IntDict$update,
+			key,
+			$elm$core$Basics$always(
+				$elm$core$Maybe$Just(value)),
+			dict);
+	});
+var $elm_community$intdict$IntDict$fromList = function (pairs) {
+	return A3(
+		$elm$core$List$foldl,
+		function (_v0) {
+			var a = _v0.a;
+			var b = _v0.b;
+			return A2($elm_community$intdict$IntDict$insert, a, b);
+		},
+		$elm_community$intdict$IntDict$empty,
+		pairs);
+};
+var $elm_community$intdict$IntDict$Disjunct = F2(
+	function (a, b) {
+		return {$: 'Disjunct', a: a, b: b};
+	});
+var $elm_community$intdict$IntDict$Left = {$: 'Left'};
+var $elm_community$intdict$IntDict$Parent = F2(
+	function (a, b) {
+		return {$: 'Parent', a: a, b: b};
+	});
+var $elm_community$intdict$IntDict$Right = {$: 'Right'};
+var $elm_community$intdict$IntDict$SamePrefix = {$: 'SamePrefix'};
+var $elm_community$intdict$IntDict$combineBits = F3(
+	function (a, b, mask) {
+		return (a & (~mask)) | (b & mask);
+	});
+var $elm_community$intdict$IntDict$mostSignificantBranchingBit = F2(
+	function (a, b) {
+		return (_Utils_eq(a, $elm_community$intdict$IntDict$signBit) || _Utils_eq(b, $elm_community$intdict$IntDict$signBit)) ? $elm_community$intdict$IntDict$signBit : A2($elm$core$Basics$max, a, b);
+	});
+var $elm_community$intdict$IntDict$determineBranchRelation = F2(
+	function (l, r) {
+		var rp = r.prefix;
+		var lp = l.prefix;
+		var mask = $elm_community$intdict$IntDict$highestBitSet(
+			A2($elm_community$intdict$IntDict$mostSignificantBranchingBit, lp.branchingBit, rp.branchingBit));
+		var modifiedRightPrefix = A3($elm_community$intdict$IntDict$combineBits, rp.prefixBits, ~lp.prefixBits, mask);
+		var prefix = A2($elm_community$intdict$IntDict$lcp, lp.prefixBits, modifiedRightPrefix);
+		var childEdge = F2(
+			function (branchPrefix, c) {
+				return A2($elm_community$intdict$IntDict$isBranchingBitSet, branchPrefix, c.prefix.prefixBits) ? $elm_community$intdict$IntDict$Right : $elm_community$intdict$IntDict$Left;
+			});
+		return _Utils_eq(lp, rp) ? $elm_community$intdict$IntDict$SamePrefix : (_Utils_eq(prefix, lp) ? A2(
+			$elm_community$intdict$IntDict$Parent,
+			$elm_community$intdict$IntDict$Left,
+			A2(childEdge, l.prefix, r)) : (_Utils_eq(prefix, rp) ? A2(
+			$elm_community$intdict$IntDict$Parent,
+			$elm_community$intdict$IntDict$Right,
+			A2(childEdge, r.prefix, l)) : A2(
+			$elm_community$intdict$IntDict$Disjunct,
+			prefix,
+			A2(childEdge, prefix, l))));
+	});
+var $elm_community$intdict$IntDict$uniteWith = F3(
+	function (merger, l, r) {
+		var mergeWith = F3(
+			function (key, left, right) {
+				var _v14 = _Utils_Tuple2(left, right);
+				if (_v14.a.$ === 'Just') {
+					if (_v14.b.$ === 'Just') {
+						var l2 = _v14.a.a;
+						var r2 = _v14.b.a;
+						return $elm$core$Maybe$Just(
+							A3(merger, key, l2, r2));
+					} else {
+						return left;
+					}
+				} else {
+					if (_v14.b.$ === 'Just') {
+						return right;
+					} else {
+						var _v15 = _v14.a;
+						var _v16 = _v14.b;
+						return $elm$core$Maybe$Nothing;
+					}
+				}
+			});
+		var _v0 = _Utils_Tuple2(l, r);
+		_v0$1:
+		while (true) {
+			_v0$2:
+			while (true) {
+				switch (_v0.a.$) {
+					case 'Empty':
+						var _v1 = _v0.a;
+						return r;
+					case 'Leaf':
+						switch (_v0.b.$) {
+							case 'Empty':
+								break _v0$1;
+							case 'Leaf':
+								break _v0$2;
+							default:
+								break _v0$2;
+						}
+					default:
+						switch (_v0.b.$) {
+							case 'Empty':
+								break _v0$1;
+							case 'Leaf':
+								var r2 = _v0.b.a;
+								return A3(
+									$elm_community$intdict$IntDict$update,
+									r2.key,
+									function (l_) {
+										return A3(
+											mergeWith,
+											r2.key,
+											l_,
+											$elm$core$Maybe$Just(r2.value));
+									},
+									l);
+							default:
+								var il = _v0.a.a;
+								var ir = _v0.b.a;
+								var _v3 = A2($elm_community$intdict$IntDict$determineBranchRelation, il, ir);
+								switch (_v3.$) {
+									case 'SamePrefix':
+										return A3(
+											$elm_community$intdict$IntDict$inner,
+											il.prefix,
+											A3($elm_community$intdict$IntDict$uniteWith, merger, il.left, ir.left),
+											A3($elm_community$intdict$IntDict$uniteWith, merger, il.right, ir.right));
+									case 'Parent':
+										if (_v3.a.$ === 'Left') {
+											if (_v3.b.$ === 'Right') {
+												var _v4 = _v3.a;
+												var _v5 = _v3.b;
+												return A3(
+													$elm_community$intdict$IntDict$inner,
+													il.prefix,
+													il.left,
+													A3($elm_community$intdict$IntDict$uniteWith, merger, il.right, r));
+											} else {
+												var _v8 = _v3.a;
+												var _v9 = _v3.b;
+												return A3(
+													$elm_community$intdict$IntDict$inner,
+													il.prefix,
+													A3($elm_community$intdict$IntDict$uniteWith, merger, il.left, r),
+													il.right);
+											}
+										} else {
+											if (_v3.b.$ === 'Right') {
+												var _v6 = _v3.a;
+												var _v7 = _v3.b;
+												return A3(
+													$elm_community$intdict$IntDict$inner,
+													ir.prefix,
+													ir.left,
+													A3($elm_community$intdict$IntDict$uniteWith, merger, l, ir.right));
+											} else {
+												var _v10 = _v3.a;
+												var _v11 = _v3.b;
+												return A3(
+													$elm_community$intdict$IntDict$inner,
+													ir.prefix,
+													A3($elm_community$intdict$IntDict$uniteWith, merger, l, ir.left),
+													ir.right);
+											}
+										}
+									default:
+										if (_v3.b.$ === 'Left') {
+											var parentPrefix = _v3.a;
+											var _v12 = _v3.b;
+											return A3($elm_community$intdict$IntDict$inner, parentPrefix, l, r);
+										} else {
+											var parentPrefix = _v3.a;
+											var _v13 = _v3.b;
+											return A3($elm_community$intdict$IntDict$inner, parentPrefix, r, l);
+										}
+								}
+						}
+				}
+			}
+			var l2 = _v0.a.a;
+			return A3(
+				$elm_community$intdict$IntDict$update,
+				l2.key,
+				function (r_) {
+					return A3(
+						mergeWith,
+						l2.key,
+						$elm$core$Maybe$Just(l2.value),
+						r_);
+				},
+				r);
+		}
+		var _v2 = _v0.b;
+		return l;
+	});
+var $elm_community$intdict$IntDict$union = $elm_community$intdict$IntDict$uniteWith(
+	F3(
+		function (key, old, _new) {
+			return old;
+		}));
+var $author$project$Polygraph$fromNodesAndEdges = F2(
+	function (ln, le) {
+		var dn = $elm_community$intdict$IntDict$fromList(
+			A2(
+				$elm$core$List$map,
+				function (_v1) {
+					var id = _v1.id;
+					var label = _v1.label;
+					return _Utils_Tuple2(
+						id,
+						$author$project$Polygraph$NodeObj(label));
+				},
+				ln));
+		var de = $elm_community$intdict$IntDict$fromList(
+			A2(
+				$elm$core$List$map,
+				function (_v0) {
+					var id = _v0.id;
+					var from = _v0.from;
+					var to = _v0.to;
+					var label = _v0.label;
+					return _Utils_Tuple2(
+						id,
+						A3($author$project$Polygraph$EdgeObj, from, to, label));
+				},
+				le));
+		return $author$project$Polygraph$Graph(
+			A2($elm_community$intdict$IntDict$union, dn, de));
+	});
 var $elm_community$intdict$IntDict$map = F2(
 	function (f, dict) {
 		switch (dict.$) {
@@ -6499,6 +6313,12 @@ var $author$project$Polygraph$mapObj = F3(
 				fe(e));
 		}
 	});
+var $author$project$Polygraph$mapRep = F2(
+	function (f, _v0) {
+		var g = _v0.a;
+		return $author$project$Polygraph$Graph(
+			f(g));
+	});
 var $author$project$Polygraph$map = F2(
 	function (fn, fe) {
 		return $author$project$Polygraph$mapRep(
@@ -6510,8 +6330,12 @@ var $author$project$Polygraph$map = F2(
 						fe(i));
 				}));
 	});
+var $author$project$GraphDefs$NormalEdge = function (a) {
+	return {$: 'NormalEdge', a: a};
+};
 var $author$project$GraphDefs$PullshoutEdge = {$: 'PullshoutEdge'};
 var $author$project$Geometry$Centre = {$: 'Centre'};
+var $author$project$Geometry$Left = {$: 'Left'};
 var $author$project$Geometry$Over = {$: 'Over'};
 var $author$project$Geometry$Right = {$: 'Right'};
 var $author$project$ArrowStyle$alignmentFromString = function (tail) {
@@ -6526,6 +6350,7 @@ var $author$project$ArrowStyle$alignmentFromString = function (tail) {
 			return $author$project$Geometry$Left;
 	}
 };
+var $author$project$Drawing$Color$Black = {$: 'Black'};
 var $author$project$Drawing$Color$Blue = {$: 'Blue'};
 var $author$project$Drawing$Color$Green = {$: 'Green'};
 var $author$project$Drawing$Color$Orange = {$: 'Orange'};
@@ -6550,6 +6375,7 @@ var $author$project$Drawing$Color$fromString = function (s) {
 			return $author$project$Drawing$Color$Black;
 	}
 };
+var $author$project$ArrowStyle$DefaultHead = {$: 'DefaultHead'};
 var $author$project$ArrowStyle$NoHead = {$: 'NoHead'};
 var $author$project$ArrowStyle$TwoHeads = {$: 'TwoHeads'};
 var $author$project$ArrowStyle$headFromString = function (head) {
@@ -6566,6 +6392,7 @@ var $elm$core$Basics$min = F2(
 	function (x, y) {
 		return (_Utils_cmp(x, y) < 0) ? x : y;
 	});
+var $author$project$ArrowStyle$DefaultTail = {$: 'DefaultTail'};
 var $author$project$ArrowStyle$Hook = {$: 'Hook'};
 var $author$project$ArrowStyle$HookAlt = {$: 'HookAlt'};
 var $author$project$ArrowStyle$tailFromString = function (tail) {
@@ -6638,6 +6465,7 @@ var $author$project$Format$Version11$fromJSGraph = function (_v0) {
 		tabs: A2($elm$core$List$map, $author$project$Format$Version11$fromJSTab, tabs)
 	};
 };
+var $author$project$Zindex$defaultZ = 0;
 var $elm$core$List$maximum = function (list) {
 	if (list.b) {
 		var x = list.a;
@@ -6648,6 +6476,15 @@ var $elm$core$List$maximum = function (list) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
 var $author$project$Format$Version10$biggestZindex = function (el) {
 	return A2(
 		$elm$core$Maybe$withDefault,
@@ -6885,7 +6722,7 @@ var $author$project$Format$Version3$fromJSGraph = function (g) {
 var $author$project$Format$Version2$toNextVersion = function (_v0) {
 	var nodes = _v0.nodes;
 	var edges = _v0.edges;
-	return {edges: edges, nodes: nodes, sizeGrid: $author$project$Format$GraphInfo$defaultGridSize};
+	return {edges: edges, nodes: nodes, sizeGrid: 200};
 };
 var $author$project$Format$Version2$fromJSGraph = function (g) {
 	return $author$project$Format$Version3$fromJSGraph(
@@ -6987,7 +6824,6 @@ var $author$project$Msg$loadGraphInfoToMsg = function (g) {
 };
 var $elm$json$Json$Decode$float = _Json_decodeFloat;
 var $elm$json$Json$Decode$index = _Json_decodeIndex;
-var $elm$json$Json$Decode$int = _Json_decodeInt;
 var $elm$json$Json$Decode$list = _Json_decodeList;
 var $author$project$Main$loadedGraph0 = _Platform_incomingPort(
 	'loadedGraph0',
@@ -9841,7 +9677,7 @@ var $author$project$HtmlDefs$computeLayout = _Platform_outgoingPort(
 	function ($) {
 		return $elm$json$Json$Encode$null;
 	});
-var $author$project$Model$emptyTab = {active: true, graph: $author$project$Polygraph$empty, sizeGrid: $author$project$Format$GraphInfo$defaultGridSize, title: '1'};
+var $author$project$Model$emptyTab = {active: true, graph: $author$project$Polygraph$empty, sizeGrid: 200, title: '1'};
 var $elm_community$list_extra$List$Extra$find = F2(
 	function (predicate, list) {
 		find:
@@ -9988,6 +9824,16 @@ var $author$project$GraphDefs$filterNormalEdges = function (d) {
 		return $elm$core$Maybe$Just(l);
 	}
 };
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
 var $author$project$GraphDefs$mapDetails = F2(
 	function (f, e) {
 		return {
@@ -10928,6 +10774,17 @@ var $author$project$GraphProof$commuteProof = F2(
 					step.endChain));
 		}
 	});
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
 var $elm$core$Maybe$andThen = F2(
 	function (callback, maybeValue) {
 		if (maybeValue.$ === 'Just') {
@@ -11149,6 +11006,17 @@ var $author$project$GraphProof$finishedProof = function (_v0) {
 			},
 			$elm$core$List$head(
 				$elm$core$List$reverse(proof))));
+};
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
 };
 var $elm$core$List$concatMap = F2(
 	function (f, list) {
@@ -12013,7 +11881,7 @@ var $author$project$Tikz$graphToTikz = F2(
 				$elm$core$List$map,
 				$author$project$Tikz$encodePullshoutTikZ(gnorm),
 				pullshouts));
-		return '\\begin{tikzpicture}[every node/.style={inner sep=2pt,outer sep=0pt,anchor=base,text height=1.2ex, text depth=0.25ex}] \n' + (tikzNodes + (tikzFakeEdges + (tikzEdges + (tikzPullshouts + '\\end{tikzpicture}'))));
+		return '\\begin{tikzpicture}[every node/.style={inner sep=5pt,outer sep=0pt,anchor=base,text height=1.2ex, text depth=0.25ex}] \n' + (tikzNodes + (tikzFakeEdges + (tikzEdges + (tikzPullshouts + '\\end{tikzpicture}'))));
 	});
 var $author$project$GraphDefs$clearSelection = function (g) {
 	return A3(
@@ -12183,6 +12051,7 @@ var $author$project$GraphDrawing$activityToEdgeClasses = function (a) {
 			return _List_Nil;
 	}
 };
+var $author$project$Drawing$Color$black = $author$project$Drawing$Color$Black;
 var $author$project$Drawing$Class = function (a) {
 	return {$: 'Class', a: a};
 };
@@ -15543,12 +15412,58 @@ var $author$project$QuickInput$equalityParser = A2(
 				$elm$parser$Parser$symbol('=')),
 			$elm$parser$Parser$spaces)),
 	$author$project$QuickInput$handSideParser);
+var $elm_community$intdict$IntDict$findMax = function (dict) {
+	findMax:
+	while (true) {
+		switch (dict.$) {
+			case 'Empty':
+				return $elm$core$Maybe$Nothing;
+			case 'Leaf':
+				var l = dict.a;
+				return $elm$core$Maybe$Just(
+					_Utils_Tuple2(l.key, l.value));
+			default:
+				var i = dict.a;
+				var $temp$dict = i.right;
+				dict = $temp$dict;
+				continue findMax;
+		}
+	}
+};
+var $author$project$Polygraph$supId = function (g) {
+	var _v0 = $elm_community$intdict$IntDict$findMax(g);
+	if (_v0.$ === 'Just') {
+		var _v1 = _v0.a;
+		var id = _v1.a;
+		return id + 1;
+	} else {
+		return 0;
+	}
+};
+var $author$project$Polygraph$nextId = function (_v0) {
+	var g = _v0.a;
+	return $author$project$Polygraph$supId(g);
+};
+var $author$project$Polygraph$newObject = F2(
+	function (g, o) {
+		var id = $author$project$Polygraph$nextId(g);
+		return _Utils_Tuple2(
+			A2(
+				$author$project$Polygraph$mapRep,
+				A2($elm_community$intdict$IntDict$insert, id, o),
+				g),
+			id);
+	});
 var $author$project$Polygraph$newNode = F2(
 	function (g, n) {
 		return A2(
 			$author$project$Polygraph$newObject,
 			g,
 			$author$project$Polygraph$NodeObj(n));
+	});
+var $author$project$GraphDefs$newNodeLabel = F4(
+	function (p, s, isMath, zindex) {
+		return {dims: $elm$core$Maybe$Nothing, isMath: isMath, label: s, pos: p, selected: false, weaklySelected: false, zindex: zindex};
 	});
 var $author$project$GraphDefs$createNodeLabel = F3(
 	function (g, s, p) {
@@ -15557,6 +15472,23 @@ var $author$project$GraphDefs$createNodeLabel = F3(
 		var g2 = _v0.a;
 		var id = _v0.b;
 		return _Utils_Tuple3(g2, id, p);
+	});
+var $author$project$ArrowStyle$empty = {bend: 0, color: $author$project$Drawing$Color$black, dashed: false, _double: false, head: $author$project$ArrowStyle$DefaultHead, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, tail: $author$project$ArrowStyle$DefaultTail};
+var $author$project$Polygraph$newEdge = F4(
+	function (g, i1, i2, e) {
+		return A2(
+			$author$project$Polygraph$newObject,
+			g,
+			A3($author$project$Polygraph$EdgeObj, i1, i2, e));
+	});
+var $author$project$GraphDefs$newGenericLabel = function (d) {
+	return {details: d, selected: false, weaklySelected: false, zindex: $author$project$Zindex$defaultZ};
+};
+var $author$project$GraphDefs$newEdgeLabel = F2(
+	function (s, style) {
+		return $author$project$GraphDefs$newGenericLabel(
+			$author$project$GraphDefs$NormalEdge(
+				{dims: $elm$core$Maybe$Nothing, label: s, style: style}));
 	});
 var $author$project$QuickInput$buildGraphEdges = F7(
 	function (g, offset, alignment, pos, from, to, ch) {
@@ -21246,7 +21178,9 @@ var $author$project$Main$update = F2(
 						}));
 			case 'SaveGridSize':
 				return _Utils_Tuple2(
-					model,
+					_Utils_update(
+						model,
+						{defaultGridSize: sizeGrid}),
 					$author$project$Main$saveGridSize(sizeGrid));
 			case 'OptimalGridSize':
 				var selGraph = $author$project$GraphDefs$selectedGraph(modelGraph);
@@ -21280,9 +21214,10 @@ var $author$project$Main$update = F2(
 						})) : $author$project$Model$noCmd(model);
 			case 'Clear':
 				var scenario = msg.a;
+				var modelf = $author$project$Model$createModel(model.defaultGridSize);
 				return $author$project$Model$noCmd(
 					_Utils_update(
-						$author$project$Model$iniModel,
+						modelf,
 						{scenario: scenario}));
 			case 'ToggleHideGrid':
 				return $author$project$Model$noCmd(
@@ -21356,9 +21291,10 @@ var $author$project$Main$update = F2(
 				return _Utils_Tuple2(model, cmd);
 			case 'SimpleMsg':
 				var s = msg.a;
+				var modelf = $author$project$Model$createModel(model.defaultGridSize);
 				return $author$project$Model$noCmd(
 					_Utils_update(
-						$author$project$Model$iniModel,
+						modelf,
 						{scenario: $author$project$Msg$SimpleScenario, statusMsg: s}));
 			case 'SetFirstTab':
 				var g = msg.a;
@@ -25412,7 +25348,7 @@ var $author$project$HtmlDefs$textHtml = function (t) {
 		return _List_Nil;
 	}
 };
-var $author$project$HtmlDefs$introHtml = $author$project$HtmlDefs$textHtml('\n   <p>\n            A vi-inspired diagram editor, with              \n            (latex) labelled nodes and edges, tested with Firefox, written in <a href="https://elm-lang.org/">Elm</a> (see the code on \n        <a href="https://github.com/amblafont/graph-editor-web">github</a>).\n            Higher cells are supported.\n	    For a short description, see <a href="https://amblafont.github.io/articles/yade.pdf">here</a>.\n	    </p>\n	    <p>\n	    For LaTeX export, press (capital) \'X\' after selection. The output code relies on\n      a custom <a href="https://raw.githubusercontent.com/amblafont/graph-editor-web/master/tools/yade.sty">latex package</a>.\n	    </p>\n	    <p>\n            Read the tutorial first, and then try some <a href="?scenario=exercise1">exercise</a>.\n        </p>');
+var $author$project$HtmlDefs$introHtml = $author$project$HtmlDefs$textHtml('\r\n   <p>\r\n            A vi-inspired diagram editor, with              \r\n            (latex) labelled nodes and edges, tested with Firefox, written in <a href="https://elm-lang.org/">Elm</a> (see the code on \r\n        <a href="https://github.com/amblafont/graph-editor-web">github</a>).\r\n            Higher cells are supported.\r\n	    For a short description, see <a href="https://amblafont.github.io/articles/yade.pdf">here</a>.\r\n	    </p>\r\n	    <p>\r\n	    For LaTeX export, press (capital) \'X\' after selection. The output code relies on\r\n      a custom <a href="https://raw.githubusercontent.com/amblafont/graph-editor-web/master/tools/yade.sty">latex package</a>.\r\n	    </p>\r\n	    <p>\r\n            Read the tutorial first, and then try some <a href="?scenario=exercise1">exercise</a>.\r\n        </p>');
 var $author$project$Modes$isResizeMode = function (m) {
 	if (m.$ === 'ResizeMode') {
 		return true;
@@ -25892,11 +25828,20 @@ var $author$project$Main$view = function (m) {
 var $author$project$Main$main = $elm$browser$Browser$element(
 	{
 		init: function (_v0) {
-			return _Utils_Tuple2($author$project$Model$iniModel, $elm$core$Platform$Cmd$none);
+			var defaultGridSize = _v0.defaultGridSize;
+			return _Utils_Tuple2(
+				$author$project$Model$createModel(defaultGridSize),
+				$elm$core$Platform$Cmd$none);
 		},
 		subscriptions: $author$project$Main$subscriptions,
 		update: $author$project$Main$updateIntercept,
 		view: $author$project$Main$view
 	});
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
+	A2(
+		$elm$json$Json$Decode$andThen,
+		function (defaultGridSize) {
+			return $elm$json$Json$Decode$succeed(
+				{defaultGridSize: defaultGridSize});
+		},
+		A2($elm$json$Json$Decode$field, 'defaultGridSize', $elm$json$Json$Decode$int)))(0)}});}(this));
