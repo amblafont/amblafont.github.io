@@ -18925,20 +18925,6 @@ var $author$project$GraphDefs$getSelectedProofDiagram = function (g) {
 		}
 	}
 };
-var $author$project$Main$incompleteEquation = _Platform_outgoingPort(
-	'incompleteEquation',
-	function ($) {
-		return $elm$json$Json$Encode$object(
-			_List_fromArray(
-				[
-					_Utils_Tuple2(
-					'script',
-					$elm$json$Json$Encode$string($.script)),
-					_Utils_Tuple2(
-					'statement',
-					$elm$json$Json$Encode$string($.statement))
-				]));
-	});
 var $author$project$GraphDefs$isNormal = A2($elm$core$Basics$composeL, $elm$core$Basics$not, $author$project$GraphDefs$isPullshout);
 var $author$project$GraphDefs$isNormalId = F2(
 	function (g, id) {
@@ -19220,7 +19206,20 @@ var $author$project$Main$rename = function (model) {
 	return $author$project$Model$noCmd(
 		A3($author$project$Model$initialise_RenameMode, true, ids, model));
 };
-var $author$project$Main$requestProofForChain = _Platform_outgoingPort('requestProofForChain', $elm$json$Json$Encode$string);
+var $author$project$Main$requestProof = _Platform_outgoingPort(
+	'requestProof',
+	function ($) {
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'script',
+					$elm$json$Json$Encode$string($.script)),
+					_Utils_Tuple2(
+					'statement',
+					$elm$json$Json$Encode$string($.statement))
+				]));
+	});
 var $author$project$GraphDefs$addNodesSelection = F2(
 	function (g, f) {
 		return A5(
@@ -19988,9 +19987,9 @@ var $author$project$Main$update_DefaultMode = F2(
 							modelGraph)));
 			}
 		};
-		_v0$47:
+		_v0$46:
 		while (true) {
-			_v0$48:
+			_v0$47:
 			while (true) {
 				switch (msg.$) {
 					case 'MouseOn':
@@ -20157,7 +20156,7 @@ var $author$project$Main$update_DefaultMode = F2(
 										$elm$core$Basics$always($author$project$Msg$PressTimeout),
 										$elm$core$Process$sleep(pressTimeoutMs)));
 							} else {
-								break _v0$48;
+								break _v0$47;
 							}
 						} else {
 							if (msg.c.$ === 'Control') {
@@ -20171,7 +20170,7 @@ var $author$project$Main$update_DefaultMode = F2(
 												model,
 												$author$project$GraphDefs$removeSelected(modelGraph)));
 									default:
-										break _v0$47;
+										break _v0$46;
 								}
 							} else {
 								switch (msg.c.a.valueOf()) {
@@ -20300,8 +20299,11 @@ var $author$project$Main$update_DefaultMode = F2(
 													default:
 														var _v6 = _v4.a;
 														var d = _v6.b;
-														return $author$project$Main$requestProofForChain(
-															$author$project$GraphProof$statementToString(d));
+														return $author$project$Main$requestProof(
+															{
+																script: 'reflexivity.',
+																statement: $author$project$GraphProof$statementToString(d)
+															});
 												}
 											} else {
 												var d = _v3.a;
@@ -20314,7 +20316,7 @@ var $author$project$Main$update_DefaultMode = F2(
 														gp,
 														$author$project$Polygraph$nodes(gp),
 														d));
-												return $author$project$Main$incompleteEquation(
+												return $author$project$Main$requestProof(
 													{
 														script: proof,
 														statement: $author$project$GraphProof$statementToString(d)
@@ -20346,8 +20348,6 @@ var $author$project$Main$update_DefaultMode = F2(
 										return A2(createPoint, false, '');
 									case 'p':
 										return A2(createPoint, true, '');
-									case 'P':
-										return A2(createPoint, true, '\\' + ($author$project$GraphDefs$coqProofTexCommand + '{}'));
 									case '/':
 										return $author$project$Modes$SplitArrow$initialise(model);
 									case 'x':
@@ -20486,12 +20486,12 @@ var $author$project$Main$update_DefaultMode = F2(
 										var k = msg.b;
 										return increaseZBy(-1);
 									default:
-										break _v0$47;
+										break _v0$46;
 								}
 							}
 						}
 					default:
-						break _v0$48;
+						break _v0$47;
 				}
 			}
 			return $author$project$Model$noCmd(model);
@@ -22216,7 +22216,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsg + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint' + (', new [P]roof node' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow from selected point' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]olor arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + ', export selection to LaTe[X]/s[V]g'))))))))))))))))))))))))))))))))))))))))))))))));
+			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsg + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow from selected point' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]olor arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + ', export selection to LaTe[X]/s[V]g')))))))))))))))))))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return $elm$html$Html$text('Debug Mode. [ESC] to cancel and come back to the default mode. ' + '');
 		case 'NewArrow':
