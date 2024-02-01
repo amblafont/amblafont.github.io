@@ -14446,6 +14446,41 @@ var $author$project$Main$makeExports = function (model) {
 		tex: A2($author$project$Tikz$graphToTikz, sizeGrid, modelGraph)
 	};
 };
+var $author$project$Model$swapActiveTab = F2(
+	function (l, forward) {
+		if (l.b && l.b.b) {
+			var t1 = l.a;
+			var _v1 = l.b;
+			var t2 = _v1.a;
+			var q = _v1.b;
+			return ((forward && t1.active) || ((!forward) && t2.active)) ? A2(
+				$elm$core$List$cons,
+				t2,
+				A2($elm$core$List$cons, t1, q)) : A2(
+				$elm$core$List$cons,
+				t1,
+				A2(
+					$author$project$Model$swapActiveTab,
+					A2($elm$core$List$cons, t2, q),
+					forward));
+		} else {
+			return l;
+		}
+	});
+var $author$project$Model$moveTabLeft = function (m) {
+	return _Utils_update(
+		m,
+		{
+			tabs: A2($author$project$Model$swapActiveTab, m.tabs, false)
+		});
+};
+var $author$project$Model$moveTabRight = function (m) {
+	return _Utils_update(
+		m,
+		{
+			tabs: A2($author$project$Model$swapActiveTab, m.tabs, true)
+		});
+};
 var $author$project$Model$nextTabName = function (m) {
 	var n = A2(
 		$elm$core$Maybe$withDefault,
@@ -21038,7 +21073,7 @@ var $author$project$Main$graph_RenameMode = F2(
 				function (n) {
 					return _Utils_update(
 						n,
-						{label: s});
+						{isCoqValidated: false, label: s});
 				},
 				$author$project$GraphDefs$mapNormalEdge(
 					function (e) {
@@ -21282,6 +21317,16 @@ var $author$project$Main$update = F2(
 							modeli,
 							{mode: $author$project$Modes$DefaultMode}),
 						$author$project$Model$nextTabName(modeli));
+				case 'TabMoveLeft':
+					return $author$project$Model$moveTabLeft(
+						_Utils_update(
+							modeli,
+							{mode: $author$project$Modes$DefaultMode}));
+				case 'TabMoveRight':
+					return $author$project$Model$moveTabRight(
+						_Utils_update(
+							modeli,
+							{mode: $author$project$Modes$DefaultMode}));
 				case 'FileName':
 					var s = msg.a;
 					return _Utils_update(
@@ -25515,7 +25560,7 @@ var $author$project$HtmlDefs$textHtml = function (t) {
 		return _List_Nil;
 	}
 };
-var $author$project$HtmlDefs$introHtml = $author$project$HtmlDefs$textHtml('\n   <p>\n            A vi-inspired diagram editor, with              \n            (latex) labelled nodes and edges, tested with Firefox, written in <a href="https://elm-lang.org/">Elm</a> (see the code on \n        <a href="https://github.com/amblafont/graph-editor-web">github</a>).\n            Higher cells are supported.\n	    For a short description, see <a href="https://amblafont.github.io/articles/yade.pdf">here</a>.\n	    </p>\n	    <p>\n	    For LaTeX export, press (capital) \'X\' after selection. The output code relies on\n      a custom <a href="https://raw.githubusercontent.com/amblafont/graph-editor-web/master/tools/yade.sty">latex package</a>.\n	    </p>\n	    <p>\n            Read the tutorial first, and then try some <a href="?scenario=exercise1">exercise</a>.\n        </p>');
+var $author$project$HtmlDefs$introHtml = $author$project$HtmlDefs$textHtml('\n   <p>\n            A vi-inspired diagram editor, with              \n            (latex) labelled nodes and edges, tested with Firefox, written in <a href="https://elm-lang.org/">Elm</a> (see the code on \n        <a href="https://github.com/amblafont/graph-editor-web">github</a>).\n            Higher cells are supported.\n	    For a short description, see <a href="https://hal.science/hal-04407118v1">here</a>.\n	    </p>\n	    <p>\n	    For LaTeX export, press (capital) \'X\' after selection. The output code relies on\n      a custom <a href="https://raw.githubusercontent.com/amblafont/graph-editor-web/master/tools/yade.sty">latex package</a>.\n	    </p>\n	    <p>\n            Read the tutorial first, and then try some <a href="?scenario=exercise1">exercise</a>.\n        </p>');
 var $author$project$Modes$isResizeMode = function (m) {
 	if (m.$ === 'ResizeMode') {
 		return true;
@@ -25574,9 +25619,33 @@ var $author$project$Msg$RemoveTab = {$: 'RemoveTab'};
 var $author$project$Msg$SwitchTab = function (a) {
 	return {$: 'SwitchTab', a: a};
 };
+var $author$project$Msg$TabMoveLeft = {$: 'TabMoveLeft'};
+var $author$project$Msg$TabMoveRight = {$: 'TabMoveRight'};
 var $author$project$Main$promptTabTitle = _Platform_outgoingPort('promptTabTitle', $elm$json$Json$Encode$string);
 var $author$project$Main$renderTabs = function (tabs) {
 	var activeTab = $author$project$Model$getActiveTabInTabs(tabs);
+	var leftButton = A2(
+		$elm$html$Html$button,
+		_List_fromArray(
+			[
+				$elm$html$Html$Events$onClick($author$project$Msg$TabMoveLeft),
+				$elm$html$Html$Attributes$title('Swap tab order')
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text('<')
+			]));
+	var rightButton = A2(
+		$elm$html$Html$button,
+		_List_fromArray(
+			[
+				$elm$html$Html$Events$onClick($author$project$Msg$TabMoveRight),
+				$elm$html$Html$Attributes$title('Swap tab order')
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text('>')
+			]));
 	var renderTab = F2(
 		function (i, tab) {
 			var classes = A2(
@@ -25586,7 +25655,7 @@ var $author$project$Main$renderTabs = function (tabs) {
 					[
 						$elm$html$Html$Attributes$class('active-tab')
 					]) : _List_Nil);
-			return A2(
+			var mainButton = A2(
 				$elm$html$Html$button,
 				_Utils_ap(
 					_List_fromArray(
@@ -25599,6 +25668,7 @@ var $author$project$Main$renderTabs = function (tabs) {
 					[
 						$elm$html$Html$text(tab.title)
 					]));
+			return mainButton;
 		});
 	var newButton = A2(
 		$elm$html$Html$button,
@@ -25645,7 +25715,10 @@ var $author$project$Main$renderTabs = function (tabs) {
 	return _Utils_ap(
 		_List_fromArray(
 			[newButton, dupButton, removeButton, renameButton]),
-		A2($elm$core$List$indexedMap, renderTab, tabs));
+		_Utils_ap(
+			A2($elm$core$List$indexedMap, renderTab, tabs),
+			_List_fromArray(
+				[leftButton, rightButton])));
 };
 var $elm$html$Html$Attributes$rows = function (n) {
 	return A2(
