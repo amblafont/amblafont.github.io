@@ -6391,12 +6391,15 @@ var $elm$core$Basics$min = F2(
 var $author$project$ArrowStyle$DefaultTail = {$: 'DefaultTail'};
 var $author$project$ArrowStyle$Hook = {$: 'Hook'};
 var $author$project$ArrowStyle$HookAlt = {$: 'HookAlt'};
+var $author$project$ArrowStyle$Mapsto = {$: 'Mapsto'};
 var $author$project$ArrowStyle$tailFromString = function (tail) {
 	switch (tail) {
 		case 'hook':
 			return $author$project$ArrowStyle$Hook;
 		case 'hookalt':
 			return $author$project$ArrowStyle$HookAlt;
+		case 'mapsto':
+			return $author$project$ArrowStyle$Mapsto;
 		default:
 			return $author$project$ArrowStyle$DefaultTail;
 	}
@@ -10338,6 +10341,16 @@ var $author$project$ArrowStyle$quiverStyle = function (st) {
 		switch (tail.$) {
 			case 'DefaultTail':
 				return _List_Nil;
+			case 'Mapsto':
+				return _List_fromArray(
+					[
+						_Utils_Tuple2(
+						'tail',
+						_List_fromArray(
+							[
+								_Utils_Tuple2('name', 'maps to')
+							]))
+					]);
 			case 'Hook':
 				return _List_fromArray(
 					[
@@ -11725,30 +11738,32 @@ var $author$project$Drawing$Color$toString = function (c) {
 };
 var $author$project$ArrowStyle$tikzStyle = function (stl) {
 	return 'fore, ' + ($author$project$Drawing$Color$toString(stl.color) + (',' + (function () {
-		var _v0 = stl.tail;
-		switch (_v0.$) {
+		var _v0 = _Utils_Tuple2(stl.head, stl._double);
+		if (_v0.b) {
+			if (_v0.a.$ === 'NoHead') {
+				var _v1 = _v0.a;
+				return 'identity';
+			} else {
+				var hd = _v0.a;
+				return $author$project$ArrowStyle$headTikzStyle(hd) + 'cell=0.2, ';
+			}
+		} else {
+			var hd = _v0.a;
+			return $author$project$ArrowStyle$headTikzStyle(hd);
+		}
+	}() + ((stl.dashed ? 'dashed, ' : '') + (((!(!stl.bend)) ? ('curve={ratio=' + ($elm$core$String$fromFloat(stl.bend) + '}, ')) : '') + function () {
+		var _v2 = stl.tail;
+		switch (_v2.$) {
 			case 'DefaultTail':
 				return '';
+			case 'Mapsto':
+				return 'mapsto,';
 			case 'Hook':
 				return 'into, ';
 			default:
 				return 'linto, ';
 		}
-	}() + (function () {
-		var _v1 = _Utils_Tuple2(stl.head, stl._double);
-		if (_v1.b) {
-			if (_v1.a.$ === 'NoHead') {
-				var _v2 = _v1.a;
-				return 'identity';
-			} else {
-				var hd = _v1.a;
-				return $author$project$ArrowStyle$headTikzStyle(hd) + 'cell=0.2, ';
-			}
-		} else {
-			var hd = _v1.a;
-			return $author$project$ArrowStyle$headTikzStyle(hd);
-		}
-	}() + ((stl.dashed ? 'dashed, ' : '') + ((!(!stl.bend)) ? ('curve={ratio=' + ($elm$core$String$fromFloat(stl.bend) + '}, ')) : ''))))));
+	}())))));
 };
 var $author$project$Tikz$encodeLabel = function (e) {
 	var _v0 = e.label.details;
@@ -11795,9 +11810,10 @@ var $author$project$Tikz$encodeNodeTikZ = F2(
 		var coord = function (u) {
 			return u / 21;
 		};
+		var label = (n.label.label === '') ? '\\bullet' : n.label.label;
 		return '\\node (' + ($elm$core$String$fromInt(n.id) + (') at (' + ($elm$core$String$fromFloat(
 			coord(x)) + ('em, ' + ($elm$core$String$fromFloat(
-			0 - coord(y)) + ('em) {$' + (((n.label.label === '') ? '\\bullet' : n.label.label) + '$} ; \n')))))));
+			0 - coord(y)) + ('em) {' + ((n.label.isMath ? ('$' + (label + '$')) : label) + '} ; \n')))))));
 	});
 var $author$project$Polygraph$getEdge = F2(
 	function (id, _v0) {
@@ -12809,8 +12825,10 @@ var $author$project$ArrowStyle$tailToString = function (tail) {
 			return 'none';
 		case 'Hook':
 			return 'hook';
-		default:
+		case 'HookAlt':
 			return 'hookalt';
+		default:
+			return 'mapsto';
 	}
 };
 var $author$project$ArrowStyle$tailFileName = function (s) {
@@ -16450,7 +16468,7 @@ var $author$project$ArrowStyle$toggleHook = function (s) {
 			tail: A2(
 				$author$project$ListExtraExtra$nextInList,
 				_List_fromArray(
-					[$author$project$ArrowStyle$DefaultTail, $author$project$ArrowStyle$Hook, $author$project$ArrowStyle$HookAlt]),
+					[$author$project$ArrowStyle$Hook, $author$project$ArrowStyle$HookAlt, $author$project$ArrowStyle$DefaultTail]),
 				s.tail)
 		});
 };
@@ -16465,12 +16483,26 @@ var $author$project$ArrowStyle$toggleLabelAlignement = function (s) {
 				s.labelAlignment)
 		});
 };
+var $author$project$ArrowStyle$toggleMapsto = function (s) {
+	return _Utils_update(
+		s,
+		{
+			tail: A2(
+				$author$project$ListExtraExtra$nextInList,
+				_List_fromArray(
+					[$author$project$ArrowStyle$Mapsto, $author$project$ArrowStyle$DefaultTail]),
+				s.tail)
+		});
+};
 var $author$project$ArrowStyle$keyMaybeUpdateStyle = F2(
 	function (k, style) {
-		_v0$9:
+		_v0$10:
 		while (true) {
 			if (k.$ === 'Character') {
 				switch (k.a.valueOf()) {
+					case '|':
+						return $elm$core$Maybe$Just(
+							$author$project$ArrowStyle$toggleMapsto(style));
 					case '>':
 						return $elm$core$Maybe$Just(
 							$author$project$ArrowStyle$toggleHead(style));
@@ -16515,10 +16547,10 @@ var $author$project$ArrowStyle$keyMaybeUpdateStyle = F2(
 									labelPosition: A2($elm$core$Basics$max, $author$project$ArrowStyle$minLabelPosition, style.labelPosition - 0.1)
 								}));
 					default:
-						break _v0$9;
+						break _v0$10;
 				}
 			} else {
-				break _v0$9;
+				break _v0$10;
 			}
 		}
 		return $elm$core$Maybe$Nothing;
@@ -22031,7 +22063,7 @@ var $author$project$Drawing$grid = function (n) {
 			]));
 };
 var $author$project$Main$Plain = {$: 'Plain'};
-var $author$project$ArrowStyle$controlChars = '>(=-bBA][';
+var $author$project$ArrowStyle$controlChars = '|>(=-bBA][';
 var $author$project$Modes$CutHead$help = '[?] to toggle help overlay,' + (' [RET] or [click] to confirm, [ctrl] to merge the endpoint with existing node. [ESC] to cancel. ' + ('[c] to switch between head/tail' + ', [d] to duplicate (or not) the arrow.'));
 var $author$project$Drawing$Color$helpMsg = 'bla[c]k, bl[u]e, [g]reen, [o]range, [r]ed, [v]iolet, [y]ellow';
 var $author$project$Modes$NewArrow$help = '[?] toggle help overlay, [ESC] cancel, [click, TAB] name the point (if new), ' + ('[hjkl] position the new point with the keyboard, ' + ('[RET] terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[i]nvert arrow, ' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + $author$project$Drawing$Color$helpMsg))))))));
