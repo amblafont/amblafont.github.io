@@ -6809,9 +6809,6 @@ var $author$project$HtmlDefs$keysDecoder = A4(
 	A2($elm$json$Json$Decode$field, 'altKey', $elm$json$Json$Decode$bool),
 	A2($elm$json$Json$Decode$field, 'ctrlKey', $elm$json$Json$Decode$bool),
 	A2($elm$json$Json$Decode$field, 'shiftKey', $elm$json$Json$Decode$bool));
-var $author$project$Msg$ApplyRule = function (a) {
-	return {$: 'ApplyRule', a: a};
-};
 var $author$project$Msg$Loaded = function (a) {
 	return {$: 'Loaded', a: a};
 };
@@ -6821,44 +6818,8 @@ var $author$project$Msg$PasteGraph = function (a) {
 var $author$project$Msg$SetFirstTab = function (a) {
 	return {$: 'SetFirstTab', a: a};
 };
-var $elm_community$list_extra$List$Extra$find = F2(
-	function (predicate, list) {
-		find:
-		while (true) {
-			if (!list.b) {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var first = list.a;
-				var rest = list.b;
-				if (predicate(first)) {
-					return $elm$core$Maybe$Just(first);
-				} else {
-					var $temp$predicate = predicate,
-						$temp$list = rest;
-					predicate = $temp$predicate;
-					list = $temp$list;
-					continue find;
-				}
-			}
-		}
-	});
-var $author$project$Msg$noOp = $author$project$Msg$Do($elm$core$Platform$Cmd$none);
 var $author$project$Msg$loadGraphInfoToMsg = function (g) {
-	var applyGraph = function (f) {
-		var _v0 = A2(
-			$elm_community$list_extra$List$Extra$find,
-			function ($) {
-				return $.active;
-			},
-			g.graph.tabs);
-		if (_v0.$ === 'Nothing') {
-			return $author$project$Msg$noOp;
-		} else {
-			var tab = _v0.a;
-			return f(tab.graph);
-		}
-	};
-	return g.rule ? applyGraph($author$project$Msg$ApplyRule) : (g.setFirstTab ? $author$project$Msg$SetFirstTab(g.graph) : (g.clipboard ? applyGraph($author$project$Msg$PasteGraph) : $author$project$Msg$Loaded(g)));
+	return g.setFirstTab ? $author$project$Msg$SetFirstTab(g.graph) : (g.clipboard ? $author$project$Msg$PasteGraph(g.graph) : $author$project$Msg$Loaded(g));
 };
 var $elm$json$Json$Decode$float = _Json_decodeFloat;
 var $elm$json$Json$Decode$index = _Json_decodeIndex;
@@ -6873,151 +6834,146 @@ var $author$project$Main$loadedGraph0 = _Platform_incomingPort(
 				function (scenario) {
 					return A2(
 						$elm$json$Json$Decode$andThen,
-						function (rule) {
+						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (graph) {
+								function (fileName) {
 									return A2(
 										$elm$json$Json$Decode$andThen,
-										function (fileName) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (clipboard) {
-													return $elm$json$Json$Decode$succeed(
-														{clipboard: clipboard, fileName: fileName, graph: graph, rule: rule, scenario: scenario, setFirstTab: setFirstTab});
-												},
-												A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+										function (clipboard) {
+											return $elm$json$Json$Decode$succeed(
+												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 										},
-										A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 								},
-								A2(
-									$elm$json$Json$Decode$field,
-									'graph',
-									A2(
+								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (_v0) {
+									return A2(
 										$elm$json$Json$Decode$andThen,
-										function (_v0) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (_v1) {
-													return $elm$json$Json$Decode$succeed(
-														_Utils_Tuple2(_v0, _v1));
-												},
-												A2(
-													$elm$json$Json$Decode$index,
-													1,
-													$elm$json$Json$Decode$list(
-														A2(
-															$elm$json$Json$Decode$andThen,
-															function (to) {
-																return A2(
-																	$elm$json$Json$Decode$andThen,
-																	function (label) {
-																		return A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (id) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (from) {
-																						return $elm$json$Json$Decode$succeed(
-																							{from: from, id: id, label: label, to: to});
-																					},
-																					A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
-																			},
-																			A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-																	},
-																	A2(
-																		$elm$json$Json$Decode$field,
-																		'label',
-																		A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (style) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (label) {
-																						return A2(
-																							$elm$json$Json$Decode$andThen,
-																							function (bend) {
-																								return $elm$json$Json$Decode$succeed(
-																									{bend: bend, label: label, style: style});
-																							},
-																							A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
-																					},
-																					A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																			},
-																			A2(
-																				$elm$json$Json$Decode$field,
-																				'style',
-																				A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (tail) {
-																						return A2(
-																							$elm$json$Json$Decode$andThen,
-																							function (head) {
-																								return A2(
-																									$elm$json$Json$Decode$andThen,
-																									function (_double) {
-																										return A2(
-																											$elm$json$Json$Decode$andThen,
-																											function (dashed) {
-																												return $elm$json$Json$Decode$succeed(
-																													{dashed: dashed, _double: _double, head: head, tail: tail});
-																											},
-																											A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
-																									},
-																									A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
-																							},
-																							A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
-																					},
-																					A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))))));
-															},
-															A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+										function (_v1) {
+											return $elm$json$Json$Decode$succeed(
+												_Utils_Tuple2(_v0, _v1));
 										},
 										A2(
 											$elm$json$Json$Decode$index,
-											0,
+											1,
 											$elm$json$Json$Decode$list(
 												A2(
 													$elm$json$Json$Decode$andThen,
-													function (label) {
+													function (to) {
 														return A2(
 															$elm$json$Json$Decode$andThen,
-															function (id) {
-																return $elm$json$Json$Decode$succeed(
-																	{id: id, label: label});
-															},
-															A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-													},
-													A2(
-														$elm$json$Json$Decode$field,
-														'label',
-														A2(
-															$elm$json$Json$Decode$andThen,
-															function (pos) {
+															function (label) {
 																return A2(
 																	$elm$json$Json$Decode$andThen,
-																	function (label) {
-																		return $elm$json$Json$Decode$succeed(
-																			{label: label, pos: pos});
+																	function (id) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (from) {
+																				return $elm$json$Json$Decode$succeed(
+																					{from: from, id: id, label: label, to: to});
+																			},
+																			A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
 																	},
-																	A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
 															},
 															A2(
 																$elm$json$Json$Decode$field,
-																'pos',
+																'label',
 																A2(
 																	$elm$json$Json$Decode$andThen,
-																	function (_v0) {
+																	function (style) {
 																		return A2(
 																			$elm$json$Json$Decode$andThen,
-																			function (_v1) {
-																				return $elm$json$Json$Decode$succeed(
-																					_Utils_Tuple2(_v0, _v1));
+																			function (label) {
+																				return A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (bend) {
+																						return $elm$json$Json$Decode$succeed(
+																							{bend: bend, label: label, style: style});
+																					},
+																					A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
 																			},
-																			A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																			A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																	},
-																	A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))))));
-						},
-						A2($elm$json$Json$Decode$field, 'rule', $elm$json$Json$Decode$bool));
+																	A2(
+																		$elm$json$Json$Decode$field,
+																		'style',
+																		A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (tail) {
+																				return A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (head) {
+																						return A2(
+																							$elm$json$Json$Decode$andThen,
+																							function (_double) {
+																								return A2(
+																									$elm$json$Json$Decode$andThen,
+																									function (dashed) {
+																										return $elm$json$Json$Decode$succeed(
+																											{dashed: dashed, _double: _double, head: head, tail: tail});
+																									},
+																									A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
+																							},
+																							A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
+																					},
+																					A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
+																			},
+																			A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))))));
+													},
+													A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+								},
+								A2(
+									$elm$json$Json$Decode$index,
+									0,
+									$elm$json$Json$Decode$list(
+										A2(
+											$elm$json$Json$Decode$andThen,
+											function (label) {
+												return A2(
+													$elm$json$Json$Decode$andThen,
+													function (id) {
+														return $elm$json$Json$Decode$succeed(
+															{id: id, label: label});
+													},
+													A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+											},
+											A2(
+												$elm$json$Json$Decode$field,
+												'label',
+												A2(
+													$elm$json$Json$Decode$andThen,
+													function (pos) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (label) {
+																return $elm$json$Json$Decode$succeed(
+																	{label: label, pos: pos});
+															},
+															A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+													},
+													A2(
+														$elm$json$Json$Decode$field,
+														'pos',
+														A2(
+															$elm$json$Json$Decode$andThen,
+															function (_v0) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (_v1) {
+																		return $elm$json$Json$Decode$succeed(
+																			_Utils_Tuple2(_v0, _v1));
+																	},
+																	A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+															},
+															A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))))));
 				},
 				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
 		},
@@ -7032,151 +6988,146 @@ var $author$project$Main$loadedGraph1 = _Platform_incomingPort(
 				function (scenario) {
 					return A2(
 						$elm$json$Json$Decode$andThen,
-						function (rule) {
+						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (graph) {
+								function (fileName) {
 									return A2(
 										$elm$json$Json$Decode$andThen,
-										function (fileName) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (clipboard) {
-													return $elm$json$Json$Decode$succeed(
-														{clipboard: clipboard, fileName: fileName, graph: graph, rule: rule, scenario: scenario, setFirstTab: setFirstTab});
-												},
-												A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+										function (clipboard) {
+											return $elm$json$Json$Decode$succeed(
+												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 										},
-										A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 								},
-								A2(
-									$elm$json$Json$Decode$field,
-									'graph',
-									A2(
+								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (nodes) {
+									return A2(
 										$elm$json$Json$Decode$andThen,
-										function (nodes) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (edges) {
-													return $elm$json$Json$Decode$succeed(
-														{edges: edges, nodes: nodes});
-												},
-												A2(
-													$elm$json$Json$Decode$field,
-													'edges',
-													$elm$json$Json$Decode$list(
-														A2(
-															$elm$json$Json$Decode$andThen,
-															function (to) {
-																return A2(
-																	$elm$json$Json$Decode$andThen,
-																	function (label) {
-																		return A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (id) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (from) {
-																						return $elm$json$Json$Decode$succeed(
-																							{from: from, id: id, label: label, to: to});
-																					},
-																					A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
-																			},
-																			A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-																	},
-																	A2(
-																		$elm$json$Json$Decode$field,
-																		'label',
-																		A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (style) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (label) {
-																						return $elm$json$Json$Decode$succeed(
-																							{label: label, style: style});
-																					},
-																					A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																			},
-																			A2(
-																				$elm$json$Json$Decode$field,
-																				'style',
-																				A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (tail) {
-																						return A2(
-																							$elm$json$Json$Decode$andThen,
-																							function (head) {
-																								return A2(
-																									$elm$json$Json$Decode$andThen,
-																									function (_double) {
-																										return A2(
-																											$elm$json$Json$Decode$andThen,
-																											function (dashed) {
-																												return A2(
-																													$elm$json$Json$Decode$andThen,
-																													function (bend) {
-																														return $elm$json$Json$Decode$succeed(
-																															{bend: bend, dashed: dashed, _double: _double, head: head, tail: tail});
-																													},
-																													A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
-																											},
-																											A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
-																									},
-																									A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
-																							},
-																							A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
-																					},
-																					A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))))));
-															},
-															A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+										function (edges) {
+											return $elm$json$Json$Decode$succeed(
+												{edges: edges, nodes: nodes});
 										},
 										A2(
 											$elm$json$Json$Decode$field,
-											'nodes',
+											'edges',
 											$elm$json$Json$Decode$list(
 												A2(
 													$elm$json$Json$Decode$andThen,
-													function (label) {
+													function (to) {
 														return A2(
 															$elm$json$Json$Decode$andThen,
-															function (id) {
-																return $elm$json$Json$Decode$succeed(
-																	{id: id, label: label});
-															},
-															A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-													},
-													A2(
-														$elm$json$Json$Decode$field,
-														'label',
-														A2(
-															$elm$json$Json$Decode$andThen,
-															function (pos) {
+															function (label) {
 																return A2(
 																	$elm$json$Json$Decode$andThen,
-																	function (label) {
-																		return $elm$json$Json$Decode$succeed(
-																			{label: label, pos: pos});
+																	function (id) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (from) {
+																				return $elm$json$Json$Decode$succeed(
+																					{from: from, id: id, label: label, to: to});
+																			},
+																			A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
 																	},
-																	A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
 															},
 															A2(
 																$elm$json$Json$Decode$field,
-																'pos',
+																'label',
 																A2(
 																	$elm$json$Json$Decode$andThen,
-																	function (_v0) {
+																	function (style) {
 																		return A2(
 																			$elm$json$Json$Decode$andThen,
-																			function (_v1) {
+																			function (label) {
 																				return $elm$json$Json$Decode$succeed(
-																					_Utils_Tuple2(_v0, _v1));
+																					{label: label, style: style});
 																			},
-																			A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																			A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																	},
-																	A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))))));
-						},
-						A2($elm$json$Json$Decode$field, 'rule', $elm$json$Json$Decode$bool));
+																	A2(
+																		$elm$json$Json$Decode$field,
+																		'style',
+																		A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (tail) {
+																				return A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (head) {
+																						return A2(
+																							$elm$json$Json$Decode$andThen,
+																							function (_double) {
+																								return A2(
+																									$elm$json$Json$Decode$andThen,
+																									function (dashed) {
+																										return A2(
+																											$elm$json$Json$Decode$andThen,
+																											function (bend) {
+																												return $elm$json$Json$Decode$succeed(
+																													{bend: bend, dashed: dashed, _double: _double, head: head, tail: tail});
+																											},
+																											A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
+																									},
+																									A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
+																							},
+																							A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
+																					},
+																					A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
+																			},
+																			A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))))));
+													},
+													A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+								},
+								A2(
+									$elm$json$Json$Decode$field,
+									'nodes',
+									$elm$json$Json$Decode$list(
+										A2(
+											$elm$json$Json$Decode$andThen,
+											function (label) {
+												return A2(
+													$elm$json$Json$Decode$andThen,
+													function (id) {
+														return $elm$json$Json$Decode$succeed(
+															{id: id, label: label});
+													},
+													A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+											},
+											A2(
+												$elm$json$Json$Decode$field,
+												'label',
+												A2(
+													$elm$json$Json$Decode$andThen,
+													function (pos) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (label) {
+																return $elm$json$Json$Decode$succeed(
+																	{label: label, pos: pos});
+															},
+															A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+													},
+													A2(
+														$elm$json$Json$Decode$field,
+														'pos',
+														A2(
+															$elm$json$Json$Decode$andThen,
+															function (_v0) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (_v1) {
+																		return $elm$json$Json$Decode$succeed(
+																			_Utils_Tuple2(_v0, _v1));
+																	},
+																	A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+															},
+															A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))))));
 				},
 				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
 		},
@@ -7191,175 +7142,389 @@ var $author$project$Main$loadedGraph10 = _Platform_incomingPort(
 				function (scenario) {
 					return A2(
 						$elm$json$Json$Decode$andThen,
-						function (rule) {
+						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (graph) {
+								function (fileName) {
 									return A2(
 										$elm$json$Json$Decode$andThen,
-										function (fileName) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (clipboard) {
-													return $elm$json$Json$Decode$succeed(
-														{clipboard: clipboard, fileName: fileName, graph: graph, rule: rule, scenario: scenario, setFirstTab: setFirstTab});
-												},
-												A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+										function (clipboard) {
+											return $elm$json$Json$Decode$succeed(
+												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 										},
-										A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								},
+								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (tabs) {
+									return A2(
+										$elm$json$Json$Decode$andThen,
+										function (latexPreamble) {
+											return $elm$json$Json$Decode$succeed(
+												{latexPreamble: latexPreamble, tabs: tabs});
+										},
+										A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
 								},
 								A2(
 									$elm$json$Json$Decode$field,
-									'graph',
-									A2(
-										$elm$json$Json$Decode$andThen,
-										function (tabs) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (latexPreamble) {
-													return $elm$json$Json$Decode$succeed(
-														{latexPreamble: latexPreamble, tabs: tabs});
-												},
-												A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
-										},
+									'tabs',
+									$elm$json$Json$Decode$list(
 										A2(
-											$elm$json$Json$Decode$field,
-											'tabs',
-											$elm$json$Json$Decode$list(
-												A2(
+											$elm$json$Json$Decode$andThen,
+											function (title) {
+												return A2(
 													$elm$json$Json$Decode$andThen,
-													function (title) {
+													function (sizeGrid) {
 														return A2(
 															$elm$json$Json$Decode$andThen,
-															function (sizeGrid) {
+															function (nodes) {
 																return A2(
 																	$elm$json$Json$Decode$andThen,
-																	function (nodes) {
+																	function (edges) {
 																		return A2(
 																			$elm$json$Json$Decode$andThen,
-																			function (edges) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (active) {
-																						return $elm$json$Json$Decode$succeed(
-																							{active: active, edges: edges, nodes: nodes, sizeGrid: sizeGrid, title: title});
-																					},
-																					A2($elm$json$Json$Decode$field, 'active', $elm$json$Json$Decode$bool));
+																			function (active) {
+																				return $elm$json$Json$Decode$succeed(
+																					{active: active, edges: edges, nodes: nodes, sizeGrid: sizeGrid, title: title});
 																			},
-																			A2(
-																				$elm$json$Json$Decode$field,
-																				'edges',
-																				$elm$json$Json$Decode$list(
-																					A2(
-																						$elm$json$Json$Decode$andThen,
-																						function (to) {
-																							return A2(
-																								$elm$json$Json$Decode$andThen,
-																								function (label) {
-																									return A2(
-																										$elm$json$Json$Decode$andThen,
-																										function (id) {
-																											return A2(
-																												$elm$json$Json$Decode$andThen,
-																												function (from) {
-																													return $elm$json$Json$Decode$succeed(
-																														{from: from, id: id, label: label, to: to});
-																												},
-																												A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
-																										},
-																										A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-																								},
-																								A2(
-																									$elm$json$Json$Decode$field,
-																									'label',
-																									A2(
-																										$elm$json$Json$Decode$andThen,
-																										function (zindex) {
-																											return A2(
-																												$elm$json$Json$Decode$andThen,
-																												function (style) {
-																													return A2(
-																														$elm$json$Json$Decode$andThen,
-																														function (label) {
-																															return A2(
-																																$elm$json$Json$Decode$andThen,
-																																function (isPullshout) {
-																																	return $elm$json$Json$Decode$succeed(
-																																		{isPullshout: isPullshout, label: label, style: style, zindex: zindex});
-																																},
-																																A2($elm$json$Json$Decode$field, 'isPullshout', $elm$json$Json$Decode$bool));
-																														},
-																														A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																												},
-																												A2(
-																													$elm$json$Json$Decode$field,
-																													'style',
-																													A2(
-																														$elm$json$Json$Decode$andThen,
-																														function (tail) {
-																															return A2(
-																																$elm$json$Json$Decode$andThen,
-																																function (position) {
-																																	return A2(
-																																		$elm$json$Json$Decode$andThen,
-																																		function (head) {
-																																			return A2(
-																																				$elm$json$Json$Decode$andThen,
-																																				function (_double) {
-																																					return A2(
-																																						$elm$json$Json$Decode$andThen,
-																																						function (dashed) {
-																																							return A2(
-																																								$elm$json$Json$Decode$andThen,
-																																								function (color) {
-																																									return A2(
-																																										$elm$json$Json$Decode$andThen,
-																																										function (bend) {
-																																											return A2(
-																																												$elm$json$Json$Decode$andThen,
-																																												function (alignment) {
-																																													return $elm$json$Json$Decode$succeed(
-																																														{alignment: alignment, bend: bend, color: color, dashed: dashed, _double: _double, head: head, position: position, tail: tail});
-																																												},
-																																												A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
-																																										},
-																																										A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
-																																								},
-																																								A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string));
-																																						},
-																																						A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
-																																				},
-																																				A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
-																																		},
-																																		A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
-																																},
-																																A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
-																														},
-																														A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))));
-																										},
-																										A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
-																						},
-																						A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+																			A2($elm$json$Json$Decode$field, 'active', $elm$json$Json$Decode$bool));
 																	},
 																	A2(
 																		$elm$json$Json$Decode$field,
-																		'nodes',
+																		'edges',
 																		$elm$json$Json$Decode$list(
 																			A2(
 																				$elm$json$Json$Decode$andThen,
-																				function (label) {
+																				function (to) {
 																					return A2(
 																						$elm$json$Json$Decode$andThen,
-																						function (id) {
-																							return $elm$json$Json$Decode$succeed(
-																								{id: id, label: label});
+																						function (label) {
+																							return A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (id) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (from) {
+																											return $elm$json$Json$Decode$succeed(
+																												{from: from, id: id, label: label, to: to});
+																										},
+																										A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																								},
+																								A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
 																						},
-																						A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																						A2(
+																							$elm$json$Json$Decode$field,
+																							'label',
+																							A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (zindex) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (style) {
+																											return A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (label) {
+																													return A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (isPullshout) {
+																															return $elm$json$Json$Decode$succeed(
+																																{isPullshout: isPullshout, label: label, style: style, zindex: zindex});
+																														},
+																														A2($elm$json$Json$Decode$field, 'isPullshout', $elm$json$Json$Decode$bool));
+																												},
+																												A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																										},
+																										A2(
+																											$elm$json$Json$Decode$field,
+																											'style',
+																											A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (tail) {
+																													return A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (position) {
+																															return A2(
+																																$elm$json$Json$Decode$andThen,
+																																function (head) {
+																																	return A2(
+																																		$elm$json$Json$Decode$andThen,
+																																		function (_double) {
+																																			return A2(
+																																				$elm$json$Json$Decode$andThen,
+																																				function (dashed) {
+																																					return A2(
+																																						$elm$json$Json$Decode$andThen,
+																																						function (color) {
+																																							return A2(
+																																								$elm$json$Json$Decode$andThen,
+																																								function (bend) {
+																																									return A2(
+																																										$elm$json$Json$Decode$andThen,
+																																										function (alignment) {
+																																											return $elm$json$Json$Decode$succeed(
+																																												{alignment: alignment, bend: bend, color: color, dashed: dashed, _double: _double, head: head, position: position, tail: tail});
+																																										},
+																																										A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
+																																								},
+																																								A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
+																																						},
+																																						A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string));
+																																				},
+																																				A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
+																																		},
+																																		A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
+																																},
+																																A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
+																														},
+																														A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
+																												},
+																												A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))));
+																								},
+																								A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
+																				},
+																				A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+															},
+															A2(
+																$elm$json$Json$Decode$field,
+																'nodes',
+																$elm$json$Json$Decode$list(
+																	A2(
+																		$elm$json$Json$Decode$andThen,
+																		function (label) {
+																			return A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (id) {
+																					return $elm$json$Json$Decode$succeed(
+																						{id: id, label: label});
+																				},
+																				A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																		},
+																		A2(
+																			$elm$json$Json$Decode$field,
+																			'label',
+																			A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (pos) {
+																					return A2(
+																						$elm$json$Json$Decode$andThen,
+																						function (label) {
+																							return A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (isMath) {
+																									return $elm$json$Json$Decode$succeed(
+																										{isMath: isMath, label: label, pos: pos});
+																								},
+																								A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																						},
+																						A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																				},
 																				A2(
 																					$elm$json$Json$Decode$field,
-																					'label',
+																					'pos',
 																					A2(
+																						$elm$json$Json$Decode$andThen,
+																						function (_v0) {
+																							return A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (_v1) {
+																									return $elm$json$Json$Decode$succeed(
+																										_Utils_Tuple2(_v0, _v1));
+																								},
+																								A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																						},
+																						A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
+													},
+													A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int));
+											},
+											A2($elm$json$Json$Decode$field, 'title', $elm$json$Json$Decode$string)))))));
+				},
+				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
+		},
+		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
+var $author$project$Main$loadedGraph11 = _Platform_incomingPort(
+	'loadedGraph11',
+	A2(
+		$elm$json$Json$Decode$andThen,
+		function (setFirstTab) {
+			return A2(
+				$elm$json$Json$Decode$andThen,
+				function (scenario) {
+					return A2(
+						$elm$json$Json$Decode$andThen,
+						function (graph) {
+							return A2(
+								$elm$json$Json$Decode$andThen,
+								function (fileName) {
+									return A2(
+										$elm$json$Json$Decode$andThen,
+										function (clipboard) {
+											return $elm$json$Json$Decode$succeed(
+												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
+										},
+										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								},
+								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (tabs) {
+									return A2(
+										$elm$json$Json$Decode$andThen,
+										function (latexPreamble) {
+											return $elm$json$Json$Decode$succeed(
+												{latexPreamble: latexPreamble, tabs: tabs});
+										},
+										A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
+								},
+								A2(
+									$elm$json$Json$Decode$field,
+									'tabs',
+									$elm$json$Json$Decode$list(
+										A2(
+											$elm$json$Json$Decode$andThen,
+											function (title) {
+												return A2(
+													$elm$json$Json$Decode$andThen,
+													function (sizeGrid) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (nodes) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (edges) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (active) {
+																				return $elm$json$Json$Decode$succeed(
+																					{active: active, edges: edges, nodes: nodes, sizeGrid: sizeGrid, title: title});
+																			},
+																			A2($elm$json$Json$Decode$field, 'active', $elm$json$Json$Decode$bool));
+																	},
+																	A2(
+																		$elm$json$Json$Decode$field,
+																		'edges',
+																		$elm$json$Json$Decode$list(
+																			A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (to) {
+																					return A2(
+																						$elm$json$Json$Decode$andThen,
+																						function (label) {
+																							return A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (id) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (from) {
+																											return $elm$json$Json$Decode$succeed(
+																												{from: from, id: id, label: label, to: to});
+																										},
+																										A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																								},
+																								A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																						},
+																						A2(
+																							$elm$json$Json$Decode$field,
+																							'label',
+																							A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (zindex) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (style) {
+																											return A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (label) {
+																													return A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (isPullshout) {
+																															return $elm$json$Json$Decode$succeed(
+																																{isPullshout: isPullshout, label: label, style: style, zindex: zindex});
+																														},
+																														A2($elm$json$Json$Decode$field, 'isPullshout', $elm$json$Json$Decode$bool));
+																												},
+																												A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																										},
+																										A2(
+																											$elm$json$Json$Decode$field,
+																											'style',
+																											A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (tail) {
+																													return A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (position) {
+																															return A2(
+																																$elm$json$Json$Decode$andThen,
+																																function (head) {
+																																	return A2(
+																																		$elm$json$Json$Decode$andThen,
+																																		function (_double) {
+																																			return A2(
+																																				$elm$json$Json$Decode$andThen,
+																																				function (dashed) {
+																																					return A2(
+																																						$elm$json$Json$Decode$andThen,
+																																						function (color) {
+																																							return A2(
+																																								$elm$json$Json$Decode$andThen,
+																																								function (bend) {
+																																									return A2(
+																																										$elm$json$Json$Decode$andThen,
+																																										function (alignment) {
+																																											return $elm$json$Json$Decode$succeed(
+																																												{alignment: alignment, bend: bend, color: color, dashed: dashed, _double: _double, head: head, position: position, tail: tail});
+																																										},
+																																										A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
+																																								},
+																																								A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
+																																						},
+																																						A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string));
+																																				},
+																																				A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
+																																		},
+																																		A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
+																																},
+																																A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
+																														},
+																														A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
+																												},
+																												A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))));
+																								},
+																								A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
+																				},
+																				A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+															},
+															A2(
+																$elm$json$Json$Decode$field,
+																'nodes',
+																$elm$json$Json$Decode$list(
+																	A2(
+																		$elm$json$Json$Decode$andThen,
+																		function (label) {
+																			return A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (id) {
+																					return $elm$json$Json$Decode$succeed(
+																						{id: id, label: label});
+																				},
+																				A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																		},
+																		A2(
+																			$elm$json$Json$Decode$field,
+																			'label',
+																			A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (zindex) {
+																					return A2(
 																						$elm$json$Json$Decode$andThen,
 																						function (pos) {
 																							return A2(
@@ -7369,7 +7534,7 @@ var $author$project$Main$loadedGraph10 = _Platform_incomingPort(
 																										$elm$json$Json$Decode$andThen,
 																										function (isMath) {
 																											return $elm$json$Json$Decode$succeed(
-																												{isMath: isMath, label: label, pos: pos});
+																												{isMath: isMath, label: label, pos: pos, zindex: zindex});
 																										},
 																										A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
 																								},
@@ -7389,237 +7554,13 @@ var $author$project$Main$loadedGraph10 = _Platform_incomingPort(
 																										},
 																										A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
 																								},
-																								A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
-															},
-															A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int));
-													},
-													A2($elm$json$Json$Decode$field, 'title', $elm$json$Json$Decode$string)))))));
-						},
-						A2($elm$json$Json$Decode$field, 'rule', $elm$json$Json$Decode$bool));
-				},
-				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
-		},
-		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
-var $author$project$Main$loadedGraph11 = _Platform_incomingPort(
-	'loadedGraph11',
-	A2(
-		$elm$json$Json$Decode$andThen,
-		function (setFirstTab) {
-			return A2(
-				$elm$json$Json$Decode$andThen,
-				function (scenario) {
-					return A2(
-						$elm$json$Json$Decode$andThen,
-						function (rule) {
-							return A2(
-								$elm$json$Json$Decode$andThen,
-								function (graph) {
-									return A2(
-										$elm$json$Json$Decode$andThen,
-										function (fileName) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (clipboard) {
-													return $elm$json$Json$Decode$succeed(
-														{clipboard: clipboard, fileName: fileName, graph: graph, rule: rule, scenario: scenario, setFirstTab: setFirstTab});
-												},
-												A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
-										},
-										A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
-								},
-								A2(
-									$elm$json$Json$Decode$field,
-									'graph',
-									A2(
-										$elm$json$Json$Decode$andThen,
-										function (tabs) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (latexPreamble) {
-													return $elm$json$Json$Decode$succeed(
-														{latexPreamble: latexPreamble, tabs: tabs});
-												},
-												A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
-										},
-										A2(
-											$elm$json$Json$Decode$field,
-											'tabs',
-											$elm$json$Json$Decode$list(
-												A2(
-													$elm$json$Json$Decode$andThen,
-													function (title) {
-														return A2(
-															$elm$json$Json$Decode$andThen,
-															function (sizeGrid) {
-																return A2(
-																	$elm$json$Json$Decode$andThen,
-																	function (nodes) {
-																		return A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (edges) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (active) {
-																						return $elm$json$Json$Decode$succeed(
-																							{active: active, edges: edges, nodes: nodes, sizeGrid: sizeGrid, title: title});
-																					},
-																					A2($elm$json$Json$Decode$field, 'active', $elm$json$Json$Decode$bool));
-																			},
-																			A2(
-																				$elm$json$Json$Decode$field,
-																				'edges',
-																				$elm$json$Json$Decode$list(
-																					A2(
-																						$elm$json$Json$Decode$andThen,
-																						function (to) {
-																							return A2(
-																								$elm$json$Json$Decode$andThen,
-																								function (label) {
-																									return A2(
-																										$elm$json$Json$Decode$andThen,
-																										function (id) {
-																											return A2(
-																												$elm$json$Json$Decode$andThen,
-																												function (from) {
-																													return $elm$json$Json$Decode$succeed(
-																														{from: from, id: id, label: label, to: to});
-																												},
-																												A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
-																										},
-																										A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-																								},
-																								A2(
-																									$elm$json$Json$Decode$field,
-																									'label',
-																									A2(
-																										$elm$json$Json$Decode$andThen,
-																										function (zindex) {
-																											return A2(
-																												$elm$json$Json$Decode$andThen,
-																												function (style) {
-																													return A2(
-																														$elm$json$Json$Decode$andThen,
-																														function (label) {
-																															return A2(
-																																$elm$json$Json$Decode$andThen,
-																																function (isPullshout) {
-																																	return $elm$json$Json$Decode$succeed(
-																																		{isPullshout: isPullshout, label: label, style: style, zindex: zindex});
-																																},
-																																A2($elm$json$Json$Decode$field, 'isPullshout', $elm$json$Json$Decode$bool));
-																														},
-																														A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																												},
-																												A2(
-																													$elm$json$Json$Decode$field,
-																													'style',
-																													A2(
-																														$elm$json$Json$Decode$andThen,
-																														function (tail) {
-																															return A2(
-																																$elm$json$Json$Decode$andThen,
-																																function (position) {
-																																	return A2(
-																																		$elm$json$Json$Decode$andThen,
-																																		function (head) {
-																																			return A2(
-																																				$elm$json$Json$Decode$andThen,
-																																				function (_double) {
-																																					return A2(
-																																						$elm$json$Json$Decode$andThen,
-																																						function (dashed) {
-																																							return A2(
-																																								$elm$json$Json$Decode$andThen,
-																																								function (color) {
-																																									return A2(
-																																										$elm$json$Json$Decode$andThen,
-																																										function (bend) {
-																																											return A2(
-																																												$elm$json$Json$Decode$andThen,
-																																												function (alignment) {
-																																													return $elm$json$Json$Decode$succeed(
-																																														{alignment: alignment, bend: bend, color: color, dashed: dashed, _double: _double, head: head, position: position, tail: tail});
-																																												},
-																																												A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
-																																										},
-																																										A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
-																																								},
-																																								A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string));
-																																						},
-																																						A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
-																																				},
-																																				A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
-																																		},
-																																		A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
-																																},
-																																A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
-																														},
-																														A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))));
-																										},
-																										A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
-																						},
-																						A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
-																	},
-																	A2(
-																		$elm$json$Json$Decode$field,
-																		'nodes',
-																		$elm$json$Json$Decode$list(
-																			A2(
-																				$elm$json$Json$Decode$andThen,
-																				function (label) {
-																					return A2(
-																						$elm$json$Json$Decode$andThen,
-																						function (id) {
-																							return $elm$json$Json$Decode$succeed(
-																								{id: id, label: label});
-																						},
-																						A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																								A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))));
 																				},
-																				A2(
-																					$elm$json$Json$Decode$field,
-																					'label',
-																					A2(
-																						$elm$json$Json$Decode$andThen,
-																						function (zindex) {
-																							return A2(
-																								$elm$json$Json$Decode$andThen,
-																								function (pos) {
-																									return A2(
-																										$elm$json$Json$Decode$andThen,
-																										function (label) {
-																											return A2(
-																												$elm$json$Json$Decode$andThen,
-																												function (isMath) {
-																													return $elm$json$Json$Decode$succeed(
-																														{isMath: isMath, label: label, pos: pos, zindex: zindex});
-																												},
-																												A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
-																										},
-																										A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																								},
-																								A2(
-																									$elm$json$Json$Decode$field,
-																									'pos',
-																									A2(
-																										$elm$json$Json$Decode$andThen,
-																										function (_v0) {
-																											return A2(
-																												$elm$json$Json$Decode$andThen,
-																												function (_v1) {
-																													return $elm$json$Json$Decode$succeed(
-																														_Utils_Tuple2(_v0, _v1));
-																												},
-																												A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
-																										},
-																										A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))));
-																						},
-																						A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int)))))));
-															},
-															A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int));
+																				A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int)))))));
 													},
-													A2($elm$json$Json$Decode$field, 'title', $elm$json$Json$Decode$string)))))));
-						},
-						A2($elm$json$Json$Decode$field, 'rule', $elm$json$Json$Decode$bool));
+													A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int));
+											},
+											A2($elm$json$Json$Decode$field, 'title', $elm$json$Json$Decode$string)))))));
 				},
 				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
 		},
@@ -7634,34 +7575,198 @@ var $author$project$Main$loadedGraph2 = _Platform_incomingPort(
 				function (scenario) {
 					return A2(
 						$elm$json$Json$Decode$andThen,
-						function (rule) {
+						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (graph) {
+								function (fileName) {
 									return A2(
 										$elm$json$Json$Decode$andThen,
-										function (fileName) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (clipboard) {
-													return $elm$json$Json$Decode$succeed(
-														{clipboard: clipboard, fileName: fileName, graph: graph, rule: rule, scenario: scenario, setFirstTab: setFirstTab});
-												},
-												A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+										function (clipboard) {
+											return $elm$json$Json$Decode$succeed(
+												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 										},
-										A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								},
+								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (nodes) {
+									return A2(
+										$elm$json$Json$Decode$andThen,
+										function (edges) {
+											return $elm$json$Json$Decode$succeed(
+												{edges: edges, nodes: nodes});
+										},
+										A2(
+											$elm$json$Json$Decode$field,
+											'edges',
+											$elm$json$Json$Decode$list(
+												A2(
+													$elm$json$Json$Decode$andThen,
+													function (to) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (label) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (id) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (from) {
+																				return $elm$json$Json$Decode$succeed(
+																					{from: from, id: id, label: label, to: to});
+																			},
+																			A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																	},
+																	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+															},
+															A2(
+																$elm$json$Json$Decode$field,
+																'label',
+																A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (style) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (label) {
+																				return $elm$json$Json$Decode$succeed(
+																					{label: label, style: style});
+																			},
+																			A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																	},
+																	A2(
+																		$elm$json$Json$Decode$field,
+																		'style',
+																		A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (tail) {
+																				return A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (position) {
+																						return A2(
+																							$elm$json$Json$Decode$andThen,
+																							function (head) {
+																								return A2(
+																									$elm$json$Json$Decode$andThen,
+																									function (_double) {
+																										return A2(
+																											$elm$json$Json$Decode$andThen,
+																											function (dashed) {
+																												return A2(
+																													$elm$json$Json$Decode$andThen,
+																													function (bend) {
+																														return A2(
+																															$elm$json$Json$Decode$andThen,
+																															function (alignment) {
+																																return $elm$json$Json$Decode$succeed(
+																																	{alignment: alignment, bend: bend, dashed: dashed, _double: _double, head: head, position: position, tail: tail});
+																															},
+																															A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
+																													},
+																													A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
+																											},
+																											A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
+																									},
+																									A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
+																							},
+																							A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
+																					},
+																					A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
+																			},
+																			A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))))));
+													},
+													A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
 								},
 								A2(
 									$elm$json$Json$Decode$field,
-									'graph',
-									A2(
+									'nodes',
+									$elm$json$Json$Decode$list(
+										A2(
+											$elm$json$Json$Decode$andThen,
+											function (label) {
+												return A2(
+													$elm$json$Json$Decode$andThen,
+													function (id) {
+														return $elm$json$Json$Decode$succeed(
+															{id: id, label: label});
+													},
+													A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+											},
+											A2(
+												$elm$json$Json$Decode$field,
+												'label',
+												A2(
+													$elm$json$Json$Decode$andThen,
+													function (pos) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (label) {
+																return $elm$json$Json$Decode$succeed(
+																	{label: label, pos: pos});
+															},
+															A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+													},
+													A2(
+														$elm$json$Json$Decode$field,
+														'pos',
+														A2(
+															$elm$json$Json$Decode$andThen,
+															function (_v0) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (_v1) {
+																		return $elm$json$Json$Decode$succeed(
+																			_Utils_Tuple2(_v0, _v1));
+																	},
+																	A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+															},
+															A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))))));
+				},
+				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
+		},
+		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
+var $author$project$Main$loadedGraph3 = _Platform_incomingPort(
+	'loadedGraph3',
+	A2(
+		$elm$json$Json$Decode$andThen,
+		function (setFirstTab) {
+			return A2(
+				$elm$json$Json$Decode$andThen,
+				function (scenario) {
+					return A2(
+						$elm$json$Json$Decode$andThen,
+						function (graph) {
+							return A2(
+								$elm$json$Json$Decode$andThen,
+								function (fileName) {
+									return A2(
+										$elm$json$Json$Decode$andThen,
+										function (clipboard) {
+											return $elm$json$Json$Decode$succeed(
+												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
+										},
+										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								},
+								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (sizeGrid) {
+									return A2(
 										$elm$json$Json$Decode$andThen,
 										function (nodes) {
 											return A2(
 												$elm$json$Json$Decode$andThen,
 												function (edges) {
 													return $elm$json$Json$Decode$succeed(
-														{edges: edges, nodes: nodes});
+														{edges: edges, nodes: nodes, sizeGrid: sizeGrid});
 												},
 												A2(
 													$elm$json$Json$Decode$field,
@@ -7786,183 +7891,9 @@ var $author$project$Main$loadedGraph2 = _Platform_incomingPort(
 																			},
 																			A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
 																	},
-																	A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))))));
-						},
-						A2($elm$json$Json$Decode$field, 'rule', $elm$json$Json$Decode$bool));
-				},
-				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
-		},
-		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
-var $author$project$Main$loadedGraph3 = _Platform_incomingPort(
-	'loadedGraph3',
-	A2(
-		$elm$json$Json$Decode$andThen,
-		function (setFirstTab) {
-			return A2(
-				$elm$json$Json$Decode$andThen,
-				function (scenario) {
-					return A2(
-						$elm$json$Json$Decode$andThen,
-						function (rule) {
-							return A2(
-								$elm$json$Json$Decode$andThen,
-								function (graph) {
-									return A2(
-										$elm$json$Json$Decode$andThen,
-										function (fileName) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (clipboard) {
-													return $elm$json$Json$Decode$succeed(
-														{clipboard: clipboard, fileName: fileName, graph: graph, rule: rule, scenario: scenario, setFirstTab: setFirstTab});
-												},
-												A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
-										},
-										A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+																	A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
 								},
-								A2(
-									$elm$json$Json$Decode$field,
-									'graph',
-									A2(
-										$elm$json$Json$Decode$andThen,
-										function (sizeGrid) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (nodes) {
-													return A2(
-														$elm$json$Json$Decode$andThen,
-														function (edges) {
-															return $elm$json$Json$Decode$succeed(
-																{edges: edges, nodes: nodes, sizeGrid: sizeGrid});
-														},
-														A2(
-															$elm$json$Json$Decode$field,
-															'edges',
-															$elm$json$Json$Decode$list(
-																A2(
-																	$elm$json$Json$Decode$andThen,
-																	function (to) {
-																		return A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (label) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (id) {
-																						return A2(
-																							$elm$json$Json$Decode$andThen,
-																							function (from) {
-																								return $elm$json$Json$Decode$succeed(
-																									{from: from, id: id, label: label, to: to});
-																							},
-																							A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
-																					},
-																					A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-																			},
-																			A2(
-																				$elm$json$Json$Decode$field,
-																				'label',
-																				A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (style) {
-																						return A2(
-																							$elm$json$Json$Decode$andThen,
-																							function (label) {
-																								return $elm$json$Json$Decode$succeed(
-																									{label: label, style: style});
-																							},
-																							A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																					},
-																					A2(
-																						$elm$json$Json$Decode$field,
-																						'style',
-																						A2(
-																							$elm$json$Json$Decode$andThen,
-																							function (tail) {
-																								return A2(
-																									$elm$json$Json$Decode$andThen,
-																									function (position) {
-																										return A2(
-																											$elm$json$Json$Decode$andThen,
-																											function (head) {
-																												return A2(
-																													$elm$json$Json$Decode$andThen,
-																													function (_double) {
-																														return A2(
-																															$elm$json$Json$Decode$andThen,
-																															function (dashed) {
-																																return A2(
-																																	$elm$json$Json$Decode$andThen,
-																																	function (bend) {
-																																		return A2(
-																																			$elm$json$Json$Decode$andThen,
-																																			function (alignment) {
-																																				return $elm$json$Json$Decode$succeed(
-																																					{alignment: alignment, bend: bend, dashed: dashed, _double: _double, head: head, position: position, tail: tail});
-																																			},
-																																			A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
-																																	},
-																																	A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
-																															},
-																															A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
-																													},
-																													A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
-																											},
-																											A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
-																									},
-																									A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
-																							},
-																							A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))))));
-																	},
-																	A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
-												},
-												A2(
-													$elm$json$Json$Decode$field,
-													'nodes',
-													$elm$json$Json$Decode$list(
-														A2(
-															$elm$json$Json$Decode$andThen,
-															function (label) {
-																return A2(
-																	$elm$json$Json$Decode$andThen,
-																	function (id) {
-																		return $elm$json$Json$Decode$succeed(
-																			{id: id, label: label});
-																	},
-																	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-															},
-															A2(
-																$elm$json$Json$Decode$field,
-																'label',
-																A2(
-																	$elm$json$Json$Decode$andThen,
-																	function (pos) {
-																		return A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (label) {
-																				return $elm$json$Json$Decode$succeed(
-																					{label: label, pos: pos});
-																			},
-																			A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																	},
-																	A2(
-																		$elm$json$Json$Decode$field,
-																		'pos',
-																		A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (_v0) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (_v1) {
-																						return $elm$json$Json$Decode$succeed(
-																							_Utils_Tuple2(_v0, _v1));
-																					},
-																					A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
-																			},
-																			A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
-										},
-										A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int))));
-						},
-						A2($elm$json$Json$Decode$field, 'rule', $elm$json$Json$Decode$bool));
+								A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int))));
 				},
 				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
 		},
@@ -7977,37 +7908,211 @@ var $author$project$Main$loadedGraph4 = _Platform_incomingPort(
 				function (scenario) {
 					return A2(
 						$elm$json$Json$Decode$andThen,
-						function (rule) {
+						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (graph) {
+								function (fileName) {
 									return A2(
 										$elm$json$Json$Decode$andThen,
-										function (fileName) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (clipboard) {
-													return $elm$json$Json$Decode$succeed(
-														{clipboard: clipboard, fileName: fileName, graph: graph, rule: rule, scenario: scenario, setFirstTab: setFirstTab});
-												},
-												A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+										function (clipboard) {
+											return $elm$json$Json$Decode$succeed(
+												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 										},
-										A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 								},
-								A2(
-									$elm$json$Json$Decode$field,
-									'graph',
-									A2(
+								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (sizeGrid) {
+									return A2(
 										$elm$json$Json$Decode$andThen,
-										function (sizeGrid) {
+										function (nodes) {
 											return A2(
 												$elm$json$Json$Decode$andThen,
-												function (nodes) {
+												function (edges) {
+													return $elm$json$Json$Decode$succeed(
+														{edges: edges, nodes: nodes, sizeGrid: sizeGrid});
+												},
+												A2(
+													$elm$json$Json$Decode$field,
+													'edges',
+													$elm$json$Json$Decode$list(
+														A2(
+															$elm$json$Json$Decode$andThen,
+															function (to) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (label) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (id) {
+																				return A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (from) {
+																						return $elm$json$Json$Decode$succeed(
+																							{from: from, id: id, label: label, to: to});
+																					},
+																					A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																			},
+																			A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																	},
+																	A2(
+																		$elm$json$Json$Decode$field,
+																		'label',
+																		A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (style) {
+																				return A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (label) {
+																						return $elm$json$Json$Decode$succeed(
+																							{label: label, style: style});
+																					},
+																					A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																			},
+																			A2(
+																				$elm$json$Json$Decode$field,
+																				'style',
+																				A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (tail) {
+																						return A2(
+																							$elm$json$Json$Decode$andThen,
+																							function (position) {
+																								return A2(
+																									$elm$json$Json$Decode$andThen,
+																									function (head) {
+																										return A2(
+																											$elm$json$Json$Decode$andThen,
+																											function (_double) {
+																												return A2(
+																													$elm$json$Json$Decode$andThen,
+																													function (dashed) {
+																														return A2(
+																															$elm$json$Json$Decode$andThen,
+																															function (bend) {
+																																return A2(
+																																	$elm$json$Json$Decode$andThen,
+																																	function (alignment) {
+																																		return $elm$json$Json$Decode$succeed(
+																																			{alignment: alignment, bend: bend, dashed: dashed, _double: _double, head: head, position: position, tail: tail});
+																																	},
+																																	A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
+																															},
+																															A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
+																													},
+																													A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
+																											},
+																											A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
+																									},
+																									A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
+																							},
+																							A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
+																					},
+																					A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))))));
+															},
+															A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+										},
+										A2(
+											$elm$json$Json$Decode$field,
+											'nodes',
+											$elm$json$Json$Decode$list(
+												A2(
+													$elm$json$Json$Decode$andThen,
+													function (label) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (id) {
+																return $elm$json$Json$Decode$succeed(
+																	{id: id, label: label});
+															},
+															A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+													},
+													A2(
+														$elm$json$Json$Decode$field,
+														'label',
+														A2(
+															$elm$json$Json$Decode$andThen,
+															function (pos) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (label) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (isMath) {
+																				return $elm$json$Json$Decode$succeed(
+																					{isMath: isMath, label: label, pos: pos});
+																			},
+																			A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																	},
+																	A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+															},
+															A2(
+																$elm$json$Json$Decode$field,
+																'pos',
+																A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (_v0) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (_v1) {
+																				return $elm$json$Json$Decode$succeed(
+																					_Utils_Tuple2(_v0, _v1));
+																			},
+																			A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																	},
+																	A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
+								},
+								A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int))));
+				},
+				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
+		},
+		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
+var $author$project$Main$loadedGraph5 = _Platform_incomingPort(
+	'loadedGraph5',
+	A2(
+		$elm$json$Json$Decode$andThen,
+		function (setFirstTab) {
+			return A2(
+				$elm$json$Json$Decode$andThen,
+				function (scenario) {
+					return A2(
+						$elm$json$Json$Decode$andThen,
+						function (graph) {
+							return A2(
+								$elm$json$Json$Decode$andThen,
+								function (fileName) {
+									return A2(
+										$elm$json$Json$Decode$andThen,
+										function (clipboard) {
+											return $elm$json$Json$Decode$succeed(
+												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
+										},
+										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								},
+								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (sizeGrid) {
+									return A2(
+										$elm$json$Json$Decode$andThen,
+										function (nodes) {
+											return A2(
+												$elm$json$Json$Decode$andThen,
+												function (latexPreamble) {
 													return A2(
 														$elm$json$Json$Decode$andThen,
 														function (edges) {
 															return $elm$json$Json$Decode$succeed(
-																{edges: edges, nodes: nodes, sizeGrid: sizeGrid});
+																{edges: edges, latexPreamble: latexPreamble, nodes: nodes, sizeGrid: sizeGrid});
 														},
 														A2(
 															$elm$json$Json$Decode$field,
@@ -8089,243 +8194,59 @@ var $author$project$Main$loadedGraph4 = _Platform_incomingPort(
 																	},
 																	A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
 												},
+												A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
+										},
+										A2(
+											$elm$json$Json$Decode$field,
+											'nodes',
+											$elm$json$Json$Decode$list(
 												A2(
-													$elm$json$Json$Decode$field,
-													'nodes',
-													$elm$json$Json$Decode$list(
+													$elm$json$Json$Decode$andThen,
+													function (label) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (id) {
+																return $elm$json$Json$Decode$succeed(
+																	{id: id, label: label});
+															},
+															A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+													},
+													A2(
+														$elm$json$Json$Decode$field,
+														'label',
 														A2(
 															$elm$json$Json$Decode$andThen,
-															function (label) {
+															function (pos) {
 																return A2(
 																	$elm$json$Json$Decode$andThen,
-																	function (id) {
-																		return $elm$json$Json$Decode$succeed(
-																			{id: id, label: label});
+																	function (label) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (isMath) {
+																				return $elm$json$Json$Decode$succeed(
+																					{isMath: isMath, label: label, pos: pos});
+																			},
+																			A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
 																	},
-																	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																	A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 															},
 															A2(
 																$elm$json$Json$Decode$field,
-																'label',
+																'pos',
 																A2(
 																	$elm$json$Json$Decode$andThen,
-																	function (pos) {
+																	function (_v0) {
 																		return A2(
 																			$elm$json$Json$Decode$andThen,
-																			function (label) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (isMath) {
-																						return $elm$json$Json$Decode$succeed(
-																							{isMath: isMath, label: label, pos: pos});
-																					},
-																					A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																			function (_v1) {
+																				return $elm$json$Json$Decode$succeed(
+																					_Utils_Tuple2(_v0, _v1));
 																			},
-																			A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																			A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
 																	},
-																	A2(
-																		$elm$json$Json$Decode$field,
-																		'pos',
-																		A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (_v0) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (_v1) {
-																						return $elm$json$Json$Decode$succeed(
-																							_Utils_Tuple2(_v0, _v1));
-																					},
-																					A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
-																			},
-																			A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
-										},
-										A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int))));
-						},
-						A2($elm$json$Json$Decode$field, 'rule', $elm$json$Json$Decode$bool));
-				},
-				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
-		},
-		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
-var $author$project$Main$loadedGraph5 = _Platform_incomingPort(
-	'loadedGraph5',
-	A2(
-		$elm$json$Json$Decode$andThen,
-		function (setFirstTab) {
-			return A2(
-				$elm$json$Json$Decode$andThen,
-				function (scenario) {
-					return A2(
-						$elm$json$Json$Decode$andThen,
-						function (rule) {
-							return A2(
-								$elm$json$Json$Decode$andThen,
-								function (graph) {
-									return A2(
-										$elm$json$Json$Decode$andThen,
-										function (fileName) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (clipboard) {
-													return $elm$json$Json$Decode$succeed(
-														{clipboard: clipboard, fileName: fileName, graph: graph, rule: rule, scenario: scenario, setFirstTab: setFirstTab});
-												},
-												A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
-										},
-										A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+																	A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
 								},
-								A2(
-									$elm$json$Json$Decode$field,
-									'graph',
-									A2(
-										$elm$json$Json$Decode$andThen,
-										function (sizeGrid) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (nodes) {
-													return A2(
-														$elm$json$Json$Decode$andThen,
-														function (latexPreamble) {
-															return A2(
-																$elm$json$Json$Decode$andThen,
-																function (edges) {
-																	return $elm$json$Json$Decode$succeed(
-																		{edges: edges, latexPreamble: latexPreamble, nodes: nodes, sizeGrid: sizeGrid});
-																},
-																A2(
-																	$elm$json$Json$Decode$field,
-																	'edges',
-																	$elm$json$Json$Decode$list(
-																		A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (to) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (label) {
-																						return A2(
-																							$elm$json$Json$Decode$andThen,
-																							function (id) {
-																								return A2(
-																									$elm$json$Json$Decode$andThen,
-																									function (from) {
-																										return $elm$json$Json$Decode$succeed(
-																											{from: from, id: id, label: label, to: to});
-																									},
-																									A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
-																							},
-																							A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-																					},
-																					A2(
-																						$elm$json$Json$Decode$field,
-																						'label',
-																						A2(
-																							$elm$json$Json$Decode$andThen,
-																							function (style) {
-																								return A2(
-																									$elm$json$Json$Decode$andThen,
-																									function (label) {
-																										return $elm$json$Json$Decode$succeed(
-																											{label: label, style: style});
-																									},
-																									A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																							},
-																							A2(
-																								$elm$json$Json$Decode$field,
-																								'style',
-																								A2(
-																									$elm$json$Json$Decode$andThen,
-																									function (tail) {
-																										return A2(
-																											$elm$json$Json$Decode$andThen,
-																											function (position) {
-																												return A2(
-																													$elm$json$Json$Decode$andThen,
-																													function (head) {
-																														return A2(
-																															$elm$json$Json$Decode$andThen,
-																															function (_double) {
-																																return A2(
-																																	$elm$json$Json$Decode$andThen,
-																																	function (dashed) {
-																																		return A2(
-																																			$elm$json$Json$Decode$andThen,
-																																			function (bend) {
-																																				return A2(
-																																					$elm$json$Json$Decode$andThen,
-																																					function (alignment) {
-																																						return $elm$json$Json$Decode$succeed(
-																																							{alignment: alignment, bend: bend, dashed: dashed, _double: _double, head: head, position: position, tail: tail});
-																																					},
-																																					A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
-																																			},
-																																			A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
-																																	},
-																																	A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
-																															},
-																															A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
-																													},
-																													A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
-																											},
-																											A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
-																									},
-																									A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))))));
-																			},
-																			A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
-														},
-														A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
-												},
-												A2(
-													$elm$json$Json$Decode$field,
-													'nodes',
-													$elm$json$Json$Decode$list(
-														A2(
-															$elm$json$Json$Decode$andThen,
-															function (label) {
-																return A2(
-																	$elm$json$Json$Decode$andThen,
-																	function (id) {
-																		return $elm$json$Json$Decode$succeed(
-																			{id: id, label: label});
-																	},
-																	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-															},
-															A2(
-																$elm$json$Json$Decode$field,
-																'label',
-																A2(
-																	$elm$json$Json$Decode$andThen,
-																	function (pos) {
-																		return A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (label) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (isMath) {
-																						return $elm$json$Json$Decode$succeed(
-																							{isMath: isMath, label: label, pos: pos});
-																					},
-																					A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
-																			},
-																			A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																	},
-																	A2(
-																		$elm$json$Json$Decode$field,
-																		'pos',
-																		A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (_v0) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (_v1) {
-																						return $elm$json$Json$Decode$succeed(
-																							_Utils_Tuple2(_v0, _v1));
-																					},
-																					A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
-																			},
-																			A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
-										},
-										A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int))));
-						},
-						A2($elm$json$Json$Decode$field, 'rule', $elm$json$Json$Decode$bool));
+								A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int))));
 				},
 				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
 		},
@@ -8340,68 +8261,252 @@ var $author$project$Main$loadedGraph6 = _Platform_incomingPort(
 				function (scenario) {
 					return A2(
 						$elm$json$Json$Decode$andThen,
-						function (rule) {
+						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (graph) {
+								function (fileName) {
 									return A2(
 										$elm$json$Json$Decode$andThen,
-										function (fileName) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (clipboard) {
-													return $elm$json$Json$Decode$succeed(
-														{clipboard: clipboard, fileName: fileName, graph: graph, rule: rule, scenario: scenario, setFirstTab: setFirstTab});
-												},
-												A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+										function (clipboard) {
+											return $elm$json$Json$Decode$succeed(
+												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 										},
-										A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 								},
-								A2(
-									$elm$json$Json$Decode$field,
-									'graph',
-									A2(
+								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (sizeGrid) {
+									return A2(
 										$elm$json$Json$Decode$andThen,
-										function (sizeGrid) {
+										function (nodes) {
 											return A2(
 												$elm$json$Json$Decode$andThen,
-												function (nodes) {
+												function (latexPreamble) {
 													return A2(
 														$elm$json$Json$Decode$andThen,
-														function (latexPreamble) {
-															return A2(
-																$elm$json$Json$Decode$andThen,
-																function (edges) {
-																	return $elm$json$Json$Decode$succeed(
-																		{edges: edges, latexPreamble: latexPreamble, nodes: nodes, sizeGrid: sizeGrid});
-																},
+														function (edges) {
+															return $elm$json$Json$Decode$succeed(
+																{edges: edges, latexPreamble: latexPreamble, nodes: nodes, sizeGrid: sizeGrid});
+														},
+														A2(
+															$elm$json$Json$Decode$field,
+															'edges',
+															$elm$json$Json$Decode$list(
 																A2(
-																	$elm$json$Json$Decode$field,
-																	'edges',
-																	$elm$json$Json$Decode$list(
-																		A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (to) {
+																		return A2(
 																			$elm$json$Json$Decode$andThen,
-																			function (to) {
+																			function (label) {
 																				return A2(
 																					$elm$json$Json$Decode$andThen,
-																					function (label) {
+																					function (id) {
 																						return A2(
 																							$elm$json$Json$Decode$andThen,
-																							function (id) {
+																							function (from) {
+																								return $elm$json$Json$Decode$succeed(
+																									{from: from, id: id, label: label, to: to});
+																							},
+																							A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																					},
+																					A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																			},
+																			A2(
+																				$elm$json$Json$Decode$field,
+																				'label',
+																				A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (style) {
+																						return A2(
+																							$elm$json$Json$Decode$andThen,
+																							function (label) {
 																								return A2(
 																									$elm$json$Json$Decode$andThen,
-																									function (from) {
+																									function (isPullback) {
 																										return $elm$json$Json$Decode$succeed(
-																											{from: from, id: id, label: label, to: to});
+																											{isPullback: isPullback, label: label, style: style});
 																									},
-																									A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																									A2($elm$json$Json$Decode$field, 'isPullback', $elm$json$Json$Decode$bool));
 																							},
-																							A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																							A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																					},
 																					A2(
 																						$elm$json$Json$Decode$field,
-																						'label',
+																						'style',
 																						A2(
+																							$elm$json$Json$Decode$andThen,
+																							function (tail) {
+																								return A2(
+																									$elm$json$Json$Decode$andThen,
+																									function (position) {
+																										return A2(
+																											$elm$json$Json$Decode$andThen,
+																											function (head) {
+																												return A2(
+																													$elm$json$Json$Decode$andThen,
+																													function (_double) {
+																														return A2(
+																															$elm$json$Json$Decode$andThen,
+																															function (dashed) {
+																																return A2(
+																																	$elm$json$Json$Decode$andThen,
+																																	function (bend) {
+																																		return A2(
+																																			$elm$json$Json$Decode$andThen,
+																																			function (alignment) {
+																																				return $elm$json$Json$Decode$succeed(
+																																					{alignment: alignment, bend: bend, dashed: dashed, _double: _double, head: head, position: position, tail: tail});
+																																			},
+																																			A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
+																																	},
+																																	A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
+																															},
+																															A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
+																													},
+																													A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
+																											},
+																											A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
+																									},
+																									A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
+																							},
+																							A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))))));
+																	},
+																	A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+												},
+												A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
+										},
+										A2(
+											$elm$json$Json$Decode$field,
+											'nodes',
+											$elm$json$Json$Decode$list(
+												A2(
+													$elm$json$Json$Decode$andThen,
+													function (label) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (id) {
+																return $elm$json$Json$Decode$succeed(
+																	{id: id, label: label});
+															},
+															A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+													},
+													A2(
+														$elm$json$Json$Decode$field,
+														'label',
+														A2(
+															$elm$json$Json$Decode$andThen,
+															function (pos) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (label) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (isMath) {
+																				return $elm$json$Json$Decode$succeed(
+																					{isMath: isMath, label: label, pos: pos});
+																			},
+																			A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																	},
+																	A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+															},
+															A2(
+																$elm$json$Json$Decode$field,
+																'pos',
+																A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (_v0) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (_v1) {
+																				return $elm$json$Json$Decode$succeed(
+																					_Utils_Tuple2(_v0, _v1));
+																			},
+																			A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																	},
+																	A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
+								},
+								A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int))));
+				},
+				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
+		},
+		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
+var $author$project$Main$loadedGraph7 = _Platform_incomingPort(
+	'loadedGraph7',
+	A2(
+		$elm$json$Json$Decode$andThen,
+		function (setFirstTab) {
+			return A2(
+				$elm$json$Json$Decode$andThen,
+				function (scenario) {
+					return A2(
+						$elm$json$Json$Decode$andThen,
+						function (graph) {
+							return A2(
+								$elm$json$Json$Decode$andThen,
+								function (fileName) {
+									return A2(
+										$elm$json$Json$Decode$andThen,
+										function (clipboard) {
+											return $elm$json$Json$Decode$succeed(
+												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
+										},
+										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								},
+								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (sizeGrid) {
+									return A2(
+										$elm$json$Json$Decode$andThen,
+										function (nodes) {
+											return A2(
+												$elm$json$Json$Decode$andThen,
+												function (latexPreamble) {
+													return A2(
+														$elm$json$Json$Decode$andThen,
+														function (edges) {
+															return $elm$json$Json$Decode$succeed(
+																{edges: edges, latexPreamble: latexPreamble, nodes: nodes, sizeGrid: sizeGrid});
+														},
+														A2(
+															$elm$json$Json$Decode$field,
+															'edges',
+															$elm$json$Json$Decode$list(
+																A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (to) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (label) {
+																				return A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (id) {
+																						return A2(
+																							$elm$json$Json$Decode$andThen,
+																							function (from) {
+																								return $elm$json$Json$Decode$succeed(
+																									{from: from, id: id, label: label, to: to});
+																							},
+																							A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																					},
+																					A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																			},
+																			A2(
+																				$elm$json$Json$Decode$field,
+																				'label',
+																				A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (zindex) {
+																						return A2(
 																							$elm$json$Json$Decode$andThen,
 																							function (style) {
 																								return A2(
@@ -8411,7 +8516,7 @@ var $author$project$Main$loadedGraph6 = _Platform_incomingPort(
 																											$elm$json$Json$Decode$andThen,
 																											function (isPullback) {
 																												return $elm$json$Json$Decode$succeed(
-																													{isPullback: isPullback, label: label, style: style});
+																													{isPullback: isPullback, label: label, style: style, zindex: zindex});
 																											},
 																											A2($elm$json$Json$Decode$field, 'isPullback', $elm$json$Json$Decode$bool));
 																									},
@@ -8456,259 +8561,65 @@ var $author$project$Main$loadedGraph6 = _Platform_incomingPort(
 																											},
 																											A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
 																									},
-																									A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))))));
-																			},
-																			A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
-														},
-														A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
+																									A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))));
+																					},
+																					A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
+																	},
+																	A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
 												},
+												A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
+										},
+										A2(
+											$elm$json$Json$Decode$field,
+											'nodes',
+											$elm$json$Json$Decode$list(
 												A2(
-													$elm$json$Json$Decode$field,
-													'nodes',
-													$elm$json$Json$Decode$list(
+													$elm$json$Json$Decode$andThen,
+													function (label) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (id) {
+																return $elm$json$Json$Decode$succeed(
+																	{id: id, label: label});
+															},
+															A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+													},
+													A2(
+														$elm$json$Json$Decode$field,
+														'label',
 														A2(
 															$elm$json$Json$Decode$andThen,
-															function (label) {
+															function (pos) {
 																return A2(
 																	$elm$json$Json$Decode$andThen,
-																	function (id) {
-																		return $elm$json$Json$Decode$succeed(
-																			{id: id, label: label});
+																	function (label) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (isMath) {
+																				return $elm$json$Json$Decode$succeed(
+																					{isMath: isMath, label: label, pos: pos});
+																			},
+																			A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
 																	},
-																	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																	A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 															},
 															A2(
 																$elm$json$Json$Decode$field,
-																'label',
+																'pos',
 																A2(
 																	$elm$json$Json$Decode$andThen,
-																	function (pos) {
+																	function (_v0) {
 																		return A2(
 																			$elm$json$Json$Decode$andThen,
-																			function (label) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (isMath) {
-																						return $elm$json$Json$Decode$succeed(
-																							{isMath: isMath, label: label, pos: pos});
-																					},
-																					A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																			function (_v1) {
+																				return $elm$json$Json$Decode$succeed(
+																					_Utils_Tuple2(_v0, _v1));
 																			},
-																			A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																			A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
 																	},
-																	A2(
-																		$elm$json$Json$Decode$field,
-																		'pos',
-																		A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (_v0) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (_v1) {
-																						return $elm$json$Json$Decode$succeed(
-																							_Utils_Tuple2(_v0, _v1));
-																					},
-																					A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
-																			},
-																			A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
-										},
-										A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int))));
-						},
-						A2($elm$json$Json$Decode$field, 'rule', $elm$json$Json$Decode$bool));
-				},
-				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
-		},
-		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
-var $author$project$Main$loadedGraph7 = _Platform_incomingPort(
-	'loadedGraph7',
-	A2(
-		$elm$json$Json$Decode$andThen,
-		function (setFirstTab) {
-			return A2(
-				$elm$json$Json$Decode$andThen,
-				function (scenario) {
-					return A2(
-						$elm$json$Json$Decode$andThen,
-						function (rule) {
-							return A2(
-								$elm$json$Json$Decode$andThen,
-								function (graph) {
-									return A2(
-										$elm$json$Json$Decode$andThen,
-										function (fileName) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (clipboard) {
-													return $elm$json$Json$Decode$succeed(
-														{clipboard: clipboard, fileName: fileName, graph: graph, rule: rule, scenario: scenario, setFirstTab: setFirstTab});
-												},
-												A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
-										},
-										A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+																	A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
 								},
-								A2(
-									$elm$json$Json$Decode$field,
-									'graph',
-									A2(
-										$elm$json$Json$Decode$andThen,
-										function (sizeGrid) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (nodes) {
-													return A2(
-														$elm$json$Json$Decode$andThen,
-														function (latexPreamble) {
-															return A2(
-																$elm$json$Json$Decode$andThen,
-																function (edges) {
-																	return $elm$json$Json$Decode$succeed(
-																		{edges: edges, latexPreamble: latexPreamble, nodes: nodes, sizeGrid: sizeGrid});
-																},
-																A2(
-																	$elm$json$Json$Decode$field,
-																	'edges',
-																	$elm$json$Json$Decode$list(
-																		A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (to) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (label) {
-																						return A2(
-																							$elm$json$Json$Decode$andThen,
-																							function (id) {
-																								return A2(
-																									$elm$json$Json$Decode$andThen,
-																									function (from) {
-																										return $elm$json$Json$Decode$succeed(
-																											{from: from, id: id, label: label, to: to});
-																									},
-																									A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
-																							},
-																							A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-																					},
-																					A2(
-																						$elm$json$Json$Decode$field,
-																						'label',
-																						A2(
-																							$elm$json$Json$Decode$andThen,
-																							function (zindex) {
-																								return A2(
-																									$elm$json$Json$Decode$andThen,
-																									function (style) {
-																										return A2(
-																											$elm$json$Json$Decode$andThen,
-																											function (label) {
-																												return A2(
-																													$elm$json$Json$Decode$andThen,
-																													function (isPullback) {
-																														return $elm$json$Json$Decode$succeed(
-																															{isPullback: isPullback, label: label, style: style, zindex: zindex});
-																													},
-																													A2($elm$json$Json$Decode$field, 'isPullback', $elm$json$Json$Decode$bool));
-																											},
-																											A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																									},
-																									A2(
-																										$elm$json$Json$Decode$field,
-																										'style',
-																										A2(
-																											$elm$json$Json$Decode$andThen,
-																											function (tail) {
-																												return A2(
-																													$elm$json$Json$Decode$andThen,
-																													function (position) {
-																														return A2(
-																															$elm$json$Json$Decode$andThen,
-																															function (head) {
-																																return A2(
-																																	$elm$json$Json$Decode$andThen,
-																																	function (_double) {
-																																		return A2(
-																																			$elm$json$Json$Decode$andThen,
-																																			function (dashed) {
-																																				return A2(
-																																					$elm$json$Json$Decode$andThen,
-																																					function (bend) {
-																																						return A2(
-																																							$elm$json$Json$Decode$andThen,
-																																							function (alignment) {
-																																								return $elm$json$Json$Decode$succeed(
-																																									{alignment: alignment, bend: bend, dashed: dashed, _double: _double, head: head, position: position, tail: tail});
-																																							},
-																																							A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
-																																					},
-																																					A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
-																																			},
-																																			A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
-																																	},
-																																	A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
-																															},
-																															A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
-																													},
-																													A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
-																											},
-																											A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))));
-																							},
-																							A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
-																			},
-																			A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
-														},
-														A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
-												},
-												A2(
-													$elm$json$Json$Decode$field,
-													'nodes',
-													$elm$json$Json$Decode$list(
-														A2(
-															$elm$json$Json$Decode$andThen,
-															function (label) {
-																return A2(
-																	$elm$json$Json$Decode$andThen,
-																	function (id) {
-																		return $elm$json$Json$Decode$succeed(
-																			{id: id, label: label});
-																	},
-																	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-															},
-															A2(
-																$elm$json$Json$Decode$field,
-																'label',
-																A2(
-																	$elm$json$Json$Decode$andThen,
-																	function (pos) {
-																		return A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (label) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (isMath) {
-																						return $elm$json$Json$Decode$succeed(
-																							{isMath: isMath, label: label, pos: pos});
-																					},
-																					A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
-																			},
-																			A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																	},
-																	A2(
-																		$elm$json$Json$Decode$field,
-																		'pos',
-																		A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (_v0) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (_v1) {
-																						return $elm$json$Json$Decode$succeed(
-																							_Utils_Tuple2(_v0, _v1));
-																					},
-																					A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
-																			},
-																			A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
-										},
-										A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int))));
-						},
-						A2($elm$json$Json$Decode$field, 'rule', $elm$json$Json$Decode$bool));
+								A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int))));
 				},
 				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
 		},
@@ -8723,186 +8634,181 @@ var $author$project$Main$loadedGraph8 = _Platform_incomingPort(
 				function (scenario) {
 					return A2(
 						$elm$json$Json$Decode$andThen,
-						function (rule) {
+						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (graph) {
+								function (fileName) {
 									return A2(
 										$elm$json$Json$Decode$andThen,
-										function (fileName) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (clipboard) {
-													return $elm$json$Json$Decode$succeed(
-														{clipboard: clipboard, fileName: fileName, graph: graph, rule: rule, scenario: scenario, setFirstTab: setFirstTab});
-												},
-												A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+										function (clipboard) {
+											return $elm$json$Json$Decode$succeed(
+												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 										},
-										A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 								},
-								A2(
-									$elm$json$Json$Decode$field,
-									'graph',
-									A2(
+								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (sizeGrid) {
+									return A2(
 										$elm$json$Json$Decode$andThen,
-										function (sizeGrid) {
+										function (nodes) {
 											return A2(
 												$elm$json$Json$Decode$andThen,
-												function (nodes) {
+												function (latexPreamble) {
 													return A2(
 														$elm$json$Json$Decode$andThen,
-														function (latexPreamble) {
-															return A2(
-																$elm$json$Json$Decode$andThen,
-																function (edges) {
-																	return $elm$json$Json$Decode$succeed(
-																		{edges: edges, latexPreamble: latexPreamble, nodes: nodes, sizeGrid: sizeGrid});
-																},
-																A2(
-																	$elm$json$Json$Decode$field,
-																	'edges',
-																	$elm$json$Json$Decode$list(
-																		A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (to) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (label) {
-																						return A2(
-																							$elm$json$Json$Decode$andThen,
-																							function (id) {
-																								return A2(
-																									$elm$json$Json$Decode$andThen,
-																									function (from) {
-																										return $elm$json$Json$Decode$succeed(
-																											{from: from, id: id, label: label, to: to});
-																									},
-																									A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
-																							},
-																							A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-																					},
-																					A2(
-																						$elm$json$Json$Decode$field,
-																						'label',
-																						A2(
-																							$elm$json$Json$Decode$andThen,
-																							function (zindex) {
-																								return A2(
-																									$elm$json$Json$Decode$andThen,
-																									function (style) {
-																										return A2(
-																											$elm$json$Json$Decode$andThen,
-																											function (label) {
-																												return A2(
-																													$elm$json$Json$Decode$andThen,
-																													function (isPullshout) {
-																														return $elm$json$Json$Decode$succeed(
-																															{isPullshout: isPullshout, label: label, style: style, zindex: zindex});
-																													},
-																													A2($elm$json$Json$Decode$field, 'isPullshout', $elm$json$Json$Decode$bool));
-																											},
-																											A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																									},
-																									A2(
-																										$elm$json$Json$Decode$field,
-																										'style',
-																										A2(
-																											$elm$json$Json$Decode$andThen,
-																											function (tail) {
-																												return A2(
-																													$elm$json$Json$Decode$andThen,
-																													function (position) {
-																														return A2(
-																															$elm$json$Json$Decode$andThen,
-																															function (head) {
-																																return A2(
-																																	$elm$json$Json$Decode$andThen,
-																																	function (_double) {
-																																		return A2(
-																																			$elm$json$Json$Decode$andThen,
-																																			function (dashed) {
-																																				return A2(
-																																					$elm$json$Json$Decode$andThen,
-																																					function (bend) {
-																																						return A2(
-																																							$elm$json$Json$Decode$andThen,
-																																							function (alignment) {
-																																								return $elm$json$Json$Decode$succeed(
-																																									{alignment: alignment, bend: bend, dashed: dashed, _double: _double, head: head, position: position, tail: tail});
-																																							},
-																																							A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
-																																					},
-																																					A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
-																																			},
-																																			A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
-																																	},
-																																	A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
-																															},
-																															A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
-																													},
-																													A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
-																											},
-																											A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))));
-																							},
-																							A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
-																			},
-																			A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+														function (edges) {
+															return $elm$json$Json$Decode$succeed(
+																{edges: edges, latexPreamble: latexPreamble, nodes: nodes, sizeGrid: sizeGrid});
 														},
-														A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
-												},
-												A2(
-													$elm$json$Json$Decode$field,
-													'nodes',
-													$elm$json$Json$Decode$list(
 														A2(
-															$elm$json$Json$Decode$andThen,
-															function (label) {
-																return A2(
-																	$elm$json$Json$Decode$andThen,
-																	function (id) {
-																		return $elm$json$Json$Decode$succeed(
-																			{id: id, label: label});
-																	},
-																	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-															},
-															A2(
-																$elm$json$Json$Decode$field,
-																'label',
+															$elm$json$Json$Decode$field,
+															'edges',
+															$elm$json$Json$Decode$list(
 																A2(
 																	$elm$json$Json$Decode$andThen,
-																	function (pos) {
+																	function (to) {
 																		return A2(
 																			$elm$json$Json$Decode$andThen,
 																			function (label) {
 																				return A2(
 																					$elm$json$Json$Decode$andThen,
-																					function (isMath) {
-																						return $elm$json$Json$Decode$succeed(
-																							{isMath: isMath, label: label, pos: pos});
+																					function (id) {
+																						return A2(
+																							$elm$json$Json$Decode$andThen,
+																							function (from) {
+																								return $elm$json$Json$Decode$succeed(
+																									{from: from, id: id, label: label, to: to});
+																							},
+																							A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
 																					},
-																					A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																					A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
 																			},
-																			A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																	},
-																	A2(
-																		$elm$json$Json$Decode$field,
-																		'pos',
-																		A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (_v0) {
-																				return A2(
+																			A2(
+																				$elm$json$Json$Decode$field,
+																				'label',
+																				A2(
 																					$elm$json$Json$Decode$andThen,
-																					function (_v1) {
-																						return $elm$json$Json$Decode$succeed(
-																							_Utils_Tuple2(_v0, _v1));
+																					function (zindex) {
+																						return A2(
+																							$elm$json$Json$Decode$andThen,
+																							function (style) {
+																								return A2(
+																									$elm$json$Json$Decode$andThen,
+																									function (label) {
+																										return A2(
+																											$elm$json$Json$Decode$andThen,
+																											function (isPullshout) {
+																												return $elm$json$Json$Decode$succeed(
+																													{isPullshout: isPullshout, label: label, style: style, zindex: zindex});
+																											},
+																											A2($elm$json$Json$Decode$field, 'isPullshout', $elm$json$Json$Decode$bool));
+																									},
+																									A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																							},
+																							A2(
+																								$elm$json$Json$Decode$field,
+																								'style',
+																								A2(
+																									$elm$json$Json$Decode$andThen,
+																									function (tail) {
+																										return A2(
+																											$elm$json$Json$Decode$andThen,
+																											function (position) {
+																												return A2(
+																													$elm$json$Json$Decode$andThen,
+																													function (head) {
+																														return A2(
+																															$elm$json$Json$Decode$andThen,
+																															function (_double) {
+																																return A2(
+																																	$elm$json$Json$Decode$andThen,
+																																	function (dashed) {
+																																		return A2(
+																																			$elm$json$Json$Decode$andThen,
+																																			function (bend) {
+																																				return A2(
+																																					$elm$json$Json$Decode$andThen,
+																																					function (alignment) {
+																																						return $elm$json$Json$Decode$succeed(
+																																							{alignment: alignment, bend: bend, dashed: dashed, _double: _double, head: head, position: position, tail: tail});
+																																					},
+																																					A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
+																																			},
+																																			A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
+																																	},
+																																	A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
+																															},
+																															A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
+																													},
+																													A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
+																											},
+																											A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
+																									},
+																									A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))));
 																					},
-																					A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
-																			},
-																			A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
+																					A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
+																	},
+																	A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+												},
+												A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
 										},
-										A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int))));
-						},
-						A2($elm$json$Json$Decode$field, 'rule', $elm$json$Json$Decode$bool));
+										A2(
+											$elm$json$Json$Decode$field,
+											'nodes',
+											$elm$json$Json$Decode$list(
+												A2(
+													$elm$json$Json$Decode$andThen,
+													function (label) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (id) {
+																return $elm$json$Json$Decode$succeed(
+																	{id: id, label: label});
+															},
+															A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+													},
+													A2(
+														$elm$json$Json$Decode$field,
+														'label',
+														A2(
+															$elm$json$Json$Decode$andThen,
+															function (pos) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (label) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (isMath) {
+																				return $elm$json$Json$Decode$succeed(
+																					{isMath: isMath, label: label, pos: pos});
+																			},
+																			A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																	},
+																	A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+															},
+															A2(
+																$elm$json$Json$Decode$field,
+																'pos',
+																A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (_v0) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (_v1) {
+																				return $elm$json$Json$Decode$succeed(
+																					_Utils_Tuple2(_v0, _v1));
+																			},
+																			A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																	},
+																	A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
+								},
+								A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int))));
 				},
 				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
 		},
@@ -8917,191 +8823,186 @@ var $author$project$Main$loadedGraph9 = _Platform_incomingPort(
 				function (scenario) {
 					return A2(
 						$elm$json$Json$Decode$andThen,
-						function (rule) {
+						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (graph) {
+								function (fileName) {
 									return A2(
 										$elm$json$Json$Decode$andThen,
-										function (fileName) {
-											return A2(
-												$elm$json$Json$Decode$andThen,
-												function (clipboard) {
-													return $elm$json$Json$Decode$succeed(
-														{clipboard: clipboard, fileName: fileName, graph: graph, rule: rule, scenario: scenario, setFirstTab: setFirstTab});
-												},
-												A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+										function (clipboard) {
+											return $elm$json$Json$Decode$succeed(
+												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 										},
-										A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 								},
-								A2(
-									$elm$json$Json$Decode$field,
-									'graph',
-									A2(
+								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (sizeGrid) {
+									return A2(
 										$elm$json$Json$Decode$andThen,
-										function (sizeGrid) {
+										function (nodes) {
 											return A2(
 												$elm$json$Json$Decode$andThen,
-												function (nodes) {
+												function (latexPreamble) {
 													return A2(
 														$elm$json$Json$Decode$andThen,
-														function (latexPreamble) {
-															return A2(
-																$elm$json$Json$Decode$andThen,
-																function (edges) {
-																	return $elm$json$Json$Decode$succeed(
-																		{edges: edges, latexPreamble: latexPreamble, nodes: nodes, sizeGrid: sizeGrid});
-																},
-																A2(
-																	$elm$json$Json$Decode$field,
-																	'edges',
-																	$elm$json$Json$Decode$list(
-																		A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (to) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (label) {
-																						return A2(
-																							$elm$json$Json$Decode$andThen,
-																							function (id) {
-																								return A2(
-																									$elm$json$Json$Decode$andThen,
-																									function (from) {
-																										return $elm$json$Json$Decode$succeed(
-																											{from: from, id: id, label: label, to: to});
-																									},
-																									A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
-																							},
-																							A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-																					},
-																					A2(
-																						$elm$json$Json$Decode$field,
-																						'label',
-																						A2(
-																							$elm$json$Json$Decode$andThen,
-																							function (zindex) {
-																								return A2(
-																									$elm$json$Json$Decode$andThen,
-																									function (style) {
-																										return A2(
-																											$elm$json$Json$Decode$andThen,
-																											function (label) {
-																												return A2(
-																													$elm$json$Json$Decode$andThen,
-																													function (isPullshout) {
-																														return $elm$json$Json$Decode$succeed(
-																															{isPullshout: isPullshout, label: label, style: style, zindex: zindex});
-																													},
-																													A2($elm$json$Json$Decode$field, 'isPullshout', $elm$json$Json$Decode$bool));
-																											},
-																											A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																									},
-																									A2(
-																										$elm$json$Json$Decode$field,
-																										'style',
-																										A2(
-																											$elm$json$Json$Decode$andThen,
-																											function (tail) {
-																												return A2(
-																													$elm$json$Json$Decode$andThen,
-																													function (position) {
-																														return A2(
-																															$elm$json$Json$Decode$andThen,
-																															function (head) {
-																																return A2(
-																																	$elm$json$Json$Decode$andThen,
-																																	function (_double) {
-																																		return A2(
-																																			$elm$json$Json$Decode$andThen,
-																																			function (dashed) {
-																																				return A2(
-																																					$elm$json$Json$Decode$andThen,
-																																					function (color) {
-																																						return A2(
-																																							$elm$json$Json$Decode$andThen,
-																																							function (bend) {
-																																								return A2(
-																																									$elm$json$Json$Decode$andThen,
-																																									function (alignment) {
-																																										return $elm$json$Json$Decode$succeed(
-																																											{alignment: alignment, bend: bend, color: color, dashed: dashed, _double: _double, head: head, position: position, tail: tail});
-																																									},
-																																									A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
-																																							},
-																																							A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
-																																					},
-																																					A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string));
-																																			},
-																																			A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
-																																	},
-																																	A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
-																															},
-																															A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
-																													},
-																													A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
-																											},
-																											A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))));
-																							},
-																							A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
-																			},
-																			A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+														function (edges) {
+															return $elm$json$Json$Decode$succeed(
+																{edges: edges, latexPreamble: latexPreamble, nodes: nodes, sizeGrid: sizeGrid});
 														},
-														A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
-												},
-												A2(
-													$elm$json$Json$Decode$field,
-													'nodes',
-													$elm$json$Json$Decode$list(
 														A2(
-															$elm$json$Json$Decode$andThen,
-															function (label) {
-																return A2(
-																	$elm$json$Json$Decode$andThen,
-																	function (id) {
-																		return $elm$json$Json$Decode$succeed(
-																			{id: id, label: label});
-																	},
-																	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-															},
-															A2(
-																$elm$json$Json$Decode$field,
-																'label',
+															$elm$json$Json$Decode$field,
+															'edges',
+															$elm$json$Json$Decode$list(
 																A2(
 																	$elm$json$Json$Decode$andThen,
-																	function (pos) {
+																	function (to) {
 																		return A2(
 																			$elm$json$Json$Decode$andThen,
 																			function (label) {
 																				return A2(
 																					$elm$json$Json$Decode$andThen,
-																					function (isMath) {
-																						return $elm$json$Json$Decode$succeed(
-																							{isMath: isMath, label: label, pos: pos});
+																					function (id) {
+																						return A2(
+																							$elm$json$Json$Decode$andThen,
+																							function (from) {
+																								return $elm$json$Json$Decode$succeed(
+																									{from: from, id: id, label: label, to: to});
+																							},
+																							A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
 																					},
-																					A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																					A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
 																			},
-																			A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																	},
-																	A2(
-																		$elm$json$Json$Decode$field,
-																		'pos',
-																		A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (_v0) {
-																				return A2(
+																			A2(
+																				$elm$json$Json$Decode$field,
+																				'label',
+																				A2(
 																					$elm$json$Json$Decode$andThen,
-																					function (_v1) {
-																						return $elm$json$Json$Decode$succeed(
-																							_Utils_Tuple2(_v0, _v1));
+																					function (zindex) {
+																						return A2(
+																							$elm$json$Json$Decode$andThen,
+																							function (style) {
+																								return A2(
+																									$elm$json$Json$Decode$andThen,
+																									function (label) {
+																										return A2(
+																											$elm$json$Json$Decode$andThen,
+																											function (isPullshout) {
+																												return $elm$json$Json$Decode$succeed(
+																													{isPullshout: isPullshout, label: label, style: style, zindex: zindex});
+																											},
+																											A2($elm$json$Json$Decode$field, 'isPullshout', $elm$json$Json$Decode$bool));
+																									},
+																									A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																							},
+																							A2(
+																								$elm$json$Json$Decode$field,
+																								'style',
+																								A2(
+																									$elm$json$Json$Decode$andThen,
+																									function (tail) {
+																										return A2(
+																											$elm$json$Json$Decode$andThen,
+																											function (position) {
+																												return A2(
+																													$elm$json$Json$Decode$andThen,
+																													function (head) {
+																														return A2(
+																															$elm$json$Json$Decode$andThen,
+																															function (_double) {
+																																return A2(
+																																	$elm$json$Json$Decode$andThen,
+																																	function (dashed) {
+																																		return A2(
+																																			$elm$json$Json$Decode$andThen,
+																																			function (color) {
+																																				return A2(
+																																					$elm$json$Json$Decode$andThen,
+																																					function (bend) {
+																																						return A2(
+																																							$elm$json$Json$Decode$andThen,
+																																							function (alignment) {
+																																								return $elm$json$Json$Decode$succeed(
+																																									{alignment: alignment, bend: bend, color: color, dashed: dashed, _double: _double, head: head, position: position, tail: tail});
+																																							},
+																																							A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
+																																					},
+																																					A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
+																																			},
+																																			A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string));
+																																	},
+																																	A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
+																															},
+																															A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
+																													},
+																													A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
+																											},
+																											A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
+																									},
+																									A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))));
 																					},
-																					A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
-																			},
-																			A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
+																					A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
+																	},
+																	A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+												},
+												A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
 										},
-										A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int))));
-						},
-						A2($elm$json$Json$Decode$field, 'rule', $elm$json$Json$Decode$bool));
+										A2(
+											$elm$json$Json$Decode$field,
+											'nodes',
+											$elm$json$Json$Decode$list(
+												A2(
+													$elm$json$Json$Decode$andThen,
+													function (label) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (id) {
+																return $elm$json$Json$Decode$succeed(
+																	{id: id, label: label});
+															},
+															A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+													},
+													A2(
+														$elm$json$Json$Decode$field,
+														'label',
+														A2(
+															$elm$json$Json$Decode$andThen,
+															function (pos) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (label) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (isMath) {
+																				return $elm$json$Json$Decode$succeed(
+																					{isMath: isMath, label: label, pos: pos});
+																			},
+																			A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																	},
+																	A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+															},
+															A2(
+																$elm$json$Json$Decode$field,
+																'pos',
+																A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (_v0) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (_v1) {
+																				return $elm$json$Json$Decode$succeed(
+																					_Utils_Tuple2(_v0, _v1));
+																			},
+																			A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																	},
+																	A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))))));
+								},
+								A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int))));
 				},
 				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
 		},
@@ -9113,16 +9014,15 @@ var $author$project$Msg$mapLoadGraphInfo = F2(
 		var scenario = _v0.scenario;
 		var clipboard = _v0.clipboard;
 		var setFirstTab = _v0.setFirstTab;
-		var rule = _v0.rule;
 		return {
 			clipboard: clipboard,
 			fileName: fileName,
 			graph: f(graph),
-			rule: rule,
 			scenario: scenario,
 			setFirstTab: setFirstTab
 		};
 	});
+var $author$project$Msg$noOp = $author$project$Msg$Do($elm$core$Platform$Cmd$none);
 var $elm$core$Basics$not = _Basics_not;
 var $elm$browser$Browser$Events$Document = {$: 'Document'};
 var $elm$browser$Browser$Events$MySub = F3(
@@ -9776,6 +9676,27 @@ var $author$project$HtmlDefs$computeLayout = _Platform_outgoingPort(
 		return $elm$json$Json$Encode$null;
 	});
 var $author$project$Model$emptyTab = {active: true, graph: $author$project$Polygraph$empty, sizeGrid: 200, title: '1'};
+var $elm_community$list_extra$List$Extra$find = F2(
+	function (predicate, list) {
+		find:
+		while (true) {
+			if (!list.b) {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var first = list.a;
+				var rest = list.b;
+				if (predicate(first)) {
+					return $elm$core$Maybe$Just(first);
+				} else {
+					var $temp$predicate = predicate,
+						$temp$list = rest;
+					predicate = $temp$predicate;
+					list = $temp$list;
+					continue find;
+				}
+			}
+		}
+	});
 var $author$project$Model$getActiveTabInTabs = function (tabs) {
 	return A2(
 		$elm$core$Maybe$withDefault,
@@ -18995,11 +18916,6 @@ var $author$project$GraphDefs$getProofNodes = function (g) {
 		},
 		$author$project$Polygraph$nodes(g));
 };
-var $author$project$Main$getRuleFromClipboard = _Platform_outgoingPort(
-	'getRuleFromClipboard',
-	function ($) {
-		return $elm$json$Json$Encode$null;
-	});
 var $author$project$GraphDefs$JustDiagram = function (a) {
 	return {$: 'JustDiagram', a: a};
 };
@@ -19270,10 +19186,6 @@ var $author$project$Main$initialise_Resize = function (model) {
 				})
 		});
 };
-var $author$project$Main$initialise_applyRule = F3(
-	function (model, modelGraph, graph) {
-		return model;
-	});
 var $author$project$Polygraph$invertEdge = F2(
 	function (id, _v0) {
 		var g = _v0.a;
@@ -20097,12 +20009,12 @@ var $author$project$Main$update_DefaultMode = F2(
 				$author$project$GraphDefs$clearSelection(modelGraph)));
 		var createPoint = F2(
 			function (isMath, label) {
-				var _v24 = A2(
+				var _v25 = A2(
 					$author$project$Polygraph$newNode,
 					modelGraph,
 					A4($author$project$GraphDefs$newNodeLabel, model.mousePos, label, isMath, $author$project$Zindex$defaultZ));
-				var newGraph = _v24.a;
-				var newId = _v24.b;
+				var newGraph = _v25.a;
+				var newId = _v25.b;
 				var newModel = A3(
 					$author$project$Model$addOrSetSel,
 					false,
@@ -20117,11 +20029,11 @@ var $author$project$Main$update_DefaultMode = F2(
 						newModel));
 			});
 		var increaseZBy = function (offset) {
-			var _v23 = $author$project$GraphDefs$selectedId(modelGraph);
-			if (_v23.$ === 'Nothing') {
+			var _v24 = $author$project$GraphDefs$selectedId(modelGraph);
+			if (_v24.$ === 'Nothing') {
 				return $author$project$Model$noCmd(model);
 			} else {
-				var id = _v23.a;
+				var id = _v24.a;
 				return $author$project$Model$noCmd(
 					A2(
 						$author$project$Model$setSaveGraph,
@@ -20142,9 +20054,9 @@ var $author$project$Main$update_DefaultMode = F2(
 							modelGraph)));
 			}
 		};
-		_v0$48:
+		_v0$46:
 		while (true) {
-			_v0$49:
+			_v0$47:
 			while (true) {
 				switch (msg.$) {
 					case 'MouseOn':
@@ -20271,24 +20183,35 @@ var $author$project$Main$update_DefaultMode = F2(
 								_List_fromArray(
 									[n]),
 								model));
-					case 'ApplyRule':
-						var graph = msg.a;
-						return $author$project$Model$noCmd(
-							A3($author$project$Main$initialise_applyRule, model, modelGraph, graph));
 					case 'PasteGraph':
-						var graph = msg.a;
-						return $author$project$Model$noCmd(
-							A3(
-								$author$project$Main$initialiseMoveMode,
-								false,
-								$author$project$Modes$FreeMove,
-								A2(
-									$author$project$Model$setSaveGraph,
-									model,
-									A2(
-										$author$project$Polygraph$union,
-										$author$project$GraphDefs$clearSelection(modelGraph),
-										$author$project$GraphDefs$selectAll(graph)))));
+						var gi = msg.a;
+						if (!model.mouseOnCanvas) {
+							return $author$project$Model$noCmd(model);
+						} else {
+							var _v16 = A2(
+								$elm_community$list_extra$List$Extra$find,
+								function ($) {
+									return $.active;
+								},
+								gi.tabs);
+							if (_v16.$ === 'Nothing') {
+								return $author$project$Model$noCmd(model);
+							} else {
+								var tab = _v16.a;
+								return $author$project$Model$noCmd(
+									A3(
+										$author$project$Main$initialiseMoveMode,
+										false,
+										$author$project$Modes$FreeMove,
+										A2(
+											$author$project$Model$setSaveGraph,
+											model,
+											A2(
+												$author$project$Polygraph$union,
+												$author$project$GraphDefs$clearSelection(modelGraph),
+												$author$project$GraphDefs$selectAll(tab.graph)))));
+							}
+						}
 					case 'KeyChanged':
 						if (msg.a) {
 							if ((msg.c.$ === 'Character') && ('g' === msg.c.a.valueOf())) {
@@ -20300,7 +20223,7 @@ var $author$project$Main$update_DefaultMode = F2(
 										$elm$core$Basics$always($author$project$Msg$PressTimeout),
 										$elm$core$Process$sleep(pressTimeoutMs)));
 							} else {
-								break _v0$49;
+								break _v0$47;
 							}
 						} else {
 							if (msg.c.$ === 'Control') {
@@ -20314,7 +20237,7 @@ var $author$project$Main$update_DefaultMode = F2(
 												model,
 												$author$project$GraphDefs$removeSelected(modelGraph)));
 									default:
-										break _v0$48;
+										break _v0$46;
 								}
 							} else {
 								switch (msg.c.a.valueOf()) {
@@ -20549,16 +20472,16 @@ var $author$project$Main$update_DefaultMode = F2(
 										var connectedGraph = A3($author$project$Polygraph$connectedClosure, f, f, modelGraph);
 										var isIncomplete = A3(
 											$author$project$Polygraph$any,
-											function (_v20) {
-												var n = _v20.n;
-												var isIn = _v20.isIn;
+											function (_v21) {
+												var n = _v21.n;
+												var isIn = _v21.isIn;
 												return !_Utils_eq(
 													f(n),
 													isIn);
 											},
-											function (_v21) {
-												var e = _v21.e;
-												var isIn = _v21.isIn;
+											function (_v22) {
+												var e = _v22.e;
+												var isIn = _v22.isIn;
 												return !_Utils_eq(
 													f(e),
 													isIn);
@@ -20569,17 +20492,17 @@ var $author$project$Main$update_DefaultMode = F2(
 												return A3(
 													$author$project$Polygraph$map,
 													F2(
-														function (_v16, _v17) {
-															var n = _v17.n;
-															var isIn = _v17.isIn;
+														function (_v17, _v18) {
+															var n = _v18.n;
+															var isIn = _v18.isIn;
 															return _Utils_update(
 																n,
 																{selected: isIn});
 														}),
 													F2(
-														function (_v18, _v19) {
-															var e = _v19.e;
-															var isIn = _v19.isIn;
+														function (_v19, _v20) {
+															var e = _v20.e;
+															var isIn = _v20.isIn;
 															return _Utils_update(
 																e,
 																{selected: isIn});
@@ -20623,11 +20546,6 @@ var $author$project$Main$update_DefaultMode = F2(
 										var k = msg.b;
 										return k.ctrl ? $author$project$Model$noCmd(
 											$author$project$Model$undo(model)) : $author$project$Model$noCmd(model);
-									case 'n':
-										var k = msg.b;
-										return _Utils_Tuple2(
-											model,
-											$author$project$Main$getRuleFromClipboard(_Utils_Tuple0));
 									case '+':
 										var k = msg.b;
 										return increaseZBy(1);
@@ -20635,12 +20553,12 @@ var $author$project$Main$update_DefaultMode = F2(
 										var k = msg.b;
 										return increaseZBy(-1);
 									default:
-										break _v0$48;
+										break _v0$46;
 								}
 							}
 						}
 					default:
-						break _v0$49;
+						break _v0$47;
 				}
 			}
 			return $author$project$Model$noCmd(model);
@@ -20648,15 +20566,15 @@ var $author$project$Main$update_DefaultMode = F2(
 		var k = msg.c;
 		return $author$project$Model$noCmd(
 			function () {
-				var _v22 = A3(
+				var _v23 = A3(
 					$author$project$GraphDefs$updateStyleEdges,
 					$author$project$ArrowStyle$keyMaybeUpdateStyle(k),
 					$author$project$GraphDefs$selectedEdges(modelGraph),
 					modelGraph);
-				if (_v22.$ === 'Nothing') {
+				if (_v23.$ === 'Nothing') {
 					return model;
 				} else {
-					var g = _v22.a;
+					var g = _v23.a;
 					return A2($author$project$Model$setSaveGraph, model, g);
 				}
 			}());
