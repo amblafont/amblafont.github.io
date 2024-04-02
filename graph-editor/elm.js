@@ -12361,6 +12361,7 @@ var $author$project$Drawing$OnClick = function (a) {
 	return {$: 'OnClick', a: a};
 };
 var $author$project$Drawing$onClick = $author$project$Drawing$OnClick;
+var $author$project$Drawing$shadowClass = 'shadow-line';
 var $author$project$Geometry$Point$normalise = F2(
 	function (len, _v0) {
 		var x = _v0.a;
@@ -12379,43 +12380,53 @@ var $author$project$Geometry$Point$towards = F3(
 				shift,
 				A2($author$project$Geometry$Point$subtract, to, source)));
 	});
-var $author$project$GraphDrawing$drawPullshout = F4(
-	function (edgeId, a, _v0, _v1) {
-		var x1 = _v0.a;
-		var x2 = _v0.b;
-		var y1 = _v1.a;
-		var y2 = _v1.b;
+var $author$project$Drawing$ZIndex = function (a) {
+	return {$: 'ZIndex', a: a};
+};
+var $author$project$Drawing$zindexAttr = $author$project$Drawing$ZIndex;
+var $author$project$GraphDrawing$drawPullshout = F5(
+	function (edgeId, a, z, e1, e2) {
+		var vertex = _Utils_eq(e1.fromId, e2.fromId) ? e1.fromPos : e1.toPos;
 		var shift = 30;
-		var _v2 = _Utils_eq(x1, y1) ? _Utils_Tuple2(y1, y2) : _Utils_Tuple2(y2, y1);
-		var q1 = _v2.a;
-		var q2 = _v2.b;
-		var _v3 = _Utils_eq(x1, y1) ? _Utils_Tuple2(x1, x2) : _Utils_Tuple2(x2, x1);
-		var p1 = _v3.a;
-		var p2 = _v3.b;
 		var smallshift = 5;
-		var r2 = A3($author$project$Geometry$Point$towards, q1, q2, shift);
-		var r1 = A3($author$project$Geometry$Point$towards, p1, p2, shift);
-		var extrem = A3($author$project$Geometry$Point$diamondPave, r1, p1, r2);
+		var r2 = A3($author$project$Geometry$Point$towards, vertex, e2.bez.controlPoint, shift);
+		var r1 = A3($author$project$Geometry$Point$towards, vertex, e1.bez.controlPoint, shift);
+		var extrem = A3($author$project$Geometry$Point$diamondPave, r1, vertex, r2);
 		var s2 = A3($author$project$Geometry$Point$towards, r2, extrem, smallshift);
 		var s1 = A3($author$project$Geometry$Point$towards, r1, extrem, smallshift);
+		var blackline = function (classes) {
+			return $author$project$Drawing$line(
+				_Utils_ap(
+					classes,
+					_List_fromArray(
+						[
+							$author$project$Drawing$zindexAttr(z),
+							$author$project$Drawing$onClick(
+							$author$project$Msg$EdgeClick(edgeId)),
+							$author$project$Drawing$color($author$project$Drawing$Color$black)
+						])));
+		};
+		var mk_pbk = function (classes) {
+			return $author$project$Drawing$group(
+				_List_fromArray(
+					[
+						A3(blackline, classes, s1, extrem),
+						A3(blackline, classes, extrem, s2)
+					]));
+		};
 		var classes = A2(
 			$elm$core$List$map,
 			$author$project$Drawing$class,
 			$author$project$GraphDrawing$activityToEdgeClasses(a));
-		var blackline = $author$project$Drawing$line(
-			_Utils_ap(
-				classes,
-				_List_fromArray(
-					[
-						$author$project$Drawing$onClick(
-						$author$project$Msg$EdgeClick(edgeId)),
-						$author$project$Drawing$color($author$project$Drawing$Color$black)
-					])));
 		return $author$project$Drawing$group(
 			_List_fromArray(
 				[
-					A2(blackline, s1, extrem),
-					A2(blackline, extrem, s2)
+					mk_pbk(
+					A2(
+						$elm$core$List$cons,
+						$author$project$Drawing$class($author$project$Drawing$shadowClass),
+						classes)),
+					mk_pbk(classes)
 				]));
 	});
 var $author$project$Drawing$empty = $author$project$Drawing$Drawing(_List_Nil);
@@ -12950,14 +12961,6 @@ var $author$project$Geometry$QuadraticBezier$orthoVectPx = F2(
 			to: A2($author$project$Geometry$Point$add, deltaTo, to)
 		};
 	});
-var $author$project$Drawing$StrokeWidth = function (a) {
-	return {$: 'StrokeWidth', a: a};
-};
-var $author$project$Drawing$strokeWidth = $author$project$Drawing$StrokeWidth;
-var $author$project$Drawing$Style = function (a) {
-	return {$: 'Style', a: a};
-};
-var $author$project$Drawing$style = $author$project$Drawing$Style;
 var $author$project$Drawing$arrow = F3(
 	function (attrs0, arrowStyle, q) {
 		var attrs = A2(
@@ -12979,8 +12982,7 @@ var $author$project$Drawing$arrow = F3(
 			false,
 			_List_fromArray(
 				[
-					$author$project$Drawing$style('stroke: white;'),
-					$author$project$Drawing$strokeWidth('4')
+					$author$project$Drawing$class($author$project$Drawing$shadowClass)
 				]));
 		var mkall = function (l) {
 			return _Utils_ap(
@@ -13604,10 +13606,6 @@ var $author$project$Drawing$simpleOn = F2(
 			s,
 			$elm$json$Json$Decode$succeed(m));
 	});
-var $author$project$Drawing$ZIndex = function (a) {
-	return {$: 'ZIndex', a: a};
-};
-var $author$project$Drawing$zindexAttr = $author$project$Drawing$ZIndex;
 var $author$project$GraphDrawing$normalEdgeDrawing = F7(
 	function (cfg, edgeId, activity, z, label, q, curve) {
 		var c = label.style.color;
@@ -13772,11 +13770,11 @@ var $author$project$GraphDrawing$graphDrawing = F2(
 							$author$project$Drawing$empty,
 							A3(
 								$elm$core$Maybe$map2,
-								A2($author$project$GraphDrawing$drawPullshout, id, e.isActive),
+								A3($author$project$GraphDrawing$drawPullshout, id, e.isActive, e.zindex),
 								n1.extrems,
 								n2.extrems)),
-						extrems: $elm$core$Maybe$Just(
-							_Utils_Tuple2(n1.posDims.pos, n2.posDims.pos)),
+						extrems: $elm$core$Maybe$Nothing,
+						id: id,
 						posDims: {
 							dims: _Utils_Tuple2(0, 0),
 							pos: _Utils_Tuple2(0, 0)
@@ -13788,7 +13786,8 @@ var $author$project$GraphDrawing$graphDrawing = F2(
 					return {
 						drawing: A7($author$project$GraphDrawing$normalEdgeDrawing, cfg, id, e.isActive, e.zindex, l, q, l.style.bend),
 						extrems: $elm$core$Maybe$Just(
-							_Utils_Tuple2(n1.posDims.pos, n2.posDims.pos)),
+							{bez: q, fromId: n1.id, fromPos: n1.posDims.pos, toId: n2.id, toPos: n2.posDims.pos}),
+						id: id,
 						posDims: {
 							dims: A2(
 								$author$project$Geometry$Point$resize,
@@ -13811,6 +13810,7 @@ var $author$project$GraphDrawing$graphDrawing = F2(
 							cfg,
 							A2($author$project$Polygraph$Node, id, n)),
 						extrems: $elm$core$Maybe$Nothing,
+						id: id,
 						posDims: A2(
 							$author$project$Geometry$pad,
 							padding,
@@ -16262,6 +16262,360 @@ var $author$project$Modes$CutHead$update = F3(
 		}
 		return $author$project$Model$noCmd(m);
 	});
+var $author$project$Modes$Free = {$: 'Free'};
+var $author$project$Modes$FreeMove = {$: 'FreeMove'};
+var $author$project$Modes$Horizontal = {$: 'Horizontal'};
+var $author$project$Modes$Move = function (a) {
+	return {$: 'Move', a: a};
+};
+var $author$project$Modes$PressMove = {$: 'PressMove'};
+var $author$project$Modes$UndefinedMove = {$: 'UndefinedMove'};
+var $author$project$Modes$Vertical = {$: 'Vertical'};
+var $elm$core$Debug$log = _Debug_log;
+var $author$project$Geometry$centerRect = function (_v0) {
+	var bottomRight = _v0.bottomRight;
+	var topLeft = _v0.topLeft;
+	return A2($author$project$Geometry$Point$middle, bottomRight, topLeft);
+};
+var $author$project$GraphDefs$centerOfNodes = function (nodes) {
+	return $author$project$Geometry$centerRect(
+		$author$project$Geometry$rectEnveloppe(
+			A2(
+				$elm$core$List$map,
+				A2(
+					$elm$core$Basics$composeL,
+					function ($) {
+						return $.pos;
+					},
+					function ($) {
+						return $.label;
+					}),
+				nodes)));
+};
+var $author$project$InputPosition$deltaKeyboardPos = F2(
+	function (offsetKeyboardPos, _v0) {
+		var x = _v0.a;
+		var y = _v0.b;
+		return _Utils_Tuple2(x * offsetKeyboardPos, y * offsetKeyboardPos);
+	});
+var $author$project$Polygraph$updateNode = F3(
+	function (i, fn, g) {
+		return A4($author$project$Polygraph$update, i, fn, $elm$core$Basics$identity, g);
+	});
+var $author$project$Polygraph$updateNodes = F2(
+	function (l, g) {
+		return A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v0, g2) {
+					var id = _v0.id;
+					var label = _v0.label;
+					return A3(
+						$author$project$Polygraph$updateNode,
+						id,
+						$elm$core$Basics$always(label),
+						g2);
+				}),
+			g,
+			l);
+	});
+var $author$project$Modes$Move$mkGraph = F7(
+	function (model, pos, merge, mergeId, direction, modelGraph, selectedGraph) {
+		var nodes = $author$project$Polygraph$nodes(selectedGraph);
+		var updNode = F2(
+			function (delta, _v6) {
+				var id = _v6.id;
+				var label = _v6.label;
+				return {
+					id: id,
+					label: _Utils_update(
+						label,
+						{
+							pos: A2($author$project$Geometry$Point$add, label.pos, delta)
+						})
+				};
+			});
+		var moveNodes = function (delta) {
+			return A2(
+				$elm$core$List$map,
+				updNode(delta),
+				nodes);
+		};
+		var mkRet = function (movedNodes) {
+			var g = A2($author$project$Polygraph$updateNodes, movedNodes, modelGraph);
+			return {graph: g, valid: !merge};
+		};
+		var retMerge = function (movedNodes) {
+			if (movedNodes.b && (!movedNodes.b.b)) {
+				var n = movedNodes.a;
+				var _v5 = A2($author$project$GraphDefs$mergeWithSameLoc, n, modelGraph);
+				var g = _v5.a;
+				var valid = _v5.b;
+				return valid ? {graph: g, valid: true} : mkRet(movedNodes);
+			} else {
+				return mkRet(movedNodes);
+			}
+		};
+		var retDelta = function (delta) {
+			var movedNodes = moveNodes(delta);
+			return merge ? retMerge(movedNodes) : mkRet(movedNodes);
+		};
+		var mouseDelta = function () {
+			var _v2 = A2(
+				$author$project$Geometry$Point$subtract,
+				model.mousePos,
+				$author$project$GraphDefs$centerOfNodes(nodes));
+			var dx = _v2.a;
+			var dy = _v2.b;
+			switch (direction.$) {
+				case 'Free':
+					return _Utils_Tuple2(dx, dy);
+				case 'Vertical':
+					return _Utils_Tuple2(0, dy);
+				default:
+					return _Utils_Tuple2(dx, 0);
+			}
+		}();
+		var sizeGrid = $author$project$Model$getActiveSizeGrid(model);
+		switch (pos.$) {
+			case 'InputPosKeyboard':
+				var p = pos.a;
+				return retDelta(
+					A2($author$project$InputPosition$deltaKeyboardPos, sizeGrid, p));
+			case 'InputPosGraph':
+				var id = pos.a;
+				if (!merge) {
+					return retDelta(mouseDelta);
+				} else {
+					if (mergeId.$ === 'Just') {
+						var selId = mergeId.a;
+						return {
+							graph: A3($author$project$Polygraph$recursiveMerge, id, selId, modelGraph),
+							valid: true
+						};
+					} else {
+						return retDelta(mouseDelta);
+					}
+				}
+			default:
+				return retDelta(mouseDelta);
+		}
+	});
+var $author$project$GraphDefs$selectedEdges = function (g) {
+	return A2(
+		$elm$core$List$filter,
+		A2(
+			$elm$core$Basics$composeR,
+			function ($) {
+				return $.label;
+			},
+			$author$project$GraphDefs$fieldSelect(g)),
+		$author$project$Polygraph$edges(g));
+};
+var $author$project$GraphDefs$selectedNodes = function (g) {
+	return A2(
+		$elm$core$List$filter,
+		A2(
+			$elm$core$Basics$composeR,
+			function ($) {
+				return $.label;
+			},
+			$author$project$GraphDefs$fieldSelect(g)),
+		$author$project$Polygraph$nodes(g));
+};
+var $author$project$GraphDefs$selectedId = function (g) {
+	var _v0 = _Utils_ap(
+		A2(
+			$elm$core$List$map,
+			function ($) {
+				return $.id;
+			},
+			$author$project$GraphDefs$selectedNodes(g)),
+		A2(
+			$elm$core$List$map,
+			function ($) {
+				return $.id;
+			},
+			$author$project$GraphDefs$selectedEdges(g)));
+	if (_v0.b && (!_v0.b.b)) {
+		var x = _v0.a;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Modes$Move$mkInfo = F2(
+	function (model, _v0) {
+		var pos = _v0.pos;
+		var direction = _v0.direction;
+		var merge = model.specialKeys.ctrl;
+		var modelGraph = $author$project$Model$getActiveGraph(model);
+		var selectedGraph = $author$project$GraphDefs$selectedGraph(modelGraph);
+		return A7(
+			$author$project$Modes$Move$mkGraph,
+			model,
+			pos,
+			merge,
+			$author$project$GraphDefs$selectedId(modelGraph),
+			direction,
+			modelGraph,
+			selectedGraph);
+	});
+var $author$project$Model$switch_Default = function (m) {
+	return $author$project$Model$noCmd(
+		_Utils_update(
+			m,
+			{mode: $author$project$Modes$DefaultMode}));
+};
+var $author$project$InputPosition$InputPosKeyboard = function (a) {
+	return {$: 'InputPosKeyboard', a: a};
+};
+var $author$project$InputPosition$getKeyboardPos = function (pos) {
+	if (pos.$ === 'InputPosKeyboard') {
+		var p = pos.a;
+		return p;
+	} else {
+		return _Utils_Tuple2(0, 0);
+	}
+};
+var $author$project$InputPosition$InputPosGraph = function (a) {
+	return {$: 'InputPosGraph', a: a};
+};
+var $author$project$InputPosition$InputPosMouse = {$: 'InputPosMouse'};
+var $author$project$InputPosition$updateNoKeyboard = F2(
+	function (pos, msg) {
+		switch (msg.$) {
+			case 'MouseMove':
+				return $author$project$InputPosition$InputPosMouse;
+			case 'MouseOn':
+				var id = msg.a;
+				return $author$project$InputPosition$InputPosGraph(id);
+			default:
+				return pos;
+		}
+	});
+var $author$project$InputPosition$update = F2(
+	function (pos, msg) {
+		var offsetPos = F2(
+			function (x, y) {
+				var _v1 = $author$project$InputPosition$getKeyboardPos(pos);
+				var curx = _v1.a;
+				var cury = _v1.b;
+				return $author$project$InputPosition$InputPosKeyboard(
+					_Utils_Tuple2(x + curx, y + cury));
+			});
+		_v0$4:
+		while (true) {
+			if (((msg.$ === 'KeyChanged') && (!msg.a)) && (msg.c.$ === 'Character')) {
+				switch (msg.c.a.valueOf()) {
+					case 'h':
+						return A2(offsetPos, -1, 0);
+					case 'j':
+						return A2(offsetPos, 0, 1);
+					case 'k':
+						return A2(offsetPos, 0, -1);
+					case 'l':
+						return A2(offsetPos, 1, 0);
+					default:
+						break _v0$4;
+				}
+			} else {
+				break _v0$4;
+			}
+		}
+		return A2($author$project$InputPosition$updateNoKeyboard, pos, msg);
+	});
+var $author$project$Modes$Move$update = F3(
+	function (msg, state, model) {
+		var movedRet = function (_v3) {
+			var info = A2($author$project$Modes$Move$mkInfo, model, state);
+			return A2($elm$core$Debug$log, 'valid?', info.valid) ? $author$project$Model$switch_Default(
+				state.save ? A2($author$project$Model$setSaveGraph, model, info.graph) : A2($author$project$Model$setActiveGraph, model, info.graph)) : $author$project$Model$noCmd(model);
+		};
+		var terminable = !_Utils_eq(state.mode, $author$project$Modes$PressMove);
+		var terminedRet = function (_v2) {
+			return terminable ? movedRet(_Utils_Tuple0) : $author$project$Model$noCmd(model);
+		};
+		var updateState = function (st) {
+			return _Utils_update(
+				model,
+				{
+					mode: $author$project$Modes$Move(st)
+				});
+		};
+		var updateDirection = function (direction) {
+			return $author$project$Model$noCmd(
+				updateState(
+					_Utils_update(
+						state,
+						{direction: direction})));
+		};
+		_v0$9:
+		while (true) {
+			switch (msg.$) {
+				case 'PressTimeout':
+					return $author$project$Model$noCmd(
+						_Utils_eq(state.mode, $author$project$Modes$UndefinedMove) ? updateState(
+							_Utils_update(
+								state,
+								{mode: $author$project$Modes$PressMove})) : model);
+				case 'MouseClick':
+					return terminedRet(_Utils_Tuple0);
+				case 'KeyChanged':
+					if (!msg.a) {
+						if (msg.c.$ === 'Character') {
+							switch (msg.c.a.valueOf()) {
+								case '?':
+									return $author$project$Model$noCmd(
+										$author$project$Model$toggleHelpOverlay(model));
+								case 'g':
+									var _v1 = state.mode;
+									switch (_v1.$) {
+										case 'UndefinedMove':
+											return $author$project$Model$noCmd(
+												updateState(
+													_Utils_update(
+														state,
+														{mode: $author$project$Modes$FreeMove})));
+										case 'PressMove':
+											return movedRet(_Utils_Tuple0);
+										default:
+											return $author$project$Model$noCmd(model);
+									}
+								case 'f':
+									return updateDirection($author$project$Modes$Free);
+								case 'x':
+									return updateDirection($author$project$Modes$Horizontal);
+								case 'y':
+									return updateDirection($author$project$Modes$Vertical);
+								default:
+									break _v0$9;
+							}
+						} else {
+							switch (msg.c.a) {
+								case 'Escape':
+									return $author$project$Model$switch_Default(model);
+								case 'Enter':
+									return terminedRet(_Utils_Tuple0);
+								default:
+									break _v0$9;
+							}
+						}
+					} else {
+						break _v0$9;
+					}
+				default:
+					break _v0$9;
+			}
+		}
+		return $author$project$Model$noCmd(
+			updateState(
+				_Utils_update(
+					state,
+					{
+						pos: A2($author$project$InputPosition$update, state.pos, msg)
+					})));
+	});
 var $author$project$Modes$NewArrow = function (a) {
 	return {$: 'NewArrow', a: a};
 };
@@ -16270,6 +16624,29 @@ var $author$project$Modes$PullshoutMode = function (a) {
 	return {$: 'PullshoutMode', a: a};
 };
 var $author$project$Modes$Pushout = {$: 'Pushout'};
+var $author$project$Modes$CreateArrow = {$: 'CreateArrow'};
+var $author$project$Modes$NewArrow$getSingleIdFromGraph = function (g) {
+	var _v0 = $author$project$Polygraph$edges(g);
+	if (!_v0.b) {
+		return A2(
+			$elm$core$Maybe$map,
+			function ($) {
+				return $.id;
+			},
+			$elm$core$List$head(
+				$author$project$Polygraph$nodes(g)));
+	} else {
+		if (!_v0.b.b) {
+			var e = _v0.a;
+			return $elm$core$Maybe$Just(e.id);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	}
+};
+var $author$project$Modes$NewArrow$getSingleId = function (s) {
+	return (!_Utils_eq(s.mode, $author$project$Modes$CreateArrow)) ? $elm$core$Maybe$Nothing : $author$project$Modes$NewArrow$getSingleIdFromGraph(s.chosen);
+};
 var $author$project$Polygraph$incomings = F2(
 	function (id, g) {
 		return A2(
@@ -16555,6 +16932,27 @@ var $author$project$ArrowStyle$keyMaybeUpdateStyle = F2(
 		}
 		return $elm$core$Maybe$Nothing;
 	});
+var $author$project$Modes$CreateCone = {$: 'CreateCone'};
+var $author$project$Modes$CreateCylinder = {$: 'CreateCylinder'};
+var $elm$core$List$isEmpty = function (xs) {
+	if (!xs.b) {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $author$project$Modes$NewArrow$nextPossibleMode = function (s) {
+	var _v0 = s.mode;
+	switch (_v0.$) {
+		case 'CreateCone':
+			return $elm$core$Maybe$Nothing;
+		case 'CreateCylinder':
+			return $elm$core$Maybe$Just($author$project$Modes$CreateCone);
+		default:
+			return $elm$core$List$isEmpty(
+				$author$project$Polygraph$edges(s.chosen)) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just($author$project$Modes$CreateCylinder);
+	}
+};
 var $elm_community$maybe_extra$Maybe$Extra$join = function (mx) {
 	if (mx.$ === 'Just') {
 		var x = mx.a;
@@ -16607,11 +17005,126 @@ var $author$project$Model$initialise_RenameModeWithDefault = F3(
 				});
 		}
 	});
-var $author$project$InputPosition$deltaKeyboardPos = F2(
-	function (offsetKeyboardPos, _v0) {
-		var x = _v0.a;
-		var y = _v0.b;
-		return _Utils_Tuple2(x * offsetKeyboardPos, y * offsetKeyboardPos);
+var $author$project$Polygraph$allIds = function (_v0) {
+	var g = _v0.a;
+	return $elm_community$intdict$IntDict$keys(g);
+};
+var $author$project$Polygraph$newEdges = F3(
+	function (g, idPairs, labelEdge) {
+		var _v0 = A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v1, _v2) {
+					var id1 = _v1.a;
+					var id2 = _v1.b;
+					var graph = _v2.a;
+					var l = _v2.b;
+					var _v3 = A4($author$project$Polygraph$newEdge, graph, id1, id2, labelEdge);
+					var newGraph = _v3.a;
+					var idEdge = _v3.b;
+					return _Utils_Tuple2(
+						newGraph,
+						A2($elm$core$List$cons, idEdge, l));
+				}),
+			_Utils_Tuple2(g, _List_Nil),
+			idPairs);
+		var extendedGraph = _v0.a;
+		var idEdges = _v0.b;
+		return _Utils_Tuple2(extendedGraph, idEdges);
+	});
+var $author$project$Polygraph$nodeIds = function (g) {
+	return A2(
+		$elm$core$List$map,
+		function ($) {
+			return $.id;
+		},
+		$author$project$Polygraph$nodes(g));
+};
+var $elm_community$intdict$IntDict$singleton = F2(
+	function (key, value) {
+		return A2($elm_community$intdict$IntDict$leaf, key, value);
+	});
+var $author$project$Polygraph$makeCone = F5(
+	function (g, subGraph, labelNode, labelEdge, inverted) {
+		var _v0 = A2($author$project$Polygraph$newNode, g, labelNode);
+		var extendedGraph1 = _v0.a;
+		var idNode = _v0.b;
+		var newSubGraph = $author$project$Polygraph$Graph(
+			A2(
+				$elm_community$intdict$IntDict$singleton,
+				idNode,
+				$author$project$Polygraph$NodeObj(labelNode)));
+		var idPairs = A2(
+			$elm$core$List$map,
+			function (id) {
+				return inverted ? _Utils_Tuple2(idNode, id) : _Utils_Tuple2(id, idNode);
+			},
+			$author$project$Polygraph$nodeIds(subGraph));
+		var _v1 = A3($author$project$Polygraph$newEdges, extendedGraph1, idPairs, labelEdge);
+		var extendedGraph2 = _v1.a;
+		var idEdges = _v1.b;
+		return {edgeIds: idEdges, extendedGraph: extendedGraph2, newSubGraph: newSubGraph};
+	});
+var $author$project$Polygraph$addId = F2(
+	function (n, g) {
+		return $elm_community$intdict$IntDict$fromList(
+			A2(
+				$elm$core$List$map,
+				function (_v0) {
+					var id = _v0.a;
+					var o = _v0.b;
+					return _Utils_Tuple2(
+						id + n,
+						function () {
+							if (o.$ === 'NodeObj') {
+								return o;
+							} else {
+								var i1 = o.a;
+								var i2 = o.b;
+								var e = o.c;
+								return A3($author$project$Polygraph$EdgeObj, i1 + n, i2 + n, e);
+							}
+						}());
+				},
+				$elm_community$intdict$IntDict$toList(g)));
+	});
+var $author$project$Polygraph$makeDisjoint = F2(
+	function (_v0, _v1) {
+		var base = _v0.a;
+		var ext = _v1.a;
+		var baseId = $author$project$Polygraph$supId(base);
+		var extUp = A2($author$project$Polygraph$addId, baseId, ext);
+		return $author$project$Polygraph$Graph(extUp);
+	});
+var $author$project$Polygraph$union = F2(
+	function (_v0, _v1) {
+		var base = _v0.a;
+		var ext = _v1.a;
+		return $author$project$Polygraph$Graph(
+			A2($elm_community$intdict$IntDict$union, base, ext));
+	});
+var $author$project$Polygraph$makeCylinder = F4(
+	function (g, subGraph, label, inverted) {
+		var disjointGraph = A2($author$project$Polygraph$makeDisjoint, g, subGraph);
+		var idPairs = A2(
+			$elm$core$List$map,
+			function (_v1) {
+				var id1 = _v1.a;
+				var id2 = _v1.b;
+				return inverted ? _Utils_Tuple2(id2, id1) : _Utils_Tuple2(id1, id2);
+			},
+			A2(
+				$elm_community$list_extra$List$Extra$zip,
+				$author$project$Polygraph$nodeIds(subGraph),
+				$author$project$Polygraph$nodeIds(disjointGraph)));
+		var _v0 = A3(
+			$author$project$Polygraph$newEdges,
+			A2($author$project$Polygraph$union, g, disjointGraph),
+			idPairs,
+			label);
+		var extendedGraph = _v0.a;
+		var idEdges = _v0.b;
+		return {edgeIds: idEdges, extendedGraph: extendedGraph, newSubGraph: disjointGraph};
 	});
 var $author$project$Polygraph$getNode = F2(
 	function (id, _v0) {
@@ -16662,8 +17175,8 @@ var $author$project$Model$mayCreateTargetNodeAt = F4(
 				true);
 		}
 	});
-var $author$project$Modes$NewArrow$moveNodeInfo = F3(
-	function (finish, m, state) {
+var $author$project$Modes$NewArrow$moveNodeInfo_createArrow = F4(
+	function (finish, chosenId, m, state) {
 		var modelGraph = $author$project$Model$getActiveGraph(m);
 		var makeInfo = function (pos) {
 			return A4($author$project$Model$mayCreateTargetNodeAt, m, pos, '', finish);
@@ -16676,7 +17189,7 @@ var $author$project$Modes$NewArrow$moveNodeInfo = F3(
 				case 'InputPosKeyboard':
 					var p = _v2.a;
 					return makeInfo(
-						A3($author$project$Model$keyboardPosToPoint, m, state.chosenNode, p));
+						A3($author$project$Model$keyboardPosToPoint, m, chosenId, p));
 				default:
 					var id = _v2.a;
 					return _Utils_Tuple2(
@@ -16688,7 +17201,7 @@ var $author$project$Modes$NewArrow$moveNodeInfo = F3(
 		var graph = _v1.a;
 		var movedNode = _v1.b;
 		var created = _v0.b;
-		var _v3 = state.inverted ? _Utils_Tuple2(movedNode, state.chosenNode) : _Utils_Tuple2(state.chosenNode, movedNode);
+		var _v3 = state.inverted ? _Utils_Tuple2(movedNode, chosenId) : _Utils_Tuple2(chosenId, movedNode);
 		var source = _v3.a;
 		var target = _v3.b;
 		var _v4 = A4(
@@ -16701,32 +17214,60 @@ var $author$project$Modes$NewArrow$moveNodeInfo = F3(
 		var edgeId = _v4.b;
 		return {created: created, edgeId: edgeId, graph: g, movedNode: movedNode};
 	});
-var $author$project$Model$switch_Default = function (m) {
-	return $author$project$Model$noCmd(
-		_Utils_update(
-			m,
-			{mode: $author$project$Modes$DefaultMode}));
-};
-var $author$project$GraphDefs$weaklySelect = function (id) {
-	return A2(
-		$elm$core$Basics$composeR,
-		A2(
-			$author$project$Polygraph$map,
-			F2(
-				function (_v0, n) {
-					return _Utils_update(
-						n,
-						{weaklySelected: false});
-				}),
-			F2(
-				function (_v1, e) {
-					return _Utils_update(
-						e,
-						{weaklySelected: false});
-				})),
-		A3(
-			$author$project$Polygraph$update,
-			id,
+var $author$project$Modes$NewArrow$moveNodeInfo = F3(
+	function (finish, model, state) {
+		var _v0 = $author$project$Modes$NewArrow$getSingleId(state);
+		if (_v0.$ === 'Just') {
+			var id = _v0.a;
+			var info = A4($author$project$Modes$NewArrow$moveNodeInfo_createArrow, finish, id, model, state);
+			return {
+				graph: info.graph,
+				renamable: info.created ? _List_fromArray(
+					[info.movedNode, info.edgeId]) : _List_fromArray(
+					[info.edgeId]),
+				selectable: _List_fromArray(
+					[info.movedNode])
+			};
+		} else {
+			var modelGraph = $author$project$Model$getActiveGraph(model);
+			var label = A2($author$project$GraphDefs$newEdgeLabel, '', state.style);
+			var extendedGraph = function () {
+				if (_Utils_eq(state.mode, $author$project$Modes$CreateCylinder)) {
+					return A4($author$project$Polygraph$makeCylinder, modelGraph, state.chosen, label, state.inverted);
+				} else {
+					var nodeLabel = A4($author$project$GraphDefs$newNodeLabel, model.mousePos, '', true, $author$project$Zindex$defaultZ);
+					return A5($author$project$Polygraph$makeCone, modelGraph, state.chosen, nodeLabel, label, state.inverted);
+				}
+			}();
+			var merge = _Utils_eq(state.mode, $author$project$Modes$CreateCylinder) ? false : model.specialKeys.ctrl;
+			var mergeId = $author$project$Modes$NewArrow$getSingleIdFromGraph(extendedGraph.newSubGraph);
+			var direction = $author$project$Modes$Free;
+			var moveInfo = A7($author$project$Modes$Move$mkGraph, model, state.pos, merge, mergeId, direction, extendedGraph.extendedGraph, extendedGraph.newSubGraph);
+			var selectable = $author$project$Polygraph$allIds(extendedGraph.newSubGraph);
+			return {
+				graph: moveInfo.graph,
+				renamable: _Utils_ap(
+					merge ? _List_Nil : selectable,
+					extendedGraph.edgeIds),
+				selectable: selectable
+			};
+		}
+	});
+var $author$project$Polygraph$updateList = F4(
+	function (l, fn, fe, g) {
+		return A3(
+			$elm$core$List$foldl,
+			function (i) {
+				return A3($author$project$Polygraph$update, i, fn, fe);
+			},
+			g,
+			l);
+	});
+var $author$project$GraphDefs$weaklySelectMany = F2(
+	function (ids, g) {
+		return A4(
+			$author$project$Polygraph$updateList,
+			ids,
 			function (n) {
 				return _Utils_update(
 					n,
@@ -16736,8 +17277,9 @@ var $author$project$GraphDefs$weaklySelect = function (id) {
 				return _Utils_update(
 					e,
 					{weaklySelected: true});
-			}));
-};
+			},
+			$author$project$GraphDefs$clearWeakSelection(g));
+	});
 var $author$project$Modes$NewArrow$nextStep = F3(
 	function (model, finish, state) {
 		var info = A3($author$project$Modes$NewArrow$moveNodeInfo, finish, model, state);
@@ -16745,19 +17287,22 @@ var $author$project$Modes$NewArrow$nextStep = F3(
 			$author$project$Model$setSaveGraph,
 			model,
 			A2(
-				$author$project$GraphDefs$weaklySelect,
-				info.movedNode,
+				$author$project$GraphDefs$weaklySelectMany,
+				info.selectable,
 				$author$project$GraphDefs$clearSelection(info.graph)));
 		if (finish) {
 			return $author$project$Model$switch_Default(m2);
 		} else {
-			var ids = info.created ? _List_fromArray(
-				[info.movedNode, info.edgeId]) : _List_fromArray(
-				[info.edgeId]);
+			var ids = info.renamable;
 			var label = A2(
 				$elm$core$Maybe$withDefault,
 				'',
-				A2($author$project$GraphDefs$getLabelLabel, state.chosenNode, info.graph));
+				A2(
+					$elm$core$Maybe$andThen,
+					function (id) {
+						return A2($author$project$GraphDefs$getLabelLabel, id, info.graph);
+					},
+					$author$project$Modes$NewArrow$getSingleId(state)));
 			var ids_labels = A2(
 				$elm$core$List$map,
 				function (id) {
@@ -16767,64 +17312,6 @@ var $author$project$Modes$NewArrow$nextStep = F3(
 			return $author$project$Model$noCmd(
 				A3($author$project$Model$initialise_RenameModeWithDefault, false, ids_labels, m2));
 		}
-	});
-var $author$project$InputPosition$InputPosKeyboard = function (a) {
-	return {$: 'InputPosKeyboard', a: a};
-};
-var $author$project$InputPosition$getKeyboardPos = function (pos) {
-	if (pos.$ === 'InputPosKeyboard') {
-		var p = pos.a;
-		return p;
-	} else {
-		return _Utils_Tuple2(0, 0);
-	}
-};
-var $author$project$InputPosition$InputPosGraph = function (a) {
-	return {$: 'InputPosGraph', a: a};
-};
-var $author$project$InputPosition$InputPosMouse = {$: 'InputPosMouse'};
-var $author$project$InputPosition$updateNoKeyboard = F2(
-	function (pos, msg) {
-		switch (msg.$) {
-			case 'MouseMove':
-				return $author$project$InputPosition$InputPosMouse;
-			case 'MouseOn':
-				var id = msg.a;
-				return $author$project$InputPosition$InputPosGraph(id);
-			default:
-				return pos;
-		}
-	});
-var $author$project$InputPosition$update = F2(
-	function (pos, msg) {
-		var offsetPos = F2(
-			function (x, y) {
-				var _v1 = $author$project$InputPosition$getKeyboardPos(pos);
-				var curx = _v1.a;
-				var cury = _v1.b;
-				return $author$project$InputPosition$InputPosKeyboard(
-					_Utils_Tuple2(x + curx, y + cury));
-			});
-		_v0$4:
-		while (true) {
-			if (((msg.$ === 'KeyChanged') && (!msg.a)) && (msg.c.$ === 'Character')) {
-				switch (msg.c.a.valueOf()) {
-					case 'h':
-						return A2(offsetPos, -1, 0);
-					case 'j':
-						return A2(offsetPos, 0, 1);
-					case 'k':
-						return A2(offsetPos, 0, -1);
-					case 'l':
-						return A2(offsetPos, 1, 0);
-					default:
-						break _v0$4;
-				}
-			} else {
-				break _v0$4;
-			}
-		}
-		return A2($author$project$InputPosition$updateNoKeyboard, pos, msg);
 	});
 var $author$project$Modes$NewArrow$updateState = F2(
 	function (m, state) {
@@ -16842,19 +17329,27 @@ var $author$project$Modes$NewArrow$update = F3(
 		};
 		var pullshoutMode = function (k) {
 			return $author$project$Model$noCmd(
-				_Utils_update(
-					model,
-					{
-						mode: A2(
-							$elm$core$Maybe$withDefault,
-							$author$project$Modes$NewArrow(state),
-							A2(
-								$elm$core$Maybe$map,
-								$author$project$Modes$PullshoutMode,
-								A3($author$project$Modes$Pullshout$initialise, modelGraph, state.chosenNode, k)))
-					}));
+				function () {
+					var _v2 = $author$project$Modes$NewArrow$getSingleId(state);
+					if (_v2.$ === 'Just') {
+						var id = _v2.a;
+						return _Utils_update(
+							model,
+							{
+								mode: A2(
+									$elm$core$Maybe$withDefault,
+									$author$project$Modes$NewArrow(state),
+									A2(
+										$elm$core$Maybe$map,
+										$author$project$Modes$PullshoutMode,
+										A3($author$project$Modes$Pullshout$initialise, modelGraph, id, k)))
+							});
+					} else {
+						return model;
+					}
+				}());
 		};
-		_v0$8:
+		_v0$9:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseClick':
@@ -16870,7 +17365,7 @@ var $author$project$Modes$NewArrow$update = F3(
 								case 'Tab':
 									return next(false);
 								default:
-									break _v0$8;
+									break _v0$9;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -16889,15 +17384,27 @@ var $author$project$Modes$NewArrow$update = F3(
 									return pullshoutMode($author$project$Modes$Pullback);
 								case 'P':
 									return pullshoutMode($author$project$Modes$Pushout);
+								case 'C':
+									var mode = A2(
+										$elm$core$Maybe$withDefault,
+										state.mode,
+										$author$project$Modes$NewArrow$nextPossibleMode(state));
+									return $author$project$Model$noCmd(
+										A2(
+											$author$project$Modes$NewArrow$updateState,
+											model,
+											_Utils_update(
+												state,
+												{mode: mode})));
 								default:
-									break _v0$8;
+									break _v0$9;
 							}
 						}
 					} else {
-						break _v0$8;
+						break _v0$9;
 					}
 				default:
-					break _v0$8;
+					break _v0$9;
 			}
 		}
 		var newStyle = function () {
@@ -17357,13 +17864,6 @@ var $author$project$Modes$Square$guessProofPosition = F3(
 			return newPos;
 		}
 	});
-var $elm$core$List$isEmpty = function (xs) {
-	if (!xs.b) {
-		return true;
-	} else {
-		return false;
-	}
-};
 var $author$project$Modes$Square$makeEdges = F3(
 	function (data, ne1, ne2) {
 		return {e1: data.e1.id, e2: data.e2.id, ne1: ne1, ne2: ne2};
@@ -18341,10 +18841,6 @@ var $author$project$Modes$Square$update = F3(
 		}
 		return $author$project$Model$noCmd(model);
 	});
-var $author$project$Polygraph$updateNode = F3(
-	function (i, fn, g) {
-		return A4($author$project$Polygraph$update, i, fn, $elm$core$Basics$identity, g);
-	});
 var $author$project$Polygraph$updateEdge = F3(
 	function (i, fe, g) {
 		return A4($author$project$Polygraph$update, i, $elm$core$Basics$identity, fe, g);
@@ -18459,12 +18955,10 @@ var $author$project$Modes$ColorMode = function (a) {
 	return {$: 'ColorMode', a: a};
 };
 var $author$project$Modes$DebugMode = {$: 'DebugMode'};
-var $author$project$Modes$FreeMove = {$: 'FreeMove'};
 var $author$project$Msg$PressTimeout = {$: 'PressTimeout'};
 var $author$project$Modes$RectSelect = function (a) {
 	return {$: 'RectSelect', a: a};
 };
-var $author$project$Modes$UndefinedMove = {$: 'UndefinedMove'};
 var $author$project$Main$alert = _Platform_outgoingPort('alert', $elm$json$Json$Encode$string);
 var $author$project$Geometry$Point$distanceAngle = F2(
 	function (alpha, beta) {
@@ -18765,16 +19259,6 @@ var $author$project$GraphDefs$closest = F2(
 			return unnamedAll;
 		}
 	});
-var $author$project$Polygraph$updateList = F4(
-	function (l, fn, fe, g) {
-		return A3(
-			$elm$core$List$foldl,
-			function (i) {
-				return A3($author$project$Polygraph$update, i, fn, fe);
-			},
-			g,
-			l);
-	});
 var $author$project$Polygraph$connectedClosure = F3(
 	function (fn, fe, _v0) {
 		var g = _v0.a;
@@ -18874,7 +19358,6 @@ var $author$project$Geometry$Point$barycenter = function (pts) {
 		$elm$core$List$sum(xs) / length,
 		$elm$core$List$sum(ys) / length);
 };
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$GraphDefs$createValidProofAtBarycenter = F3(
 	function (g, nodes, proof) {
 		var nodePositions = A2(
@@ -18897,6 +19380,13 @@ var $author$project$GraphDefs$createValidProofAtBarycenter = F3(
 			proof,
 			true,
 			$author$project$Geometry$Point$barycenter(nodePositions));
+	});
+var $author$project$Polygraph$disjointUnion = F2(
+	function (base, ext) {
+		return A2(
+			$author$project$Polygraph$union,
+			base,
+			A2($author$project$Polygraph$makeDisjoint, base, ext));
 	});
 var $author$project$Main$generateProofJs = _Platform_outgoingPort('generateProofJs', $elm$json$Json$Encode$string);
 var $author$project$Main$generateSvg = _Platform_outgoingPort('generateSvg', $elm$json$Json$Encode$string);
@@ -18929,17 +19419,6 @@ var $author$project$GraphDefs$getSurroundingDiagrams = F2(
 			A2($author$project$GraphProof$isInDiag, gp, pos),
 			$author$project$GraphProof$getAllValidDiagrams(gp));
 	});
-var $author$project$GraphDefs$selectedNodes = function (g) {
-	return A2(
-		$elm$core$List$filter,
-		A2(
-			$elm$core$Basics$composeR,
-			function ($) {
-				return $.label;
-			},
-			$author$project$GraphDefs$fieldSelect(g)),
-		$author$project$Polygraph$nodes(g));
-};
 var $author$project$GraphDefs$selectedNode = function (g) {
 	var _v0 = $author$project$GraphDefs$selectedNodes(g);
 	if (_v0.b && (!_v0.b.b)) {
@@ -18992,6 +19471,35 @@ var $author$project$GraphDefs$getSelectedProofDiagram = function (g) {
 		}
 	}
 };
+var $author$project$GraphDefs$isEmptySelection = function (go) {
+	return (!A3(
+		$author$project$Polygraph$any,
+		function ($) {
+			return $.selected;
+		},
+		function ($) {
+			return $.selected;
+		},
+		go)) && (!A3(
+		$author$project$Polygraph$any,
+		function ($) {
+			return $.weaklySelected;
+		},
+		function ($) {
+			return $.weaklySelected;
+		},
+		go));
+};
+var $author$project$Modes$Move$initialise = F3(
+	function (save, mode, model) {
+		var modelGraph = $author$project$Model$getActiveGraph(model);
+		return _Utils_update(
+			model,
+			{
+				mode: $author$project$GraphDefs$isEmptySelection(modelGraph) ? $author$project$Modes$DefaultMode : $author$project$Modes$Move(
+					{direction: $author$project$Modes$Free, mode: mode, pos: $author$project$InputPosition$InputPosMouse, save: save})
+			});
+	});
 var $author$project$GraphDefs$isNormal = A2($elm$core$Basics$composeL, $elm$core$Basics$not, $author$project$GraphDefs$isPullshout);
 var $author$project$GraphDefs$isNormalId = F2(
 	function (g, id) {
@@ -19005,58 +19513,38 @@ var $author$project$GraphDefs$isNormalId = F2(
 				$author$project$GraphDefs$isNormal,
 				g));
 	});
-var $author$project$GraphDefs$selectedEdges = function (g) {
-	return A2(
-		$elm$core$List$filter,
-		A2(
-			$elm$core$Basics$composeR,
-			function ($) {
-				return $.label;
-			},
-			$author$project$GraphDefs$fieldSelect(g)),
-		$author$project$Polygraph$edges(g));
-};
-var $author$project$GraphDefs$selectedId = function (g) {
-	var _v0 = _Utils_ap(
-		A2(
-			$elm$core$List$map,
-			function ($) {
-				return $.id;
-			},
-			$author$project$GraphDefs$selectedNodes(g)),
-		A2(
-			$elm$core$List$map,
-			function ($) {
-				return $.id;
-			},
-			$author$project$GraphDefs$selectedEdges(g)));
-	if (_v0.b && (!_v0.b.b)) {
-		var x = _v0.a;
-		return $elm$core$Maybe$Just(x);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
 var $author$project$Modes$NewArrow$initialise = function (m) {
 	var modelGraph = $author$project$Model$getActiveGraph(m);
 	return $author$project$Model$noCmd(
-		A2(
-			$elm$core$Maybe$withDefault,
-			m,
-			A2(
-				$elm$core$Maybe$map,
-				function (chosenNode) {
-					return _Utils_update(
-						m,
-						{
-							mode: $author$project$Modes$NewArrow(
-								{chosenNode: chosenNode, inverted: false, pos: $author$project$InputPosition$InputPosMouse, style: $author$project$ArrowStyle$empty})
-						});
-				},
-				A2(
-					$elm_community$maybe_extra$Maybe$Extra$filter,
-					$author$project$GraphDefs$isNormalId(modelGraph),
-					$author$project$GraphDefs$selectedId(modelGraph)))));
+		function () {
+			if ($author$project$GraphDefs$isEmptySelection(modelGraph)) {
+				return m;
+			} else {
+				var mode = function () {
+					var _v0 = A2(
+						$elm_community$maybe_extra$Maybe$Extra$filter,
+						$author$project$GraphDefs$isNormalId(modelGraph),
+						$author$project$GraphDefs$selectedId(modelGraph));
+					if (_v0.$ === 'Just') {
+						return $author$project$Modes$CreateArrow;
+					} else {
+						return $author$project$Modes$CreateCylinder;
+					}
+				}();
+				return _Utils_update(
+					m,
+					{
+						mode: $author$project$Modes$NewArrow(
+							{
+								chosen: $author$project$GraphDefs$selectedGraph(modelGraph),
+								inverted: false,
+								mode: mode,
+								pos: $author$project$InputPosition$InputPosMouse,
+								style: $author$project$ArrowStyle$empty
+							})
+					});
+			}
+		}());
 };
 var $author$project$GraphDefs$selectedEdge = function (g) {
 	var _v0 = $author$project$GraphDefs$selectedEdges(g);
@@ -19139,39 +19627,6 @@ var $author$project$Main$initialiseEnlarge = function (model) {
 				{orig: model.mousePos, pos: $author$project$InputPosition$InputPosMouse})
 		});
 };
-var $author$project$Modes$Free = {$: 'Free'};
-var $author$project$Modes$Move = function (a) {
-	return {$: 'Move', a: a};
-};
-var $author$project$GraphDefs$isEmptySelection = function (go) {
-	return (!A3(
-		$author$project$Polygraph$any,
-		function ($) {
-			return $.selected;
-		},
-		function ($) {
-			return $.selected;
-		},
-		go)) && (!A3(
-		$author$project$Polygraph$any,
-		function ($) {
-			return $.weaklySelected;
-		},
-		function ($) {
-			return $.weaklySelected;
-		},
-		go));
-};
-var $author$project$Main$initialiseMoveMode = F3(
-	function (save, mode, model) {
-		var modelGraph = $author$project$Model$getActiveGraph(model);
-		return _Utils_update(
-			model,
-			{
-				mode: $author$project$GraphDefs$isEmptySelection(modelGraph) ? $author$project$Modes$DefaultMode : $author$project$Modes$Move(
-					{direction: $author$project$Modes$Free, mode: mode, orig: model.mousePos, pos: $author$project$InputPosition$InputPosMouse, save: save})
-			});
-	});
 var $author$project$Modes$ResizeMode = function (a) {
 	return {$: 'ResizeMode', a: a};
 };
@@ -19879,55 +20334,11 @@ var $author$project$Unification$unifyDiagram = F3(
 			}
 		}
 	});
-var $author$project$Polygraph$addId = F2(
-	function (n, g) {
-		return $elm_community$intdict$IntDict$fromList(
-			A2(
-				$elm$core$List$map,
-				function (_v0) {
-					var id = _v0.a;
-					var o = _v0.b;
-					return _Utils_Tuple2(
-						id + n,
-						function () {
-							if (o.$ === 'NodeObj') {
-								return o;
-							} else {
-								var i1 = o.a;
-								var i2 = o.b;
-								var e = o.c;
-								return A3($author$project$Polygraph$EdgeObj, i1 + n, i2 + n, e);
-							}
-						}());
-				},
-				$elm_community$intdict$IntDict$toList(g)));
-	});
-var $author$project$Polygraph$union = F2(
-	function (_v0, _v1) {
-		var base = _v0.a;
-		var ext = _v1.a;
-		var baseId = $author$project$Polygraph$supId(base);
-		var extUp = A2($author$project$Polygraph$addId, baseId, ext);
-		return $author$project$Polygraph$Graph(
-			A2($elm_community$intdict$IntDict$union, base, extUp));
-	});
-var $author$project$Polygraph$updateNodes = F2(
-	function (l, g) {
-		return A3(
-			$elm$core$List$foldl,
-			F2(
-				function (_v0, g2) {
-					var id = _v0.id;
-					var label = _v0.label;
-					return A3(
-						$author$project$Polygraph$updateNode,
-						id,
-						$elm$core$Basics$always(label),
-						g2);
-				}),
-			g,
-			l);
-	});
+var $author$project$GraphDefs$weaklySelect = function (id) {
+	return $author$project$GraphDefs$weaklySelectMany(
+		_List_fromArray(
+			[id]));
+};
 var $author$project$Main$update_DefaultMode = F2(
 	function (msg, model) {
 		var delta_angle = $elm$core$Basics$pi / 5;
@@ -20200,14 +20611,14 @@ var $author$project$Main$update_DefaultMode = F2(
 								var tab = _v16.a;
 								return $author$project$Model$noCmd(
 									A3(
-										$author$project$Main$initialiseMoveMode,
+										$author$project$Modes$Move$initialise,
 										false,
 										$author$project$Modes$FreeMove,
 										A2(
 											$author$project$Model$setSaveGraph,
 											model,
 											A2(
-												$author$project$Polygraph$union,
+												$author$project$Polygraph$disjointUnion,
 												$author$project$GraphDefs$clearSelection(modelGraph),
 												$author$project$GraphDefs$selectAll(tab.graph)))));
 							}
@@ -20217,7 +20628,7 @@ var $author$project$Main$update_DefaultMode = F2(
 							if ((msg.c.$ === 'Character') && ('g' === msg.c.a.valueOf())) {
 								var pressTimeoutMs = 100;
 								return _Utils_Tuple2(
-									A3($author$project$Main$initialiseMoveMode, true, $author$project$Modes$UndefinedMove, model),
+									A3($author$project$Modes$Move$initialise, true, $author$project$Modes$UndefinedMove, model),
 									A2(
 										$elm$core$Task$attempt,
 										$elm$core$Basics$always($author$project$Msg$PressTimeout),
@@ -20716,207 +21127,6 @@ var $author$project$Main$update_Enlarge = F3(
 								pos: A2($author$project$InputPosition$update, state.pos, msg)
 							}))
 				}));
-	});
-var $author$project$Modes$Horizontal = {$: 'Horizontal'};
-var $author$project$Modes$PressMove = {$: 'PressMove'};
-var $author$project$Modes$Vertical = {$: 'Vertical'};
-var $author$project$Geometry$centerRect = function (_v0) {
-	var bottomRight = _v0.bottomRight;
-	var topLeft = _v0.topLeft;
-	return A2($author$project$Geometry$Point$middle, bottomRight, topLeft);
-};
-var $author$project$GraphDefs$centerOfNodes = function (nodes) {
-	return $author$project$Geometry$centerRect(
-		$author$project$Geometry$rectEnveloppe(
-			A2(
-				$elm$core$List$map,
-				A2(
-					$elm$core$Basics$composeL,
-					function ($) {
-						return $.pos;
-					},
-					function ($) {
-						return $.label;
-					}),
-				nodes)));
-};
-var $author$project$Main$info_MoveNode = F2(
-	function (model, _v0) {
-		var orig = _v0.orig;
-		var pos = _v0.pos;
-		var direction = _v0.direction;
-		var merge = model.specialKeys.ctrl;
-		var modelGraph = $author$project$Model$getActiveGraph(model);
-		var selectedGraph = $author$project$GraphDefs$selectedGraph(modelGraph);
-		var nodes = $author$project$Polygraph$nodes(selectedGraph);
-		var updNode = F2(
-			function (delta, _v7) {
-				var id = _v7.id;
-				var label = _v7.label;
-				return {
-					id: id,
-					label: _Utils_update(
-						label,
-						{
-							pos: A2($author$project$Geometry$Point$add, label.pos, delta)
-						})
-				};
-			});
-		var moveNodes = function (delta) {
-			return A2(
-				$elm$core$List$map,
-				updNode(delta),
-				nodes);
-		};
-		var mkRet = function (movedNodes) {
-			var g = A2($author$project$Polygraph$updateNodes, movedNodes, modelGraph);
-			return {graph: g, valid: !merge};
-		};
-		var retMerge = function (movedNodes) {
-			if (movedNodes.b && (!movedNodes.b.b)) {
-				var n = movedNodes.a;
-				var _v6 = A2($author$project$GraphDefs$mergeWithSameLoc, n, modelGraph);
-				var g = _v6.a;
-				var valid = _v6.b;
-				return valid ? {graph: g, valid: true} : mkRet(movedNodes);
-			} else {
-				return mkRet(movedNodes);
-			}
-		};
-		var retDelta = function (delta) {
-			var movedNodes = moveNodes(delta);
-			return merge ? retMerge(movedNodes) : mkRet(movedNodes);
-		};
-		var mouseDelta = function () {
-			var _v3 = A2(
-				$author$project$Geometry$Point$subtract,
-				model.mousePos,
-				$author$project$GraphDefs$centerOfNodes(nodes));
-			var dx = _v3.a;
-			var dy = _v3.b;
-			switch (direction.$) {
-				case 'Free':
-					return _Utils_Tuple2(dx, dy);
-				case 'Vertical':
-					return _Utils_Tuple2(0, dy);
-				default:
-					return _Utils_Tuple2(dx, 0);
-			}
-		}();
-		var sizeGrid = $author$project$Model$getActiveSizeGrid(model);
-		switch (pos.$) {
-			case 'InputPosKeyboard':
-				var p = pos.a;
-				return retDelta(
-					A2($author$project$InputPosition$deltaKeyboardPos, sizeGrid, p));
-			case 'InputPosGraph':
-				var id = pos.a;
-				if (!merge) {
-					return retDelta(mouseDelta);
-				} else {
-					var _v2 = $author$project$GraphDefs$selectedId(modelGraph);
-					if (_v2.$ === 'Just') {
-						var selId = _v2.a;
-						return {
-							graph: A3($author$project$Polygraph$recursiveMerge, id, selId, modelGraph),
-							valid: true
-						};
-					} else {
-						return retDelta(mouseDelta);
-					}
-				}
-			default:
-				return retDelta(mouseDelta);
-		}
-	});
-var $author$project$Main$update_MoveNode = F3(
-	function (msg, state, model) {
-		var movedRet = function () {
-			var info = A2($author$project$Main$info_MoveNode, model, state);
-			return info.valid ? $author$project$Model$switch_Default(
-				state.save ? A2($author$project$Model$setSaveGraph, model, info.graph) : A2($author$project$Model$setActiveGraph, model, info.graph)) : $author$project$Model$noCmd(model);
-		}();
-		var terminable = !_Utils_eq(state.mode, $author$project$Modes$PressMove);
-		var terminedRet = terminable ? movedRet : $author$project$Model$noCmd(model);
-		var updateState = function (st) {
-			return _Utils_update(
-				model,
-				{
-					mode: $author$project$Modes$Move(st)
-				});
-		};
-		var updateDirection = function (direction) {
-			return $author$project$Model$noCmd(
-				updateState(
-					_Utils_update(
-						state,
-						{direction: direction})));
-		};
-		_v0$9:
-		while (true) {
-			switch (msg.$) {
-				case 'PressTimeout':
-					return $author$project$Model$noCmd(
-						_Utils_eq(state.mode, $author$project$Modes$UndefinedMove) ? updateState(
-							_Utils_update(
-								state,
-								{mode: $author$project$Modes$PressMove})) : model);
-				case 'MouseClick':
-					return terminedRet;
-				case 'KeyChanged':
-					if (!msg.a) {
-						if (msg.c.$ === 'Character') {
-							switch (msg.c.a.valueOf()) {
-								case '?':
-									return $author$project$Model$noCmd(
-										$author$project$Model$toggleHelpOverlay(model));
-								case 'g':
-									var _v1 = state.mode;
-									switch (_v1.$) {
-										case 'UndefinedMove':
-											return $author$project$Model$noCmd(
-												updateState(
-													_Utils_update(
-														state,
-														{mode: $author$project$Modes$FreeMove})));
-										case 'PressMove':
-											return movedRet;
-										default:
-											return $author$project$Model$noCmd(model);
-									}
-								case 'f':
-									return updateDirection($author$project$Modes$Free);
-								case 'x':
-									return updateDirection($author$project$Modes$Horizontal);
-								case 'y':
-									return updateDirection($author$project$Modes$Vertical);
-								default:
-									break _v0$9;
-							}
-						} else {
-							switch (msg.c.a) {
-								case 'Escape':
-									return $author$project$Model$switch_Default(model);
-								case 'Enter':
-									return terminedRet;
-								default:
-									break _v0$9;
-							}
-						}
-					} else {
-						break _v0$9;
-					}
-				default:
-					break _v0$9;
-			}
-		}
-		return $author$project$Model$noCmd(
-			updateState(
-				_Utils_update(
-					state,
-					{
-						pos: A2($author$project$InputPosition$update, state.pos, msg)
-					})));
 	});
 var $elm$browser$Browser$Dom$blur = _Browser_call('blur');
 var $elm$parser$Parser$deadEndsToString = function (deadEnds) {
@@ -21624,7 +21834,7 @@ var $author$project$Main$update = F2(
 						return A4($author$project$Main$update_RenameMode, b, l, msg, model);
 					case 'Move':
 						var s = _v7.a;
-						return A3($author$project$Main$update_MoveNode, msg, s, model);
+						return A3($author$project$Modes$Move$update, msg, s, model);
 					case 'DebugMode':
 						return A2($author$project$Main$update_DebugMode, msg, model);
 					case 'SquareMode':
@@ -21844,6 +22054,13 @@ var $author$project$Model$collageGraphFromGraph = F2(
 		return $author$project$GraphDrawing$toDrawingGraph(
 			$author$project$GraphDefs$makeSelection(g));
 	});
+var $author$project$Modes$Move$graphDrawing = F2(
+	function (m, s) {
+		return A2(
+			$author$project$Model$collageGraphFromGraph,
+			m,
+			A2($author$project$Modes$Move$mkInfo, m, s).graph);
+	});
 var $author$project$Modes$NewArrow$graphDrawing = F2(
 	function (m, s) {
 		return A2(
@@ -21946,10 +22163,7 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 				A2($author$project$Main$graphQuickInput, m, ch));
 		case 'Move':
 			var s = _v0.a;
-			return A2(
-				$author$project$Model$collageGraphFromGraph,
-				m,
-				A2($author$project$Main$info_MoveNode, m, s).graph);
+			return A2($author$project$Modes$Move$graphDrawing, m, s);
 		case 'RenameMode':
 			var l = _v0.b;
 			var g = A2($author$project$Main$graph_RenameMode, l, m);
@@ -22064,12 +22278,36 @@ var $author$project$Drawing$grid = function (n) {
 };
 var $author$project$Main$Plain = {$: 'Plain'};
 var $author$project$ArrowStyle$controlChars = '|>(=-bBA][';
-var $author$project$Modes$CutHead$help = '[?] to toggle help overlay,' + (' [RET] or [click] to confirm, [ctrl] to merge the endpoint with existing node. [ESC] to cancel. ' + ('[c] to switch between head/tail' + ', [d] to duplicate (or not) the arrow.'));
+var $author$project$HtmlDefs$overlayHelpMsg = '[?] to toggle help overlay';
+var $author$project$Modes$CutHead$help = $author$project$HtmlDefs$overlayHelpMsg + (', [RET] or [click] to confirm, [ctrl] to merge the endpoint with existing node. [ESC] to cancel. ' + ('[c] to switch between head/tail' + ', [d] to duplicate (or not) the arrow.'));
+var $author$project$Modes$Move$help = function (s) {
+	return 'Mode Move. ' + ($author$project$HtmlDefs$overlayHelpMsg + ('Use mouse or h,j,k,l.' + (' Hold [ctrl] to merge the selected point onto another node,' + (' Press [x] or [y] to restrict to horizontal / vertical directions, or let it [f]ree ' + ('(currently, ' + (function () {
+		var _v0 = s.direction;
+		switch (_v0.$) {
+			case 'Vertical':
+				return 'vertical';
+			case 'Horizontal':
+				return 'horizontal';
+			default:
+				return 'free';
+		}
+	}() + (').' + function () {
+		var _v1 = s.mode;
+		switch (_v1.$) {
+			case 'FreeMove':
+				return ' [RET] or [click] to confirm.';
+			case 'PressMove':
+				return ' Release [g] to confirm.';
+			default:
+				return '';
+		}
+	}())))))));
+};
 var $author$project$Drawing$Color$helpMsg = 'bla[c]k, bl[u]e, [g]reen, [o]range, [r]ed, [v]iolet, [y]ellow';
-var $author$project$Modes$NewArrow$help = '[?] toggle help overlay, [ESC] cancel, [click, TAB] name the point (if new), ' + ('[hjkl] position the new point with the keyboard, ' + ('[RET] terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[i]nvert arrow, ' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + $author$project$Drawing$Color$helpMsg))))))));
-var $author$project$Modes$Pullshout$help = '[ESC] cancel, ' + ('[?] to toggle help overlay, ' + ('cycle between [p]ullback/[P]ushout possibilities, ' + '[RET] confirm'));
-var $author$project$Modes$SplitArrow$help = '[ESC] cancel, [?] toggle help overlay, ' + ('[click] name the point (if new), ' + ('[/] to move the existing label on the other edge, ' + '[RET] terminate the square creation'));
-var $author$project$Modes$Square$help = '[ESC] cancel, [?] toggle help overlay' + ('[click] name the point (if new), ' + ('[RET] terminate the square creation, ' + (' alternative possible [s]quares, ' + (' [a]lternative possible labels, ' + 'toggle [p]roof node creation.'))));
+var $author$project$Modes$NewArrow$help = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new), ' + ('[hjkl] position the new point with the keyboard, ' + ('[RET] terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[i]nvert arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + $author$project$Drawing$Color$helpMsg)))))))))));
+var $author$project$Modes$Pullshout$help = '[ESC] cancel, ' + ($author$project$HtmlDefs$overlayHelpMsg + (', cycle between [p]ullback/[P]ushout possibilities, ' + '[RET] confirm'));
+var $author$project$Modes$SplitArrow$help = '[ESC] cancel, ' + ($author$project$HtmlDefs$overlayHelpMsg + (', [click] name the point (if new), ' + ('[/] to move the existing label on the other edge, ' + '[RET] terminate the square creation')));
+var $author$project$Modes$Square$help = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel' + ('[click] name the point (if new), ' + ('[RET] terminate the square creation, ' + (' alternative possible [s]quares, ' + (' [a]lternative possible labels, ' + 'toggle [p]roof node creation.')))));
 var $elm$parser$Parser$ExpectingEnd = {$: 'ExpectingEnd'};
 var $elm$parser$Parser$Advanced$end = function (x) {
 	return $elm$parser$Parser$Advanced$Parser(
@@ -22231,7 +22469,7 @@ var $author$project$Main$helpStr_collage = function (_v0) {
 					$elm$core$String$lines(s))));
 	}
 };
-var $author$project$Main$overlayHelpMsg = '[?] to toggle help overlay.\n';
+var $author$project$Main$overlayHelpMsgNewLine = $author$project$HtmlDefs$overlayHelpMsg + '.\n';
 var $author$project$Modes$toString = function (m) {
 	switch (m.$) {
 		case 'DefaultMode':
@@ -22293,7 +22531,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsg + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow from selected point' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]olor arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + ', export selection to LaTe[X]/s[V]g')))))))))))))))))))))))))))))))))))))))))))))));
+			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]olor arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + ', export selection to LaTe[X]/s[V]g')))))))))))))))))))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return $elm$html$Html$text('Debug Mode. [ESC] to cancel and come back to the default mode. ' + '');
 		case 'NewArrow':
@@ -22301,7 +22539,7 @@ var $author$project$Main$helpMsg = function (model) {
 		case 'PullshoutMode':
 			return msg('Mode Pullback/Pullshout. ' + $author$project$Modes$Pullshout$help);
 		case 'ColorMode':
-			return msg('Mode color. ' + ($author$project$Main$overlayHelpMsg + ('[ESC] or colorise selected edges: ' + $author$project$Drawing$Color$helpMsg)));
+			return msg('Mode color. ' + ($author$project$Main$overlayHelpMsgNewLine + ('[ESC] or colorise selected edges: ' + $author$project$Drawing$Color$helpMsg)));
 		case 'SquareMode':
 			return msg('Mode Commutative square. ' + $author$project$Modes$Square$help);
 		case 'SplitArrow':
@@ -22309,40 +22547,20 @@ var $author$project$Main$helpMsg = function (model) {
 		case 'Move':
 			var s = _v0.a;
 			return msg(
-				'Mode Move. ' + ($author$project$Main$overlayHelpMsg + ('Use mouse or h,j,k,l.' + (' Hold [ctrl] to merge the selected point onto another node,' + (' Press [x] or [y] to restrict to horizontal / vertical directions, or let it [f]ree ' + ('(currently, ' + (function () {
-					var _v1 = s.direction;
-					switch (_v1.$) {
-						case 'Vertical':
-							return 'vertical';
-						case 'Horizontal':
-							return 'horizontal';
-						default:
-							return 'free';
-					}
-				}() + (').' + function () {
-					var _v2 = s.mode;
-					switch (_v2.$) {
-						case 'FreeMove':
-							return ' [RET] or [click] to confirm.';
-						case 'PressMove':
-							return ' Release [g] to confirm.';
-						default:
-							return '';
-					}
-				}()))))))));
+				$author$project$Modes$Move$help(s));
 		case 'CutHead':
 			return msg('Mode cut arrow. ' + $author$project$Modes$CutHead$help);
 		case 'RenameMode':
 			return msg('Rename mode: [RET] to confirm, [TAB] to next label, [ESC] to cancel');
 		case 'EnlargeMode':
 			var s = _v0.a;
-			return msg('Enlarge mode. ' + ($author$project$Main$overlayHelpMsg + ('Draw a rectangle to create space. ' + 'Use mouse or h,j,k,l. [RET] or click to confirm.')));
+			return msg('Enlarge mode. ' + ($author$project$Main$overlayHelpMsgNewLine + ('Draw a rectangle to create space. ' + 'Use mouse or h,j,k,l. [RET] or click to confirm.')));
 		case 'QuickInputMode':
 			return msg('Equation mode: enter equation in the textfield ' + ('(e.g., a -- f -> b -- g -> c =  a -- h -> d -- k -> c)' + (',  [RET] to confirm, [ESC] to cancel.' + (' If an incomplete subdiagram (i.e. a subdiagram ' + ('where one branch is a single arrow with empty label)' + (' is selected, it will replace the empty branch with' + ' the lhs or the rhs (depending on the orientation).'))))));
 		case 'ResizeMode':
 			var onlyGrid = _v0.a.onlyGrid;
 			return msg(
-				'Resize mode. ' + ($author$project$Main$overlayHelpMsg + ('[k]/[j] to increase/decrease, ' + ('or use the slider above. ' + (onlyGrid ? '[g] to resize the objects as well as the grid. ' : ('[g] to resize the grid only. ' + ('[ESC] to cancel, ' + '[RET] to confirm')))))));
+				'Resize mode. ' + ($author$project$Main$overlayHelpMsgNewLine + ('[k]/[j] to increase/decrease, ' + ('or use the slider above. ' + (onlyGrid ? '[g] to resize the objects as well as the grid. ' : ('[g] to resize the grid only. ' + ('[ESC] to cancel, ' + '[RET] to confirm')))))));
 		default:
 			var txt = 'Mode: ' + ($author$project$Modes$toString(model.mode) + ('. [ESC] to cancel and come back to the default' + ' mode.'));
 			return makeHelpDiv(
