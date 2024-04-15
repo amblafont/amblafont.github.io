@@ -11654,36 +11654,76 @@ var $author$project$Geometry$Point$middle = F2(
 		var y2 = _v1.b;
 		return _Utils_Tuple2((x1 + x2) / 2, (y1 + y2) / 2);
 	});
+var $elm_community$maybe_extra$Maybe$Extra$filter = F2(
+	function (f, m) {
+		if (m.$ === 'Just') {
+			var a = m.a;
+			return f(a) ? m : $elm$core$Maybe$Nothing;
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Polygraph$rawFilterIds = F2(
+	function (fn, fe) {
+		return A2(
+			$author$project$Polygraph$rawFilterMapIds,
+			A2(
+				$elm$core$Basics$composeR,
+				$elm$core$Maybe$Just,
+				$elm_community$maybe_extra$Maybe$Extra$filter(fn)),
+			F2(
+				function (id1, id2) {
+					return A2(
+						$elm$core$Basics$composeR,
+						$elm$core$Maybe$Just,
+						$elm_community$maybe_extra$Maybe$Extra$filter(
+							A2(fe, id1, id2)));
+				}));
+	});
+var $author$project$Polygraph$removeLoops = A2(
+	$elm$core$Basics$composeR,
+	$author$project$Polygraph$sanitise,
+	$author$project$Polygraph$mapRep(
+		A2(
+			$author$project$Polygraph$rawFilterIds,
+			$elm$core$Basics$always(true),
+			F3(
+				function (id1, id2, _v0) {
+					return !_Utils_eq(id1, id2);
+				}))));
 var $author$project$GraphDefs$toProofGraph = A2(
 	$elm$core$Basics$composeR,
 	$author$project$GraphDefs$keepNormalEdges,
-	A4(
-		$author$project$Polygraph$mapRecAll,
-		function (n) {
-			return n.pos;
-		},
-		function (n) {
-			return n.pos;
-		},
-		F2(
-			function (_v0, n) {
-				return {
-					label: n.label,
-					pos: n.pos,
-					proof: $author$project$GraphDefs$getProofFromLabel(n.label)
-				};
-			}),
-		F4(
-			function (_v1, fromP, toP, _v2) {
-				var details = _v2.details;
-				return {
-					angle: $author$project$Geometry$Point$pointToAngle(
-						A2($author$project$Geometry$Point$subtract, toP, fromP)),
-					identity: details.style._double,
-					label: details.label,
-					pos: A2($author$project$Geometry$Point$middle, fromP, toP)
-				};
-			})));
+	A2(
+		$elm$core$Basics$composeR,
+		$author$project$Polygraph$removeLoops,
+		A4(
+			$author$project$Polygraph$mapRecAll,
+			function (n) {
+				return n.pos;
+			},
+			function (n) {
+				return n.pos;
+			},
+			F2(
+				function (_v0, n) {
+					return {
+						label: n.label,
+						pos: n.pos,
+						proof: $author$project$GraphDefs$getProofFromLabel(n.label)
+					};
+				}),
+			F4(
+				function (_v1, fromP, toP, _v2) {
+					var details = _v2.details;
+					return {
+						angle: $author$project$Geometry$Point$pointToAngle(
+							A2($author$project$Geometry$Point$subtract, toP, fromP)),
+						identity: details.style._double,
+						label: details.label,
+						pos: A2($author$project$Geometry$Point$middle, fromP, toP)
+					};
+				}))));
 var $author$project$Main$generateProofString = F2(
 	function (debug, g) {
 		var stToString = debug ? $author$project$GraphProof$proofStatementToDebugString : $author$project$GraphProof$proofStatementToString;
@@ -13732,7 +13772,7 @@ var $author$project$Geometry$raytraceRect = F3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Geometry$segmentRectBent = F3(
+var $author$project$Geometry$segmentRectBent_aux = F3(
 	function (r1, r2, bent) {
 		var controlPoint = A3(
 			$author$project$Geometry$Point$diamondPx,
@@ -13756,6 +13796,50 @@ var $author$project$Geometry$segmentRectBent = F3(
 				r1.pos,
 				$author$project$Geometry$rectFromPosDims(r1)));
 		return {controlPoint: controlPoint, from: p1, to: p2};
+	});
+var $author$project$Geometry$segmentRectBent = F3(
+	function (r1, r2, bent) {
+		var _v0 = function () {
+			if (!_Utils_eq(r1.pos, r2.pos)) {
+				return _Utils_Tuple3(r1, r2, bent);
+			} else {
+				var _v1 = r2.dims;
+				var w2 = _v1.a;
+				var h2 = _v1.b;
+				var _v2 = r1.dims;
+				var w1 = _v2.a;
+				var h1 = _v2.b;
+				var offset = 7;
+				var new_w = function (w) {
+					return 2;
+				};
+				var newBent = (-40) / offset;
+				return _Utils_Tuple3(
+					{
+						dims: _Utils_Tuple2(
+							new_w(w1),
+							h1),
+						pos: A2(
+							$author$project$Geometry$Point$add,
+							r1.pos,
+							_Utils_Tuple2(-offset, 0))
+					},
+					{
+						dims: _Utils_Tuple2(
+							new_w(w2),
+							h2),
+						pos: A2(
+							$author$project$Geometry$Point$add,
+							r2.pos,
+							_Utils_Tuple2(offset, 0))
+					},
+					newBent);
+			}
+		}();
+		var r1_bis = _v0.a;
+		var r2_bis = _v0.b;
+		var bent_bis = _v0.c;
+		return A3($author$project$Geometry$segmentRectBent_aux, r1_bis, r2_bis, bent_bis);
 	});
 var $author$project$GraphDrawing$graphDrawing = F2(
 	function (cfg, g0) {
@@ -14951,32 +15035,6 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 				]));
 	});
 var $author$project$Main$saveGridSize = _Platform_outgoingPort('saveGridSize', $elm$json$Json$Encode$int);
-var $elm_community$maybe_extra$Maybe$Extra$filter = F2(
-	function (f, m) {
-		if (m.$ === 'Just') {
-			var a = m.a;
-			return f(a) ? m : $elm$core$Maybe$Nothing;
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $author$project$Polygraph$rawFilterIds = F2(
-	function (fn, fe) {
-		return A2(
-			$author$project$Polygraph$rawFilterMapIds,
-			A2(
-				$elm$core$Basics$composeR,
-				$elm$core$Maybe$Just,
-				$elm_community$maybe_extra$Maybe$Extra$filter(fn)),
-			F2(
-				function (id1, id2) {
-					return A2(
-						$elm$core$Basics$composeR,
-						$elm$core$Maybe$Just,
-						$elm_community$maybe_extra$Maybe$Extra$filter(
-							A2(fe, id1, id2)));
-				}));
-	});
 var $author$project$Polygraph$rawFilter = F2(
 	function (fn, fe) {
 		return A2(
@@ -16360,17 +16418,6 @@ var $author$project$InputPosition$deltaKeyboardPos = F2(
 		var y = _v0.b;
 		return _Utils_Tuple2(x * offsetKeyboardPos, y * offsetKeyboardPos);
 	});
-var $author$project$Polygraph$removeLoops = A2(
-	$elm$core$Basics$composeR,
-	$author$project$Polygraph$sanitise,
-	$author$project$Polygraph$mapRep(
-		A2(
-			$author$project$Polygraph$rawFilterIds,
-			$elm$core$Basics$always(true),
-			F3(
-				function (id1, id2, _v0) {
-					return !_Utils_eq(id1, id2);
-				}))));
 var $author$project$Polygraph$recursiveMerge = F3(
 	function (i1, i2, g) {
 		return _Utils_eq(i1, i2) ? g : $author$project$Polygraph$removeLoops(
