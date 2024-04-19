@@ -11972,7 +11972,7 @@ var $author$project$Tikz$graphToTikz = F2(
 				$elm$core$List$map,
 				$author$project$Tikz$encodePullshoutTikZ(gnorm),
 				pullshouts));
-		return '\\begin{tikzpicture}[every node/.style={inner sep=2pt,outer sep=0pt,anchor=base,text height=1.2ex, text depth=0.25ex}] \n' + (tikzNodes + (tikzFakeEdges + (tikzEdges + (tikzPullshouts + '\\end{tikzpicture}'))));
+		return '\\begin{tikzpicture}[every node/.style={inner sep=5pt,outer sep=0pt,anchor=base,text height=1.2ex, text depth=0.25ex}] \n' + (tikzNodes + (tikzFakeEdges + (tikzEdges + (tikzPullshouts + '\\end{tikzpicture}'))));
 	});
 var $author$project$GraphDefs$clearSelection = function (g) {
 	return A3(
@@ -16566,9 +16566,8 @@ var $author$project$GraphDefs$weaklySelect = function (id) {
 		_List_fromArray(
 			[id]));
 };
-var $author$project$Modes$Move$mkGraph = F5(
-	function (model, pos, direction, modelGraph, selectedGraph) {
-		var shouldMerge = model.specialKeys.ctrl;
+var $author$project$Modes$Move$mkGraph = F6(
+	function (model, pos, direction, shouldMerge, modelGraph, selectedGraph) {
 		var mergeId = $author$project$Polygraph$topmostObject(selectedGraph);
 		var complementGraph = A2($author$project$Polygraph$complement, modelGraph, selectedGraph);
 		var nodes = $author$project$Polygraph$nodes(selectedGraph);
@@ -16681,6 +16680,7 @@ var $author$project$Modes$CutHead$makeGraph = F2(
 		var edge = _v0.edge;
 		var head = _v0.head;
 		var duplicate = _v0.duplicate;
+		var merge = _v0.merge;
 		var modelGraph = $author$project$Model$getActiveGraph(model);
 		var pos = model.mousePos;
 		var _v1 = head ? _Utils_Tuple2(edge.from, edge.to) : _Utils_Tuple2(edge.to, edge.from);
@@ -16714,7 +16714,7 @@ var $author$project$Modes$CutHead$makeGraph = F2(
 			},
 			extGraph.extendedGraph,
 			extGraph.edgeIds);
-		var moveInfo = A5($author$project$Modes$Move$mkGraph, model, $author$project$InputPosition$InputPosMouse, $author$project$Modes$Free, g4, extGraph.newSubGraph);
+		var moveInfo = A6($author$project$Modes$Move$mkGraph, model, $author$project$InputPosition$InputPosMouse, $author$project$Modes$Free, merge, g4, extGraph.newSubGraph);
 		return moveInfo.graph;
 	});
 var $author$project$Model$toggleHelpOverlay = function (model) {
@@ -16805,9 +16805,10 @@ var $author$project$Modes$Move$mkInfo = F2(
 	function (model, _v0) {
 		var pos = _v0.pos;
 		var direction = _v0.direction;
+		var merge = _v0.merge;
 		var modelGraph = $author$project$Model$getActiveGraph(model);
 		var selectedGraph = $author$project$GraphDefs$selectedGraph(modelGraph);
-		var _v1 = A5($author$project$Modes$Move$mkGraph, model, pos, direction, modelGraph, selectedGraph);
+		var _v1 = A6($author$project$Modes$Move$mkGraph, model, pos, direction, merge, modelGraph, selectedGraph);
 		var merged = _v1.merged;
 		var graph = _v1.graph;
 		return {graph: graph, valid: true};
@@ -16900,7 +16901,7 @@ var $author$project$Modes$Move$update = F3(
 						state,
 						{direction: direction})));
 		};
-		_v0$9:
+		_v0$10:
 		while (true) {
 			switch (msg.$) {
 				case 'PressTimeout':
@@ -16939,23 +16940,29 @@ var $author$project$Modes$Move$update = F3(
 								case 'y':
 									return updateDirection($author$project$Modes$Vertical);
 								default:
-									break _v0$9;
+									break _v0$10;
 							}
 						} else {
 							switch (msg.c.a) {
+								case 'Control':
+									return $author$project$Model$noCmd(
+										updateState(
+											_Utils_update(
+												state,
+												{merge: !state.merge})));
 								case 'Escape':
 									return $author$project$Model$switch_Default(model);
 								case 'Enter':
 									return terminedRet(_Utils_Tuple0);
 								default:
-									break _v0$9;
+									break _v0$10;
 							}
 						}
 					} else {
-						break _v0$9;
+						break _v0$10;
 					}
 				default:
-					break _v0$9;
+					break _v0$10;
 			}
 		}
 		return $author$project$Model$noCmd(
@@ -17383,7 +17390,7 @@ var $author$project$Modes$NewArrow$moveNodeInfo = F3(
 						state.inverted);
 			}
 		}();
-		var moveInfo = A5($author$project$Modes$Move$mkGraph, model, state.pos, $author$project$Modes$Free, extendedGraph.extendedGraph, extendedGraph.newSubGraph);
+		var moveInfo = A6($author$project$Modes$Move$mkGraph, model, state.pos, $author$project$Modes$Free, state.merge, extendedGraph.extendedGraph, extendedGraph.newSubGraph);
 		var selectable = $author$project$Polygraph$allIds(extendedGraph.newSubGraph);
 		return {
 			graph: moveInfo.graph,
@@ -17462,7 +17469,7 @@ var $author$project$Modes$NewArrow$update = F3(
 					}
 				}());
 		};
-		_v0$9:
+		_v0$10:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseClick':
@@ -17471,6 +17478,14 @@ var $author$project$Modes$NewArrow$update = F3(
 					if (!msg.a) {
 						if (msg.c.$ === 'Control') {
 							switch (msg.c.a) {
+								case 'Control':
+									return $author$project$Model$noCmd(
+										A2(
+											$author$project$Modes$NewArrow$updateState,
+											model,
+											_Utils_update(
+												state,
+												{merge: !state.merge})));
 								case 'Escape':
 									return $author$project$Model$switch_Default(model);
 								case 'Enter':
@@ -17478,7 +17493,7 @@ var $author$project$Modes$NewArrow$update = F3(
 								case 'Tab':
 									return next(false);
 								default:
-									break _v0$9;
+									break _v0$10;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -17510,14 +17525,14 @@ var $author$project$Modes$NewArrow$update = F3(
 												state,
 												{mode: mode})));
 								default:
-									break _v0$9;
+									break _v0$10;
 							}
 						}
 					} else {
-						break _v0$9;
+						break _v0$10;
 					}
 				default:
-					break _v0$9;
+					break _v0$10;
 			}
 		}
 		var newStyle = function () {
@@ -19531,7 +19546,7 @@ var $author$project$Modes$CutHead$initialise = function (model) {
 			model,
 			{
 				mode: $author$project$Modes$CutHead(
-					{duplicate: false, edge: e, head: true})
+					{duplicate: false, edge: e, head: true, merge: false})
 			});
 	}
 };
@@ -19561,7 +19576,7 @@ var $author$project$Modes$Move$initialise = F3(
 			model,
 			{
 				mode: $author$project$GraphDefs$isEmptySelection(modelGraph) ? $author$project$Modes$DefaultMode : $author$project$Modes$Move(
-					{direction: $author$project$Modes$Free, mode: mode, pos: $author$project$InputPosition$InputPosMouse, save: save})
+					{direction: $author$project$Modes$Free, merge: false, mode: mode, pos: $author$project$InputPosition$InputPosMouse, save: save})
 			});
 	});
 var $author$project$Modes$CreateArrow = function (a) {
@@ -19627,6 +19642,7 @@ var $author$project$Modes$NewArrow$initialise = function (m) {
 							{
 								chosen: $author$project$GraphDefs$selectedGraph(modelGraph),
 								inverted: false,
+								merge: false,
 								mode: mode,
 								pos: $author$project$InputPosition$InputPosMouse,
 								style: $author$project$ArrowStyle$empty
@@ -22318,9 +22334,9 @@ var $author$project$Drawing$grid = function (n) {
 var $author$project$Main$Plain = {$: 'Plain'};
 var $author$project$ArrowStyle$controlChars = '|>(=-bBA][';
 var $author$project$HtmlDefs$overlayHelpMsg = '[?] to toggle help overlay';
-var $author$project$Modes$CutHead$help = $author$project$HtmlDefs$overlayHelpMsg + (', [RET] or [click] to confirm, [ctrl] to merge the endpoint with existing node. [ESC] to cancel. ' + ('[c] to switch between head/tail' + ', [d] to duplicate (or not) the arrow.'));
+var $author$project$Modes$CutHead$help = $author$project$HtmlDefs$overlayHelpMsg + (', [RET] or [click] to confirm, [ctrl] to toggle merging. [ESC] to cancel. ' + ('[c] to switch between head/tail' + ', [d] to duplicate (or not) the arrow.'));
 var $author$project$Modes$Move$help = function (s) {
-	return 'Mode Move. ' + ($author$project$HtmlDefs$overlayHelpMsg + ('Use mouse or h,j,k,l.' + (' Hold [ctrl] to merge the selected point onto another node,' + (' Press [x] or [y] to restrict to horizontal / vertical directions, or let it [f]ree ' + ('(currently, ' + (function () {
+	return 'Mode Move. ' + ($author$project$HtmlDefs$overlayHelpMsg + ('. Use mouse or h,j,k,l.' + (' [ctrl] to toggle merging,' + (' Press [x] or [y] to restrict to horizontal / vertical directions, or let it [f]ree ' + ('(currently, ' + (function () {
 		var _v0 = s.direction;
 		switch (_v0.$) {
 			case 'Vertical':
@@ -22343,7 +22359,7 @@ var $author$project$Modes$Move$help = function (s) {
 	}())))))));
 };
 var $author$project$Drawing$Color$helpMsg = 'bla[c]k, bl[u]e, [g]reen, [o]range, [r]ed, [v]iolet, [y]ellow';
-var $author$project$Modes$NewArrow$help = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new), ' + ('[hjkl] position the new point with the keyboard, ' + ('[RET] terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[i]nvert arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + $author$project$Drawing$Color$helpMsg)))))))))));
+var $author$project$Modes$NewArrow$help = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new), ' + ('[hjkl] position the new point with the keyboard, ' + ('[ctrl] toggle merge mode, ' + ('[RET] terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[i]nvert arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + $author$project$Drawing$Color$helpMsg))))))))))));
 var $author$project$Modes$Pullshout$help = '[ESC] cancel, ' + ($author$project$HtmlDefs$overlayHelpMsg + (', cycle between [p]ullback/[P]ushout possibilities, ' + '[RET] confirm'));
 var $author$project$Modes$SplitArrow$help = '[ESC] cancel, ' + ($author$project$HtmlDefs$overlayHelpMsg + (', [click] name the point (if new), ' + ('[/] to move the existing label on the other edge, ' + '[RET] terminate the square creation')));
 var $author$project$Modes$Square$help = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel' + ('[click] name the point (if new), ' + ('[RET] terminate the square creation, ' + (' alternative possible [s]quares, ' + (' [a]lternative possible labels, ' + 'toggle [p]roof node creation.')))));
