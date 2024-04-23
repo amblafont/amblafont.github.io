@@ -11972,7 +11972,7 @@ var $author$project$Tikz$graphToTikz = F2(
 				$elm$core$List$map,
 				$author$project$Tikz$encodePullshoutTikZ(gnorm),
 				pullshouts));
-		return '\\begin{tikzpicture}[every node/.style={inner sep=5pt,outer sep=0pt,anchor=base,text height=1.2ex, text depth=0.25ex}] \n' + (tikzNodes + (tikzFakeEdges + (tikzEdges + (tikzPullshouts + '\\end{tikzpicture}'))));
+		return '\\begin{tikzpicture}[every node/.style={inner sep=2pt,outer sep=0pt,anchor=base,text height=1.2ex, text depth=0.25ex}] \n' + (tikzNodes + (tikzFakeEdges + (tikzEdges + (tikzPullshouts + '\\end{tikzpicture}'))));
 	});
 var $author$project$GraphDefs$clearSelection = function (g) {
 	return A3(
@@ -16913,7 +16913,17 @@ var $author$project$Modes$Move$update = F3(
 				case 'MouseClick':
 					return terminedRet(_Utils_Tuple0);
 				case 'KeyChanged':
-					if (!msg.a) {
+					if (msg.a) {
+						if ((msg.c.$ === 'Control') && (msg.c.a === 'Control')) {
+							return $author$project$Model$noCmd(
+								updateState(
+									_Utils_update(
+										state,
+										{merge: !state.merge})));
+						} else {
+							break _v0$10;
+						}
+					} else {
 						if (msg.c.$ === 'Character') {
 							switch (msg.c.a.valueOf()) {
 								case '?':
@@ -16944,12 +16954,6 @@ var $author$project$Modes$Move$update = F3(
 							}
 						} else {
 							switch (msg.c.a) {
-								case 'Control':
-									return $author$project$Model$noCmd(
-										updateState(
-											_Utils_update(
-												state,
-												{merge: !state.merge})));
 								case 'Escape':
 									return $author$project$Model$switch_Default(model);
 								case 'Enter':
@@ -16958,8 +16962,6 @@ var $author$project$Modes$Move$update = F3(
 									break _v0$10;
 							}
 						}
-					} else {
-						break _v0$10;
 					}
 				default:
 					break _v0$10;
@@ -17475,17 +17477,21 @@ var $author$project$Modes$NewArrow$update = F3(
 				case 'MouseClick':
 					return next(false);
 				case 'KeyChanged':
-					if (!msg.a) {
+					if (msg.a) {
+						if ((msg.c.$ === 'Control') && (msg.c.a === 'Control')) {
+							return $author$project$Model$noCmd(
+								A2(
+									$author$project$Modes$NewArrow$updateState,
+									model,
+									_Utils_update(
+										state,
+										{merge: !state.merge})));
+						} else {
+							break _v0$10;
+						}
+					} else {
 						if (msg.c.$ === 'Control') {
 							switch (msg.c.a) {
-								case 'Control':
-									return $author$project$Model$noCmd(
-										A2(
-											$author$project$Modes$NewArrow$updateState,
-											model,
-											_Utils_update(
-												state,
-												{merge: !state.merge})));
 								case 'Escape':
 									return $author$project$Model$switch_Default(model);
 								case 'Enter':
@@ -17528,8 +17534,6 @@ var $author$project$Modes$NewArrow$update = F3(
 									break _v0$10;
 							}
 						}
-					} else {
-						break _v0$10;
 					}
 				default:
 					break _v0$10;
