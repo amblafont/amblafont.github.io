@@ -16726,12 +16726,11 @@ var $author$project$GraphDefs$unselect = function (id) {
 				{selected: false});
 		});
 };
-var $author$project$Modes$CutHead$makeGraph = F2(
-	function (_v0, model) {
+var $author$project$Modes$CutHead$makeGraph = F3(
+	function (merge, _v0, model) {
 		var edge = _v0.edge;
 		var head = _v0.head;
 		var duplicate = _v0.duplicate;
-		var merge = _v0.merge;
 		var modelGraph = $author$project$Model$getActiveGraph(model);
 		var pos = model.mousePos;
 		var _v1 = head ? _Utils_Tuple2(edge.from, edge.to) : _Utils_Tuple2(edge.to, edge.from);
@@ -16775,14 +16774,14 @@ var $author$project$Model$toggleHelpOverlay = function (model) {
 };
 var $author$project$Modes$CutHead$update = F3(
 	function (state, msg, m) {
-		var finalise = function (_v1) {
+		var finalise = function (merge) {
 			return _Utils_Tuple2(
 				A2(
 					$author$project$Model$setActiveGraph,
 					_Utils_update(
 						m,
 						{mode: $author$project$Modes$DefaultMode}),
-					A2($author$project$Modes$CutHead$makeGraph, state, m)),
+					A3($author$project$Modes$CutHead$makeGraph, merge, state, m)),
 				$elm$core$Platform$Cmd$none);
 		};
 		var changeState = function (s) {
@@ -16792,13 +16791,19 @@ var $author$project$Modes$CutHead$update = F3(
 					mode: $author$project$Modes$CutHead(s)
 				});
 		};
-		_v0$6:
+		_v0$7:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseClick':
-					return finalise(_Utils_Tuple0);
+					return finalise(false);
 				case 'KeyChanged':
-					if (!msg.a) {
+					if (msg.a) {
+						if ((msg.c.$ === 'Control') && (msg.c.a === 'Control')) {
+							return finalise(true);
+						} else {
+							break _v0$7;
+						}
+					} else {
 						if (msg.c.$ === 'Control') {
 							switch (msg.c.a) {
 								case 'Escape':
@@ -16808,9 +16813,9 @@ var $author$project$Modes$CutHead$update = F3(
 											{mode: $author$project$Modes$DefaultMode}),
 										$elm$core$Platform$Cmd$none);
 								case 'Enter':
-									return finalise(_Utils_Tuple0);
+									return finalise(false);
 								default:
-									break _v0$6;
+									break _v0$7;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -16832,14 +16837,12 @@ var $author$project$Modes$CutHead$update = F3(
 												{duplicate: !state.duplicate})),
 										$elm$core$Platform$Cmd$none);
 								default:
-									break _v0$6;
+									break _v0$7;
 							}
 						}
-					} else {
-						break _v0$6;
 					}
 				default:
-					break _v0$6;
+					break _v0$7;
 			}
 		}
 		return $author$project$Model$noCmd(m);
@@ -16852,11 +16855,10 @@ var $author$project$Modes$Move = function (a) {
 var $author$project$Modes$PressMove = {$: 'PressMove'};
 var $author$project$Modes$UndefinedMove = {$: 'UndefinedMove'};
 var $author$project$Modes$Vertical = {$: 'Vertical'};
-var $author$project$Modes$Move$mkInfo = F2(
-	function (model, _v0) {
+var $author$project$Modes$Move$mkInfo = F3(
+	function (model, merge, _v0) {
 		var pos = _v0.pos;
 		var direction = _v0.direction;
-		var merge = _v0.merge;
 		var modelGraph = $author$project$Model$getActiveGraph(model);
 		var selectedGraph = $author$project$GraphDefs$selectedGraph(modelGraph);
 		var _v1 = A6($author$project$Modes$Move$mkGraph, model, pos, direction, merge, modelGraph, selectedGraph);
@@ -16929,14 +16931,14 @@ var $author$project$InputPosition$update = F2(
 	});
 var $author$project$Modes$Move$update = F3(
 	function (msg, state, model) {
-		var movedRet = function (_v3) {
-			var info = A2($author$project$Modes$Move$mkInfo, model, state);
+		var movedRet = function (merge) {
+			var info = A3($author$project$Modes$Move$mkInfo, model, merge, state);
 			return info.valid ? $author$project$Model$switch_Default(
 				state.save ? A2($author$project$Model$setSaveGraph, model, info.graph) : A2($author$project$Model$setActiveGraph, model, info.graph)) : $author$project$Model$noCmd(model);
 		};
 		var terminable = !_Utils_eq(state.mode, $author$project$Modes$PressMove);
-		var terminedRet = function (_v2) {
-			return terminable ? movedRet(_Utils_Tuple0) : $author$project$Model$noCmd(model);
+		var terminedRet = function (merge) {
+			return terminable ? movedRet(merge) : $author$project$Model$noCmd(model);
 		};
 		var updateState = function (st) {
 			return _Utils_update(
@@ -16962,15 +16964,11 @@ var $author$project$Modes$Move$update = F3(
 								state,
 								{mode: $author$project$Modes$PressMove})) : model);
 				case 'MouseClick':
-					return terminedRet(_Utils_Tuple0);
+					return terminedRet(false);
 				case 'KeyChanged':
 					if (msg.a) {
 						if ((msg.c.$ === 'Control') && (msg.c.a === 'Control')) {
-							return $author$project$Model$noCmd(
-								updateState(
-									_Utils_update(
-										state,
-										{merge: !state.merge})));
+							return terminedRet(true);
 						} else {
 							break _v0$10;
 						}
@@ -16990,7 +16988,7 @@ var $author$project$Modes$Move$update = F3(
 														state,
 														{mode: $author$project$Modes$FreeMove})));
 										case 'PressMove':
-											return movedRet(_Utils_Tuple0);
+											return movedRet(false);
 										default:
 											return $author$project$Model$noCmd(model);
 									}
@@ -17008,7 +17006,7 @@ var $author$project$Modes$Move$update = F3(
 								case 'Escape':
 									return $author$project$Model$switch_Default(model);
 								case 'Enter':
-									return terminedRet(_Utils_Tuple0);
+									return terminedRet(false);
 								default:
 									break _v0$10;
 							}
@@ -17412,15 +17410,15 @@ var $author$project$Polygraph$makeCylinder = F4(
 		return {edgeIds: idEdges, extendedGraph: extendedGraph, newSubGraph: extGraph.subGraph};
 	});
 var $author$project$Modes$NewArrow$moveNodeInfo = F3(
-	function (_v0, model, state) {
+	function (merge, model, state) {
 		var modelGraph = $author$project$Model$getActiveGraph(model);
 		var edgeLabel = A2($author$project$GraphDefs$newEdgeLabel, '', state.style);
 		var nodePos = $author$project$GraphDefs$centerOfNodes(
 			$author$project$Polygraph$nodes(state.chosen));
 		var nodeLabel = A4($author$project$GraphDefs$newNodeLabel, nodePos, '', true, $author$project$Zindex$defaultZ);
 		var extendedGraph = function () {
-			var _v1 = state.mode;
-			switch (_v1.$) {
+			var _v0 = state.mode;
+			switch (_v0.$) {
 				case 'CreateCylinder':
 					return A4($author$project$Polygraph$makeCylinder, modelGraph, state.chosen, edgeLabel, state.inverted);
 				case 'CreateCone':
@@ -17432,7 +17430,7 @@ var $author$project$Modes$NewArrow$moveNodeInfo = F3(
 						edgeLabel,
 						state.inverted);
 				default:
-					var id = _v1.a;
+					var id = _v0.a;
 					return A5(
 						$author$project$Polygraph$makeCone,
 						modelGraph,
@@ -17443,7 +17441,7 @@ var $author$project$Modes$NewArrow$moveNodeInfo = F3(
 						state.inverted);
 			}
 		}();
-		var moveInfo = A6($author$project$Modes$Move$mkGraph, model, state.pos, $author$project$Modes$Free, state.merge, extendedGraph.extendedGraph, extendedGraph.newSubGraph);
+		var moveInfo = A6($author$project$Modes$Move$mkGraph, model, state.pos, $author$project$Modes$Free, merge, extendedGraph.extendedGraph, extendedGraph.newSubGraph);
 		var selectable = $author$project$Polygraph$allIds(extendedGraph.newSubGraph);
 		return {
 			graph: moveInfo.graph,
@@ -17454,8 +17452,10 @@ var $author$project$Modes$NewArrow$moveNodeInfo = F3(
 		};
 	});
 var $author$project$Modes$NewArrow$nextStep = F3(
-	function (model, finish, state) {
-		var info = A3($author$project$Modes$NewArrow$moveNodeInfo, finish, model, state);
+	function (model, _v0, state) {
+		var finish = _v0.finish;
+		var merge = _v0.merge;
+		var info = A3($author$project$Modes$NewArrow$moveNodeInfo, merge, model, state);
 		var m2 = A2(
 			$author$project$Model$setSaveGraph,
 			model,
@@ -17497,8 +17497,8 @@ var $author$project$Modes$NewArrow$updateState = F2(
 var $author$project$Modes$NewArrow$update = F3(
 	function (state, msg, model) {
 		var modelGraph = $author$project$Model$getActiveGraph(model);
-		var next = function (finish) {
-			return A3($author$project$Modes$NewArrow$nextStep, model, finish, state);
+		var next = function (finishMerge) {
+			return A3($author$project$Modes$NewArrow$nextStep, model, finishMerge, state);
 		};
 		var pullshoutMode = function (k) {
 			return $author$project$Model$noCmd(
@@ -17526,17 +17526,13 @@ var $author$project$Modes$NewArrow$update = F3(
 		while (true) {
 			switch (msg.$) {
 				case 'MouseClick':
-					return next(false);
+					return next(
+						{finish: false, merge: false});
 				case 'KeyChanged':
 					if (msg.a) {
 						if ((msg.c.$ === 'Control') && (msg.c.a === 'Control')) {
-							return $author$project$Model$noCmd(
-								A2(
-									$author$project$Modes$NewArrow$updateState,
-									model,
-									_Utils_update(
-										state,
-										{merge: !state.merge})));
+							return next(
+								{finish: false, merge: true});
 						} else {
 							break _v0$10;
 						}
@@ -17546,9 +17542,11 @@ var $author$project$Modes$NewArrow$update = F3(
 								case 'Escape':
 									return $author$project$Model$switch_Default(model);
 								case 'Enter':
-									return next(true);
+									return next(
+										{finish: true, merge: false});
 								case 'Tab':
-									return next(false);
+									return next(
+										{finish: false, merge: false});
 								default:
 									break _v0$10;
 							}
@@ -19600,7 +19598,7 @@ var $author$project$Modes$CutHead$initialise = function (model) {
 			model,
 			{
 				mode: $author$project$Modes$CutHead(
-					{duplicate: false, edge: e, head: true, merge: false})
+					{duplicate: false, edge: e, head: true})
 			});
 	}
 };
@@ -19630,7 +19628,7 @@ var $author$project$Modes$Move$initialise = F3(
 			model,
 			{
 				mode: $author$project$GraphDefs$isEmptySelection(modelGraph) ? $author$project$Modes$DefaultMode : $author$project$Modes$Move(
-					{direction: $author$project$Modes$Free, merge: false, mode: mode, pos: $author$project$InputPosition$InputPosMouse, save: save})
+					{direction: $author$project$Modes$Free, mode: mode, pos: $author$project$InputPosition$InputPosMouse, save: save})
 			});
 	});
 var $author$project$Modes$CreateArrow = function (a) {
@@ -19696,7 +19694,6 @@ var $author$project$Modes$NewArrow$initialise = function (m) {
 							{
 								chosen: $author$project$GraphDefs$selectedGraph(modelGraph),
 								inverted: false,
-								merge: false,
 								mode: mode,
 								pos: $author$project$InputPosition$InputPosMouse,
 								style: $author$project$ArrowStyle$empty
@@ -22125,7 +22122,19 @@ var $elm$html$Html$Attributes$cols = function (n) {
 		'cols',
 		$elm$core$String$fromInt(n));
 };
-var $author$project$Drawing$emptyForeign = $author$project$Drawing$empty;
+var $author$project$Drawing$emptyForeign = A2(
+	$author$project$Drawing$ofSvg,
+	2 * $author$project$Zindex$backgroundZ,
+	A2(
+		$author$project$String$Svg$foreignObject,
+		_List_fromArray(
+			[
+				$author$project$String$Svg$x('1'),
+				$author$project$String$Svg$y('1'),
+				$author$project$String$Svg$width('100%'),
+				$author$project$String$Svg$height('100%')
+			]),
+		_List_Nil));
 var $author$project$Model$getCurrentSizeGrid = function (m) {
 	var _v0 = m.mode;
 	if (_v0.$ === 'ResizeMode') {
@@ -22151,12 +22160,17 @@ var $author$project$Model$collageGraphFromGraph = F2(
 		return $author$project$GraphDrawing$toDrawingGraph(
 			$author$project$GraphDefs$makeSelection(g));
 	});
+var $author$project$Modes$CutHead$graphDrawing = F2(
+	function (m, state) {
+		return $author$project$GraphDrawing$toDrawingGraph(
+			A3($author$project$Modes$CutHead$makeGraph, false, state, m));
+	});
 var $author$project$Modes$Move$graphDrawing = F2(
 	function (m, s) {
 		return A2(
 			$author$project$Model$collageGraphFromGraph,
 			m,
-			A2($author$project$Modes$Move$mkInfo, m, s).graph);
+			A3($author$project$Modes$Move$mkInfo, m, false, s).graph);
 	});
 var $author$project$Modes$NewArrow$graphDrawing = F2(
 	function (m, s) {
@@ -22315,8 +22329,7 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 			return A2($author$project$Modes$Pullshout$graphDrawing, m, state);
 		case 'CutHead':
 			var state = _v0.a;
-			return $author$project$GraphDrawing$toDrawingGraph(
-				A2($author$project$Modes$CutHead$makeGraph, state, m));
+			return A2($author$project$Modes$CutHead$graphDrawing, m, state);
 		default:
 			var sizeGrid = _v0.a;
 			return $author$project$GraphDrawing$toDrawingGraph(
@@ -22376,9 +22389,9 @@ var $author$project$Drawing$grid = function (n) {
 var $author$project$Main$Plain = {$: 'Plain'};
 var $author$project$ArrowStyle$controlChars = '|>(=-bBA][';
 var $author$project$HtmlDefs$overlayHelpMsg = '[?] to toggle help overlay';
-var $author$project$Modes$CutHead$help = $author$project$HtmlDefs$overlayHelpMsg + (', [RET] or [click] to confirm, [ctrl] to toggle merging. [ESC] to cancel. ' + ('[c] to switch between head/tail' + ', [d] to duplicate (or not) the arrow.'));
+var $author$project$Modes$CutHead$help = $author$project$HtmlDefs$overlayHelpMsg + (', [RET] or [click] to confirm, [ctrl] to merge. [ESC] to cancel. ' + ('[c] to switch between head/tail' + ', [d] to duplicate (or not) the arrow.'));
 var $author$project$Modes$Move$help = function (s) {
-	return 'Mode Move. ' + ($author$project$HtmlDefs$overlayHelpMsg + ('. Use mouse or h,j,k,l.' + (' [ctrl] to toggle merging,' + (' Press [x] or [y] to restrict to horizontal / vertical directions, or let it [f]ree ' + ('(currently, ' + (function () {
+	return 'Mode Move. ' + ($author$project$HtmlDefs$overlayHelpMsg + ('. Use mouse or h,j,k,l.' + (' [ctrl] to merge,' + (' Press [x] or [y] to restrict to horizontal / vertical directions, or let it [f]ree ' + ('(currently, ' + (function () {
 		var _v0 = s.direction;
 		switch (_v0.$) {
 			case 'Vertical':
@@ -22401,7 +22414,7 @@ var $author$project$Modes$Move$help = function (s) {
 	}())))))));
 };
 var $author$project$Drawing$Color$helpMsg = 'bla[c]k, bl[u]e, [g]reen, [o]range, [r]ed, [v]iolet, [y]ellow';
-var $author$project$Modes$NewArrow$help = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new), ' + ('[hjkl] position the new point with the keyboard, ' + ('[ctrl] toggle merge mode, ' + ('[RET] terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[i]nvert arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + $author$project$Drawing$Color$helpMsg))))))))))));
+var $author$project$Modes$NewArrow$help = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard, ' + ('[ctrl] merge, ' + ('[RET] terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[i]nvert arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + $author$project$Drawing$Color$helpMsg))))))))))));
 var $author$project$Modes$Pullshout$help = '[ESC] cancel, ' + ($author$project$HtmlDefs$overlayHelpMsg + (', cycle between [p]ullback/[P]ushout possibilities, ' + '[RET] confirm'));
 var $author$project$Modes$SplitArrow$help = '[ESC] cancel, ' + ($author$project$HtmlDefs$overlayHelpMsg + (', [click] name the point (if new), ' + ('[/] to move the existing label on the other edge, ' + '[RET] terminate the square creation')));
 var $author$project$Modes$Square$help = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel' + ('[click] name the point (if new), ' + ('[RET] terminate the square creation, ' + (' alternative possible [s]quares, ' + (' [a]lternative possible labels, ' + 'toggle [p]roof node creation.')))));
