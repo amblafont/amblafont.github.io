@@ -9007,6 +9007,7 @@ var $author$project$Main$loadedGraph9 = _Platform_incomingPort(
 				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
 		},
 		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
+var $elm$core$Debug$log = _Debug_log;
 var $author$project$Msg$mapLoadGraphInfo = F2(
 	function (f, _v0) {
 		var graph = _v0.graph;
@@ -9436,8 +9437,9 @@ var $author$project$Main$subscriptions = function (m) {
 																}
 															} else {
 																if (k.a === 'Tab') {
-																	var _v3 = m.mode;
-																	switch (_v3.$) {
+																	var _v3 = A2($elm$core$Debug$log, 'tab', 'tab');
+																	var _v4 = m.mode;
+																	switch (_v4.$) {
 																		case 'SquareMode':
 																			return $author$project$Msg$Do(
 																				$author$project$Main$preventDefault(e));
@@ -9445,6 +9447,7 @@ var $author$project$Main$subscriptions = function (m) {
 																			return $author$project$Msg$Do(
 																				$author$project$Main$preventDefault(e));
 																		case 'NewArrow':
+																			var _v5 = A2($elm$core$Debug$log, 'prevent default', 'tab');
 																			return $author$project$Msg$Do(
 																				$author$project$Main$preventDefault(e));
 																		default:
@@ -13681,6 +13684,164 @@ var $author$project$GraphDrawing$normalEdgeDrawing = F7(
 					A6($author$project$GraphDrawing$segmentLabel, cfg, q, edgeId, activity, label, curve)
 				]));
 	});
+var $author$project$GraphDrawing$graphDrawing = F2(
+	function (cfg, g0) {
+		var drawEdge = F4(
+			function (id, n1, n2, e) {
+				var _v0 = e.details;
+				if (_v0.$ === 'PullshoutEdge') {
+					return {
+						drawing: A2(
+							$elm$core$Maybe$withDefault,
+							$author$project$Drawing$empty,
+							A3(
+								$elm$core$Maybe$map2,
+								A3($author$project$GraphDrawing$drawPullshout, id, e.isActive, e.zindex),
+								n1.extrems,
+								n2.extrems)),
+						extrems: $elm$core$Maybe$Nothing,
+						id: id,
+						pos: _Utils_Tuple2(0, 0)
+					};
+				} else {
+					var l = _v0.a;
+					var q = l.bezier;
+					return {
+						drawing: A7($author$project$GraphDrawing$normalEdgeDrawing, cfg, id, e.isActive, e.zindex, l, q, l.style.bend),
+						extrems: $elm$core$Maybe$Just(
+							{bez: q, fromId: n1.id, fromPos: n1.pos, toId: n2.id, toPos: n2.pos}),
+						id: id,
+						pos: $author$project$Geometry$QuadraticBezier$middle(q)
+					};
+				}
+			});
+		var g = A5(
+			$author$project$Polygraph$mapRecAll,
+			$elm$core$Basics$identity,
+			$elm$core$Basics$identity,
+			F2(
+				function (id, n) {
+					return {
+						drawing: A2(
+							$author$project$GraphDrawing$nodeDrawing,
+							cfg,
+							A2($author$project$Polygraph$Node, id, n)),
+						extrems: $elm$core$Maybe$Nothing,
+						id: id,
+						pos: n.pos
+					};
+				}),
+			drawEdge,
+			g0);
+		var nodes = A2(
+			$elm$core$List$map,
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.label;
+				},
+				function ($) {
+					return $.drawing;
+				}),
+			$author$project$Polygraph$nodes(g));
+		var edges = A2(
+			$elm$core$List$map,
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.label;
+				},
+				function ($) {
+					return $.drawing;
+				}),
+			$author$project$Polygraph$edges(g));
+		var drawings = _Utils_ap(nodes, edges);
+		return $author$project$Drawing$group(drawings);
+	});
+var $author$project$Main$toDrawing = F2(
+	function (model, graph) {
+		var cfg = {
+			latexPreamble: function () {
+				var _v0 = model.scenario;
+				if (_v0.$ === 'Exercise1') {
+					return '\\newcommand{\\depthHistory}{' + ($elm$core$String$fromInt(
+						$elm$core$List$length(model.history)) + '}');
+				} else {
+					return model.latexPreamble;
+				}
+			}()
+		};
+		return A2($author$project$GraphDrawing$graphDrawing, cfg, graph);
+	});
+var $author$project$GraphDrawing$MainActive = {$: 'MainActive'};
+var $author$project$GraphDrawing$NoActive = {$: 'NoActive'};
+var $author$project$GraphDrawing$WeakActive = {$: 'WeakActive'};
+var $author$project$GraphDrawing$NormalEdge = function (a) {
+	return {$: 'NormalEdge', a: a};
+};
+var $author$project$GraphDrawing$PullshoutEdge = {$: 'PullshoutEdge'};
+var $author$project$Geometry$QuadraticBezier$dummy = {
+	controlPoint: _Utils_Tuple2(0, 0),
+	from: _Utils_Tuple2(0, 0),
+	to: _Utils_Tuple2(0, 0)
+};
+var $author$project$GraphDefs$getEdgeDims = function (n) {
+	var _v0 = n.dims;
+	if (_v0.$ === 'Nothing') {
+		return $author$project$GraphDefs$defaultDims(n.label);
+	} else {
+		var p = _v0.a;
+		return p;
+	}
+};
+var $author$project$GraphDrawing$make_edgeDrawingLabel = F2(
+	function (_v0, e) {
+		var editable = _v0.editable;
+		var isActive = _v0.isActive;
+		var bezier = _v0.bezier;
+		return {
+			details: function () {
+				var _v1 = e.details;
+				if (_v1.$ === 'PullshoutEdge') {
+					return $author$project$GraphDrawing$PullshoutEdge;
+				} else {
+					var l = _v1.a;
+					var label = l.label;
+					var style = l.style;
+					return $author$project$GraphDrawing$NormalEdge(
+						{
+							bezier: A2($elm$core$Maybe$withDefault, $author$project$Geometry$QuadraticBezier$dummy, bezier),
+							dims: $author$project$GraphDefs$getEdgeDims(l),
+							editable: editable,
+							label: label,
+							style: style
+						});
+				}
+			}(),
+			isActive: isActive,
+			zindex: e.zindex
+		};
+	});
+var $author$project$GraphDrawing$make_nodeDrawingLabel = F2(
+	function (_v0, l) {
+		var editable = _v0.editable;
+		var isActive = _v0.isActive;
+		var label = l.label;
+		var pos = l.pos;
+		var isMath = l.isMath;
+		var nodePos = $author$project$GraphDefs$getNodePos(l);
+		return {
+			dims: editable ? _Utils_Tuple2(0, 0) : $author$project$GraphDefs$getNodeDims(l),
+			editable: editable,
+			inputPos: pos,
+			isActive: isActive,
+			isMath: isMath,
+			isValidated: l.isCoqValidated,
+			label: label,
+			pos: nodePos,
+			zindex: l.zindex
+		};
+	});
 var $author$project$Geometry$Point$diamondPx = F3(
 	function (p1, p2, d) {
 		var mid = A2($author$project$Geometry$Point$middle, p1, p2);
@@ -13841,178 +14002,79 @@ var $author$project$Geometry$segmentRectBent = F3(
 		var bent_bis = _v0.c;
 		return A3($author$project$Geometry$segmentRectBent_aux, r1_bis, r2_bis, bent_bis);
 	});
-var $author$project$GraphDrawing$graphDrawing = F2(
-	function (cfg, g0) {
-		var padding = 5;
-		var drawEdge = F4(
-			function (id, n1, n2, e) {
-				var _v0 = e.details;
-				if (_v0.$ === 'PullshoutEdge') {
-					return {
-						drawing: A2(
-							$elm$core$Maybe$withDefault,
-							$author$project$Drawing$empty,
-							A3(
-								$elm$core$Maybe$map2,
-								A3($author$project$GraphDrawing$drawPullshout, id, e.isActive, e.zindex),
-								n1.extrems,
-								n2.extrems)),
-						extrems: $elm$core$Maybe$Nothing,
-						id: id,
-						posDims: {
-							dims: _Utils_Tuple2(0, 0),
-							pos: _Utils_Tuple2(0, 0)
-						}
-					};
-				} else {
-					var l = _v0.a;
-					var q = A3($author$project$Geometry$segmentRectBent, n1.posDims, n2.posDims, l.style.bend);
-					return {
-						drawing: A7($author$project$GraphDrawing$normalEdgeDrawing, cfg, id, e.isActive, e.zindex, l, q, l.style.bend),
-						extrems: $elm$core$Maybe$Just(
-							{bez: q, fromId: n1.id, fromPos: n1.posDims.pos, toId: n2.id, toPos: n2.posDims.pos}),
-						id: id,
-						posDims: {
-							dims: A2(
-								$author$project$Geometry$Point$resize,
-								4,
-								_Utils_Tuple2(padding, padding)),
-							pos: $author$project$Geometry$QuadraticBezier$middle(q)
-						}
-					};
-				}
-			});
-		var g = A5(
+var $author$project$GraphDefs$posGraph = function (g) {
+	var padding = 5;
+	var computeEdge = F4(
+		function (_v5, n1, n2, e) {
+			var _v4 = e.details;
+			if (_v4.$ === 'PullshoutEdge') {
+				return {
+					bezier: $elm$core$Maybe$Nothing,
+					label: e,
+					posDims: {
+						dims: _Utils_Tuple2(0, 0),
+						pos: _Utils_Tuple2(0, 0)
+					}
+				};
+			} else {
+				var l = _v4.a;
+				var q = A3($author$project$Geometry$segmentRectBent, n1, n2, l.style.bend);
+				return {
+					bezier: $elm$core$Maybe$Just(q),
+					label: e,
+					posDims: {
+						dims: A2(
+							$author$project$Geometry$Point$resize,
+							4,
+							_Utils_Tuple2(padding, padding)),
+						pos: $author$project$Geometry$QuadraticBezier$middle(q)
+					}
+				};
+			}
+		});
+	return A3(
+		$author$project$Polygraph$map,
+		F2(
+			function (_v0, _v1) {
+				var label = _v1.label;
+				return label;
+			}),
+		F2(
+			function (_v2, _v3) {
+				var label = _v3.label;
+				var bezier = _v3.bezier;
+				return {bezier: bezier, label: label};
+			}),
+		A5(
 			$author$project$Polygraph$mapRecAll,
-			$elm$core$Basics$identity,
-			$elm$core$Basics$identity,
+			function ($) {
+				return $.posDims;
+			},
+			function ($) {
+				return $.posDims;
+			},
 			F2(
 				function (id, n) {
 					return {
-						drawing: A2(
-							$author$project$GraphDrawing$nodeDrawing,
-							cfg,
-							A2($author$project$Polygraph$Node, id, n)),
-						extrems: $elm$core$Maybe$Nothing,
-						id: id,
+						label: n,
 						posDims: A2(
 							$author$project$Geometry$pad,
 							padding,
 							{
-								dims: n.editable ? _Utils_Tuple2(0, 0) : n.dims,
+								dims: $author$project$GraphDefs$getNodeDims(n),
 								pos: n.pos
 							})
 					};
 				}),
-			drawEdge,
-			g0);
-		var nodes = A2(
-			$elm$core$List$map,
-			A2(
-				$elm$core$Basics$composeR,
-				function ($) {
-					return $.label;
-				},
-				function ($) {
-					return $.drawing;
-				}),
-			$author$project$Polygraph$nodes(g));
-		var edges = A2(
-			$elm$core$List$map,
-			A2(
-				$elm$core$Basics$composeR,
-				function ($) {
-					return $.label;
-				},
-				function ($) {
-					return $.drawing;
-				}),
-			$author$project$Polygraph$edges(g));
-		var drawings = _Utils_ap(nodes, edges);
-		return $author$project$Drawing$group(drawings);
-	});
-var $author$project$Main$toDrawing = F2(
-	function (model, graph) {
-		var cfg = {
-			latexPreamble: function () {
-				var _v0 = model.scenario;
-				if (_v0.$ === 'Exercise1') {
-					return '\\newcommand{\\depthHistory}{' + ($elm$core$String$fromInt(
-						$elm$core$List$length(model.history)) + '}');
-				} else {
-					return model.latexPreamble;
-				}
-			}()
-		};
-		return A2($author$project$GraphDrawing$graphDrawing, cfg, graph);
-	});
-var $author$project$GraphDrawing$MainActive = {$: 'MainActive'};
-var $author$project$GraphDrawing$NoActive = {$: 'NoActive'};
-var $author$project$GraphDrawing$WeakActive = {$: 'WeakActive'};
-var $author$project$GraphDrawing$NormalEdge = function (a) {
-	return {$: 'NormalEdge', a: a};
+			computeEdge,
+			g));
 };
-var $author$project$GraphDrawing$PullshoutEdge = {$: 'PullshoutEdge'};
-var $author$project$GraphDefs$getEdgeDims = function (n) {
-	var _v0 = n.dims;
-	if (_v0.$ === 'Nothing') {
-		return $author$project$GraphDefs$defaultDims(n.label);
-	} else {
-		var p = _v0.a;
-		return p;
-	}
-};
-var $author$project$GraphDrawing$make_edgeDrawingLabel = F2(
-	function (_v0, e) {
-		var editable = _v0.editable;
-		var isActive = _v0.isActive;
-		return {
-			details: function () {
-				var _v1 = e.details;
-				if (_v1.$ === 'PullshoutEdge') {
-					return $author$project$GraphDrawing$PullshoutEdge;
-				} else {
-					var l = _v1.a;
-					var label = l.label;
-					var style = l.style;
-					return $author$project$GraphDrawing$NormalEdge(
-						{
-							dims: $author$project$GraphDefs$getEdgeDims(l),
-							editable: editable,
-							label: label,
-							style: style
-						});
-				}
-			}(),
-			isActive: isActive,
-			zindex: e.zindex
-		};
-	});
-var $author$project$GraphDrawing$make_nodeDrawingLabel = F2(
-	function (_v0, l) {
-		var editable = _v0.editable;
-		var isActive = _v0.isActive;
-		var label = l.label;
-		var pos = l.pos;
-		var isMath = l.isMath;
-		var nodePos = $author$project$GraphDefs$getNodePos(l);
-		return {
-			dims: $author$project$GraphDefs$getNodeDims(l),
-			editable: editable,
-			inputPos: pos,
-			isActive: isActive,
-			isMath: isMath,
-			isValidated: l.isCoqValidated,
-			label: label,
-			pos: nodePos,
-			zindex: l.zindex
-		};
-	});
-var $author$project$GraphDrawing$toDrawingGraph = function () {
+var $author$project$GraphDrawing$toDrawingGraph = function (g) {
 	var makeActivity = function (r) {
 		return r.selected ? $author$project$GraphDrawing$MainActive : (r.weaklySelected ? $author$project$GraphDrawing$WeakActive : $author$project$GraphDrawing$NoActive);
 	};
-	return A2(
+	var graphWithPos = $author$project$GraphDefs$posGraph(g);
+	return A3(
 		$author$project$Polygraph$map,
 		F2(
 			function (_v0, n) {
@@ -14029,12 +14091,14 @@ var $author$project$GraphDrawing$toDrawingGraph = function () {
 				return A2(
 					$author$project$GraphDrawing$make_edgeDrawingLabel,
 					{
+						bezier: e.bezier,
 						editable: false,
-						isActive: makeActivity(e)
+						isActive: makeActivity(e.label)
 					},
-					e);
-			}));
-}();
+					e.label);
+			}),
+		graphWithPos);
+};
 var $author$project$String$Svg$svg = $author$project$String$Svg$node('svg');
 var $author$project$Drawing$svgHelper = F2(
 	function (l, d) {
@@ -16287,45 +16351,32 @@ var $author$project$GraphDefs$closest = F2(
 			var t = _v0.a;
 			return t;
 		} else {
-			var ug2 = A5(
-				$author$project$Polygraph$mapRecAll,
-				function ($) {
-					return $.pos;
-				},
-				function ($) {
-					return $.pos;
-				},
-				F2(
-					function (_v1, n) {
-						return {
-							distance: A2($author$project$GraphDefs$distanceToNode, pos, n),
-							pos: n.pos
-						};
-					}),
-				F4(
-					function (_v2, p1, p2, e) {
-						var epos = A2($author$project$Geometry$Point$middle, p1, p2);
-						return {
-							distance: A2(
-								$author$project$Geometry$Point$distance,
-								pos,
-								A2($author$project$Geometry$Point$middle, p1, p2)),
-							pos: epos
-						};
-					}),
-				ug);
-			var getEmptysDistance = function (l) {
+			var edgeDistance = function (e) {
 				return A2(
-					$elm$core$List$map,
-					function (o) {
-						return {distance: o.label.distance, id: o.id};
-					},
-					l);
+					$elm$core$Maybe$map,
+					$author$project$Geometry$Point$distance(pos),
+					A2($elm$core$Maybe$map, $author$project$Geometry$QuadraticBezier$middle, e.bezier));
 			};
-			var unnamedEdges = getEmptysDistance(
+			var ug2 = A3(
+				$author$project$Polygraph$map,
+				$elm$core$Basics$always(
+					$author$project$GraphDefs$distanceToNode(pos)),
+				$elm$core$Basics$always(edgeDistance),
+				$author$project$GraphDefs$posGraph(ug));
+			var unnamedNodes = $author$project$Polygraph$nodes(ug2);
+			var unnamedEdges = A2(
+				$elm$core$List$filterMap,
+				function (_v1) {
+					var id = _v1.id;
+					var label = _v1.label;
+					return A2(
+						$elm$core$Maybe$map,
+						function (l) {
+							return {id: id, label: l};
+						},
+						label);
+				},
 				$author$project$Polygraph$edges(ug2));
-			var unnamedNodes = getEmptysDistance(
-				$author$project$Polygraph$nodes(ug2));
 			var unnamedAll = A2(
 				$elm$core$Maybe$withDefault,
 				0,
@@ -16337,7 +16388,7 @@ var $author$project$GraphDefs$closest = F2(
 					A2(
 						$elm_community$list_extra$List$Extra$minimumBy,
 						function ($) {
-							return $.distance;
+							return $.label;
 						},
 						_Utils_ap(unnamedEdges, unnamedNodes))));
 			return unnamedAll;
@@ -19401,7 +19452,6 @@ var $author$project$Geometry$Point$barycenter = function (pts) {
 		$elm$core$List$sum(xs) / length,
 		$elm$core$List$sum(ys) / length);
 };
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$GraphDefs$createValidProofAtBarycenter = F3(
 	function (g, nodes, proof) {
 		var nodePositions = A2(
@@ -22075,19 +22125,7 @@ var $elm$html$Html$Attributes$cols = function (n) {
 		'cols',
 		$elm$core$String$fromInt(n));
 };
-var $author$project$Drawing$emptyForeign = A2(
-	$author$project$Drawing$ofSvg,
-	2 * $author$project$Zindex$backgroundZ,
-	A2(
-		$author$project$String$Svg$foreignObject,
-		_List_fromArray(
-			[
-				$author$project$String$Svg$x('1'),
-				$author$project$String$Svg$y('1'),
-				$author$project$String$Svg$width('100%'),
-				$author$project$String$Svg$height('100%')
-			]),
-		_List_Nil));
+var $author$project$Drawing$emptyForeign = $author$project$Drawing$empty;
 var $author$project$Model$getCurrentSizeGrid = function (m) {
 	var _v0 = m.mode;
 	if (_v0.$ === 'ResizeMode') {
