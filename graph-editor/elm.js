@@ -9025,7 +9025,6 @@ var $author$project$Main$loadedGraph9 = _Platform_incomingPort(
 				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
 		},
 		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$Msg$mapLoadGraphInfo = F2(
 	function (f, _v0) {
 		var graph = _v0.graph;
@@ -9442,7 +9441,7 @@ var $author$project$Main$subscriptions = function (m) {
 													function (ks, k) {
 														var checkCtrl = (ks.ctrl && _Utils_eq(m.mode, $author$project$Modes$DefaultMode)) ? $author$project$Msg$Do(
 															$author$project$Main$preventDefault(e)) : $author$project$Msg$noOp;
-														_v2$4:
+														_v2$2:
 														while (true) {
 															if (k.$ === 'Character') {
 																switch (k.a.valueOf()) {
@@ -9460,19 +9459,11 @@ var $author$project$Main$subscriptions = function (m) {
 																		}
 																	case 'a':
 																		return checkCtrl;
-																	case 'r':
-																		return A2($elm$core$Debug$log, 'reload', checkCtrl);
 																	default:
-																		break _v2$4;
+																		break _v2$2;
 																}
 															} else {
-																if (k.a === 'Tab') {
-																	return $author$project$Msg$Do(
-																		$author$project$Main$preventDefault(
-																			A2($elm$core$Debug$log, 'Tab', e)));
-																} else {
-																	break _v2$4;
-																}
+																break _v2$2;
 															}
 														}
 														return $author$project$Msg$noOp;
@@ -11063,6 +11054,7 @@ var $author$project$Polygraph$incidence = function (_v0) {
 		g);
 	return A2(aux, es, di);
 };
+var $elm$core$Debug$log = _Debug_log;
 var $elm_community$intdict$IntDict$values = function (dict) {
 	return A3(
 		$elm_community$intdict$IntDict$foldr,
@@ -11901,7 +11893,12 @@ var $author$project$Geometry$segmentRectBent_aux = F3(
 				controlPoint,
 				r1.pos,
 				$author$project$Geometry$rectFromPosDims(r1)));
-		return {controlPoint: controlPoint, from: p1, to: p2};
+		var betterControlPoint = A3(
+			$author$project$Geometry$Point$diamondPx,
+			p1,
+			p2,
+			A3($author$project$Geometry$pxFromRatio, p1, p2, bent));
+		return {controlPoint: betterControlPoint, from: p1, to: p2};
 	});
 var $author$project$Geometry$segmentRectBent = F3(
 	function (r1, r2, bent) {
