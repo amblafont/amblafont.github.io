@@ -5463,13 +5463,8 @@ var $author$project$Main$clear = _Platform_incomingPort(
 			return A2(
 				$elm$json$Json$Decode$andThen,
 				function (preamble) {
-					return A2(
-						$elm$json$Json$Decode$andThen,
-						function (fileName) {
-							return $elm$json$Json$Decode$succeed(
-								{fileName: fileName, preamble: preamble, scenario: scenario});
-						},
-						A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+					return $elm$json$Json$Decode$succeed(
+						{preamble: preamble, scenario: scenario});
 				},
 				A2($elm$json$Json$Decode$field, 'preamble', $elm$json$Json$Decode$string));
 		},
@@ -6855,16 +6850,11 @@ var $author$project$Main$loadedGraph0 = _Platform_incomingPort(
 						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (fileName) {
-									return A2(
-										$elm$json$Json$Decode$andThen,
-										function (clipboard) {
-											return $elm$json$Json$Decode$succeed(
-												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
-										},
-										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 								},
-								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 						},
 						A2(
 							$elm$json$Json$Decode$field,
@@ -7009,16 +6999,11 @@ var $author$project$Main$loadedGraph1 = _Platform_incomingPort(
 						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (fileName) {
-									return A2(
-										$elm$json$Json$Decode$andThen,
-										function (clipboard) {
-											return $elm$json$Json$Decode$succeed(
-												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
-										},
-										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 								},
-								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 						},
 						A2(
 							$elm$json$Json$Decode$field,
@@ -7163,16 +7148,11 @@ var $author$project$Main$loadedGraph10 = _Platform_incomingPort(
 						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (fileName) {
-									return A2(
-										$elm$json$Json$Decode$andThen,
-										function (clipboard) {
-											return $elm$json$Json$Decode$succeed(
-												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
-										},
-										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 								},
-								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 						},
 						A2(
 							$elm$json$Json$Decode$field,
@@ -7377,16 +7357,11 @@ var $author$project$Main$loadedGraph11 = _Platform_incomingPort(
 						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (fileName) {
-									return A2(
-										$elm$json$Json$Decode$andThen,
-										function (clipboard) {
-											return $elm$json$Json$Decode$succeed(
-												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
-										},
-										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 								},
-								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 						},
 						A2(
 							$elm$json$Json$Decode$field,
@@ -7596,16 +7571,11 @@ var $author$project$Main$loadedGraph2 = _Platform_incomingPort(
 						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (fileName) {
-									return A2(
-										$elm$json$Json$Decode$andThen,
-										function (clipboard) {
-											return $elm$json$Json$Decode$succeed(
-												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
-										},
-										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 								},
-								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 						},
 						A2(
 							$elm$json$Json$Decode$field,
@@ -7760,16 +7730,11 @@ var $author$project$Main$loadedGraph3 = _Platform_incomingPort(
 						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (fileName) {
-									return A2(
-										$elm$json$Json$Decode$andThen,
-										function (clipboard) {
-											return $elm$json$Json$Decode$succeed(
-												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
-										},
-										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 								},
-								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 						},
 						A2(
 							$elm$json$Json$Decode$field,
@@ -7929,16 +7894,11 @@ var $author$project$Main$loadedGraph4 = _Platform_incomingPort(
 						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (fileName) {
-									return A2(
-										$elm$json$Json$Decode$andThen,
-										function (clipboard) {
-											return $elm$json$Json$Decode$succeed(
-												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
-										},
-										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 								},
-								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 						},
 						A2(
 							$elm$json$Json$Decode$field,
@@ -8103,16 +8063,11 @@ var $author$project$Main$loadedGraph5 = _Platform_incomingPort(
 						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (fileName) {
-									return A2(
-										$elm$json$Json$Decode$andThen,
-										function (clipboard) {
-											return $elm$json$Json$Decode$succeed(
-												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
-										},
-										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 								},
-								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 						},
 						A2(
 							$elm$json$Json$Decode$field,
@@ -8282,16 +8237,11 @@ var $author$project$Main$loadedGraph6 = _Platform_incomingPort(
 						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (fileName) {
-									return A2(
-										$elm$json$Json$Decode$andThen,
-										function (clipboard) {
-											return $elm$json$Json$Decode$succeed(
-												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
-										},
-										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 								},
-								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 						},
 						A2(
 							$elm$json$Json$Decode$field,
@@ -8466,16 +8416,11 @@ var $author$project$Main$loadedGraph7 = _Platform_incomingPort(
 						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (fileName) {
-									return A2(
-										$elm$json$Json$Decode$andThen,
-										function (clipboard) {
-											return $elm$json$Json$Decode$succeed(
-												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
-										},
-										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 								},
-								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 						},
 						A2(
 							$elm$json$Json$Decode$field,
@@ -8655,16 +8600,11 @@ var $author$project$Main$loadedGraph8 = _Platform_incomingPort(
 						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (fileName) {
-									return A2(
-										$elm$json$Json$Decode$andThen,
-										function (clipboard) {
-											return $elm$json$Json$Decode$succeed(
-												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
-										},
-										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 								},
-								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 						},
 						A2(
 							$elm$json$Json$Decode$field,
@@ -8844,16 +8784,11 @@ var $author$project$Main$loadedGraph9 = _Platform_incomingPort(
 						function (graph) {
 							return A2(
 								$elm$json$Json$Decode$andThen,
-								function (fileName) {
-									return A2(
-										$elm$json$Json$Decode$andThen,
-										function (clipboard) {
-											return $elm$json$Json$Decode$succeed(
-												{clipboard: clipboard, fileName: fileName, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
-										},
-										A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
 								},
-								A2($elm$json$Json$Decode$field, 'fileName', $elm$json$Json$Decode$string));
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
 						},
 						A2(
 							$elm$json$Json$Decode$field,
@@ -9028,13 +8963,11 @@ var $author$project$Main$loadedGraph9 = _Platform_incomingPort(
 var $author$project$Msg$mapLoadGraphInfo = F2(
 	function (f, _v0) {
 		var graph = _v0.graph;
-		var fileName = _v0.fileName;
 		var scenario = _v0.scenario;
 		var clipboard = _v0.clipboard;
 		var setFirstTab = _v0.setFirstTab;
 		return {
 			clipboard: clipboard,
-			fileName: fileName,
 			graph: f(graph),
 			scenario: scenario,
 			setFirstTab: setFirstTab
@@ -9308,10 +9241,8 @@ var $author$project$Main$subscriptions = function (m) {
 					function (_v0) {
 						var scenario = _v0.scenario;
 						var preamble = _v0.preamble;
-						var fileName = _v0.fileName;
 						return $author$project$Msg$Clear(
 							{
-								fileName: fileName,
 								preamble: preamble,
 								scenario: $author$project$Msg$scenarioOfString(scenario)
 							});
@@ -13145,82 +13076,484 @@ var $author$project$ArrowStyle$isDouble = function (_v0) {
 	var _double = _v0._double;
 	return _double;
 };
-var $author$project$ArrowStyle$headToString = function (head) {
-	switch (head.$) {
-		case 'DefaultHead':
-			return 'default';
-		case 'TwoHeads':
-			return 'twoheads';
-		default:
-			return 'none';
-	}
-};
-var $author$project$ArrowStyle$prefixDouble = function (_v0) {
-	var _double = _v0._double;
-	return _double ? 'double-' : '';
-};
-var $author$project$ArrowStyle$headFileName = function (s) {
-	return $author$project$ArrowStyle$prefixDouble(s) + ($author$project$ArrowStyle$headToString(s.head) + '.svg');
-};
-var $author$project$String$Svg$image = $author$project$String$Svg$node('image');
-var $author$project$ArrowStyle$imgDir = 'img/arrow/';
-var $author$project$ArrowStyle$imgHeight = 13;
-var $author$project$ArrowStyle$imgWidth = 9.764;
+var $author$project$Drawing$ArrowStyle$imgHeadWidth = 9.764;
+var $author$project$Drawing$ArrowStyle$imgTailWidth = 3.089 * 2;
+var $author$project$String$Svg$d = $author$project$String$Html$attribute('d');
+var $author$project$String$Svg$fill = $author$project$String$Html$attribute('fill');
+var $author$project$String$Svg$g = $author$project$String$Svg$node('g');
+var $author$project$String$Svg$path = $author$project$String$Svg$node('path');
+var $author$project$String$Svg$strokeLinecap = $author$project$String$Html$attribute('stroke-linecap');
+var $author$project$String$Svg$strokeLinejoin = $author$project$String$Html$attribute('stroke-linejoin');
+var $author$project$String$Svg$strokeMiterlimit = $author$project$String$Html$attribute('stroke-miterlimit');
 var $author$project$String$Svg$transform = $author$project$String$Html$attribute('transform');
-var $author$project$ArrowStyle$svgRotate = F2(
-	function (_v0, angle) {
-		var x2 = _v0.a;
-		var y2 = _v0.b;
-		return $author$project$String$Svg$transform(
-			' rotate(' + ($elm$core$String$fromFloat(angle) + (' ' + ($elm$core$String$fromFloat(x2) + (' ' + ($elm$core$String$fromFloat(y2) + ')'))))));
-	});
-var $author$project$String$Html$attributeNS = $author$project$String$Html$AttributeNS;
-var $author$project$String$Svg$xlinkHref = A2($author$project$String$Html$attributeNS, 'http://www.w3.org/1999/xlink', 'xlink:href');
-var $author$project$ArrowStyle$makeImg = F3(
-	function (_v0, angle, file) {
+var $author$project$ArrowStyle$makeHeadShape = function (style) {
+	var _v0 = _Utils_Tuple2(style._double, style.head);
+	_v0$4:
+	while (true) {
+		if (!_v0.a) {
+			switch (_v0.b.$) {
+				case 'DefaultHead':
+					var _v1 = _v0.b;
+					return A2(
+						$author$project$String$Svg$g,
+						_List_fromArray(
+							[
+								$author$project$String$Svg$fill('none'),
+								$author$project$String$Svg$stroke('#000'),
+								$author$project$String$Svg$strokeWidth('.498'),
+								$author$project$String$Svg$strokeMiterlimit('10')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M2.043.253c.473 1.794 1.528 2.64 2.59 2.99-1.062.348-2.117 1.194-2.59 2.988'),
+										$author$project$String$Svg$strokeLinecap('round'),
+										$author$project$String$Svg$strokeLinejoin('round'),
+										$author$project$String$Svg$transform('translate(-1.8 0)')
+									]),
+								_List_Nil),
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M0 3.243H2')
+									]),
+								_List_Nil)
+							]));
+				case 'TwoHeads':
+					var _v3 = _v0.b;
+					return A2(
+						$author$project$String$Svg$g,
+						_List_fromArray(
+							[
+								$author$project$String$Svg$fill('none'),
+								$author$project$String$Svg$stroke('#000'),
+								$author$project$String$Svg$strokeWidth('.498'),
+								$author$project$String$Svg$strokeMiterlimit('10'),
+								$author$project$String$Svg$strokeLinecap('round'),
+								$author$project$String$Svg$strokeLinejoin('round')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M.25.252c.473 1.794 1.528 2.64 2.59 2.99C1.778 3.59.723 4.436.25 6.23')
+									]),
+								_List_Nil),
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M2.043.252c.473 1.794 1.528 2.64 2.59 2.99-1.062.348-2.117 1.194-2.59 2.988')
+									]),
+								_List_Nil),
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M0 3.243H4.882')
+									]),
+								_List_Nil)
+							]));
+				default:
+					break _v0$4;
+			}
+		} else {
+			switch (_v0.b.$) {
+				case 'DefaultHead':
+					var _v2 = _v0.b;
+					return A2(
+						$author$project$String$Svg$g,
+						_List_fromArray(
+							[
+								$author$project$String$Svg$fill('none'),
+								$author$project$String$Svg$stroke('#000'),
+								$author$project$String$Svg$strokeWidth('.498'),
+								$author$project$String$Svg$strokeMiterlimit('10')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M2.043.253c.473 1.794 1.528 2.64 2.59 2.99-1.062.348-2.117 1.194-2.59 2.988'),
+										$author$project$String$Svg$strokeLinecap('round'),
+										$author$project$String$Svg$strokeLinejoin('round')
+									]),
+								_List_Nil),
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M0 3.243H2.441'),
+										$author$project$String$Svg$transform('translate(0 -1.25)')
+									]),
+								_List_Nil),
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M0 3.243H2.441'),
+										$author$project$String$Svg$transform('translate(0 1.25)')
+									]),
+								_List_Nil)
+							]));
+				case 'TwoHeads':
+					var _v4 = _v0.b;
+					return A2(
+						$author$project$String$Svg$g,
+						_List_fromArray(
+							[
+								$author$project$String$Svg$fill('none'),
+								$author$project$String$Svg$stroke('#000'),
+								$author$project$String$Svg$strokeWidth('.498'),
+								$author$project$String$Svg$strokeMiterlimit('10')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$author$project$String$Svg$g,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$strokeLinecap('round'),
+										$author$project$String$Svg$strokeLinejoin('round')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										$author$project$String$Svg$path,
+										_List_fromArray(
+											[
+												$author$project$String$Svg$d('M.25.252c.473 1.794 1.528 2.64 2.59 2.99C1.778 3.59.723 4.436.25 6.23')
+											]),
+										_List_Nil),
+										A2(
+										$author$project$String$Svg$path,
+										_List_fromArray(
+											[
+												$author$project$String$Svg$d('M2.043.252c.473 1.794 1.528 2.64 2.59 2.99-1.062.348-2.117 1.194-2.59 2.988')
+											]),
+										_List_Nil)
+									])),
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M0 3.243H1'),
+										$author$project$String$Svg$transform('translate(0 1.25)')
+									]),
+								_List_Nil),
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M0 3.243H1'),
+										$author$project$String$Svg$transform('translate(0 -1.25)')
+									]),
+								_List_Nil)
+							]));
+				default:
+					break _v0$4;
+			}
+		}
+	}
+	return A2($author$project$String$Svg$g, _List_Nil, _List_Nil);
+};
+var $author$project$ArrowStyle$makeTailShape = function (style) {
+	var _v0 = _Utils_Tuple2(style._double, style.tail);
+	_v0$6:
+	while (true) {
+		if (!_v0.a) {
+			switch (_v0.b.$) {
+				case 'Hook':
+					var _v1 = _v0.b;
+					return A2(
+						$author$project$String$Svg$g,
+						_List_fromArray(
+							[
+								$author$project$String$Svg$fill('none'),
+								$author$project$String$Svg$stroke('#000'),
+								$author$project$String$Svg$strokeWidth('.498'),
+								$author$project$String$Svg$strokeMiterlimit('10')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M2.335 3.243h.753')
+									]),
+								_List_Nil),
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
+										$author$project$String$Svg$strokeLinecap('round')
+									]),
+								_List_Nil)
+							]));
+				case 'HookAlt':
+					var _v3 = _v0.b;
+					return A2(
+						$author$project$String$Svg$g,
+						_List_fromArray(
+							[
+								$author$project$String$Svg$fill('none'),
+								$author$project$String$Svg$stroke('#000'),
+								$author$project$String$Svg$strokeWidth('.498'),
+								$author$project$String$Svg$strokeMiterlimit('10'),
+								$author$project$String$Svg$transform('translate(0 6.483) scale(1 -1)')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M2.335 3.243h.753')
+									]),
+								_List_Nil),
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
+										$author$project$String$Svg$strokeLinecap('round')
+									]),
+								_List_Nil)
+							]));
+				case 'Mapsto':
+					var _v5 = _v0.b;
+					return A2(
+						$author$project$String$Svg$g,
+						_List_fromArray(
+							[
+								$author$project$String$Svg$fill('none'),
+								$author$project$String$Svg$stroke('#000'),
+								$author$project$String$Svg$strokeWidth('.498'),
+								$author$project$String$Svg$strokeMiterlimit('10')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M1.71 3.243h1.38')
+									]),
+								_List_Nil),
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M1.544 5.283V1.2'),
+										$author$project$String$Svg$strokeLinecap('round')
+									]),
+								_List_Nil)
+							]));
+				default:
+					break _v0$6;
+			}
+		} else {
+			switch (_v0.b.$) {
+				case 'Hook':
+					var _v2 = _v0.b;
+					return A2(
+						$author$project$String$Svg$g,
+						_List_fromArray(
+							[
+								$author$project$String$Svg$fill('none'),
+								$author$project$String$Svg$stroke('#000'),
+								$author$project$String$Svg$strokeWidth('.498'),
+								$author$project$String$Svg$strokeMiterlimit('10')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$author$project$String$Svg$g,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$transform('translate(0 -1.25)')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										$author$project$String$Svg$path,
+										_List_fromArray(
+											[
+												$author$project$String$Svg$d('M2.335 3.243h.753')
+											]),
+										_List_Nil),
+										A2(
+										$author$project$String$Svg$path,
+										_List_fromArray(
+											[
+												$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
+												$author$project$String$Svg$strokeLinecap('round')
+											]),
+										_List_Nil)
+									])),
+								A2(
+								$author$project$String$Svg$g,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$transform('translate(0 1.25)')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										$author$project$String$Svg$path,
+										_List_fromArray(
+											[
+												$author$project$String$Svg$d('M2.335 3.243h.753')
+											]),
+										_List_Nil),
+										A2(
+										$author$project$String$Svg$path,
+										_List_fromArray(
+											[
+												$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
+												$author$project$String$Svg$strokeLinecap('round')
+											]),
+										_List_Nil)
+									]))
+							]));
+				case 'HookAlt':
+					var _v4 = _v0.b;
+					return A2(
+						$author$project$String$Svg$g,
+						_List_fromArray(
+							[
+								$author$project$String$Svg$fill('none'),
+								$author$project$String$Svg$stroke('#000'),
+								$author$project$String$Svg$strokeWidth('.498'),
+								$author$project$String$Svg$strokeMiterlimit('10'),
+								$author$project$String$Svg$transform('translate(0 6.483) scale(1 -1)')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$author$project$String$Svg$g,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$transform('translate(0 -1.25)')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										$author$project$String$Svg$path,
+										_List_fromArray(
+											[
+												$author$project$String$Svg$d('M2.335 3.243h.753')
+											]),
+										_List_Nil),
+										A2(
+										$author$project$String$Svg$path,
+										_List_fromArray(
+											[
+												$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
+												$author$project$String$Svg$strokeLinecap('round')
+											]),
+										_List_Nil)
+									])),
+								A2(
+								$author$project$String$Svg$g,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$transform('translate(0 1.25)')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										$author$project$String$Svg$path,
+										_List_fromArray(
+											[
+												$author$project$String$Svg$d('M2.335 3.243h.753')
+											]),
+										_List_Nil),
+										A2(
+										$author$project$String$Svg$path,
+										_List_fromArray(
+											[
+												$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
+												$author$project$String$Svg$strokeLinecap('round')
+											]),
+										_List_Nil)
+									]))
+							]));
+				case 'Mapsto':
+					var _v6 = _v0.b;
+					return A2(
+						$author$project$String$Svg$g,
+						_List_fromArray(
+							[
+								$author$project$String$Svg$fill('none'),
+								$author$project$String$Svg$stroke('#000'),
+								$author$project$String$Svg$strokeWidth('.498'),
+								$author$project$String$Svg$strokeMiterlimit('10')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M1.71 3.243h1.38'),
+										$author$project$String$Svg$transform('translate(0 -1.25)')
+									]),
+								_List_Nil),
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M1.71 3.243h1.38'),
+										$author$project$String$Svg$transform('translate(0 1.25)')
+									]),
+								_List_Nil),
+								A2(
+								$author$project$String$Svg$path,
+								_List_fromArray(
+									[
+										$author$project$String$Svg$d('M1.544 5.783 V 0.7'),
+										$author$project$String$Svg$strokeLinecap('round')
+									]),
+								_List_Nil)
+							]));
+				default:
+					break _v0$6;
+			}
+		}
+	}
+	return A2($author$project$String$Svg$g, _List_Nil, _List_Nil);
+};
+var $author$project$Drawing$ArrowStyle$imgHeight = 13;
+var $author$project$Drawing$ArrowStyle$makeTheImg = F4(
+	function (_v0, angle, imgWidth, content) {
 		var x = _v0.a;
 		var y = _v0.b;
-		var _v1 = _Utils_Tuple2(x - ($author$project$ArrowStyle$imgHeight / 2), y - ($author$project$ArrowStyle$imgHeight / 2));
+		var _v1 = _Utils_Tuple2(x - (imgWidth / 2), y - ($author$project$Drawing$ArrowStyle$imgHeight / 2));
 		var xh = _v1.a;
 		var yh = _v1.b;
 		var f = $elm$core$String$fromFloat;
 		return A2(
-			$author$project$String$Svg$image,
+			$author$project$String$Svg$g,
 			_List_fromArray(
 				[
-					$author$project$String$Svg$xlinkHref(
-					_Utils_ap($author$project$ArrowStyle$imgDir, file)),
-					$author$project$String$Svg$x(
-					f(xh)),
-					$author$project$String$Svg$y(
-					f(yh)),
-					$author$project$String$Svg$width(
-					f($author$project$ArrowStyle$imgWidth)),
-					$author$project$String$Svg$height(
-					f($author$project$ArrowStyle$imgHeight)),
-					A2(
-					$author$project$ArrowStyle$svgRotate,
-					_Utils_Tuple2(x, y),
-					angle)
+					$author$project$String$Svg$transform(
+					' rotate(' + ($elm$core$String$fromFloat(angle) + (' ' + ($elm$core$String$fromFloat(x) + (' ' + ($elm$core$String$fromFloat(y) + (')' + ('translate(' + (f(xh) + (', ' + (f(yh) + (')' + ' scale(2)'))))))))))))
 				]),
-			_List_Nil);
+			_List_fromArray(
+				[content]));
 	});
-var $author$project$ArrowStyle$tailToString = function (tail) {
-	switch (tail.$) {
-		case 'DefaultTail':
-			return 'none';
-		case 'Hook':
-			return 'hook';
-		case 'HookAlt':
-			return 'hookalt';
-		default:
-			return 'mapsto';
-	}
-};
-var $author$project$ArrowStyle$tailFileName = function (s) {
-	return $author$project$ArrowStyle$prefixDouble(s) + ($author$project$ArrowStyle$tailToString(s.tail) + '.svg');
-};
-var $author$project$ArrowStyle$makeHeadTailImgs = F2(
+var $author$project$Drawing$ArrowStyle$makeHeadTailImgs = F2(
 	function (_v0, style) {
 		var from = _v0.from;
 		var to = _v0.to;
@@ -13230,18 +13563,20 @@ var $author$project$ArrowStyle$makeHeadTailImgs = F2(
 		};
 		return _List_fromArray(
 			[
-				A3(
-				$author$project$ArrowStyle$makeImg,
+				A4(
+				$author$project$Drawing$ArrowStyle$makeTheImg,
 				to,
 				angle(
 					A2($author$project$Geometry$Point$subtract, to, controlPoint)),
-				$author$project$ArrowStyle$headFileName(style)),
-				A3(
-				$author$project$ArrowStyle$makeImg,
+				$author$project$Drawing$ArrowStyle$imgHeadWidth,
+				$author$project$ArrowStyle$makeHeadShape(style)),
+				A4(
+				$author$project$Drawing$ArrowStyle$makeTheImg,
 				from,
 				angle(
 					A2($author$project$Geometry$Point$subtract, controlPoint, from)),
-				$author$project$ArrowStyle$tailFileName(style))
+				$author$project$Drawing$ArrowStyle$imgTailWidth,
+				$author$project$ArrowStyle$makeTailShape(style))
 			]);
 	});
 var $author$project$ArrowStyle$dashedStr = '7, 3';
@@ -13252,9 +13587,6 @@ var $author$project$Drawing$dashedToAttrs = function (dashed) {
 			$author$project$String$Svg$strokeDasharray($author$project$ArrowStyle$dashedStr)
 		]) : _List_Nil;
 };
-var $author$project$String$Svg$fill = $author$project$String$Html$attribute('fill');
-var $author$project$String$Svg$path = $author$project$String$Svg$node('path');
-var $author$project$String$Svg$d = $author$project$String$Html$attribute('d');
 var $author$project$Drawing$quadraticBezierToAttr = function (_v0) {
 	var from = _v0.from;
 	var to = _v0.to;
@@ -13307,7 +13639,7 @@ var $author$project$Drawing$arrow = F3(
 			$author$project$Drawing$Color(arrowStyle.color),
 			attrs0);
 		var zindex = $author$project$Drawing$attributesToZIndex(attrs);
-		var imgs = A2($author$project$ArrowStyle$makeHeadTailImgs, q, arrowStyle);
+		var imgs = A2($author$project$Drawing$ArrowStyle$makeHeadTailImgs, q, arrowStyle);
 		var mkgen = F2(
 			function (d, l) {
 				return A2(
@@ -14758,9 +15090,6 @@ var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
 							_List_fromArray(
 								[
 									_Utils_Tuple2(
-									'fileName',
-									$elm$json$Json$Encode$string($.fileName)),
-									_Utils_Tuple2(
 									'graph',
 									function ($) {
 										return $elm$json$Json$Encode$object(
@@ -14992,9 +15321,6 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 						return $elm$json$Json$Encode$object(
 							_List_fromArray(
 								[
-									_Utils_Tuple2(
-									'fileName',
-									$elm$json$Json$Encode$string($.fileName)),
 									_Utils_Tuple2(
 									'graph',
 									function ($) {
@@ -16007,6 +16333,16 @@ var $author$project$ArrowStyle$alignmentToString = function (tail) {
 			return 'right';
 	}
 };
+var $author$project$ArrowStyle$headToString = function (head) {
+	switch (head.$) {
+		case 'DefaultHead':
+			return 'default';
+		case 'TwoHeads':
+			return 'twoheads';
+		default:
+			return 'none';
+	}
+};
 var $author$project$Format$Version11$Edge = F4(
 	function (label, style, isPullshout, zindex) {
 		return {isPullshout: isPullshout, label: label, style: style, zindex: zindex};
@@ -16018,6 +16354,18 @@ var $author$project$Format$Version11$ArrowStyle = F8(
 var $author$project$Format$Version11$emptyArrowStyle = A8($author$project$Format$Version11$ArrowStyle, '', '', false, false, 0, '', 0, 'black');
 var $author$project$Format$Version11$pullshoutEdge = function (z) {
 	return A4($author$project$Format$Version11$Edge, '', $author$project$Format$Version11$emptyArrowStyle, true, z);
+};
+var $author$project$ArrowStyle$tailToString = function (tail) {
+	switch (tail.$) {
+		case 'DefaultTail':
+			return 'none';
+		case 'Hook':
+			return 'hook';
+		case 'HookAlt':
+			return 'hookalt';
+		default:
+			return 'mapsto';
+	}
 };
 var $author$project$Format$Version11$fromEdgeLabel = function (e) {
 	var _v0 = e.details;
@@ -16077,7 +16425,6 @@ var $author$project$Format$Version11$version = 11;
 var $author$project$Format$LastVersion$version = $author$project$Format$Version11$version;
 var $author$project$Main$toJsGraphInfo = function (model) {
 	return {
-		fileName: model.fileName,
 		graph: $author$project$Format$LastVersion$toJSGraph(
 			$author$project$Model$toGraphInfo(model)),
 		version: $author$project$Format$LastVersion$version
@@ -19265,9 +19612,6 @@ var $author$project$Main$clipboardWriteGraph = _Platform_outgoingPort(
 			_List_fromArray(
 				[
 					_Utils_Tuple2(
-					'fileName',
-					$elm$json$Json$Encode$string($.fileName)),
-					_Utils_Tuple2(
 					'graph',
 					function ($) {
 						return $elm$json$Json$Encode$object(
@@ -19545,9 +19889,6 @@ var $author$project$Main$generateProofJs = _Platform_outgoingPort(
 						return $elm$json$Json$Encode$object(
 							_List_fromArray(
 								[
-									_Utils_Tuple2(
-									'fileName',
-									$elm$json$Json$Encode$string($.fileName)),
 									_Utils_Tuple2(
 									'graph',
 									function ($) {
@@ -22004,7 +22345,6 @@ var $author$project$Main$update = F2(
 							info: $author$project$Main$toJsGraphInfo(model)
 						})) : $author$project$Model$noCmd(model);
 			case 'Clear':
-				var fileName = msg.a.fileName;
 				var scenario = msg.a.scenario;
 				var preamble = msg.a.preamble;
 				var modelf = $author$project$Model$createModel(model.defaultGridSize);
@@ -22016,7 +22356,6 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						modelf,
 						{
-							fileName: A2(or, fileName, modelf.fileName),
 							latexPreamble: A2(or, preamble, modelf.latexPreamble),
 							scenario: scenario
 						}));
@@ -22118,7 +22457,7 @@ var $author$project$Main$update = F2(
 						$author$project$Model$updateWithGraphInfo,
 						_Utils_update(
 							model,
-							{fileName: g.fileName, mode: $author$project$Modes$DefaultMode, scenario: scenario}),
+							{mode: $author$project$Modes$DefaultMode, scenario: scenario}),
 						g.graph));
 				var m2 = (!_Utils_eq(scenario, $author$project$Msg$Exercise1)) ? m : _Utils_update(
 					m,
@@ -26527,6 +26866,7 @@ var $author$project$Main$viewGraph = function (model) {
 						[
 							$elm$html$Html$Attributes$type_('text'),
 							$elm$html$Html$Events$onInput($author$project$Msg$FileName),
+							$elm$html$Html$Attributes$id('filename'),
 							$elm$html$Html$Attributes$value(model.fileName)
 						]),
 					_List_Nil)
@@ -26552,7 +26892,7 @@ var $author$project$Main$viewGraph = function (model) {
 							[
 								$elm$html$Html$Events$onClick(
 								$author$project$Msg$Clear(
-									{fileName: '', preamble: '', scenario: model.scenario}))
+									{preamble: '', scenario: model.scenario}))
 							]),
 						_List_fromArray(
 							[

@@ -20,8 +20,14 @@
              <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
 
         
-        <!-- Make foreignobject in svg visible -->
+        
          <style>
+            /*  override vscode theme color */
+       body {
+            background-color: white;
+            color: black;
+        }
+         /* Make foreignobject in svg visible  */
           foreignObject { overflow:visible;
           /* to allow clicking through the overflow */
             pointer-events: none
@@ -100,7 +106,7 @@
                 stroke:white;
             }    
         </style> 
-        <script>         
+        <script>      
             // LocalStorage key used for quicksave
             const storageKey = "yadegraph";
             const gridStorageKey = "yadegridsize"
@@ -170,6 +176,17 @@
         <div id="myapp"></div>
         <script>
         const isElectron = window.electronAPI != undefined;
+        var vscode = undefined;
+        if (acquireVsCodeApi) {
+            vscode = acquireVsCodeApi();
+        }
+
+        // copied from index.ts
+        function sendExternalMsg(key, content) {
+                console.log({key:key, content:content});
+                vscode.postMessage({key:key, content:content})
+        }
+
         var appDiv = document.getElementById('myapp');
 
         document.addEventListener('keydown', function(e) { 
@@ -245,6 +262,18 @@
              node: appDiv,
              flags: { defaultGridSize : gridSize }
          });
+
+
+        function getFileName() {
+                var ob = document.getElementById("filename");
+                if (!ob)
+                    return "unnamed.json";
+                return ob.value;
+            }
+        function setFileName(newName) {
+            app.ports.renameFile.send(newName);
+        }      
+
          // we send a signal [keyInput] to elm and recieve
          // the answer on [keyOutput]
          function makeElmRequest(keyInput, keyOutput, f) {
@@ -276,14 +305,14 @@
          
 
 
-         function sendGraphToElm(json, filename, scenario = "standard", clipboard = false, setFirstTab = false) {
+         function sendGraphToElm(json, scenario = "standard", clipboard = false, setFirstTab = false) {
             var graph = json;
             var version = 0;
             if (json.hasOwnProperty('version')) {
                version = json.version;
                graph = json.graph;
             }
-            var args = { graph , fileName : filename, scenario,
+            var args = { graph , scenario,
                 clipboard, setFirstTab};
             console.log(args);
             app.ports["loadedGraph" + version].send(args);
@@ -291,12 +320,12 @@
         
          const queryString = window.location.search;
          const urlParams = new URLSearchParams(queryString);
-         var tutoData = {"graph" : tutorial, "fileName" : "graph.json", "scenario" : "standard", "clipboard" : false, 
+         var tutoData = {"graph" : tutorial, "scenario" : "standard", "clipboard" : false, 
         setFirstTab : false };
 
          if (urlParams.has("scenario") && scenarios.hasOwnProperty(urlParams.get("scenario"))) {
             scenario = urlParams.get("scenario"); 
-            sendGraphToElm(scenarios[scenario], scenario + ".json", scenario);
+            sendGraphToElm(scenarios[scenario], scenario);
          }
          else {            
             app.ports["loadedGraph" + tutorial_format_version].send(tutoData);
@@ -312,9 +341,10 @@
                  var fr=new FileReader();
                  fr.onload=function(){
                      var json = JSON.parse (fr.result);
-                     sendGraphToElm(json, file.name);
+                     sendGraphToElm(json);
                  }
                  fr.readAsText(file);
+                 setFileName(file.name);
                  document.title = file.name;
              }
 
@@ -350,8 +380,9 @@
             }
             
             var json = JSON.parse(result);
-            var fileName = json.fileName;                  
-            sendGraphToElm(json, json.fileName);     
+            var fileName = json.fileName;
+            setFileName(fileName);               
+            sendGraphToElm(json);     
          };
 
 
@@ -396,7 +427,7 @@
             console.log("Quicksaving...");
             var a = arg.info
             var d = fromElmGraph(a);
-            d.fileName = a.fileName;
+            d.fileName = getFileName();
              // Check browser support
             if (!supportStorage) {           
                if (arg.feedback)
@@ -416,7 +447,7 @@
             app.ports.quicksaveGraph.subscribe(function (a) {
                     var d = a.info;
                     var g = fromElmGraph(d);
-                    window.electronAPI.quicksaveGraph(d.fileName, g, a.export, a.feedback);
+                    window.electronAPI.quicksaveGraph(getFileName(), g, a.export, a.feedback);
             });
          else
             app.ports.quicksaveGraph.subscribe(quicksaveStorage);
@@ -441,7 +472,7 @@
 
          function saveGraph(b) {
             var a = b.graph;
-            var name = a.fileName;
+            var name = getFileName();
             var d = fromElmGraph(a);
             download(JSON.stringify(d), name /* + '.json' */, 'application/json');
                
@@ -450,7 +481,7 @@
 
          if (isElectron)
             app.ports.saveGraph.subscribe(function (d) {
-                window.electronAPI.saveGraph(d.graph.fileName, fromElmGraph(d.graph), d.export);
+                window.electronAPI.saveGraph(getFileName(), fromElmGraph(d.graph), d.export);
             });
          else
             app.ports.saveGraph.subscribe(saveGraph);
@@ -481,7 +512,7 @@
                 catch (e) { json = false; }
                 // console.log(json);
                 if (json) {
-                    sendGraphToElm(json, "", "standard", true);
+                    sendGraphToElm(json, "standard", true);
                     // cnonsole.log(json);
                 }
                 // app.ports.onPaste.send(text); 
@@ -570,6 +601,22 @@
                 });
             });
          }
+         else if (vscode) {
+            app.ports.applyProof.subscribe(function(data){ 
+                sendExternalMsg("apply-proof", data)
+                });
+            app.ports.requestProof.subscribe((data) => {
+                customPrompt("Enter proof for " + data.statement + " (leave blank for interactive)", data.script, (proof) => {
+                    newData = {script: proof, statement:data.statement};
+                    if (proof == "") {
+                        sendExternalMsg("incomplete-equation", newData);
+                    }
+                    else {
+                        sendExternalMsg("apply-proof", newData);
+                    }
+                });
+            });
+         }
          else {
             // app.ports.incompleteEquation.subscribe((data) =>  alert(err));
             app.ports.applyProof.subscribe((data) =>  alert(err));
@@ -641,10 +688,10 @@
 
             console.log("electron detected.");
             // window.electronAPI.loadGraph((event, json, fileName, scenario) => alert('coucou') );
-            window.electronAPI.loadGraph((event, json, fileName, scenario) => sendGraphToElm(json, fileName, scenario));
+            window.electronAPI.loadGraph((event, json, fileName, scenario) => {setFileName(fileName);  sendGraphToElm(json, scenario);});
             window.electronAPI.clearGraph((event, fileName, scenario, latexPreamble) => {
-            app.ports.clear.send({fileName:fileName, scenario:scenario, preamble:latexPreamble});});
-            window.electronAPI.setFirstTab((event, json) => sendGraphToElm(json, "", "coqlsp", false, true));
+            app.ports.clear.send({scenario:scenario, preamble:latexPreamble});});
+            window.electronAPI.setFirstTab((event, json) => sendGraphToElm(json, "coqlsp", false, true));
             window.electronAPI.loadEquation(function (event, equation, scenario) {
                 //    console.log(equation);
                 //   app.ports.clear.send(scenario);
@@ -652,7 +699,7 @@
                 app.ports.setFirstTabEquation.send(equation);
             }
             );
-            window.electronAPI.rename((event, fileName) => app.ports.renameFile.send(fileName));
+            window.electronAPI.rename((event, fileName) => setFileName(fileName));
             window.electronAPI.simpleMsg((event, msg) => app.ports.simpleMsg.send(msg));
  
             // }
@@ -668,7 +715,94 @@
             );
          }
         
-         
+        /*
+
+        Interaction with vscode when embedded as a webview.
+
+        */
+       var promptCallback = undefined;
+       if (vscode) {            
+            console.log("vscode detected");
+            customPrompt = function (question, defaut, callback) {
+                promptCallback = (ret) => callback(ret);
+                vscode.postMessage({key:"prompt", content: {question: question, default: defaut}});
+            };
+            /*
+            ipcMain.on('incomplete-equation', (e, s) => sendExternalMsg("incomplete-equation", s, 
+     errVscode));
+  ipcMain.on('apply-proof', (e, s) => sendExternalMsg("apply-proof", s, 
+     errVscode));
+  ipcMain.on('generate-proof', (e, s) => sendExternalMsg("generate-proof", s));
+  
+            */
+            app.ports.generateProofJs.subscribe(function(script){
+                sendExternalMsg("generate-proof",processProof(script));
+            });
+       }
+
+         // copied from index.ts
+
+         function loadData(data, filename, scenario,  setFirstTab = false) {
+
+  let stripped_diag = data.trim();
+  try {
+
+    let json = JSON.parse (stripped_diag);
+    if (setFirstTab)
+       sendGraphToElm(json, "coqlsp", false, true);
+    //   mainWindow.webContents.send('set-first-tab', json); 
+    else
+    //      mainWindow.webContents.send('load-graph', json, filename, scenario); 
+       sendGraphToElm(json, scenario);
+    }
+  catch (e) {
+      if (e instanceof SyntaxError) {
+      // if it is not a valid json, then it must be an equation 
+        let equation = stripped_diag.slice(1, -1);
+        // mainWindow.webContents.send('load-equation', equation , scenario);
+        app.ports.setFirstTabEquation.send(equation);
+      }
+      else 
+        throw e;
+  }
+}
+
+         // copied from configureIpc()
+
+         window.addEventListener("message", evt => 
+     { const msg = evt.data;
+       const validMsg = msg && typeof msg === "object" 
+                         && "key" in msg
+                         && "content" in msg;
+       if (!validMsg) {
+          console.log ("received unknown message: ");
+          console.log(msg);
+          return;
+       }
+       console.log ("received known message:");
+       console.log(msg);
+       var setFirstTab = false;
+       switch (msg.key) {
+          case "prompt": 
+              var callback = promptCallback;
+              promptCallback = undefined;
+              console.log("prompt recu: " + msg.content);  
+              callback(msg.content); 
+              break;
+          case "set-first-tab":
+            setFirstTab = true;
+          case "load":
+            loadData(msg.content, "graph.json", "coqlsp", 
+                setFirstTab)
+            break;
+          case "applied-proof":
+            app.ports.appliedProof.send(msg.content);
+            // mainWindow.webContents.send(msg.key, msg.content);
+            break;
+             
+       }
+      }
+  );
         
         </script>
     </body>
