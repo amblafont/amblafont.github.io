@@ -15316,7 +15316,7 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 								]));
 					}($._export)),
 					_Utils_Tuple2(
-					'graph',
+					'info',
 					function ($) {
 						return $elm$json$Json$Encode$object(
 							_List_fromArray(
@@ -15464,7 +15464,7 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 									'version',
 									$elm$json$Json$Encode$int($.version))
 								]));
-					}($.graph))
+					}($.info))
 				]));
 	});
 var $author$project$Main$saveGridSize = _Platform_outgoingPort('saveGridSize', $elm$json$Json$Encode$int);
@@ -22306,7 +22306,7 @@ var $author$project$Main$update = F2(
 					$author$project$Main$saveGraph(
 						{
 							_export: $author$project$Main$makeExports(model),
-							graph: $author$project$Main$toJsGraphInfo(model)
+							info: $author$project$Main$toJsGraphInfo(model)
 						}));
 			case 'SaveGridSize':
 				return _Utils_Tuple2(
@@ -26522,6 +26522,11 @@ var $elm$html$Html$Events$onMouseUp = function (msg) {
 		'mouseup',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $author$project$Main$openDirectory = _Platform_outgoingPort(
+	'openDirectory',
+	function ($) {
+		return $elm$json$Json$Encode$null;
+	});
 var $author$project$Main$openFile = _Platform_outgoingPort(
 	'openFile',
 	function ($) {
@@ -26842,6 +26847,19 @@ var $author$project$Main$viewGraph = function (model) {
 							_List_fromArray(
 								[
 									$elm$html$Html$text('QuickLoad graph')
+								])),
+							A2(
+							$elm$html$Html$button,
+							_List_fromArray(
+								[
+									$elm$html$Html$Events$onClick(
+									$author$project$Msg$Do(
+										$author$project$Main$openDirectory(_Utils_Tuple0))),
+									$elm$html$Html$Attributes$title('Open a directory')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Open directory')
 								]))
 						]) : _List_Nil)),
 				$elm$html$Html$text(model.statusMsg),
