@@ -79,8 +79,6 @@ for (var key in defaultsExt) {
         continue;
     var entry = defaultsExt[key];
     entry["prefixes"] = entry.prefix.split('\\n');
-    console.log("prefixes ici pour " + key);
-    console.log(entry.prefixes);
     entry["suffixes"] = entry.suffix.split('\\n');
     // remove the key prefix from entry
     delete entry.prefix;
