@@ -6337,6 +6337,7 @@ var $author$project$GraphDefs$NormalEdge = function (a) {
 	return {$: 'NormalEdge', a: a};
 };
 var $author$project$GraphDefs$PullshoutEdge = {$: 'PullshoutEdge'};
+var $author$project$Format$Version12$adjunctionKey = 'adjunction';
 var $author$project$Geometry$Centre = {$: 'Centre'};
 var $author$project$Geometry$Left = {$: 'Left'};
 var $author$project$Geometry$Over = {$: 'Over'};
@@ -6391,10 +6392,24 @@ var $author$project$ArrowStyle$headFromString = function (head) {
 			return $author$project$ArrowStyle$DefaultHead;
 	}
 };
+var $author$project$ArrowStyle$DoubleArrow = {$: 'DoubleArrow'};
+var $author$project$ArrowStyle$NoneArrow = {$: 'NoneArrow'};
+var $author$project$ArrowStyle$NormalArrow = {$: 'NormalArrow'};
+var $author$project$ArrowStyle$kindFromString = function (kind) {
+	switch (kind) {
+		case 'none':
+			return $author$project$ArrowStyle$NoneArrow;
+		case 'double':
+			return $author$project$ArrowStyle$DoubleArrow;
+		default:
+			return $author$project$ArrowStyle$NormalArrow;
+	}
+};
 var $elm$core$Basics$min = F2(
 	function (x, y) {
 		return (_Utils_cmp(x, y) < 0) ? x : y;
 	});
+var $author$project$Format$Version12$pullshoutKey = 'pullshout';
 var $author$project$ArrowStyle$DefaultTail = {$: 'DefaultTail'};
 var $author$project$ArrowStyle$Hook = {$: 'Hook'};
 var $author$project$ArrowStyle$HookAlt = {$: 'HookAlt'};
@@ -6411,22 +6426,23 @@ var $author$project$ArrowStyle$tailFromString = function (tail) {
 			return $author$project$ArrowStyle$DefaultTail;
 	}
 };
-var $author$project$Format$Version11$toEdgeLabel = function (_v0) {
+var $author$project$Format$Version12$toEdgeLabel = function (_v0) {
 	var label = _v0.label;
 	var style = _v0.style;
-	var isPullshout = _v0.isPullshout;
+	var kind = _v0.kind;
 	var zindex = _v0.zindex;
 	return {
-		details: isPullshout ? $author$project$GraphDefs$PullshoutEdge : $author$project$GraphDefs$NormalEdge(
+		details: _Utils_eq(kind, $author$project$Format$Version12$pullshoutKey) ? $author$project$GraphDefs$PullshoutEdge : $author$project$GraphDefs$NormalEdge(
 			{
 				dims: $elm$core$Maybe$Nothing,
+				isAdjunction: _Utils_eq(kind, $author$project$Format$Version12$adjunctionKey),
 				label: label,
 				style: {
 					bend: style.bend,
 					color: $author$project$Drawing$Color$fromString(style.color),
 					dashed: style.dashed,
-					_double: style._double,
 					head: $author$project$ArrowStyle$headFromString(style.head),
+					kind: $author$project$ArrowStyle$kindFromString(style.kind),
 					labelAlignment: $author$project$ArrowStyle$alignmentFromString(style.alignment),
 					labelPosition: A2(
 						$elm$core$Basics$max,
@@ -6440,36 +6456,107 @@ var $author$project$Format$Version11$toEdgeLabel = function (_v0) {
 		zindex: zindex
 	};
 };
-var $author$project$Format$Version11$toNodeLabel = function (_v0) {
+var $author$project$Format$Version12$toNodeLabel = function (_v0) {
 	var pos = _v0.pos;
 	var label = _v0.label;
 	var isMath = _v0.isMath;
 	var zindex = _v0.zindex;
 	return {dims: $elm$core$Maybe$Nothing, isCoqValidated: false, isMath: isMath, label: label, pos: pos, selected: false, weaklySelected: false, zindex: zindex};
 };
-var $author$project$Format$Version11$fromJSTab = function (tab) {
+var $author$project$Format$Version12$fromJSTab = function (tab) {
 	return {
 		active: tab.active,
 		graph: A3(
 			$author$project$Polygraph$map,
 			function (_v0) {
-				return $author$project$Format$Version11$toNodeLabel;
+				return $author$project$Format$Version12$toNodeLabel;
 			},
 			function (_v1) {
-				return $author$project$Format$Version11$toEdgeLabel;
+				return $author$project$Format$Version12$toEdgeLabel;
 			},
 			A2($author$project$Polygraph$fromNodesAndEdges, tab.nodes, tab.edges)),
 		sizeGrid: tab.sizeGrid,
 		title: tab.title
 	};
 };
-var $author$project$Format$Version11$fromJSGraph = function (_v0) {
+var $author$project$Format$Version12$fromJSGraph = function (_v0) {
 	var tabs = _v0.tabs;
 	var latexPreamble = _v0.latexPreamble;
 	return {
 		latexPreamble: latexPreamble,
-		tabs: A2($elm$core$List$map, $author$project$Format$Version11$fromJSTab, tabs)
+		tabs: A2($elm$core$List$map, $author$project$Format$Version12$fromJSTab, tabs)
 	};
+};
+var $author$project$Polygraph$edgeMap = F2(
+	function (f, _v0) {
+		var id = _v0.id;
+		var from = _v0.from;
+		var to = _v0.to;
+		var label = _v0.label;
+		return {
+			from: from,
+			id: id,
+			label: f(label),
+			to: to
+		};
+	});
+var $author$project$Format$Version12$normalKey = 'normal';
+var $author$project$Format$Version11$toNextStyle = function (_v0) {
+	var tail = _v0.tail;
+	var head = _v0.head;
+	var _double = _v0._double;
+	var dashed = _v0.dashed;
+	var bend = _v0.bend;
+	var alignment = _v0.alignment;
+	var position = _v0.position;
+	var color = _v0.color;
+	return {
+		alignment: alignment,
+		bend: bend,
+		color: color,
+		dashed: dashed,
+		head: head,
+		kind: _double ? 'double' : 'normal',
+		position: position,
+		tail: tail
+	};
+};
+var $author$project$Format$Version11$toNextEdge = function (e) {
+	return {
+		kind: e.isPullshout ? $author$project$Format$Version12$pullshoutKey : $author$project$Format$Version12$normalKey,
+		label: e.label,
+		style: $author$project$Format$Version11$toNextStyle(e.style),
+		zindex: e.zindex
+	};
+};
+var $author$project$Format$Version11$toNextTab = function (_v0) {
+	var title = _v0.title;
+	var sizeGrid = _v0.sizeGrid;
+	var active = _v0.active;
+	var nodes = _v0.nodes;
+	var edges = _v0.edges;
+	return {
+		active: active,
+		edges: A2(
+			$elm$core$List$map,
+			$author$project$Polygraph$edgeMap($author$project$Format$Version11$toNextEdge),
+			edges),
+		nodes: nodes,
+		sizeGrid: sizeGrid,
+		title: title
+	};
+};
+var $author$project$Format$Version11$toNextVersion = function (_v0) {
+	var tabs = _v0.tabs;
+	var latexPreamble = _v0.latexPreamble;
+	return {
+		latexPreamble: latexPreamble,
+		tabs: A2($elm$core$List$map, $author$project$Format$Version11$toNextTab, tabs)
+	};
+};
+var $author$project$Format$Version11$fromJSGraph = function (g) {
+	return $author$project$Format$Version12$fromJSGraph(
+		$author$project$Format$Version11$toNextVersion(g));
 };
 var $author$project$Zindex$defaultZ = 0;
 var $elm$core$List$maximum = function (list) {
@@ -6572,19 +6659,6 @@ var $author$project$Format$Version9$fromJSGraph = function (g) {
 	return $author$project$Format$Version10$fromJSGraph(
 		$author$project$Format$Version9$toNextVersion(g));
 };
-var $author$project$Polygraph$edgeMap = F2(
-	function (f, _v0) {
-		var id = _v0.id;
-		var from = _v0.from;
-		var to = _v0.to;
-		var label = _v0.label;
-		return {
-			from: from,
-			id: id,
-			label: f(label),
-			to: to
-		};
-	});
 var $author$project$Format$Version8$toNextStyle = function (style) {
 	return {alignment: style.alignment, bend: style.bend, color: 'black', dashed: style.dashed, _double: style._double, head: style.head, position: style.position, tail: style.tail};
 };
@@ -7481,6 +7555,220 @@ var $author$project$Main$loadedGraph11 = _Platform_incomingPort(
 																																		A2($elm$json$Json$Decode$field, 'double', $elm$json$Json$Decode$bool));
 																																},
 																																A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
+																														},
+																														A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
+																												},
+																												A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))));
+																								},
+																								A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
+																				},
+																				A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+															},
+															A2(
+																$elm$json$Json$Decode$field,
+																'nodes',
+																$elm$json$Json$Decode$list(
+																	A2(
+																		$elm$json$Json$Decode$andThen,
+																		function (label) {
+																			return A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (id) {
+																					return $elm$json$Json$Decode$succeed(
+																						{id: id, label: label});
+																				},
+																				A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																		},
+																		A2(
+																			$elm$json$Json$Decode$field,
+																			'label',
+																			A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (zindex) {
+																					return A2(
+																						$elm$json$Json$Decode$andThen,
+																						function (pos) {
+																							return A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (label) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (isMath) {
+																											return $elm$json$Json$Decode$succeed(
+																												{isMath: isMath, label: label, pos: pos, zindex: zindex});
+																										},
+																										A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																								},
+																								A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																						},
+																						A2(
+																							$elm$json$Json$Decode$field,
+																							'pos',
+																							A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (_v0) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (_v1) {
+																											return $elm$json$Json$Decode$succeed(
+																												_Utils_Tuple2(_v0, _v1));
+																										},
+																										A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																								},
+																								A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))));
+																				},
+																				A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int)))))));
+													},
+													A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int));
+											},
+											A2($elm$json$Json$Decode$field, 'title', $elm$json$Json$Decode$string)))))));
+				},
+				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
+		},
+		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
+var $author$project$Main$loadedGraph12 = _Platform_incomingPort(
+	'loadedGraph12',
+	A2(
+		$elm$json$Json$Decode$andThen,
+		function (setFirstTab) {
+			return A2(
+				$elm$json$Json$Decode$andThen,
+				function (scenario) {
+					return A2(
+						$elm$json$Json$Decode$andThen,
+						function (graph) {
+							return A2(
+								$elm$json$Json$Decode$andThen,
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
+								},
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (tabs) {
+									return A2(
+										$elm$json$Json$Decode$andThen,
+										function (latexPreamble) {
+											return $elm$json$Json$Decode$succeed(
+												{latexPreamble: latexPreamble, tabs: tabs});
+										},
+										A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
+								},
+								A2(
+									$elm$json$Json$Decode$field,
+									'tabs',
+									$elm$json$Json$Decode$list(
+										A2(
+											$elm$json$Json$Decode$andThen,
+											function (title) {
+												return A2(
+													$elm$json$Json$Decode$andThen,
+													function (sizeGrid) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (nodes) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (edges) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (active) {
+																				return $elm$json$Json$Decode$succeed(
+																					{active: active, edges: edges, nodes: nodes, sizeGrid: sizeGrid, title: title});
+																			},
+																			A2($elm$json$Json$Decode$field, 'active', $elm$json$Json$Decode$bool));
+																	},
+																	A2(
+																		$elm$json$Json$Decode$field,
+																		'edges',
+																		$elm$json$Json$Decode$list(
+																			A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (to) {
+																					return A2(
+																						$elm$json$Json$Decode$andThen,
+																						function (label) {
+																							return A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (id) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (from) {
+																											return $elm$json$Json$Decode$succeed(
+																												{from: from, id: id, label: label, to: to});
+																										},
+																										A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																								},
+																								A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																						},
+																						A2(
+																							$elm$json$Json$Decode$field,
+																							'label',
+																							A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (zindex) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (style) {
+																											return A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (label) {
+																													return A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (kind) {
+																															return $elm$json$Json$Decode$succeed(
+																																{kind: kind, label: label, style: style, zindex: zindex});
+																														},
+																														A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
+																												},
+																												A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																										},
+																										A2(
+																											$elm$json$Json$Decode$field,
+																											'style',
+																											A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (tail) {
+																													return A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (position) {
+																															return A2(
+																																$elm$json$Json$Decode$andThen,
+																																function (kind) {
+																																	return A2(
+																																		$elm$json$Json$Decode$andThen,
+																																		function (head) {
+																																			return A2(
+																																				$elm$json$Json$Decode$andThen,
+																																				function (dashed) {
+																																					return A2(
+																																						$elm$json$Json$Decode$andThen,
+																																						function (color) {
+																																							return A2(
+																																								$elm$json$Json$Decode$andThen,
+																																								function (bend) {
+																																									return A2(
+																																										$elm$json$Json$Decode$andThen,
+																																										function (alignment) {
+																																											return $elm$json$Json$Decode$succeed(
+																																												{alignment: alignment, bend: bend, color: color, dashed: dashed, head: head, kind: kind, position: position, tail: tail});
+																																										},
+																																										A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
+																																								},
+																																								A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
+																																						},
+																																						A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string));
+																																				},
+																																				A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
+																																		},
+																																		A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
+																																},
+																																A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
 																														},
 																														A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
 																												},
@@ -9299,6 +9587,11 @@ var $author$project$Main$subscriptions = function (m) {
 						$elm$core$Basics$composeR,
 						$author$project$Msg$mapLoadGraphInfo($author$project$Format$Version11$fromJSGraph),
 						$author$project$Msg$loadGraphInfoToMsg)),
+					$author$project$Main$loadedGraph12(
+					A2(
+						$elm$core$Basics$composeR,
+						$author$project$Msg$mapLoadGraphInfo($author$project$Format$Version12$fromJSGraph),
+						$author$project$Msg$loadGraphInfoToMsg)),
 					$author$project$Main$setFirstTabEquation($author$project$Msg$SetFirstTabEquation),
 					$elm$browser$Browser$Events$onClick(
 					$elm$json$Json$Decode$succeed($author$project$Msg$MouseClick)),
@@ -10225,18 +10518,23 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			_Json_emptyObject(_Utils_Tuple0),
 			pairs));
 };
+var $author$project$ArrowStyle$isDouble = function (_v0) {
+	var kind = _v0.kind;
+	return _Utils_eq(kind, $author$project$ArrowStyle$DoubleArrow);
+};
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$ArrowStyle$quiverStyle = function (st) {
 	var _v0 = st;
 	var tail = _v0.tail;
 	var head = _v0.head;
-	var _double = _v0._double;
+	var kind = _v0.kind;
 	var dashed = _v0.dashed;
 	var makeIf = F2(
 		function (b, x) {
 			return b ? _List_fromArray(
 				[x]) : _List_Nil;
 		});
+	var _double = $author$project$ArrowStyle$isDouble(st);
 	var headStyle = function () {
 		switch (head.$) {
 			case 'DefaultHead':
@@ -12066,7 +12364,7 @@ var $author$project$GraphDefs$toProofGraph = A2(
 							angleOut: $author$project$Geometry$Point$pointToAngle(
 								A2($author$project$Geometry$Point$subtract, bezier.controlPoint, bezier.to)),
 							from: bezier.from,
-							identity: details.style._double,
+							identity: $author$project$ArrowStyle$isDouble(details.style),
 							label: details.label,
 							pos: $author$project$Geometry$QuadraticBezier$middle(bezier),
 							to: bezier.to
@@ -12094,6 +12392,13 @@ var $elm$core$String$concat = function (strings) {
 	return A2($elm$core$String$join, '', strings);
 };
 var $elm$core$String$fromFloat = _String_fromNumber;
+var $author$project$ArrowStyle$getStyle = function (_v0) {
+	var style = _v0.style;
+	var isAdjunction = _v0.isAdjunction;
+	return isAdjunction ? _Utils_update(
+		style,
+		{head: $author$project$ArrowStyle$NoHead, kind: $author$project$ArrowStyle$NoneArrow, labelAlignment: $author$project$Geometry$Over, tail: $author$project$ArrowStyle$DefaultTail}) : style;
+};
 var $author$project$ArrowStyle$headTikzStyle = function (hd) {
 	switch (hd.$) {
 		case 'DefaultHead':
@@ -12126,22 +12431,30 @@ var $author$project$Drawing$Color$toString = function (c) {
 };
 var $author$project$ArrowStyle$tikzStyle = function (stl) {
 	return 'fore, ' + ($author$project$Drawing$Color$toString(stl.color) + (',' + (function () {
-		var _v0 = _Utils_Tuple2(stl.head, stl._double);
-		if (_v0.b) {
-			if (_v0.a.$ === 'NoHead') {
-				var _v1 = _v0.a;
-				return 'identity';
-			} else {
+		var _v0 = _Utils_Tuple2(stl.head, stl.kind);
+		switch (_v0.b.$) {
+			case 'DoubleArrow':
+				if (_v0.a.$ === 'NoHead') {
+					var _v1 = _v0.a;
+					var _v2 = _v0.b;
+					return 'identity';
+				} else {
+					var hd = _v0.a;
+					var _v3 = _v0.b;
+					return $author$project$ArrowStyle$headTikzStyle(hd) + 'cell=0.2, ';
+				}
+			case 'NormalArrow':
 				var hd = _v0.a;
-				return $author$project$ArrowStyle$headTikzStyle(hd) + 'cell=0.2, ';
-			}
-		} else {
-			var hd = _v0.a;
-			return $author$project$ArrowStyle$headTikzStyle(hd);
+				var _v4 = _v0.b;
+				return $author$project$ArrowStyle$headTikzStyle(hd);
+			default:
+				var hd = _v0.a;
+				var _v5 = _v0.b;
+				return 'draw=none, ';
 		}
 	}() + ((stl.dashed ? 'dashed, ' : '') + (((!(!stl.bend)) ? ('curve={ratio=' + ($elm$core$String$fromFloat(stl.bend) + '}, ')) : '') + function () {
-		var _v2 = stl.tail;
-		switch (_v2.$) {
+		var _v6 = stl.tail;
+		switch (_v6.$) {
 			case 'DefaultTail':
 				return '';
 			case 'Mapsto':
@@ -12159,20 +12472,21 @@ var $author$project$Tikz$encodeLabel = function (e) {
 		return '';
 	} else {
 		var l = _v0.a;
+		var style = $author$project$ArrowStyle$getStyle(l);
 		var lbl = '${\\scriptstyle ' + (l.label + '}$');
 		return function () {
-			var _v1 = l.style.labelAlignment;
+			var _v1 = style.labelAlignment;
 			switch (_v1.$) {
 				case 'Over':
-					return 'labelonat={' + (lbl + ('}{' + ($elm$core$String$fromFloat(l.style.labelPosition) + '}, ')));
+					return 'labelonatsloped={' + (lbl + ('}{' + ($elm$core$String$fromFloat(style.labelPosition) + '}, ')));
 				case 'Centre':
-					return 'labelonat={' + (lbl + ('}{' + ($elm$core$String$fromFloat(l.style.labelPosition) + '}, ')));
+					return 'labelonat={' + (l.label + ('}{' + ($elm$core$String$fromFloat(style.labelPosition) + '}, ')));
 				case 'Left':
 					return '\"' + (lbl + '\", ');
 				default:
 					return '\"' + (lbl + '\"\', ');
 			}
-		}() + ('pos=' + ($elm$core$String$fromFloat(l.style.labelPosition) + (', ' + $author$project$ArrowStyle$tikzStyle(l.style))));
+		}() + ('pos=' + ($elm$core$String$fromFloat(style.labelPosition) + (', ' + $author$project$ArrowStyle$tikzStyle(style))));
 	}
 };
 var $author$project$Tikz$encodeEdgeTikZ = function (e) {
@@ -13056,9 +13370,9 @@ var $author$project$Msg$MouseOn = function (a) {
 	return {$: 'MouseOn', a: a};
 };
 var $author$project$ArrowStyle$doubleSize = 2.5;
-var $author$project$ArrowStyle$isDouble = function (_v0) {
-	var _double = _v0._double;
-	return _double;
+var $author$project$ArrowStyle$isNone = function (_v0) {
+	var kind = _v0.kind;
+	return _Utils_eq(kind, $author$project$ArrowStyle$NoneArrow);
 };
 var $author$project$Drawing$ArrowStyle$imgHeadWidth = 9.764;
 var $author$project$Drawing$ArrowStyle$imgTailWidth = 3.089 * 2;
@@ -13071,452 +13385,462 @@ var $author$project$String$Svg$strokeLinejoin = $author$project$String$Html$attr
 var $author$project$String$Svg$strokeMiterlimit = $author$project$String$Html$attribute('stroke-miterlimit');
 var $author$project$String$Svg$transform = $author$project$String$Html$attribute('transform');
 var $author$project$ArrowStyle$makeHeadShape = function (style) {
-	var _v0 = _Utils_Tuple2(style._double, style.head);
-	_v0$4:
-	while (true) {
-		if (!_v0.a) {
-			switch (_v0.b.$) {
-				case 'DefaultHead':
-					var _v1 = _v0.b;
-					return A2(
-						$author$project$String$Svg$g,
-						_List_fromArray(
-							[
-								$author$project$String$Svg$fill('none'),
-								$author$project$String$Svg$stroke('#000'),
-								$author$project$String$Svg$strokeWidth('.498'),
-								$author$project$String$Svg$strokeMiterlimit('10')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M2.043.253c.473 1.794 1.528 2.64 2.59 2.99-1.062.348-2.117 1.194-2.59 2.988'),
-										$author$project$String$Svg$strokeLinecap('round'),
-										$author$project$String$Svg$strokeLinejoin('round'),
-										$author$project$String$Svg$transform('translate(-1.8 0)')
-									]),
-								_List_Nil),
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M0 3.243H2')
-									]),
-								_List_Nil)
-							]));
-				case 'TwoHeads':
-					var _v3 = _v0.b;
-					return A2(
-						$author$project$String$Svg$g,
-						_List_fromArray(
-							[
-								$author$project$String$Svg$fill('none'),
-								$author$project$String$Svg$stroke('#000'),
-								$author$project$String$Svg$strokeWidth('.498'),
-								$author$project$String$Svg$strokeMiterlimit('10'),
-								$author$project$String$Svg$strokeLinecap('round'),
-								$author$project$String$Svg$strokeLinejoin('round')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M.25.252c.473 1.794 1.528 2.64 2.59 2.99C1.778 3.59.723 4.436.25 6.23')
-									]),
-								_List_Nil),
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M2.043.252c.473 1.794 1.528 2.64 2.59 2.99-1.062.348-2.117 1.194-2.59 2.988')
-									]),
-								_List_Nil),
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M0 3.243H4.882')
-									]),
-								_List_Nil)
-							]));
-				default:
-					break _v0$4;
-			}
-		} else {
-			switch (_v0.b.$) {
-				case 'DefaultHead':
-					var _v2 = _v0.b;
-					return A2(
-						$author$project$String$Svg$g,
-						_List_fromArray(
-							[
-								$author$project$String$Svg$fill('none'),
-								$author$project$String$Svg$stroke('#000'),
-								$author$project$String$Svg$strokeWidth('.498'),
-								$author$project$String$Svg$strokeMiterlimit('10')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M2.043.253c.473 1.794 1.528 2.64 2.59 2.99-1.062.348-2.117 1.194-2.59 2.988'),
-										$author$project$String$Svg$strokeLinecap('round'),
-										$author$project$String$Svg$strokeLinejoin('round')
-									]),
-								_List_Nil),
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M0 3.243H2.441'),
-										$author$project$String$Svg$transform('translate(0 -1.25)')
-									]),
-								_List_Nil),
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M0 3.243H2.441'),
-										$author$project$String$Svg$transform('translate(0 1.25)')
-									]),
-								_List_Nil)
-							]));
-				case 'TwoHeads':
-					var _v4 = _v0.b;
-					return A2(
-						$author$project$String$Svg$g,
-						_List_fromArray(
-							[
-								$author$project$String$Svg$fill('none'),
-								$author$project$String$Svg$stroke('#000'),
-								$author$project$String$Svg$strokeWidth('.498'),
-								$author$project$String$Svg$strokeMiterlimit('10')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$author$project$String$Svg$g,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$strokeLinecap('round'),
-										$author$project$String$Svg$strokeLinejoin('round')
-									]),
-								_List_fromArray(
-									[
-										A2(
-										$author$project$String$Svg$path,
-										_List_fromArray(
-											[
-												$author$project$String$Svg$d('M.25.252c.473 1.794 1.528 2.64 2.59 2.99C1.778 3.59.723 4.436.25 6.23')
-											]),
-										_List_Nil),
-										A2(
-										$author$project$String$Svg$path,
-										_List_fromArray(
-											[
-												$author$project$String$Svg$d('M2.043.252c.473 1.794 1.528 2.64 2.59 2.99-1.062.348-2.117 1.194-2.59 2.988')
-											]),
-										_List_Nil)
-									])),
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M0 3.243H1'),
-										$author$project$String$Svg$transform('translate(0 1.25)')
-									]),
-								_List_Nil),
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M0 3.243H1'),
-										$author$project$String$Svg$transform('translate(0 -1.25)')
-									]),
-								_List_Nil)
-							]));
-				default:
-					break _v0$4;
+	if (_Utils_eq(style.kind, $author$project$ArrowStyle$NoneArrow)) {
+		return A2($author$project$String$Svg$g, _List_Nil, _List_Nil);
+	} else {
+		var _double = $author$project$ArrowStyle$isDouble(style);
+		var _v0 = _Utils_Tuple2(_double, style.head);
+		_v0$4:
+		while (true) {
+			if (!_v0.a) {
+				switch (_v0.b.$) {
+					case 'DefaultHead':
+						var _v1 = _v0.b;
+						return A2(
+							$author$project$String$Svg$g,
+							_List_fromArray(
+								[
+									$author$project$String$Svg$fill('none'),
+									$author$project$String$Svg$stroke('#000'),
+									$author$project$String$Svg$strokeWidth('.498'),
+									$author$project$String$Svg$strokeMiterlimit('10')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M2.043.253c.473 1.794 1.528 2.64 2.59 2.99-1.062.348-2.117 1.194-2.59 2.988'),
+											$author$project$String$Svg$strokeLinecap('round'),
+											$author$project$String$Svg$strokeLinejoin('round'),
+											$author$project$String$Svg$transform('translate(-1.8 0)')
+										]),
+									_List_Nil),
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M0 3.243H2')
+										]),
+									_List_Nil)
+								]));
+					case 'TwoHeads':
+						var _v3 = _v0.b;
+						return A2(
+							$author$project$String$Svg$g,
+							_List_fromArray(
+								[
+									$author$project$String$Svg$fill('none'),
+									$author$project$String$Svg$stroke('#000'),
+									$author$project$String$Svg$strokeWidth('.498'),
+									$author$project$String$Svg$strokeMiterlimit('10'),
+									$author$project$String$Svg$strokeLinecap('round'),
+									$author$project$String$Svg$strokeLinejoin('round')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M.25.252c.473 1.794 1.528 2.64 2.59 2.99C1.778 3.59.723 4.436.25 6.23')
+										]),
+									_List_Nil),
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M2.043.252c.473 1.794 1.528 2.64 2.59 2.99-1.062.348-2.117 1.194-2.59 2.988')
+										]),
+									_List_Nil),
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M0 3.243H4.882')
+										]),
+									_List_Nil)
+								]));
+					default:
+						break _v0$4;
+				}
+			} else {
+				switch (_v0.b.$) {
+					case 'DefaultHead':
+						var _v2 = _v0.b;
+						return A2(
+							$author$project$String$Svg$g,
+							_List_fromArray(
+								[
+									$author$project$String$Svg$fill('none'),
+									$author$project$String$Svg$stroke('#000'),
+									$author$project$String$Svg$strokeWidth('.498'),
+									$author$project$String$Svg$strokeMiterlimit('10')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M2.043.253c.473 1.794 1.528 2.64 2.59 2.99-1.062.348-2.117 1.194-2.59 2.988'),
+											$author$project$String$Svg$strokeLinecap('round'),
+											$author$project$String$Svg$strokeLinejoin('round')
+										]),
+									_List_Nil),
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M0 3.243H2.441'),
+											$author$project$String$Svg$transform('translate(0 -1.25)')
+										]),
+									_List_Nil),
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M0 3.243H2.441'),
+											$author$project$String$Svg$transform('translate(0 1.25)')
+										]),
+									_List_Nil)
+								]));
+					case 'TwoHeads':
+						var _v4 = _v0.b;
+						return A2(
+							$author$project$String$Svg$g,
+							_List_fromArray(
+								[
+									$author$project$String$Svg$fill('none'),
+									$author$project$String$Svg$stroke('#000'),
+									$author$project$String$Svg$strokeWidth('.498'),
+									$author$project$String$Svg$strokeMiterlimit('10')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$author$project$String$Svg$g,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$strokeLinecap('round'),
+											$author$project$String$Svg$strokeLinejoin('round')
+										]),
+									_List_fromArray(
+										[
+											A2(
+											$author$project$String$Svg$path,
+											_List_fromArray(
+												[
+													$author$project$String$Svg$d('M.25.252c.473 1.794 1.528 2.64 2.59 2.99C1.778 3.59.723 4.436.25 6.23')
+												]),
+											_List_Nil),
+											A2(
+											$author$project$String$Svg$path,
+											_List_fromArray(
+												[
+													$author$project$String$Svg$d('M2.043.252c.473 1.794 1.528 2.64 2.59 2.99-1.062.348-2.117 1.194-2.59 2.988')
+												]),
+											_List_Nil)
+										])),
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M0 3.243H1'),
+											$author$project$String$Svg$transform('translate(0 1.25)')
+										]),
+									_List_Nil),
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M0 3.243H1'),
+											$author$project$String$Svg$transform('translate(0 -1.25)')
+										]),
+									_List_Nil)
+								]));
+					default:
+						break _v0$4;
+				}
 			}
 		}
+		return A2($author$project$String$Svg$g, _List_Nil, _List_Nil);
 	}
-	return A2($author$project$String$Svg$g, _List_Nil, _List_Nil);
 };
 var $author$project$ArrowStyle$makeTailShape = function (style) {
-	var _v0 = _Utils_Tuple2(style._double, style.tail);
-	_v0$6:
-	while (true) {
-		if (!_v0.a) {
-			switch (_v0.b.$) {
-				case 'Hook':
-					var _v1 = _v0.b;
-					return A2(
-						$author$project$String$Svg$g,
-						_List_fromArray(
-							[
-								$author$project$String$Svg$fill('none'),
-								$author$project$String$Svg$stroke('#000'),
-								$author$project$String$Svg$strokeWidth('.498'),
-								$author$project$String$Svg$strokeMiterlimit('10')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M2.335 3.243h.753')
-									]),
-								_List_Nil),
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
-										$author$project$String$Svg$strokeLinecap('round')
-									]),
-								_List_Nil)
-							]));
-				case 'HookAlt':
-					var _v3 = _v0.b;
-					return A2(
-						$author$project$String$Svg$g,
-						_List_fromArray(
-							[
-								$author$project$String$Svg$fill('none'),
-								$author$project$String$Svg$stroke('#000'),
-								$author$project$String$Svg$strokeWidth('.498'),
-								$author$project$String$Svg$strokeMiterlimit('10'),
-								$author$project$String$Svg$transform('translate(0 6.483) scale(1 -1)')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M2.335 3.243h.753')
-									]),
-								_List_Nil),
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
-										$author$project$String$Svg$strokeLinecap('round')
-									]),
-								_List_Nil)
-							]));
-				case 'Mapsto':
-					var _v5 = _v0.b;
-					return A2(
-						$author$project$String$Svg$g,
-						_List_fromArray(
-							[
-								$author$project$String$Svg$fill('none'),
-								$author$project$String$Svg$stroke('#000'),
-								$author$project$String$Svg$strokeWidth('.498'),
-								$author$project$String$Svg$strokeMiterlimit('10')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M1.71 3.243h1.38')
-									]),
-								_List_Nil),
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M1.544 5.283V1.2'),
-										$author$project$String$Svg$strokeLinecap('round')
-									]),
-								_List_Nil)
-							]));
-				default:
-					break _v0$6;
-			}
-		} else {
-			switch (_v0.b.$) {
-				case 'Hook':
-					var _v2 = _v0.b;
-					return A2(
-						$author$project$String$Svg$g,
-						_List_fromArray(
-							[
-								$author$project$String$Svg$fill('none'),
-								$author$project$String$Svg$stroke('#000'),
-								$author$project$String$Svg$strokeWidth('.498'),
-								$author$project$String$Svg$strokeMiterlimit('10')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$author$project$String$Svg$g,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$transform('translate(0 -1.25)')
-									]),
-								_List_fromArray(
-									[
-										A2(
-										$author$project$String$Svg$path,
-										_List_fromArray(
-											[
-												$author$project$String$Svg$d('M2.335 3.243h.753')
-											]),
-										_List_Nil),
-										A2(
-										$author$project$String$Svg$path,
-										_List_fromArray(
-											[
-												$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
-												$author$project$String$Svg$strokeLinecap('round')
-											]),
-										_List_Nil)
-									])),
-								A2(
-								$author$project$String$Svg$g,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$transform('translate(0 1.25)')
-									]),
-								_List_fromArray(
-									[
-										A2(
-										$author$project$String$Svg$path,
-										_List_fromArray(
-											[
-												$author$project$String$Svg$d('M2.335 3.243h.753')
-											]),
-										_List_Nil),
-										A2(
-										$author$project$String$Svg$path,
-										_List_fromArray(
-											[
-												$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
-												$author$project$String$Svg$strokeLinecap('round')
-											]),
-										_List_Nil)
-									]))
-							]));
-				case 'HookAlt':
-					var _v4 = _v0.b;
-					return A2(
-						$author$project$String$Svg$g,
-						_List_fromArray(
-							[
-								$author$project$String$Svg$fill('none'),
-								$author$project$String$Svg$stroke('#000'),
-								$author$project$String$Svg$strokeWidth('.498'),
-								$author$project$String$Svg$strokeMiterlimit('10'),
-								$author$project$String$Svg$transform('translate(0 6.483) scale(1 -1)')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$author$project$String$Svg$g,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$transform('translate(0 -1.25)')
-									]),
-								_List_fromArray(
-									[
-										A2(
-										$author$project$String$Svg$path,
-										_List_fromArray(
-											[
-												$author$project$String$Svg$d('M2.335 3.243h.753')
-											]),
-										_List_Nil),
-										A2(
-										$author$project$String$Svg$path,
-										_List_fromArray(
-											[
-												$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
-												$author$project$String$Svg$strokeLinecap('round')
-											]),
-										_List_Nil)
-									])),
-								A2(
-								$author$project$String$Svg$g,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$transform('translate(0 1.25)')
-									]),
-								_List_fromArray(
-									[
-										A2(
-										$author$project$String$Svg$path,
-										_List_fromArray(
-											[
-												$author$project$String$Svg$d('M2.335 3.243h.753')
-											]),
-										_List_Nil),
-										A2(
-										$author$project$String$Svg$path,
-										_List_fromArray(
-											[
-												$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
-												$author$project$String$Svg$strokeLinecap('round')
-											]),
-										_List_Nil)
-									]))
-							]));
-				case 'Mapsto':
-					var _v6 = _v0.b;
-					return A2(
-						$author$project$String$Svg$g,
-						_List_fromArray(
-							[
-								$author$project$String$Svg$fill('none'),
-								$author$project$String$Svg$stroke('#000'),
-								$author$project$String$Svg$strokeWidth('.498'),
-								$author$project$String$Svg$strokeMiterlimit('10')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M1.71 3.243h1.38'),
-										$author$project$String$Svg$transform('translate(0 -1.25)')
-									]),
-								_List_Nil),
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M1.71 3.243h1.38'),
-										$author$project$String$Svg$transform('translate(0 1.25)')
-									]),
-								_List_Nil),
-								A2(
-								$author$project$String$Svg$path,
-								_List_fromArray(
-									[
-										$author$project$String$Svg$d('M1.544 5.783 V 0.7'),
-										$author$project$String$Svg$strokeLinecap('round')
-									]),
-								_List_Nil)
-							]));
-				default:
-					break _v0$6;
+	if (_Utils_eq(style.kind, $author$project$ArrowStyle$NoneArrow)) {
+		return A2($author$project$String$Svg$g, _List_Nil, _List_Nil);
+	} else {
+		var _double = $author$project$ArrowStyle$isDouble(style);
+		var _v0 = _Utils_Tuple2(_double, style.tail);
+		_v0$6:
+		while (true) {
+			if (!_v0.a) {
+				switch (_v0.b.$) {
+					case 'Hook':
+						var _v1 = _v0.b;
+						return A2(
+							$author$project$String$Svg$g,
+							_List_fromArray(
+								[
+									$author$project$String$Svg$fill('none'),
+									$author$project$String$Svg$stroke('#000'),
+									$author$project$String$Svg$strokeWidth('.498'),
+									$author$project$String$Svg$strokeMiterlimit('10')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M2.335 3.243h.753')
+										]),
+									_List_Nil),
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
+											$author$project$String$Svg$strokeLinecap('round')
+										]),
+									_List_Nil)
+								]));
+					case 'HookAlt':
+						var _v3 = _v0.b;
+						return A2(
+							$author$project$String$Svg$g,
+							_List_fromArray(
+								[
+									$author$project$String$Svg$fill('none'),
+									$author$project$String$Svg$stroke('#000'),
+									$author$project$String$Svg$strokeWidth('.498'),
+									$author$project$String$Svg$strokeMiterlimit('10'),
+									$author$project$String$Svg$transform('translate(0 6.483) scale(1 -1)')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M2.335 3.243h.753')
+										]),
+									_List_Nil),
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
+											$author$project$String$Svg$strokeLinecap('round')
+										]),
+									_List_Nil)
+								]));
+					case 'Mapsto':
+						var _v5 = _v0.b;
+						return A2(
+							$author$project$String$Svg$g,
+							_List_fromArray(
+								[
+									$author$project$String$Svg$fill('none'),
+									$author$project$String$Svg$stroke('#000'),
+									$author$project$String$Svg$strokeWidth('.498'),
+									$author$project$String$Svg$strokeMiterlimit('10')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M1.71 3.243h1.38')
+										]),
+									_List_Nil),
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M1.544 5.283V1.2'),
+											$author$project$String$Svg$strokeLinecap('round')
+										]),
+									_List_Nil)
+								]));
+					default:
+						break _v0$6;
+				}
+			} else {
+				switch (_v0.b.$) {
+					case 'Hook':
+						var _v2 = _v0.b;
+						return A2(
+							$author$project$String$Svg$g,
+							_List_fromArray(
+								[
+									$author$project$String$Svg$fill('none'),
+									$author$project$String$Svg$stroke('#000'),
+									$author$project$String$Svg$strokeWidth('.498'),
+									$author$project$String$Svg$strokeMiterlimit('10')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$author$project$String$Svg$g,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$transform('translate(0 -1.25)')
+										]),
+									_List_fromArray(
+										[
+											A2(
+											$author$project$String$Svg$path,
+											_List_fromArray(
+												[
+													$author$project$String$Svg$d('M2.335 3.243h.753')
+												]),
+											_List_Nil),
+											A2(
+											$author$project$String$Svg$path,
+											_List_fromArray(
+												[
+													$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
+													$author$project$String$Svg$strokeLinecap('round')
+												]),
+											_List_Nil)
+										])),
+									A2(
+									$author$project$String$Svg$g,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$transform('translate(0 1.25)')
+										]),
+									_List_fromArray(
+										[
+											A2(
+											$author$project$String$Svg$path,
+											_List_fromArray(
+												[
+													$author$project$String$Svg$d('M2.335 3.243h.753')
+												]),
+											_List_Nil),
+											A2(
+											$author$project$String$Svg$path,
+											_List_fromArray(
+												[
+													$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
+													$author$project$String$Svg$strokeLinecap('round')
+												]),
+											_List_Nil)
+										]))
+								]));
+					case 'HookAlt':
+						var _v4 = _v0.b;
+						return A2(
+							$author$project$String$Svg$g,
+							_List_fromArray(
+								[
+									$author$project$String$Svg$fill('none'),
+									$author$project$String$Svg$stroke('#000'),
+									$author$project$String$Svg$strokeWidth('.498'),
+									$author$project$String$Svg$strokeMiterlimit('10'),
+									$author$project$String$Svg$transform('translate(0 6.483) scale(1 -1)')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$author$project$String$Svg$g,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$transform('translate(0 -1.25)')
+										]),
+									_List_fromArray(
+										[
+											A2(
+											$author$project$String$Svg$path,
+											_List_fromArray(
+												[
+													$author$project$String$Svg$d('M2.335 3.243h.753')
+												]),
+											_List_Nil),
+											A2(
+											$author$project$String$Svg$path,
+											_List_fromArray(
+												[
+													$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
+													$author$project$String$Svg$strokeLinecap('round')
+												]),
+											_List_Nil)
+										])),
+									A2(
+									$author$project$String$Svg$g,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$transform('translate(0 1.25)')
+										]),
+									_List_fromArray(
+										[
+											A2(
+											$author$project$String$Svg$path,
+											_List_fromArray(
+												[
+													$author$project$String$Svg$d('M2.335 3.243h.753')
+												]),
+											_List_Nil),
+											A2(
+											$author$project$String$Svg$path,
+											_List_fromArray(
+												[
+													$author$project$String$Svg$d('M2.335.803C1.48.803.79 1.348.79 2.023c0 .674.69 1.22 1.544 1.22'),
+													$author$project$String$Svg$strokeLinecap('round')
+												]),
+											_List_Nil)
+										]))
+								]));
+					case 'Mapsto':
+						var _v6 = _v0.b;
+						return A2(
+							$author$project$String$Svg$g,
+							_List_fromArray(
+								[
+									$author$project$String$Svg$fill('none'),
+									$author$project$String$Svg$stroke('#000'),
+									$author$project$String$Svg$strokeWidth('.498'),
+									$author$project$String$Svg$strokeMiterlimit('10')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M1.71 3.243h1.38'),
+											$author$project$String$Svg$transform('translate(0 -1.25)')
+										]),
+									_List_Nil),
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M1.71 3.243h1.38'),
+											$author$project$String$Svg$transform('translate(0 1.25)')
+										]),
+									_List_Nil),
+									A2(
+									$author$project$String$Svg$path,
+									_List_fromArray(
+										[
+											$author$project$String$Svg$d('M1.544 5.783 V 0.7'),
+											$author$project$String$Svg$strokeLinecap('round')
+										]),
+									_List_Nil)
+								]));
+					default:
+						break _v0$6;
+				}
 			}
 		}
+		return A2($author$project$String$Svg$g, _List_Nil, _List_Nil);
 	}
-	return A2($author$project$String$Svg$g, _List_Nil, _List_Nil);
 };
 var $author$project$Drawing$ArrowStyle$imgHeight = 13;
 var $author$project$Drawing$ArrowStyle$makeTheImg = F4(
@@ -13618,44 +13942,48 @@ var $author$project$Geometry$QuadraticBezier$orthoVectPx = F2(
 	});
 var $author$project$Drawing$arrow = F3(
 	function (attrs0, arrowStyle, q) {
-		var attrs = A2(
-			$elm$core$List$cons,
-			$author$project$Drawing$Color(arrowStyle.color),
-			attrs0);
-		var zindex = $author$project$Drawing$attributesToZIndex(attrs);
-		var imgs = A2($author$project$Drawing$ArrowStyle$makeHeadTailImgs, q, arrowStyle);
-		var mkgen = F2(
-			function (d, l) {
-				return A2(
-					$author$project$Drawing$mkPath,
-					d,
-					_Utils_ap(l, attrs));
-			});
-		var mkl = A2(mkgen, arrowStyle.dashed, _List_Nil);
-		var mkshadow = A2(
-			mkgen,
-			false,
-			_List_fromArray(
-				[
-					$author$project$Drawing$class($author$project$Drawing$shadowClass)
-				]));
-		var mkall = function (l) {
-			return _Utils_ap(
-				A2($elm$core$List$map, mkshadow, l),
-				A2($elm$core$List$map, mkl, l));
-		};
-		var lines = $author$project$ArrowStyle$isDouble(arrowStyle) ? mkall(
-			_List_fromArray(
-				[
-					A2($author$project$Geometry$QuadraticBezier$orthoVectPx, 0 - $author$project$ArrowStyle$doubleSize, q),
-					A2($author$project$Geometry$QuadraticBezier$orthoVectPx, $author$project$ArrowStyle$doubleSize, q)
-				])) : mkall(
-			_List_fromArray(
-				[q]));
-		return A2(
-			$author$project$Drawing$ofSvgs,
-			zindex,
-			_Utils_ap(lines, imgs));
+		if ($author$project$ArrowStyle$isNone(arrowStyle)) {
+			return $author$project$Drawing$empty;
+		} else {
+			var attrs = A2(
+				$elm$core$List$cons,
+				$author$project$Drawing$Color(arrowStyle.color),
+				attrs0);
+			var zindex = $author$project$Drawing$attributesToZIndex(attrs);
+			var imgs = A2($author$project$Drawing$ArrowStyle$makeHeadTailImgs, q, arrowStyle);
+			var mkgen = F2(
+				function (d, l) {
+					return A2(
+						$author$project$Drawing$mkPath,
+						d,
+						_Utils_ap(l, attrs));
+				});
+			var mkl = A2(mkgen, arrowStyle.dashed, _List_Nil);
+			var mkshadow = A2(
+				mkgen,
+				false,
+				_List_fromArray(
+					[
+						$author$project$Drawing$class($author$project$Drawing$shadowClass)
+					]));
+			var mkall = function (l) {
+				return _Utils_ap(
+					A2($elm$core$List$map, mkshadow, l),
+					A2($elm$core$List$map, mkl, l));
+			};
+			var lines = $author$project$ArrowStyle$isDouble(arrowStyle) ? mkall(
+				_List_fromArray(
+					[
+						A2($author$project$Geometry$QuadraticBezier$orthoVectPx, 0 - $author$project$ArrowStyle$doubleSize, q),
+						A2($author$project$Geometry$QuadraticBezier$orthoVectPx, $author$project$ArrowStyle$doubleSize, q)
+					])) : mkall(
+				_List_fromArray(
+					[q]));
+			return A2(
+				$author$project$Drawing$ofSvgs,
+				zindex,
+				_Utils_ap(lines, imgs));
+		}
 	});
 var $author$project$Drawing$OnDoubleClick = function (a) {
 	return {$: 'OnDoubleClick', a: a};
@@ -14106,83 +14434,87 @@ var $author$project$Geometry$determine_label_position = F9(
 			curve,
 			angle);
 		var centre = A2($author$project$Geometry$Bezier$point, bezier, start + ((end - start) * label_position));
-		var offset_angle = function () {
-			switch (label_alignement.$) {
-				case 'Centre':
-					return 0;
-				case 'Over':
-					return 0;
-				case 'Left':
-					return 0 - ($elm$core$Basics$pi / 2);
-				default:
-					return $elm$core$Basics$pi / 2;
-			}
-		}();
-		var offset_allowance = 4;
-		var bail_out = 1024;
-		var _while = F3(
-			function (i, offset_min, offset_max) {
-				_while:
-				while (true) {
-					var label_offset = (offset_min + offset_max) / 2;
-					if (!i) {
-						return label_offset;
-					} else {
-						var nexti = i - 1;
-						var rect_centre = A2(
-							$author$project$Geometry$Point$add,
-							A2($author$project$Geometry$Point$lendir, label_offset, angle + offset_angle),
-							A2($author$project$Geometry$Point$rotate, angle, centre));
-						var intersections = A3(
-							$author$project$Geometry$Bezier$intersections_with_rounded_rectangle,
-							bezier,
-							A3(
-								$author$project$Geometry$RoundedRectangle$RoundedRectangle,
-								rect_centre,
-								A2(
-									$author$project$Geometry$Point$add,
-									_Utils_Tuple2(edge_width, edge_width),
-									label_size),
-								edge_width / 2),
-							true);
-						if (_Utils_eq(intersections, _List_Nil)) {
-							if ((offset_max - offset_min) < 1) {
-								return label_offset;
+		if (_Utils_eq(label_alignement, $author$project$Geometry$Over)) {
+			return centre;
+		} else {
+			var offset_angle = function () {
+				switch (label_alignement.$) {
+					case 'Centre':
+						return 0;
+					case 'Over':
+						return 0;
+					case 'Left':
+						return 0 - ($elm$core$Basics$pi / 2);
+					default:
+						return $elm$core$Basics$pi / 2;
+				}
+			}();
+			var offset_allowance = 4;
+			var bail_out = 1024;
+			var _while = F3(
+				function (i, offset_min, offset_max) {
+					_while:
+					while (true) {
+						var label_offset = (offset_min + offset_max) / 2;
+						if (!i) {
+							return label_offset;
+						} else {
+							var nexti = i - 1;
+							var rect_centre = A2(
+								$author$project$Geometry$Point$add,
+								A2($author$project$Geometry$Point$lendir, label_offset, angle + offset_angle),
+								A2($author$project$Geometry$Point$rotate, angle, centre));
+							var intersections = A3(
+								$author$project$Geometry$Bezier$intersections_with_rounded_rectangle,
+								bezier,
+								A3(
+									$author$project$Geometry$RoundedRectangle$RoundedRectangle,
+									rect_centre,
+									A2(
+										$author$project$Geometry$Point$add,
+										_Utils_Tuple2(edge_width, edge_width),
+										label_size),
+									edge_width / 2),
+								true);
+							if (_Utils_eq(intersections, _List_Nil)) {
+								if ((offset_max - offset_min) < 1) {
+									return label_offset;
+								} else {
+									var $temp$i = nexti,
+										$temp$offset_min = offset_min,
+										$temp$offset_max = label_offset;
+									i = $temp$i;
+									offset_min = $temp$offset_min;
+									offset_max = $temp$offset_max;
+									continue _while;
+								}
 							} else {
 								var $temp$i = nexti,
-									$temp$offset_min = offset_min,
-									$temp$offset_max = label_offset;
+									$temp$offset_min = label_offset,
+									$temp$offset_max = offset_max;
 								i = $temp$i;
 								offset_min = $temp$offset_min;
 								offset_max = $temp$offset_max;
 								continue _while;
 							}
-						} else {
-							var $temp$i = nexti,
-								$temp$offset_min = label_offset,
-								$temp$offset_max = offset_max;
-							i = $temp$i;
-							offset_min = $temp$offset_min;
-							offset_max = $temp$offset_max;
-							continue _while;
 						}
 					}
-				}
-			});
-		var offset_min = 0;
-		var offset_max = (offset_allowance + ($elm$core$Basics$abs(curve) / 2)) + $author$project$Geometry$Point$radius(
-			A2(
-				$author$project$Geometry$Point$resize,
-				0.5,
+				});
+			var offset_min = 0;
+			var offset_max = (offset_allowance + ($elm$core$Basics$abs(curve) / 2)) + $author$project$Geometry$Point$radius(
 				A2(
-					$author$project$Geometry$Point$add,
-					label_size,
-					_Utils_Tuple2(edge_width, edge_width))));
-		var label_offset = A3(_while, bail_out, offset_min, offset_max);
-		return A2(
-			$author$project$Geometry$Point$add,
-			centre,
-			A2($author$project$Geometry$Point$lendir, label_offset, offset_angle));
+					$author$project$Geometry$Point$resize,
+					0.5,
+					A2(
+						$author$project$Geometry$Point$add,
+						label_size,
+						_Utils_Tuple2(edge_width, edge_width))));
+			var label_offset = A3(_while, bail_out, offset_min, offset_max);
+			return A2(
+				$author$project$Geometry$Point$add,
+				centre,
+				A2($author$project$Geometry$Point$lendir, label_offset, offset_angle));
+		}
 	});
 var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onMove = A2($mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions, 'mousemove', $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$defaultOptions);
 var $author$project$GraphDrawing$segmentLabel = F6(
@@ -14221,6 +14553,21 @@ var $author$project$GraphDrawing$segmentLabel = F6(
 				return $author$project$Drawing$empty;
 			} else {
 				var finalLabel = ' \\scriptstyle ' + label.label;
+				var rotateAttr = function () {
+					if (_Utils_eq(label.style.labelAlignment, $author$project$Geometry$Over)) {
+						var angle = $author$project$Geometry$Point$pointToAngle(
+							A2($author$project$Geometry$Point$subtract, q.to, q.from));
+						return _List_fromArray(
+							[
+								A2(
+								$elm$html$Html$Attributes$style,
+								'transform',
+								'rotate(' + ($elm$core$String$fromFloat(angle) + 'rad)'))
+							]);
+					} else {
+						return _List_Nil;
+					}
+				}();
 				return A6(
 					$author$project$GraphDrawing$makeLatex,
 					cfg,
@@ -14240,12 +14587,14 @@ var $author$project$GraphDrawing$segmentLabel = F6(
 									$author$project$Msg$MouseOn(edgeId)))
 							]),
 						_Utils_ap(
-							A2(
-								$elm$core$List$map,
-								$elm$html$Html$Attributes$class,
-								$author$project$GraphDrawing$activityToClasses(activity)),
-							$author$project$HtmlDefs$onRendered(
-								$author$project$Msg$EdgeRendered(edgeId)))));
+							rotateAttr,
+							_Utils_ap(
+								A2(
+									$elm$core$List$map,
+									$elm$html$Html$Attributes$class,
+									$author$project$GraphDrawing$activityToClasses(activity)),
+								$author$project$HtmlDefs$onRendered(
+									$author$project$Msg$EdgeRendered(edgeId))))));
 			}
 		}
 	});
@@ -14263,36 +14612,26 @@ var $author$project$Drawing$simpleOn = F2(
 	});
 var $author$project$GraphDrawing$normalEdgeDrawing = F7(
 	function (cfg, edgeId, activity, z, label, q, curve) {
-		var c = label.style.color;
-		var oldstyle = label.style;
-		var style = _Utils_update(
-			oldstyle,
-			{color: c});
-		var classes = A2(
-			$elm$core$List$map,
-			$author$project$Drawing$class,
-			$author$project$GraphDrawing$activityToEdgeClasses(activity));
+		var style = $author$project$ArrowStyle$getStyle(label);
+		var classes = label.isAdjunction ? $author$project$GraphDrawing$activityToClasses(activity) : $author$project$GraphDrawing$activityToEdgeClasses(activity);
+		var attrs = _Utils_ap(
+			A2($elm$core$List$map, $author$project$Drawing$class, classes),
+			_List_fromArray(
+				[
+					$author$project$Drawing$zindexAttr(z),
+					$author$project$Drawing$onClick(
+					$author$project$Msg$EdgeClick(edgeId)),
+					$author$project$Drawing$onDoubleClick(
+					$author$project$Msg$EltDoubleClick(edgeId)),
+					A2(
+					$author$project$Drawing$simpleOn,
+					'mousemove',
+					$author$project$Msg$MouseOn(edgeId))
+				]));
 		return $author$project$Drawing$group(
 			_List_fromArray(
 				[
-					A3(
-					$author$project$Drawing$arrow,
-					_Utils_ap(
-						classes,
-						_List_fromArray(
-							[
-								$author$project$Drawing$zindexAttr(z),
-								$author$project$Drawing$onClick(
-								$author$project$Msg$EdgeClick(edgeId)),
-								$author$project$Drawing$onDoubleClick(
-								$author$project$Msg$EltDoubleClick(edgeId)),
-								A2(
-								$author$project$Drawing$simpleOn,
-								'mousemove',
-								$author$project$Msg$MouseOn(edgeId))
-							])),
-					style,
-					q),
+					A3($author$project$Drawing$arrow, attrs, style, q),
 					A6($author$project$GraphDrawing$segmentLabel, cfg, q, edgeId, activity, label, curve)
 				]));
 	});
@@ -14394,10 +14733,12 @@ var $author$project$GraphDrawing$make_edgeDrawingLabel = F2(
 					var l = _v1.a;
 					var label = l.label;
 					var style = l.style;
+					var isAdjunction = l.isAdjunction;
 					return $author$project$GraphDrawing$NormalEdge(
 						{
 							dims: $author$project$GraphDefs$getEdgeDims(l),
 							editable: editable,
+							isAdjunction: isAdjunction,
 							label: label,
 							style: style
 						});
@@ -15112,8 +15453,8 @@ var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
 																									_List_fromArray(
 																										[
 																											_Utils_Tuple2(
-																											'isPullshout',
-																											$elm$json$Json$Encode$bool($.isPullshout)),
+																											'kind',
+																											$elm$json$Json$Encode$string($.kind)),
 																											_Utils_Tuple2(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
@@ -15136,11 +15477,11 @@ var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
 																															'dashed',
 																															$elm$json$Json$Encode$bool($.dashed)),
 																															_Utils_Tuple2(
-																															'double',
-																															$elm$json$Json$Encode$bool($._double)),
-																															_Utils_Tuple2(
 																															'head',
 																															$elm$json$Json$Encode$string($.head)),
+																															_Utils_Tuple2(
+																															'kind',
+																															$elm$json$Json$Encode$string($.kind)),
 																															_Utils_Tuple2(
 																															'position',
 																															$elm$json$Json$Encode$float($.position)),
@@ -15344,8 +15685,8 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 																									_List_fromArray(
 																										[
 																											_Utils_Tuple2(
-																											'isPullshout',
-																											$elm$json$Json$Encode$bool($.isPullshout)),
+																											'kind',
+																											$elm$json$Json$Encode$string($.kind)),
 																											_Utils_Tuple2(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
@@ -15368,11 +15709,11 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 																															'dashed',
 																															$elm$json$Json$Encode$bool($.dashed)),
 																															_Utils_Tuple2(
-																															'double',
-																															$elm$json$Json$Encode$bool($._double)),
-																															_Utils_Tuple2(
 																															'head',
 																															$elm$json$Json$Encode$string($.head)),
+																															_Utils_Tuple2(
+																															'kind',
+																															$elm$json$Json$Encode$string($.kind)),
 																															_Utils_Tuple2(
 																															'position',
 																															$elm$json$Json$Encode$float($.position)),
@@ -16002,7 +16343,7 @@ var $author$project$GraphDefs$createNodeLabel = F3(
 		var id = _v0.b;
 		return _Utils_Tuple3(g2, id, p);
 	});
-var $author$project$ArrowStyle$empty = {bend: 0, color: $author$project$Drawing$Color$black, dashed: false, _double: false, head: $author$project$ArrowStyle$DefaultHead, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, tail: $author$project$ArrowStyle$DefaultTail};
+var $author$project$ArrowStyle$empty = {bend: 0, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$DefaultHead, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, tail: $author$project$ArrowStyle$DefaultTail};
 var $author$project$Polygraph$newEdge = F4(
 	function (g, i1, i2, e) {
 		return A2(
@@ -16013,11 +16354,15 @@ var $author$project$Polygraph$newEdge = F4(
 var $author$project$GraphDefs$newGenericLabel = function (d) {
 	return {details: d, selected: false, weaklySelected: false, zindex: $author$project$Zindex$defaultZ};
 };
-var $author$project$GraphDefs$newEdgeLabel = F2(
-	function (s, style) {
+var $author$project$GraphDefs$newEdgeLabelAdj = F3(
+	function (s, style, isAdjunction) {
 		return $author$project$GraphDefs$newGenericLabel(
 			$author$project$GraphDefs$NormalEdge(
-				{dims: $elm$core$Maybe$Nothing, label: s, style: style}));
+				{dims: $elm$core$Maybe$Nothing, isAdjunction: isAdjunction, label: s, style: style}));
+	});
+var $author$project$GraphDefs$newEdgeLabel = F2(
+	function (s, style) {
+		return A3($author$project$GraphDefs$newEdgeLabelAdj, s, style, false);
 	});
 var $author$project$QuickInput$buildGraphEdges = F7(
 	function (g, offset, alignment, pos, from, to, ch) {
@@ -16327,17 +16672,27 @@ var $author$project$ArrowStyle$headToString = function (head) {
 			return 'none';
 	}
 };
-var $author$project$Format$Version11$Edge = F4(
-	function (label, style, isPullshout, zindex) {
-		return {isPullshout: isPullshout, label: label, style: style, zindex: zindex};
+var $author$project$ArrowStyle$kindToString = function (kind) {
+	switch (kind.$) {
+		case 'NormalArrow':
+			return 'normal';
+		case 'NoneArrow':
+			return 'none';
+		default:
+			return 'double';
+	}
+};
+var $author$project$Format$Version12$Edge = F4(
+	function (label, style, kind, zindex) {
+		return {kind: kind, label: label, style: style, zindex: zindex};
 	});
-var $author$project$Format$Version11$ArrowStyle = F8(
-	function (tail, head, _double, dashed, bend, alignment, position, color) {
-		return {alignment: alignment, bend: bend, color: color, dashed: dashed, _double: _double, head: head, position: position, tail: tail};
+var $author$project$Format$Version12$ArrowStyle = F8(
+	function (tail, head, kind, dashed, bend, alignment, position, color) {
+		return {alignment: alignment, bend: bend, color: color, dashed: dashed, head: head, kind: kind, position: position, tail: tail};
 	});
-var $author$project$Format$Version11$emptyArrowStyle = A8($author$project$Format$Version11$ArrowStyle, '', '', false, false, 0, '', 0, 'black');
-var $author$project$Format$Version11$pullshoutEdge = function (z) {
-	return A4($author$project$Format$Version11$Edge, '', $author$project$Format$Version11$emptyArrowStyle, true, z);
+var $author$project$Format$Version12$emptyArrowStyle = A8($author$project$Format$Version12$ArrowStyle, '', '', 'normal', false, 0, '', 0, 'black');
+var $author$project$Format$Version12$pullshoutEdge = function (z) {
+	return A4($author$project$Format$Version12$Edge, '', $author$project$Format$Version12$emptyArrowStyle, $author$project$Format$Version12$pullshoutKey, z);
 };
 var $author$project$ArrowStyle$tailToString = function (tail) {
 	switch (tail.$) {
@@ -16351,23 +16706,25 @@ var $author$project$ArrowStyle$tailToString = function (tail) {
 			return 'mapsto';
 	}
 };
-var $author$project$Format$Version11$fromEdgeLabel = function (e) {
+var $author$project$Format$Version12$fromEdgeLabel = function (e) {
 	var _v0 = e.details;
 	if (_v0.$ === 'PullshoutEdge') {
-		return $author$project$Format$Version11$pullshoutEdge(e.zindex);
+		return $author$project$Format$Version12$pullshoutEdge(e.zindex);
 	} else {
-		var label = _v0.a.label;
-		var style = _v0.a.style;
+		var l = _v0.a;
+		var label = l.label;
+		var isAdjunction = l.isAdjunction;
+		var style = $author$project$ArrowStyle$getStyle(l);
 		return {
-			isPullshout: false,
+			kind: isAdjunction ? $author$project$Format$Version12$adjunctionKey : $author$project$Format$Version12$normalKey,
 			label: label,
 			style: {
 				alignment: $author$project$ArrowStyle$alignmentToString(style.labelAlignment),
 				bend: style.bend,
 				color: $author$project$Drawing$Color$toString(style.color),
 				dashed: style.dashed,
-				_double: style._double,
 				head: $author$project$ArrowStyle$headToString(style.head),
+				kind: $author$project$ArrowStyle$kindToString(style.kind),
 				position: style.labelPosition,
 				tail: $author$project$ArrowStyle$tailToString(style.tail)
 			},
@@ -16375,38 +16732,38 @@ var $author$project$Format$Version11$fromEdgeLabel = function (e) {
 		};
 	}
 };
-var $author$project$Format$Version11$fromNodeLabel = function (_v0) {
+var $author$project$Format$Version12$fromNodeLabel = function (_v0) {
 	var pos = _v0.pos;
 	var label = _v0.label;
 	var isMath = _v0.isMath;
 	var zindex = _v0.zindex;
 	return {isMath: isMath, label: label, pos: pos, zindex: zindex};
 };
-var $author$project$Format$Version11$toJSTab = function (tab) {
+var $author$project$Format$Version12$toJSTab = function (tab) {
 	var g = tab.graph;
 	var gjs = $author$project$Polygraph$normalise(
 		A3(
 			$author$project$Polygraph$map,
 			function (_v0) {
-				return $author$project$Format$Version11$fromNodeLabel;
+				return $author$project$Format$Version12$fromNodeLabel;
 			},
 			function (_v1) {
-				return $author$project$Format$Version11$fromEdgeLabel;
+				return $author$project$Format$Version12$fromEdgeLabel;
 			},
 			g));
 	var nodes = $author$project$Polygraph$nodes(gjs);
 	var edges = $author$project$Polygraph$edges(gjs);
 	return {active: tab.active, edges: edges, nodes: nodes, sizeGrid: tab.sizeGrid, title: tab.title};
 };
-var $author$project$Format$Version11$toJSGraph = function (m) {
+var $author$project$Format$Version12$toJSGraph = function (m) {
 	return {
 		latexPreamble: m.latexPreamble,
-		tabs: A2($elm$core$List$map, $author$project$Format$Version11$toJSTab, m.tabs)
+		tabs: A2($elm$core$List$map, $author$project$Format$Version12$toJSTab, m.tabs)
 	};
 };
-var $author$project$Format$LastVersion$toJSGraph = $author$project$Format$Version11$toJSGraph;
-var $author$project$Format$Version11$version = 11;
-var $author$project$Format$LastVersion$version = $author$project$Format$Version11$version;
+var $author$project$Format$LastVersion$toJSGraph = $author$project$Format$Version12$toJSGraph;
+var $author$project$Format$Version12$version = 12;
+var $author$project$Format$LastVersion$version = $author$project$Format$Version12$version;
 var $author$project$Main$toJsGraphInfo = function (model) {
 	return {
 		graph: $author$project$Format$LastVersion$toJSGraph(
@@ -17538,11 +17895,6 @@ var $author$project$ArrowStyle$toggleDashed = function (s) {
 		s,
 		{dashed: !s.dashed});
 };
-var $author$project$ArrowStyle$toggleDouble = function (s) {
-	return _Utils_update(
-		s,
-		{_double: !s._double});
-};
 var $author$project$ListExtraExtra$prevInList = F2(
 	function (l, a) {
 		prevInList:
@@ -17578,6 +17930,17 @@ var $author$project$ListExtraExtra$nextInList = F2(
 			$elm$core$List$reverse(l),
 			a);
 	});
+var $author$project$ArrowStyle$toggleDouble = function (s) {
+	return _Utils_update(
+		s,
+		{
+			kind: A2(
+				$author$project$ListExtraExtra$nextInList,
+				_List_fromArray(
+					[$author$project$ArrowStyle$DoubleArrow, $author$project$ArrowStyle$NormalArrow]),
+				s.kind)
+		});
+};
 var $author$project$ArrowStyle$toggleHead = function (s) {
 	return _Utils_update(
 		s,
@@ -17732,9 +18095,9 @@ var $author$project$GraphDefs$getLabelLabel = F2(
 					A2(
 						$elm$core$Basics$composeR,
 						$author$project$GraphDefs$filterNormalEdges,
-						$elm$core$Maybe$map(
-							function ($) {
-								return $.label;
+						$elm$core$Maybe$andThen(
+							function (l) {
+								return l.isAdjunction ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(l.label);
 							}))),
 				g));
 	});
@@ -17778,7 +18141,12 @@ var $author$project$Polygraph$makeCylinder = F4(
 var $author$project$Modes$NewArrow$moveNodeInfo = F3(
 	function (merge, model, state) {
 		var modelGraph = $author$project$Model$getActiveGraph(model);
-		var edgeLabel = A2($author$project$GraphDefs$newEdgeLabel, '', state.style);
+		var style = $author$project$ArrowStyle$getStyle(state);
+		var edgeLabel = A3(
+			$author$project$GraphDefs$newEdgeLabelAdj,
+			state.isAdjunction ? '\\vdash' : '',
+			style,
+			state.isAdjunction);
 		var nodePos = $author$project$GraphDefs$centerOfNodes(
 			$author$project$Polygraph$nodes(state.chosen));
 		var nodeLabel = A4($author$project$GraphDefs$newNodeLabel, nodePos, '', true, $author$project$Zindex$defaultZ);
@@ -17813,7 +18181,7 @@ var $author$project$Modes$NewArrow$moveNodeInfo = F3(
 			graph: moveInfo.graph,
 			renamable: _Utils_ap(
 				moveInfo.merged ? _List_Nil : selectable,
-				extendedGraph.edgeIds),
+				state.isAdjunction ? _List_Nil : extendedGraph.edgeIds),
 			selectable: selectable
 		};
 	});
@@ -17888,7 +18256,7 @@ var $author$project$Modes$NewArrow$update = F3(
 					}
 				}());
 		};
-		_v0$10:
+		_v0$12:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseClick':
@@ -17900,7 +18268,7 @@ var $author$project$Modes$NewArrow$update = F3(
 							return next(
 								{finish: false, merge: true});
 						} else {
-							break _v0$10;
+							break _v0$12;
 						}
 					} else {
 						if (msg.c.$ === 'Control') {
@@ -17914,13 +18282,24 @@ var $author$project$Modes$NewArrow$update = F3(
 									return next(
 										{finish: false, merge: false});
 								default:
-									break _v0$10;
+									break _v0$12;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
 								case '?':
 									return $author$project$Model$noCmd(
 										$author$project$Model$toggleHelpOverlay(model));
+								case 'a':
+									return next(
+										{finish: true, merge: true});
+								case 'd':
+									return $author$project$Model$noCmd(
+										A2(
+											$author$project$Modes$NewArrow$updateState,
+											model,
+											_Utils_update(
+												state,
+												{isAdjunction: !state.isAdjunction})));
 								case 'i':
 									return $author$project$Model$noCmd(
 										A2(
@@ -17946,12 +18325,12 @@ var $author$project$Modes$NewArrow$update = F3(
 												state,
 												{mode: mode})));
 								default:
-									break _v0$10;
+									break _v0$12;
 							}
 						}
 					}
 				default:
-					break _v0$10;
+					break _v0$12;
 			}
 		}
 		var newStyle = function () {
@@ -19634,8 +20013,8 @@ var $author$project$Main$clipboardWriteGraph = _Platform_outgoingPort(
 																					_List_fromArray(
 																						[
 																							_Utils_Tuple2(
-																							'isPullshout',
-																							$elm$json$Json$Encode$bool($.isPullshout)),
+																							'kind',
+																							$elm$json$Json$Encode$string($.kind)),
 																							_Utils_Tuple2(
 																							'label',
 																							$elm$json$Json$Encode$string($.label)),
@@ -19658,11 +20037,11 @@ var $author$project$Main$clipboardWriteGraph = _Platform_outgoingPort(
 																											'dashed',
 																											$elm$json$Json$Encode$bool($.dashed)),
 																											_Utils_Tuple2(
-																											'double',
-																											$elm$json$Json$Encode$bool($._double)),
-																											_Utils_Tuple2(
 																											'head',
 																											$elm$json$Json$Encode$string($.head)),
+																											_Utils_Tuple2(
+																											'kind',
+																											$elm$json$Json$Encode$string($.kind)),
 																											_Utils_Tuple2(
 																											'position',
 																											$elm$json$Json$Encode$float($.position)),
@@ -19915,8 +20294,8 @@ var $author$project$Main$generateProofJs = _Platform_outgoingPort(
 																									_List_fromArray(
 																										[
 																											_Utils_Tuple2(
-																											'isPullshout',
-																											$elm$json$Json$Encode$bool($.isPullshout)),
+																											'kind',
+																											$elm$json$Json$Encode$string($.kind)),
 																											_Utils_Tuple2(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
@@ -19939,11 +20318,11 @@ var $author$project$Main$generateProofJs = _Platform_outgoingPort(
 																															'dashed',
 																															$elm$json$Json$Encode$bool($.dashed)),
 																															_Utils_Tuple2(
-																															'double',
-																															$elm$json$Json$Encode$bool($._double)),
-																															_Utils_Tuple2(
 																															'head',
 																															$elm$json$Json$Encode$string($.head)),
+																															_Utils_Tuple2(
+																															'kind',
+																															$elm$json$Json$Encode$string($.kind)),
 																															_Utils_Tuple2(
 																															'position',
 																															$elm$json$Json$Encode$float($.position)),
@@ -20513,6 +20892,7 @@ var $author$project$Modes$NewArrow$initialise = function (m) {
 							{
 								chosen: $author$project$GraphDefs$selectedGraph(modelGraph),
 								inverted: false,
+								isAdjunction: false,
 								mode: mode,
 								pos: $author$project$InputPosition$InputPosMouse,
 								style: $author$project$ArrowStyle$empty
@@ -22656,7 +23036,7 @@ var $author$project$Modes$NewArrow$graphDrawing = F2(
 			$author$project$Model$collageGraphFromGraph,
 			m,
 			function () {
-				var info = A3($author$project$Modes$NewArrow$moveNodeInfo, false, m, s);
+				var info = A3($author$project$Modes$NewArrow$moveNodeInfo, s.isAdjunction, m, s);
 				return info.graph;
 			}());
 	});
@@ -22887,7 +23267,7 @@ var $author$project$Modes$Move$help = function (s) {
 	}())))))));
 };
 var $author$project$Drawing$Color$helpMsg = 'bla[c]k, bl[u]e, [g]reen, [o]range, [r]ed, [v]iolet, [y]ellow';
-var $author$project$Modes$NewArrow$help = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard, ' + ('[ctrl] merge, ' + ('[RET] terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[i]nvert arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + $author$project$Drawing$Color$helpMsg))))))))))));
+var $author$project$Modes$NewArrow$help = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard, ' + ('[ctrl] merge, [a] merge without renaming, ' + ('[RET] terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + $author$project$Drawing$Color$helpMsg)))))))))))));
 var $author$project$Modes$Pullshout$help = '[ESC] cancel, ' + ($author$project$HtmlDefs$overlayHelpMsg + (', cycle between [p]ullback/[P]ushout possibilities, ' + '[RET] confirm'));
 var $author$project$Modes$SplitArrow$help = '[ESC] cancel, ' + ($author$project$HtmlDefs$overlayHelpMsg + (', [click] name the point (if new), ' + ('[/] to move the existing label on the other edge, ' + '[RET] terminate the square creation')));
 var $author$project$Modes$Square$help = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel' + ('[click] name the point (if new), ' + ('[RET] terminate the square creation, ' + (' alternative possible [s]quares, ' + (' [a]lternative possible labels, ' + 'toggle [p]roof node creation.')))));
