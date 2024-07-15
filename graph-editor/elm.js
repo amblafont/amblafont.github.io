@@ -5056,28 +5056,31 @@ var $author$project$Polygraph$Graph = function (a) {
 var $elm_community$intdict$IntDict$Empty = {$: 'Empty'};
 var $elm_community$intdict$IntDict$empty = $elm_community$intdict$IntDict$Empty;
 var $author$project$Polygraph$empty = $author$project$Polygraph$Graph($elm_community$intdict$IntDict$empty);
-var $author$project$Model$createModel = function (sizeGrid) {
-	var g = $author$project$Polygraph$empty;
-	return {
-		autoSave: false,
-		defaultGridSize: sizeGrid,
-		hideGrid: false,
-		history: _List_Nil,
-		latexPreamble: '\\newcommand{\\' + ($author$project$GraphDefs$coqProofTexCommand + '}[1]{\\checkmark}'),
-		mode: $author$project$Modes$DefaultMode,
-		mouseOnCanvas: false,
-		mousePos: _Utils_Tuple2(0, 0),
-		scenario: $author$project$Msg$Standard,
-		showOverlayHelp: false,
-		specialKeys: {alt: false, ctrl: false, shift: false},
-		squareModeProof: false,
-		statusMsg: '',
-		tabs: _List_fromArray(
-			[
-				{active: true, graph: g, sizeGrid: sizeGrid, title: '1'}
-			])
-	};
-};
+var $author$project$Model$createModel = F2(
+	function (sizeGrid, rulerMargin) {
+		var g = $author$project$Polygraph$empty;
+		return {
+			autoSave: true,
+			defaultGridSize: sizeGrid,
+			hideGrid: false,
+			history: _List_Nil,
+			latexPreamble: '\\newcommand{\\' + ($author$project$GraphDefs$coqProofTexCommand + '}[1]{\\checkmark}'),
+			mode: $author$project$Modes$DefaultMode,
+			mouseOnCanvas: false,
+			mousePos: _Utils_Tuple2(0, 0),
+			rulerMargin: rulerMargin,
+			rulerShow: false,
+			scenario: $author$project$Msg$Standard,
+			showOverlayHelp: false,
+			specialKeys: {alt: false, ctrl: false, shift: false},
+			squareModeProof: false,
+			statusMsg: '',
+			tabs: _List_fromArray(
+				[
+					{active: true, graph: g, sizeGrid: sizeGrid, title: '1'}
+				])
+		};
+	});
 var $elm$json$Json$Decode$map = _Json_map1;
 var $elm$json$Json$Decode$map2 = _Json_map2;
 var $elm$json$Json$Decode$succeed = _Json_succeed;
@@ -5421,6 +5424,7 @@ var $author$project$Msg$QuickInput = function (a) {
 var $author$project$Msg$RenameTab = function (a) {
 	return {$: 'RenameTab', a: a};
 };
+var $author$project$Msg$Save = {$: 'Save'};
 var $author$project$Msg$SetFirstTabEquation = function (a) {
 	return {$: 'SetFirstTabEquation', a: a};
 };
@@ -9242,6 +9246,10 @@ var $author$project$Main$loadedGraph9 = _Platform_incomingPort(
 				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
 		},
 		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
+var $elm$json$Json$Decode$null = _Json_decodeNull;
+var $author$project$Main$makeSave = _Platform_incomingPort(
+	'makeSave',
+	$elm$json$Json$Decode$null(_Utils_Tuple0));
 var $author$project$Msg$mapLoadGraphInfo = F2(
 	function (f, _v0) {
 		var graph = _v0.graph;
@@ -9459,7 +9467,6 @@ var $elm$browser$Browser$Events$on = F3(
 			A3($elm$browser$Browser$Events$MySub, node, name, decoder));
 	});
 var $elm$browser$Browser$Events$onClick = A2($elm$browser$Browser$Events$on, $elm$browser$Browser$Events$Document, 'click');
-var $elm$json$Json$Decode$null = _Json_decodeNull;
 var $author$project$Main$onCopy = _Platform_incomingPort(
 	'onCopy',
 	$elm$json$Json$Decode$null(_Utils_Tuple0));
@@ -9514,6 +9521,8 @@ var $author$project$Main$subscriptions = function (m) {
 		_Utils_ap(
 			_List_fromArray(
 				[
+					$author$project$Main$makeSave(
+					$elm$core$Basics$always($author$project$Msg$Save)),
 					$author$project$Main$findReplace($author$project$Msg$FindReplace),
 					$author$project$Main$simpleMsg($author$project$Msg$SimpleMsg),
 					$author$project$Main$promptedTabTitle($author$project$Msg$RenameTab),
@@ -9887,6 +9896,9 @@ var $author$project$Model$clearHistory = function (m) {
 	return _Utils_update(
 		m,
 		{history: _List_Nil});
+};
+var $author$project$Model$clearModel = function (m) {
+	return A2($author$project$Model$createModel, m.defaultGridSize, m.rulerMargin);
 };
 var $elm$json$Json$Encode$null = _Json_encodeNull;
 var $author$project$HtmlDefs$computeLayout = _Platform_outgoingPort(
@@ -15792,7 +15804,20 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 					}($.info))
 				]));
 	});
-var $author$project$Main$saveGridSize = _Platform_outgoingPort('saveGridSize', $elm$json$Json$Encode$int);
+var $author$project$Main$saveRulerGridSize = _Platform_outgoingPort(
+	'saveRulerGridSize',
+	function ($) {
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'gridSize',
+					$elm$json$Json$Encode$int($.gridSize)),
+					_Utils_Tuple2(
+					'rulerMargin',
+					$elm$json$Json$Encode$int($.rulerMargin))
+				]));
+	});
 var $author$project$Polygraph$rawFilter = F2(
 	function (fn, fe) {
 		return A2(
@@ -18358,6 +18383,71 @@ var $author$project$Modes$NewArrow$update = F3(
 		return $author$project$Model$noCmd(
 			A2($author$project$Modes$NewArrow$updateState, model, st3));
 	});
+var $author$project$ArrowStyle$simpleLineStyle = {bend: 0, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$NoHead, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, tail: $author$project$ArrowStyle$DefaultTail};
+var $author$project$Modes$NewLine$makeGraph = F2(
+	function (m, s) {
+		var graph = $author$project$Model$getActiveGraph(m);
+		var style = $author$project$ArrowStyle$simpleLineStyle;
+		var edgeLabel = A2($author$project$GraphDefs$newEdgeLabel, '', style);
+		var nodeLabel = A4($author$project$GraphDefs$newNodeLabel, s.initialPos, ' ', true, $author$project$Zindex$defaultZ);
+		var newNodeLabel = _Utils_update(
+			nodeLabel,
+			{pos: m.mousePos});
+		var _v0 = A2($author$project$Polygraph$newNode, graph, nodeLabel);
+		var ngraph = _v0.a;
+		var id = _v0.b;
+		var finalGraph = A5(
+			$author$project$Polygraph$makeCone,
+			ngraph,
+			_List_fromArray(
+				[id]),
+			newNodeLabel,
+			edgeLabel,
+			false);
+		return finalGraph.extendedGraph;
+	});
+var $author$project$Modes$NewLine$update = F3(
+	function (state, msg, model) {
+		var finalise = function (_v1) {
+			var newModel = A2(
+				$author$project$Model$setSaveGraph,
+				model,
+				A2($author$project$Modes$NewLine$makeGraph, model, state));
+			return $author$project$Model$switch_Default(newModel);
+		};
+		_v0$4:
+		while (true) {
+			switch (msg.$) {
+				case 'MouseClick':
+					return finalise(_Utils_Tuple0);
+				case 'KeyChanged':
+					if (!msg.a) {
+						if (msg.c.$ === 'Control') {
+							if (msg.c.a === 'Escape') {
+								return $author$project$Model$switch_Default(model);
+							} else {
+								break _v0$4;
+							}
+						} else {
+							switch (msg.c.a.valueOf()) {
+								case '?':
+									return $author$project$Model$noCmd(
+										$author$project$Model$toggleHelpOverlay(model));
+								case 'n':
+									return finalise(_Utils_Tuple0);
+								default:
+									break _v0$4;
+							}
+						}
+					} else {
+						break _v0$4;
+					}
+				default:
+					break _v0$4;
+			}
+		}
+		return $author$project$Model$noCmd(model);
+	});
 var $author$project$GraphDefs$newPullshout = $author$project$GraphDefs$newGenericLabel($author$project$GraphDefs$PullshoutEdge);
 var $author$project$Modes$Pullshout$graph = F2(
 	function (m, s) {
@@ -20901,6 +20991,18 @@ var $author$project$Modes$NewArrow$initialise = function (m) {
 			}
 		}());
 };
+var $author$project$Modes$NewLine = function (a) {
+	return {$: 'NewLine', a: a};
+};
+var $author$project$Modes$NewLine$initialise = function (m) {
+	return $author$project$Model$noCmd(
+		_Utils_update(
+			m,
+			{
+				mode: $author$project$Modes$NewLine(
+					{initialPos: m.mousePos})
+			}));
+};
 var $author$project$GraphDefs$selectedEdgeId = A2(
 	$elm$core$Basics$composeR,
 	$author$project$GraphDefs$selectedEdge,
@@ -21576,9 +21678,9 @@ var $author$project$Main$update_DefaultMode = F2(
 							modelGraph)));
 			}
 		};
-		_v0$47:
+		_v0$48:
 		while (true) {
-			_v0$48:
+			_v0$49:
 			while (true) {
 				switch (msg.$) {
 					case 'MouseOn':
@@ -21753,7 +21855,7 @@ var $author$project$Main$update_DefaultMode = F2(
 										$elm$core$Basics$always($author$project$Msg$PressTimeout),
 										$elm$core$Process$sleep(pressTimeoutMs)));
 							} else {
-								break _v0$48;
+								break _v0$49;
 							}
 						} else {
 							if (msg.c.$ === 'Control') {
@@ -21767,7 +21869,7 @@ var $author$project$Main$update_DefaultMode = F2(
 												model,
 												$author$project$GraphDefs$removeSelected(modelGraph)));
 									default:
-										break _v0$47;
+										break _v0$48;
 								}
 							} else {
 								switch (msg.c.a.valueOf()) {
@@ -21855,6 +21957,8 @@ var $author$project$Main$update_DefaultMode = F2(
 														mode: $author$project$Modes$ColorMode(ids)
 													}));
 										}
+									case 'n':
+										return $author$project$Modes$NewLine$initialise(model);
 									case 'v':
 										var cmd = function () {
 											var _v3 = $author$project$GraphDefs$selectedIncompleteDiagram(modelGraph);
@@ -22069,12 +22173,12 @@ var $author$project$Main$update_DefaultMode = F2(
 										var k = msg.b;
 										return increaseZBy(-1);
 									default:
-										break _v0$47;
+										break _v0$48;
 								}
 							}
 						}
 					default:
-						break _v0$48;
+						break _v0$49;
 				}
 			}
 			return $author$project$Model$noCmd(model);
@@ -22589,12 +22693,19 @@ var $author$project$Main$update = F2(
 							_export: $author$project$Main$makeExports(model),
 							info: $author$project$Main$toJsGraphInfo(model)
 						}));
-			case 'SaveGridSize':
+			case 'RulerMargin':
+				var rulerMargin = msg.a;
+				return $author$project$Model$noCmd(
+					_Utils_update(
+						model,
+						{rulerMargin: rulerMargin}));
+			case 'SaveRulerGridSize':
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{defaultGridSize: sizeGrid}),
-					$author$project$Main$saveGridSize(sizeGrid));
+					$author$project$Main$saveRulerGridSize(
+						{gridSize: sizeGrid, rulerMargin: model.rulerMargin}));
 			case 'OptimalGridSize':
 				var selGraph = $author$project$GraphDefs$selectedGraph(modelGraph);
 				var _v1 = $author$project$Polygraph$nodes(selGraph);
@@ -22628,7 +22739,7 @@ var $author$project$Main$update = F2(
 			case 'Clear':
 				var scenario = msg.a.scenario;
 				var preamble = msg.a.preamble;
-				var modelf = $author$project$Model$createModel(model.defaultGridSize);
+				var modelf = $author$project$Model$clearModel(model);
 				var or = F2(
 					function (s1, s2) {
 						return (s1 === '') ? s2 : s1;
@@ -22645,6 +22756,11 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{hideGrid: !model.hideGrid}));
+			case 'ToggleHideRuler':
+				return $author$project$Model$noCmd(
+					_Utils_update(
+						model,
+						{rulerShow: !model.rulerShow}));
 			case 'ToggleAutosave':
 				return $author$project$Model$noCmd(
 					_Utils_update(
@@ -22712,7 +22828,7 @@ var $author$project$Main$update = F2(
 				return _Utils_Tuple2(model, cmd);
 			case 'SimpleMsg':
 				var s = msg.a;
-				var modelf = $author$project$Model$createModel(model.defaultGridSize);
+				var modelf = $author$project$Model$clearModel(model);
 				return $author$project$Model$noCmd(
 					_Utils_update(
 						modelf,
@@ -22778,6 +22894,9 @@ var $author$project$Main$update = F2(
 			default:
 				var _v7 = model.mode;
 				switch (_v7.$) {
+					case 'NewLine':
+						var state = _v7.a;
+						return A3($author$project$Modes$NewLine$update, state, msg, model);
 					case 'DefaultMode':
 						return A2($author$project$Main$update_DefaultMode, msg, model);
 					case 'RectSelect':
@@ -22861,13 +22980,16 @@ var $author$project$Msg$MouseMoveRaw = F2(
 	});
 var $author$project$Msg$MouseUp = {$: 'MouseUp'};
 var $author$project$Msg$OptimalGridSize = {$: 'OptimalGridSize'};
-var $author$project$Msg$Save = {$: 'Save'};
-var $author$project$Msg$SaveGridSize = {$: 'SaveGridSize'};
+var $author$project$Msg$RulerMargin = function (a) {
+	return {$: 'RulerMargin', a: a};
+};
+var $author$project$Msg$SaveRulerGridSize = {$: 'SaveRulerGridSize'};
 var $author$project$Msg$SizeGrid = function (a) {
 	return {$: 'SizeGrid', a: a};
 };
 var $author$project$Msg$ToggleAutosave = {$: 'ToggleAutosave'};
 var $author$project$Msg$ToggleHideGrid = {$: 'ToggleHideGrid'};
+var $author$project$Msg$ToggleHideRuler = {$: 'ToggleHideRuler'};
 var $elm$html$Html$a = _VirtualDom_node('a');
 var $author$project$String$Svg$rect = $author$project$String$Svg$node('rect');
 var $author$project$Drawing$rect = F2(
@@ -23040,6 +23162,13 @@ var $author$project$Modes$NewArrow$graphDrawing = F2(
 				return info.graph;
 			}());
 	});
+var $author$project$Modes$NewLine$graphDrawing = F2(
+	function (m, s) {
+		return A2(
+			$author$project$Model$collageGraphFromGraph,
+			m,
+			A2($author$project$Modes$NewLine$makeGraph, m, s));
+	});
 var $author$project$Modes$Pullshout$graphDrawing = F2(
 	function (m, s) {
 		return A2(
@@ -23168,6 +23297,9 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 					return $elm$core$Basics$identity;
 				},
 				A2($author$project$Model$collageGraphFromGraph, m, modelGraph));
+		case 'NewLine':
+			var astate = _v0.a;
+			return A2($author$project$Modes$NewLine$graphDrawing, m, astate);
 		case 'NewArrow':
 			var astate = _v0.a;
 			return A2($author$project$Modes$NewArrow$graphDrawing, m, astate);
@@ -23268,6 +23400,7 @@ var $author$project$Modes$Move$help = function (s) {
 };
 var $author$project$Drawing$Color$helpMsg = 'bla[c]k, bl[u]e, [g]reen, [o]range, [r]ed, [v]iolet, [y]ellow';
 var $author$project$Modes$NewArrow$help = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard, ' + ('[ctrl] merge, [a] merge without renaming, ' + ('[RET] terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + $author$project$Drawing$Color$helpMsg)))))))))))));
+var $author$project$Modes$NewLine$help = $author$project$HtmlDefs$overlayHelpMsg + ', [ESC] cancel, [click, n] to finalise, ';
 var $author$project$Modes$Pullshout$help = '[ESC] cancel, ' + ($author$project$HtmlDefs$overlayHelpMsg + (', cycle between [p]ullback/[P]ushout possibilities, ' + '[RET] confirm'));
 var $author$project$Modes$SplitArrow$help = '[ESC] cancel, ' + ($author$project$HtmlDefs$overlayHelpMsg + (', [click] name the point (if new), ' + ('[/] to move the existing label on the other edge, ' + '[RET] terminate the square creation')));
 var $author$project$Modes$Square$help = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel' + ('[click] name the point (if new), ' + ('[RET] terminate the square creation, ' + (' alternative possible [s]quares, ' + (' [a]lternative possible labels, ' + 'toggle [p]roof node creation.')))));
@@ -23439,6 +23572,8 @@ var $author$project$Modes$toString = function (m) {
 			return 'Default';
 		case 'NewArrow':
 			return 'New arrow';
+		case 'NewLine':
+			return 'New line';
 		case 'Move':
 			return 'Move';
 		case 'RenameMode':
@@ -23492,11 +23627,13 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]olor arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + ', export selection to LaTe[X]/s[V]g')))))))))))))))))))))))))))))))))))))))))))))));
+			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]olor arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + ', export selection to LaTe[X]/s[V]g'))))))))))))))))))))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return $elm$html$Html$text('Debug Mode. [ESC] to cancel and come back to the default mode. ' + '');
 		case 'NewArrow':
 			return msg('Mode NewArrow. ' + $author$project$Modes$NewArrow$help);
+		case 'NewLine':
+			return msg('Mode NewLine. ' + $author$project$Modes$NewLine$help);
 		case 'PullshoutMode':
 			return msg('Mode Pullback/Pullshout. ' + $author$project$Modes$Pullshout$help);
 		case 'ColorMode':
@@ -26778,6 +26915,8 @@ var $author$project$Modes$isResizeMode = function (m) {
 	}
 };
 var $author$project$HtmlDefs$latexPreambleId = 'latex-preamble';
+var $author$project$Model$maxRulerMargin = 2000;
+var $author$project$Model$minRulerMargin = 50;
 var $elm$html$Html$Events$onMouseLeave = function (msg) {
 	return A2(
 		$elm$html$Html$Events$on,
@@ -26920,6 +27059,33 @@ var $elm$html$Html$Attributes$rows = function (n) {
 		'rows',
 		$elm$core$String$fromInt(n));
 };
+var $author$project$Drawing$ruler = function (offset) {
+	var f = $elm$core$String$fromInt;
+	var z = $author$project$Zindex$defaultZ;
+	return A2(
+		$author$project$Drawing$ofSvg,
+		z,
+		A2(
+			$author$project$String$Svg$line,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						$author$project$String$Svg$x1(
+						f(offset)),
+						$author$project$String$Svg$x2(
+						f(offset)),
+						$author$project$String$Svg$y1('0'),
+						$author$project$String$Svg$y2('100%')
+					]),
+				A2(
+					$author$project$Drawing$attrsToSvgAttrs,
+					$author$project$String$Svg$stroke,
+					_List_fromArray(
+						[
+							$author$project$Drawing$Color($author$project$Drawing$Color$black)
+						]))),
+			_List_Nil));
+};
 var $elm$html$Html$Attributes$max = $elm$html$Html$Attributes$stringProperty('max');
 var $elm$html$Html$Attributes$min = $elm$html$Html$Attributes$stringProperty('min');
 var $author$project$HtmlDefs$slider = F5(
@@ -27021,6 +27187,7 @@ var $author$project$Main$viewGraph = function (model) {
 		$author$project$Main$graphDrawingFromModel(model));
 	var grid = model.hideGrid ? $author$project$Drawing$empty : $author$project$Drawing$grid(
 		$author$project$Model$getCurrentSizeGrid(model));
+	var ruler = (!model.rulerShow) ? $author$project$Drawing$empty : $author$project$Drawing$ruler(model.rulerMargin);
 	var nmissings = $elm$core$List$length(missings);
 	var svg = A2(
 		$author$project$Drawing$svg,
@@ -27046,6 +27213,7 @@ var $author$project$Main$viewGraph = function (model) {
 					grid,
 					drawings,
 					$author$project$Main$additionnalDrawing(model),
+					ruler,
 					$author$project$Drawing$emptyForeign
 				])));
 	var helpDiv = $author$project$Main$helpMsg(model);
@@ -27159,6 +27327,7 @@ var $author$project$Main$viewGraph = function (model) {
 							$elm$html$Html$text('Latex preamble')
 						])),
 					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleHideGrid, 'Show grid', '', !model.hideGrid),
+					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleHideRuler, 'Show ruler', '', model.rulerShow),
 					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleAutosave, 'Autosave', 'Quicksave every minute', model.autoSave),
 					A2(
 					$elm$html$Html$button,
@@ -27174,11 +27343,11 @@ var $author$project$Main$viewGraph = function (model) {
 					$elm$html$Html$button,
 					_List_fromArray(
 						[
-							$elm$html$Html$Events$onClick($author$project$Msg$SaveGridSize)
+							$elm$html$Html$Events$onClick($author$project$Msg$SaveRulerGridSize)
 						]),
 					_List_fromArray(
 						[
-							$elm$html$Html$text('Save grid size preferences')
+							$elm$html$Html$text('Save ruler & grid size preferences')
 						])),
 					A2(
 					$elm$html$Html$button,
@@ -27193,55 +27362,66 @@ var $author$project$Main$viewGraph = function (model) {
 						]))
 				]),
 			_Utils_ap(
-				$author$project$Modes$isResizeMode(model.mode) ? _List_fromArray(
+				(!model.rulerShow) ? _List_Nil : _List_fromArray(
 					[
 						A5(
 						$author$project$HtmlDefs$slider,
-						$author$project$Msg$SizeGrid,
-						'Grid size (' + ($elm$core$String$fromInt(
-							$author$project$Model$getCurrentSizeGrid(model)) + ')'),
-						$author$project$Model$minSizeGrid,
-						$author$project$Model$maxSizeGrid,
-						$author$project$Model$getCurrentSizeGrid(model))
-					]) : _List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$p,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class('tabs')
-							]),
-						$author$project$Main$renderTabs(model.tabs)),
-						A2(
-						$elm$html$Html$p,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$elm$html$Html$text(
-								(nmissings > 0) ? ($elm$core$String$fromInt(nmissings) + ' nodes or edges could not be rendered.') : '')
-							])),
-						svg,
-						A2(
-						$elm$html$Html$p,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$elm$html$Html$text('LaTeX preamble'),
-								A2(
-								$elm$html$Html$textarea,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$cols(100),
-										$elm$html$Html$Attributes$rows(100),
-										$elm$html$Html$Attributes$placeholder('latex Preamble'),
-										$elm$html$Html$Attributes$value(model.latexPreamble),
-										$elm$html$Html$Attributes$id($author$project$HtmlDefs$latexPreambleId),
-										$elm$html$Html$Events$onInput($author$project$Msg$LatexPreambleEdit)
-									]),
-								_List_Nil)
-							]))
-					]))));
+						$author$project$Msg$RulerMargin,
+						'Ruler margin (' + ($elm$core$String$fromInt(model.rulerMargin) + ')'),
+						$author$project$Model$minRulerMargin,
+						$author$project$Model$maxRulerMargin,
+						model.rulerMargin)
+					]),
+				_Utils_ap(
+					$author$project$Modes$isResizeMode(model.mode) ? _List_fromArray(
+						[
+							A5(
+							$author$project$HtmlDefs$slider,
+							$author$project$Msg$SizeGrid,
+							'Grid size (' + ($elm$core$String$fromInt(
+								$author$project$Model$getCurrentSizeGrid(model)) + ')'),
+							$author$project$Model$minSizeGrid,
+							$author$project$Model$maxSizeGrid,
+							$author$project$Model$getCurrentSizeGrid(model))
+						]) : _List_Nil,
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$p,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('tabs')
+								]),
+							$author$project$Main$renderTabs(model.tabs)),
+							A2(
+							$elm$html$Html$p,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text(
+									(nmissings > 0) ? ($elm$core$String$fromInt(nmissings) + ' nodes or edges could not be rendered.') : '')
+								])),
+							svg,
+							A2(
+							$elm$html$Html$p,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('LaTeX preamble'),
+									A2(
+									$elm$html$Html$textarea,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$cols(100),
+											$elm$html$Html$Attributes$rows(100),
+											$elm$html$Html$Attributes$placeholder('latex Preamble'),
+											$elm$html$Html$Attributes$value(model.latexPreamble),
+											$elm$html$Html$Attributes$id($author$project$HtmlDefs$latexPreambleId),
+											$elm$html$Html$Events$onInput($author$project$Msg$LatexPreambleEdit)
+										]),
+									_List_Nil)
+								]))
+						])))));
 	return A2($elm$html$Html$div, _List_Nil, contents);
 };
 var $author$project$Main$view = function (m) {
@@ -27262,8 +27442,9 @@ var $author$project$Main$main = $elm$browser$Browser$element(
 	{
 		init: function (_v0) {
 			var defaultGridSize = _v0.defaultGridSize;
+			var rulerMargin = _v0.rulerMargin;
 			return _Utils_Tuple2(
-				$author$project$Model$createModel(defaultGridSize),
+				A2($author$project$Model$createModel, defaultGridSize, rulerMargin),
 				$elm$core$Platform$Cmd$none);
 		},
 		subscriptions: $author$project$Main$subscriptions,
@@ -27273,8 +27454,13 @@ var $author$project$Main$main = $elm$browser$Browser$element(
 _Platform_export({'Main':{'init':$author$project$Main$main(
 	A2(
 		$elm$json$Json$Decode$andThen,
-		function (defaultGridSize) {
-			return $elm$json$Json$Decode$succeed(
-				{defaultGridSize: defaultGridSize});
+		function (rulerMargin) {
+			return A2(
+				$elm$json$Json$Decode$andThen,
+				function (defaultGridSize) {
+					return $elm$json$Json$Decode$succeed(
+						{defaultGridSize: defaultGridSize, rulerMargin: rulerMargin});
+				},
+				A2($elm$json$Json$Decode$field, 'defaultGridSize', $elm$json$Json$Decode$int));
 		},
-		A2($elm$json$Json$Decode$field, 'defaultGridSize', $elm$json$Json$Decode$int)))(0)}});}(this));
+		A2($elm$json$Json$Decode$field, 'rulerMargin', $elm$json$Json$Decode$int)))(0)}});}(this));

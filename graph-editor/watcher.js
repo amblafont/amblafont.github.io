@@ -124,6 +124,25 @@ function getFilehandleFromPath(d, filePath, options) {
         });
     });
 }
+function checkFileExistsFromPath(d, filePath) {
+    return __awaiter(this, void 0, void 0, function () {
+        var e_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, getFilehandleFromPath(d, filePath)];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/, true];
+                case 2:
+                    e_1 = _a.sent();
+                    return [2 /*return*/, false];
+                case 3: return [2 /*return*/];
+            }
+        });
+    });
+}
 function getTextFromFilepath(d, filePath) {
     return __awaiter(this, void 0, void 0, function () {
         var filehandle, file;
@@ -293,17 +312,53 @@ function watchSaveDiagram(config, handleConfig, d, newcontent_json, exports) {
                 case 2:
                     _a.sent();
                     _a.label = 3;
-                case 3: return [4 /*yield*/, writeContent(config, d, newcontent, generatedOutput, handleConfig.index)];
+                case 3:
+                    if (!!handleConfig.onlyExternalFile) return [3 /*break*/, 5];
+                    return [4 /*yield*/, writeContent(config, d, newcontent, generatedOutput, handleConfig.index)];
                 case 4:
                     _a.sent();
-                    return [2 /*return*/];
+                    _a.label = 5;
+                case 5: return [2 /*return*/];
             }
         });
     });
 }
+function getContent(d, config, diagFile) {
+    return __awaiter(this, void 0, void 0, function () {
+        var content, rfile, fileHandle, file, e_2;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    content = "";
+                    rfile = contentToFileName(config, diagFile);
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 5, , 6]);
+                    return [4 /*yield*/, getFilehandleFromPath(d, rfile)];
+                case 2:
+                    fileHandle = _a.sent();
+                    return [4 /*yield*/, fileHandle.getFile()];
+                case 3:
+                    file = _a.sent();
+                    return [4 /*yield*/, file.text()];
+                case 4:
+                    content = _a.sent();
+                    return [3 /*break*/, 6];
+                case 5:
+                    e_2 = _a.sent();
+                    console.log("Error when accessing " + rfile);
+                    console.log(e_2);
+                    return [3 /*break*/, 6];
+                case 6: return [2 /*return*/, content];
+            }
+        });
+    });
+}
+// undefined means error
+// false means no update
 function checkWatchedFile(config, d) {
     return __awaiter(this, void 0, void 0, function () {
-        var file_lines, e_1, remainder, index, line, content, diagFile, rfile, fileHandle, file, e_2, handleConfig;
+        var file_lines, e_3, remainder, index, line, content, diagFile_1, outputFile, checkExist, data, diagFile, handleConfig;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -313,69 +368,64 @@ function checkWatchedFile(config, d) {
                     file_lines = _a.sent();
                     return [3 /*break*/, 3];
                 case 2:
-                    e_1 = _a.sent();
+                    e_3 = _a.sent();
                     alert("Unable to read " + config.watchedFile);
-                    console.log(e_1);
+                    console.log(e_3);
                     return [2 /*return*/, undefined];
                 case 3:
                     remainder = [];
                     index = 0;
                     line = "";
                     content = null;
-                    while (line !== false && remainder !== null && remainder.length == 0) {
-                        index++;
-                        content = null;
-                        while (content === null) {
-                            line = readLine(file_lines);
-                            if (line === false)
-                                break;
-                            content = parseMagic(config.magic, line);
-                        }
+                    _a.label = 4;
+                case 4:
+                    if (!(line !== false && remainder !== null && remainder.length == 0)) return [3 /*break*/, 8];
+                    index++;
+                    content = null;
+                    while (content === null) {
+                        line = readLine(file_lines);
                         if (line === false)
                             break;
-                        console.log("Graph found");
-                        remainder = config.prefixes;
-                        while (remainder !== null && remainder.length > 0) {
-                            line = readLine(file_lines);
-                            if (line === false)
-                                // EOF
-                                break;
-                            remainder = parsePrefix(line, remainder);
-                        }
+                        content = parseMagic(config.magic, line);
                     }
+                    if (line === false)
+                        return [3 /*break*/, 8];
+                    console.log("Graph found");
+                    if (!(content !== null && config.exportFormat && contentIsFile(content))) return [3 /*break*/, 7];
+                    diagFile_1 = content;
+                    outputFile = outputFileName(config, diagFile_1);
+                    return [4 /*yield*/, checkFileExistsFromPath(d, outputFile)];
+                case 5:
+                    checkExist = _a.sent();
+                    if (!!checkExist) return [3 /*break*/, 7];
+                    return [4 /*yield*/, getContent(d, config, diagFile_1)];
+                case 6:
+                    data = _a.sent();
+                    return [2 /*return*/, { diagFile: diagFile_1, index: index, content: data,
+                            onlyExternalFile: true }];
+                case 7:
+                    remainder = config.prefixes;
+                    while (remainder !== null && remainder.length > 0) {
+                        line = readLine(file_lines);
+                        if (line === false)
+                            // EOF
+                            break;
+                        remainder = parsePrefix(line, remainder);
+                    }
+                    return [3 /*break*/, 4];
+                case 8:
                     if (!((remainder === null || remainder.length > 0) && content !== null)) {
                         return [2 /*return*/, false];
                     }
                     console.log("do something with " + content);
                     diagFile = null;
-                    if (!contentIsFile(content)) return [3 /*break*/, 9];
-                    diagFile = content;
-                    rfile = contentToFileName(config, diagFile);
-                    _a.label = 4;
-                case 4:
-                    _a.trys.push([4, 8, , 9]);
-                    return [4 /*yield*/, getFilehandleFromPath(d, rfile)];
-                case 5:
-                    fileHandle = _a.sent();
-                    return [4 /*yield*/, fileHandle.getFile()];
-                case 6:
-                    file = _a.sent();
-                    return [4 /*yield*/, file.text()];
-                case 7:
-                    content = _a.sent();
-                    return [3 /*break*/, 9];
-                case 8:
-                    e_2 = _a.sent();
-                    console.log("Error when accessing " + rfile);
-                    console.log(e_2);
-                    // if (e.name === "NotFoundError")
-                    //     console.log(rfile + " doesn't exist.");
-                    // else 
-                    //     console.log(e.message);
-                    content = "";
-                    return [3 /*break*/, 9];
+                    if (!contentIsFile(content)) return [3 /*break*/, 10];
+                    return [4 /*yield*/, getContent(d, config, content)];
                 case 9:
-                    handleConfig = { content: content, diagFile: diagFile, index: index };
+                    content = _a.sent();
+                    _a.label = 10;
+                case 10:
+                    handleConfig = { content: content, diagFile: diagFile, index: index, onlyExternalFile: false };
                     return [2 /*return*/, handleConfig];
             }
         });
