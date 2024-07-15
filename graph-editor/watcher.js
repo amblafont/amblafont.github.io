@@ -176,10 +176,12 @@ function parseMagic(magic, line) {
     var magicRe = new RegExp(escapeStringRegexp(magic.trim()) + "(.*)$");
     var search = magicRe.exec(line.trim());
     if (search !== null) {
-        return search[1].trim();
+        var indent = line.search(/\S|$/);
+        return { content: search[1].trim(),
+            indent: line.substring(0, indent) };
     }
     else {
-        return null;
+        return { content: null, indent: "" };
     }
 }
 function parsePrefix(line, remainder_arg) {
@@ -237,9 +239,15 @@ function writeLine(fd, line) {
     if (line !== false)
         fd.push(line + "\n");
 }
+function writeLines(fd, lines, indent) {
+    for (var _i = 0, lines_1 = lines; _i < lines_1.length; _i++) {
+        var line = lines_1[_i];
+        writeLine(fd, indent + line);
+    }
+}
 function writeContent(config, d, newcontent, output, index) {
     return __awaiter(this, void 0, void 0, function () {
-        var fd, file_lines, line, content, i, isFile;
+        var fd, file_lines, line, content, indent, i, magic, isFile;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -249,6 +257,7 @@ function writeContent(config, d, newcontent, output, index) {
                     file_lines = _a.sent();
                     line = false;
                     content = null;
+                    indent = "";
                     for (i = 0; i < index; i++) {
                         writeLine(fd, line);
                         content = null;
@@ -258,7 +267,9 @@ function writeContent(config, d, newcontent, output, index) {
                             line = readLine(file_lines);
                             if (line === false)
                                 break;
-                            content = parseMagic(config.magic, line);
+                            magic = parseMagic(config.magic, line);
+                            content = magic.content;
+                            indent = magic.indent;
                         }
                     }
                     if (content === null) {
@@ -270,13 +281,13 @@ function writeContent(config, d, newcontent, output, index) {
                     if (isFile)
                         writeLine(fd, line);
                     else
-                        writeLine(fd, config.magic + " " + newcontent);
-                    writeLine(fd, config.prefixes.join("\n"));
+                        writeLine(fd, indent + config.magic + " " + newcontent);
+                    writeLines(fd, config.prefixes, indent);
                     if (!config.externalOutput || !isFile)
-                        writeLine(fd, output);
+                        writeLines(fd, output.split("\n"), indent);
                     else
-                        writeLine(fd, config.includeCmd.replace("@", outputFileName(config, content)));
-                    writeLine(fd, config.suffixes.join("\n"));
+                        writeLine(fd, indent + config.includeCmd.replace("@", outputFileName(config, content)));
+                    writeLines(fd, config.suffixes, indent);
                     while (line !== false) {
                         line = readLine(file_lines);
                         if (line === false) {
@@ -386,7 +397,7 @@ function checkWatchedFile(config, d) {
                         line = readLine(file_lines);
                         if (line === false)
                             break;
-                        content = parseMagic(config.magic, line);
+                        content = parseMagic(config.magic, line).content;
                     }
                     if (line === false)
                         return [3 /*break*/, 8];
