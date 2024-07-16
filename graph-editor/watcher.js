@@ -369,7 +369,7 @@ function getContent(d, config, diagFile) {
 // false means no update
 function checkWatchedFile(config, d) {
     return __awaiter(this, void 0, void 0, function () {
-        var file_lines, e_3, remainder, index, line, content, diagFile_1, outputFile, checkExist, data, diagFile, handleConfig;
+        var file_lines, e_3, remainder, index, line, content, diagFile_1, outputFile, checkExist, rfile, checkExistRfile, data, diagFile, handleConfig;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -390,7 +390,7 @@ function checkWatchedFile(config, d) {
                     content = null;
                     _a.label = 4;
                 case 4:
-                    if (!(line !== false && remainder !== null && remainder.length == 0)) return [3 /*break*/, 8];
+                    if (!(line !== false && remainder !== null && remainder.length == 0)) return [3 /*break*/, 10];
                     index++;
                     content = null;
                     while (content === null) {
@@ -400,21 +400,29 @@ function checkWatchedFile(config, d) {
                         content = parseMagic(config.magic, line).content;
                     }
                     if (line === false)
-                        return [3 /*break*/, 8];
+                        return [3 /*break*/, 10];
                     console.log("Graph found");
-                    if (!(content !== null && config.exportFormat && contentIsFile(content))) return [3 /*break*/, 7];
+                    if (!(content !== null && config.exportFormat && contentIsFile(content))) return [3 /*break*/, 9];
                     diagFile_1 = content;
                     outputFile = outputFileName(config, diagFile_1);
                     return [4 /*yield*/, checkFileExistsFromPath(d, outputFile)];
                 case 5:
                     checkExist = _a.sent();
-                    if (!!checkExist) return [3 /*break*/, 7];
-                    return [4 /*yield*/, getContent(d, config, diagFile_1)];
+                    rfile = contentToFileName(config, diagFile_1);
+                    return [4 /*yield*/, checkFileExistsFromPath(d, rfile)];
                 case 6:
+                    checkExistRfile = _a.sent();
+                    if (!(checkExistRfile && !checkExist)) return [3 /*break*/, 8];
+                    return [4 /*yield*/, getContent(d, config, diagFile_1)];
+                case 7:
                     data = _a.sent();
                     return [2 /*return*/, { diagFile: diagFile_1, index: index, content: data,
                             onlyExternalFile: true }];
-                case 7:
+                case 8:
+                    if (!checkExistRfile)
+                        console.log("File " + rfile + " doesn't exist.");
+                    _a.label = 9;
+                case 9:
                     remainder = config.prefixes;
                     while (remainder !== null && remainder.length > 0) {
                         line = readLine(file_lines);
@@ -424,18 +432,19 @@ function checkWatchedFile(config, d) {
                         remainder = parsePrefix(line, remainder);
                     }
                     return [3 /*break*/, 4];
-                case 8:
+                case 10:
                     if (!((remainder === null || remainder.length > 0) && content !== null)) {
                         return [2 /*return*/, false];
                     }
                     console.log("do something with " + content);
                     diagFile = null;
-                    if (!contentIsFile(content)) return [3 /*break*/, 10];
+                    if (!contentIsFile(content)) return [3 /*break*/, 12];
+                    diagFile = content;
                     return [4 /*yield*/, getContent(d, config, content)];
-                case 9:
+                case 11:
                     content = _a.sent();
-                    _a.label = 10;
-                case 10:
+                    _a.label = 12;
+                case 12:
                     handleConfig = { content: content, diagFile: diagFile, index: index, onlyExternalFile: false };
                     return [2 /*return*/, handleConfig];
             }
