@@ -5451,7 +5451,7 @@ var $author$project$Main$appliedProof = _Platform_incomingPort(
 				A2($elm$json$Json$Decode$field, 'script', $elm$json$Json$Decode$string));
 		},
 		A2($elm$json$Json$Decode$field, 'statement', $elm$json$Json$Decode$string)));
-var $author$project$Main$autosaveTickMs = 60000;
+var $author$project$Main$autosaveTickMs = 5000;
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $author$project$Main$clear = _Platform_incomingPort(
 	'clear',
@@ -10872,6 +10872,7 @@ var $author$project$GraphDefs$findReplaceInSelected = F2(
 var $author$project$Model$getActiveGraph = function (m) {
 	return $author$project$Model$getActiveTab(m).graph;
 };
+var $elm$core$Debug$log = _Debug_log;
 var $author$project$GraphProof$prefixProofStep = F2(
 	function (id, r) {
 		return _Utils_update(
@@ -11279,7 +11280,6 @@ var $author$project$Polygraph$incidence = function (_v0) {
 		g);
 	return A2(aux, es, di);
 };
-var $elm$core$Debug$log = _Debug_log;
 var $elm_community$intdict$IntDict$values = function (dict) {
 	return A3(
 		$elm_community$intdict$IntDict$foldr,
@@ -15401,6 +15401,9 @@ var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
 			_List_fromArray(
 				[
 					_Utils_Tuple2(
+					'autosave',
+					$elm$json$Json$Encode$bool($.autosave)),
+					_Utils_Tuple2(
 					'export',
 					function ($) {
 						return $elm$json$Json$Encode$object(
@@ -15417,9 +15420,6 @@ var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
 									$elm$json$Json$Encode$string($.tex))
 								]));
 					}($._export)),
-					_Utils_Tuple2(
-					'feedback',
-					$elm$json$Json$Encode$bool($.feedback)),
 					_Utils_Tuple2(
 					'info',
 					function ($) {
@@ -22020,8 +22020,8 @@ var $author$project$Main$update_DefaultMode = F2(
 											model,
 											$author$project$Main$quicksaveGraph(
 												{
+													autosave: false,
 													_export: $author$project$Main$makeExports(model),
-													feedback: true,
 													info: $author$project$Main$toJsGraphInfo(model)
 												}));
 									case 'R':
@@ -22732,8 +22732,8 @@ var $author$project$Main$update = F2(
 					model,
 					$author$project$Main$quicksaveGraph(
 						{
+							autosave: A2($elm$core$Debug$log, 'autosave', true),
 							_export: $author$project$Main$makeExports(model),
-							feedback: false,
 							info: $author$project$Main$toJsGraphInfo(model)
 						})) : $author$project$Model$noCmd(model);
 			case 'Clear':
