@@ -5451,7 +5451,7 @@ var $author$project$Main$appliedProof = _Platform_incomingPort(
 				A2($elm$json$Json$Decode$field, 'script', $elm$json$Json$Decode$string));
 		},
 		A2($elm$json$Json$Decode$field, 'statement', $elm$json$Json$Decode$string)));
-var $author$project$Main$autosaveTickMs = 5000;
+var $author$project$Main$autosaveTickMs = 60000;
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $author$project$Main$clear = _Platform_incomingPort(
 	'clear',
@@ -10872,7 +10872,6 @@ var $author$project$GraphDefs$findReplaceInSelected = F2(
 var $author$project$Model$getActiveGraph = function (m) {
 	return $author$project$Model$getActiveTab(m).graph;
 };
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$GraphProof$prefixProofStep = F2(
 	function (id, r) {
 		return _Utils_update(
@@ -11280,6 +11279,7 @@ var $author$project$Polygraph$incidence = function (_v0) {
 		g);
 	return A2(aux, es, di);
 };
+var $elm$core$Debug$log = _Debug_log;
 var $elm_community$intdict$IntDict$values = function (dict) {
 	return A3(
 		$elm_community$intdict$IntDict$foldr,
@@ -21072,7 +21072,7 @@ var $author$project$Main$initialiseEnlarge = function (model) {
 		model,
 		{
 			mode: $author$project$Modes$EnlargeMode(
-				{orig: model.mousePos, pos: $author$project$InputPosition$InputPosMouse})
+				{direction: $author$project$Modes$Free, orig: model.mousePos, pos: $author$project$InputPosition$InputPosMouse})
 		});
 };
 var $author$project$Modes$ResizeMode = function (a) {
@@ -22209,7 +22209,18 @@ var $author$project$Main$enlargeGraph = F2(
 				var p = _v1.a;
 				return A2($author$project$InputPosition$deltaKeyboardPos, sizeGrid, p);
 			} else {
-				return A2($author$project$Geometry$Point$subtract, m.mousePos, state.orig);
+				var _v2 = A2($author$project$Geometry$Point$subtract, m.mousePos, state.orig);
+				var dx = _v2.a;
+				var dy = _v2.b;
+				var _v3 = state.direction;
+				switch (_v3.$) {
+					case 'Free':
+						return _Utils_Tuple2(dx, dy);
+					case 'Vertical':
+						return _Utils_Tuple2(0, dy);
+					default:
+						return _Utils_Tuple2(dx, 0);
+				}
 			}
 		}();
 		var ox = _v0.a;
@@ -22231,11 +22242,11 @@ var $author$project$Main$enlargeGraph = F2(
 				A3(
 					$author$project$Polygraph$map,
 					F2(
-						function (_v4, _v5) {
+						function (_v6, _v7) {
 							return false;
 						}),
 					F2(
-						function (_v6, _v7) {
+						function (_v8, _v9) {
 							return false;
 						}),
 					modelGraph)));
@@ -22248,9 +22259,9 @@ var $author$project$Main$enlargeGraph = F2(
 				return $.isIn;
 			},
 			gcon);
-		var _v2 = state.orig;
-		var xi = _v2.a;
-		var yi = _v2.b;
+		var _v4 = state.orig;
+		var xi = _v4.a;
+		var yi = _v4.b;
 		var mkp = F4(
 			function (id, n, i, o) {
 				return ((_Utils_cmp(n, i) > -1) && (noSurround || A2(
@@ -22269,9 +22280,9 @@ var $author$project$Main$enlargeGraph = F2(
 			});
 		var mapNode = F2(
 			function (id, n) {
-				var _v3 = n.pos;
-				var nx = _v3.a;
-				var ny = _v3.b;
+				var _v5 = n.pos;
+				var nx = _v5.a;
+				var ny = _v5.b;
 				return _Utils_update(
 					n,
 					{
@@ -22294,7 +22305,21 @@ var $author$project$Main$update_Enlarge = F3(
 				$author$project$Model$setSaveGraph,
 				model,
 				A2($author$project$Main$enlargeGraph, model, state)));
-		_v0$4:
+		var updateState = function (st) {
+			return _Utils_update(
+				model,
+				{
+					mode: $author$project$Modes$EnlargeMode(st)
+				});
+		};
+		var updateDirection = function (direction) {
+			return $author$project$Model$noCmd(
+				updateState(
+					_Utils_update(
+						state,
+						{direction: direction})));
+		};
+		_v0$7:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseUp':
@@ -22302,11 +22327,18 @@ var $author$project$Main$update_Enlarge = F3(
 				case 'KeyChanged':
 					if (!msg.a) {
 						if (msg.c.$ === 'Character') {
-							if ('?' === msg.c.a.valueOf()) {
-								return $author$project$Model$noCmd(
-									$author$project$Model$toggleHelpOverlay(model));
-							} else {
-								break _v0$4;
+							switch (msg.c.a.valueOf()) {
+								case '?':
+									return $author$project$Model$noCmd(
+										$author$project$Model$toggleHelpOverlay(model));
+								case 'f':
+									return updateDirection($author$project$Modes$Free);
+								case 'x':
+									return updateDirection($author$project$Modes$Horizontal);
+								case 'y':
+									return updateDirection($author$project$Modes$Vertical);
+								default:
+									break _v0$7;
 							}
 						} else {
 							switch (msg.c.a) {
@@ -22315,14 +22347,14 @@ var $author$project$Main$update_Enlarge = F3(
 								case 'Enter':
 									return fin;
 								default:
-									break _v0$4;
+									break _v0$7;
 							}
 						}
 					} else {
-						break _v0$4;
+						break _v0$7;
 					}
 				default:
-					break _v0$4;
+					break _v0$7;
 			}
 		}
 		return $author$project$Model$noCmd(
@@ -22732,7 +22764,7 @@ var $author$project$Main$update = F2(
 					model,
 					$author$project$Main$quicksaveGraph(
 						{
-							autosave: A2($elm$core$Debug$log, 'autosave', true),
+							autosave: true,
 							_export: $author$project$Main$makeExports(model),
 							info: $author$project$Main$toJsGraphInfo(model)
 						})) : $author$project$Model$noCmd(model);
@@ -23023,8 +23055,8 @@ var $author$project$Drawing$rect = F2(
 				_List_Nil));
 	});
 var $author$project$Main$additionnalDrawing = function (m) {
-	var drawSel = F2(
-		function (pos, orig) {
+	var drawSelPoint = F2(
+		function (pointPos, orig) {
 			return A2(
 				$author$project$Drawing$rect,
 				$author$project$Zindex$foregroundZ,
@@ -23034,20 +23066,25 @@ var $author$project$Main$additionnalDrawing = function (m) {
 					A2(
 						$author$project$Geometry$Point$add,
 						_Utils_Tuple2(1, 1),
-						function () {
-							if (pos.$ === 'InputPosKeyboard') {
-								var p = pos.a;
-								return A2(
-									$author$project$Geometry$Point$add,
-									orig,
-									A2(
-										$author$project$InputPosition$deltaKeyboardPos,
-										$author$project$Model$getActiveSizeGrid(m),
-										p));
-							} else {
-								return m.mousePos;
-							}
-						}())));
+						pointPos)));
+		});
+	var drawSel = F2(
+		function (pos, orig) {
+			if (pos.$ === 'InputPosKeyboard') {
+				var p = pos.a;
+				return A2(
+					drawSelPoint,
+					A2(
+						$author$project$Geometry$Point$add,
+						orig,
+						A2(
+							$author$project$InputPosition$deltaKeyboardPos,
+							$author$project$Model$getActiveSizeGrid(m),
+							p)),
+					orig);
+			} else {
+				return A2(drawSelPoint, m.mousePos, orig);
+			}
 		});
 	var _v0 = m.mode;
 	switch (_v0.$) {
@@ -23056,6 +23093,32 @@ var $author$project$Main$additionnalDrawing = function (m) {
 			return A2(drawSel, $author$project$InputPosition$InputPosMouse, orig);
 		case 'EnlargeMode':
 			var state = _v0.a;
+			var _v1 = _Utils_Tuple2(state.pos, state.direction);
+			_v1$2:
+			while (true) {
+				if (_v1.a.$ === 'InputPosMouse') {
+					switch (_v1.b.$) {
+						case 'Vertical':
+							var _v2 = _v1.a;
+							var _v3 = _v1.b;
+							return A2(
+								drawSelPoint,
+								_Utils_Tuple2(state.orig.a, m.mousePos.b),
+								state.orig);
+						case 'Horizontal':
+							var _v4 = _v1.a;
+							var _v5 = _v1.b;
+							return A2(
+								drawSelPoint,
+								_Utils_Tuple2(m.mousePos.a, state.orig.b),
+								state.orig);
+						default:
+							break _v1$2;
+					}
+				} else {
+					break _v1$2;
+				}
+			}
 			return A2(drawSel, state.pos, state.orig);
 		default:
 			return $author$project$Drawing$empty;
@@ -23652,7 +23715,7 @@ var $author$project$Main$helpMsg = function (model) {
 			return msg('Rename mode: [RET] to confirm, [TAB] to next label, [ESC] to cancel');
 		case 'EnlargeMode':
 			var s = _v0.a;
-			return msg('Enlarge mode. ' + ($author$project$Main$overlayHelpMsgNewLine + ('Draw a rectangle to create space. ' + 'Use mouse or h,j,k,l. [RET] or click to confirm.')));
+			return msg('Enlarge mode. ' + ($author$project$Main$overlayHelpMsgNewLine + ('Draw a rectangle to create space. ' + ('Use mouse or h,j,k,l. [RET] or click to confirm.' + ' Press [x] or [y] to restrict to horizontal / vertical directions, or let it [f]ree.'))));
 		case 'ResizeMode':
 			var onlyGrid = _v0.a.onlyGrid;
 			return msg(
