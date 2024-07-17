@@ -12,7 +12,7 @@
     }],
     "file_handlers": [
   {
-    "action": "./index.html",
+    "action": "./graph-editor/index.html",
     "accept": {
       "application/json": [".json", ".yade"]
     },
