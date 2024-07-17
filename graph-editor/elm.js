@@ -18163,13 +18163,13 @@ var $author$project$Polygraph$makeCylinder = F4(
 		var idEdges = _v0.b;
 		return {edgeIds: idEdges, extendedGraph: extendedGraph, newSubGraph: extGraph.subGraph};
 	});
-var $author$project$Modes$NewArrow$moveNodeInfo = F3(
-	function (merge, model, state) {
+var $author$project$Modes$NewArrow$moveNodeInfo = F4(
+	function (merge, emptyLabel, model, state) {
 		var modelGraph = $author$project$Model$getActiveGraph(model);
 		var style = $author$project$ArrowStyle$getStyle(state);
 		var edgeLabel = A3(
 			$author$project$GraphDefs$newEdgeLabelAdj,
-			state.isAdjunction ? '\\vdash' : '',
+			state.isAdjunction ? '\\vdash' : (emptyLabel ? '' : '-'),
 			style,
 			state.isAdjunction);
 		var nodePos = $author$project$GraphDefs$centerOfNodes(
@@ -18214,7 +18214,7 @@ var $author$project$Modes$NewArrow$nextStep = F3(
 	function (model, _v0, state) {
 		var finish = _v0.finish;
 		var merge = _v0.merge;
-		var info = A3($author$project$Modes$NewArrow$moveNodeInfo, merge, model, state);
+		var info = A4($author$project$Modes$NewArrow$moveNodeInfo, merge, true, model, state);
 		var m2 = A2(
 			$author$project$Model$setSaveGraph,
 			model,
@@ -18302,10 +18302,10 @@ var $author$project$Modes$NewArrow$update = F3(
 									return $author$project$Model$switch_Default(model);
 								case 'Enter':
 									return next(
-										{finish: true, merge: false});
+										{finish: true, merge: state.isAdjunction});
 								case 'Tab':
 									return next(
-										{finish: false, merge: false});
+										{finish: false, merge: state.isAdjunction});
 								default:
 									break _v0$12;
 							}
@@ -23221,7 +23221,7 @@ var $author$project$Modes$NewArrow$graphDrawing = F2(
 			$author$project$Model$collageGraphFromGraph,
 			m,
 			function () {
-				var info = A3($author$project$Modes$NewArrow$moveNodeInfo, s.isAdjunction, m, s);
+				var info = A4($author$project$Modes$NewArrow$moveNodeInfo, s.isAdjunction, false, m, s);
 				return info.graph;
 			}());
 	});
