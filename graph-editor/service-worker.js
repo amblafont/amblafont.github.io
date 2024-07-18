@@ -1,4 +1,4 @@
-// Version: 12
+// Version: 13
 const CACHE_NAME = 'my-cache-v2';
 const urlsToCache = [
   './',
