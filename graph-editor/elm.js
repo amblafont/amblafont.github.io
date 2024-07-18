@@ -12449,7 +12449,7 @@ var $author$project$ArrowStyle$tikzStyle = function (stl) {
 				if (_v0.a.$ === 'NoHead') {
 					var _v1 = _v0.a;
 					var _v2 = _v0.b;
-					return 'identity';
+					return 'identity,';
 				} else {
 					var hd = _v0.a;
 					var _v3 = _v0.b;
