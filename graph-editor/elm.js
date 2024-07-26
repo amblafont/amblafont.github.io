@@ -5902,6 +5902,142 @@ var $author$project$Main$findReplace = _Platform_incomingPort(
 				A2($elm$json$Json$Decode$field, 'replace', $elm$json$Json$Decode$string));
 		},
 		A2($elm$json$Json$Decode$field, 'search', $elm$json$Json$Decode$string)));
+var $author$project$Codec$decoder = function (_v0) {
+	var m = _v0.a;
+	return m.decoder;
+};
+var $author$project$Codec$ObjectCodec = function (a) {
+	return {$: 'ObjectCodec', a: a};
+};
+var $author$project$Codec$encoder = function (_v0) {
+	var m = _v0.a;
+	return m.encoder;
+};
+var $author$project$Codec$bothFields = F4(
+	function (getter1, getter2, cod, _v0) {
+		var ocodec = _v0.a;
+		return $author$project$Codec$ObjectCodec(
+			{
+				decoder: function (a2) {
+					return A2(
+						ocodec.decoder,
+						a2,
+						A2(
+							$author$project$Codec$decoder,
+							cod,
+							getter2(a2)));
+				},
+				encoder: function (a1) {
+					return A2(
+						ocodec.encoder,
+						a1,
+						A2(
+							$author$project$Codec$encoder,
+							cod,
+							getter1(a1)));
+				}
+			});
+	});
+var $author$project$Codec$Codec = function (a) {
+	return {$: 'Codec', a: a};
+};
+var $author$project$Codec$buildObject = function (_v0) {
+	var om = _v0.a;
+	return $author$project$Codec$Codec(
+		{decoder: om.decoder, encoder: om.encoder});
+};
+var $author$project$Codec$build = F2(
+	function (encoder_, decoder_) {
+		return $author$project$Codec$Codec(
+			{decoder: decoder_, encoder: encoder_});
+	});
+var $author$project$Polygraph$Edge = F4(
+	function (id, from, to, label) {
+		return {from: from, id: id, label: label, to: to};
+	});
+var $elm$core$List$maybeCons = F3(
+	function (f, mx, xs) {
+		var _v0 = f(mx);
+		if (_v0.$ === 'Just') {
+			var x = _v0.a;
+			return A2($elm$core$List$cons, x, xs);
+		} else {
+			return xs;
+		}
+	});
+var $elm$core$List$filterMap = F2(
+	function (f, xs) {
+		return A3(
+			$elm$core$List$foldr,
+			$elm$core$List$maybeCons(f),
+			_List_Nil,
+			xs);
+	});
+var $author$project$Polygraph$objEdge = F2(
+	function (id, o) {
+		if (o.$ === 'EdgeObj') {
+			var i1 = o.a;
+			var i2 = o.b;
+			var e = o.c;
+			return $elm$core$Maybe$Just(
+				{from: i1, id: id, label: e, to: i2});
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm_community$intdict$IntDict$foldr = F3(
+	function (f, acc, dict) {
+		foldr:
+		while (true) {
+			switch (dict.$) {
+				case 'Empty':
+					return acc;
+				case 'Leaf':
+					var l = dict.a;
+					return A3(f, l.key, l.value, acc);
+				default:
+					var i = dict.a;
+					var $temp$f = f,
+						$temp$acc = A3($elm_community$intdict$IntDict$foldr, f, acc, i.right),
+						$temp$dict = i.left;
+					f = $temp$f;
+					acc = $temp$acc;
+					dict = $temp$dict;
+					continue foldr;
+			}
+		}
+	});
+var $elm_community$intdict$IntDict$toList = function (dict) {
+	return A3(
+		$elm_community$intdict$IntDict$foldr,
+		F3(
+			function (key, value, list) {
+				return A2(
+					$elm$core$List$cons,
+					_Utils_Tuple2(key, value),
+					list);
+			}),
+		_List_Nil,
+		dict);
+};
+var $author$project$Polygraph$edges = function (_v0) {
+	var g = _v0.a;
+	var mkEdge = F2(
+		function (id, _v2) {
+			var i1 = _v2.a;
+			var i2 = _v2.b;
+			var e = _v2.c;
+			return A4($author$project$Polygraph$Edge, id, i1, i2, e);
+		});
+	return A2(
+		$elm$core$List$filterMap,
+		function (_v1) {
+			var id = _v1.a;
+			var e = _v1.b;
+			return A2($author$project$Polygraph$objEdge, id, e);
+		},
+		$elm_community$intdict$IntDict$toList(g));
+};
 var $author$project$Polygraph$EdgeObj = F3(
 	function (a, b, c) {
 		return {$: 'EdgeObj', a: a, b: b, c: c};
@@ -6283,6 +6419,362 @@ var $author$project$Polygraph$fromNodesAndEdges = F2(
 		return $author$project$Polygraph$Graph(
 			A2($elm_community$intdict$IntDict$union, dn, de));
 	});
+var $author$project$Polygraph$Node = F2(
+	function (id, label) {
+		return {id: id, label: label};
+	});
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Polygraph$objNode = function (o) {
+	if (o.$ === 'NodeObj') {
+		var n = o.a;
+		return $elm$core$Maybe$Just(n);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Polygraph$nodes = function (_v0) {
+	var g = _v0.a;
+	return A2(
+		$elm$core$List$filterMap,
+		function (_v1) {
+			var id = _v1.a;
+			var n = _v1.b;
+			return A2(
+				$elm$core$Maybe$map,
+				$author$project$Polygraph$Node(id),
+				$author$project$Polygraph$objNode(n));
+		},
+		$elm_community$intdict$IntDict$toList(g));
+};
+var $author$project$Polygraph$codec = A2(
+	$author$project$Codec$build,
+	function (g) {
+		return {
+			edges: $author$project$Polygraph$edges(g),
+			nodes: $author$project$Polygraph$nodes(g)
+		};
+	},
+	function (r) {
+		return A2($author$project$Polygraph$fromNodesAndEdges, r.nodes, r.edges);
+	});
+var $author$project$Codec$compose = F2(
+	function (dec, enc) {
+		return $author$project$Codec$Codec(
+			{
+				decoder: A2(
+					$elm$core$Basics$composeR,
+					$author$project$Codec$decoder(dec),
+					$author$project$Codec$decoder(enc)),
+				encoder: A2(
+					$elm$core$Basics$composeR,
+					$author$project$Codec$encoder(enc),
+					$author$project$Codec$encoder(dec))
+			});
+	});
+var $author$project$Format$Version12$adjunctionKey = 'adjunction';
+var $author$project$Geometry$Centre = {$: 'Centre'};
+var $author$project$Geometry$Left = {$: 'Left'};
+var $author$project$Geometry$Over = {$: 'Over'};
+var $author$project$Geometry$Right = {$: 'Right'};
+var $elm_community$list_extra$List$Extra$find = F2(
+	function (predicate, list) {
+		find:
+		while (true) {
+			if (!list.b) {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var first = list.a;
+				var rest = list.b;
+				if (predicate(first)) {
+					return $elm$core$Maybe$Just(first);
+				} else {
+					var $temp$predicate = predicate,
+						$temp$list = rest;
+					predicate = $temp$predicate;
+					list = $temp$list;
+					continue find;
+				}
+			}
+		}
+	});
+var $elm$core$Tuple$second = function (_v0) {
+	var y = _v0.b;
+	return y;
+};
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$Codec$enum = F2(
+	function (l, _v0) {
+		var defaultA = _v0.a;
+		var defaultB = _v0.b;
+		var enc = F4(
+			function (defaultVal, proj1, proj2, val) {
+				return A2(
+					$elm$core$Maybe$withDefault,
+					defaultVal,
+					A2(
+						$elm$core$Maybe$map,
+						proj2,
+						A2(
+							$elm_community$list_extra$List$Extra$find,
+							A2(
+								$elm$core$Basics$composeR,
+								proj1,
+								$elm$core$Basics$eq(val)),
+							l)));
+			});
+		return $author$project$Codec$Codec(
+			{
+				decoder: A3(enc, defaultA, $elm$core$Tuple$second, $elm$core$Tuple$first),
+				encoder: A3(enc, defaultB, $elm$core$Tuple$first, $elm$core$Tuple$second)
+			});
+	});
+var $author$project$ArrowStyle$alignmentCodec = A2(
+	$author$project$Codec$enum,
+	_List_fromArray(
+		[
+			_Utils_Tuple2($author$project$Geometry$Centre, 'centre'),
+			_Utils_Tuple2($author$project$Geometry$Over, 'over'),
+			_Utils_Tuple2($author$project$Geometry$Left, 'left'),
+			_Utils_Tuple2($author$project$Geometry$Right, 'right')
+		]),
+	_Utils_Tuple2($author$project$Geometry$Left, 'left'));
+var $author$project$Drawing$Color$Black = {$: 'Black'};
+var $author$project$Drawing$Color$Blue = {$: 'Blue'};
+var $author$project$Drawing$Color$Green = {$: 'Green'};
+var $author$project$Drawing$Color$Orange = {$: 'Orange'};
+var $author$project$Drawing$Color$Purple = {$: 'Purple'};
+var $author$project$Drawing$Color$Red = {$: 'Red'};
+var $author$project$Drawing$Color$White = {$: 'White'};
+var $author$project$Drawing$Color$Yellow = {$: 'Yellow'};
+var $author$project$Drawing$Color$codec = A2(
+	$author$project$Codec$enum,
+	_List_fromArray(
+		[
+			_Utils_Tuple2($author$project$Drawing$Color$Red, 'red'),
+			_Utils_Tuple2($author$project$Drawing$Color$Blue, 'blue'),
+			_Utils_Tuple2($author$project$Drawing$Color$White, 'white'),
+			_Utils_Tuple2($author$project$Drawing$Color$Purple, 'purple'),
+			_Utils_Tuple2($author$project$Drawing$Color$Green, 'green'),
+			_Utils_Tuple2($author$project$Drawing$Color$Yellow, 'yellow'),
+			_Utils_Tuple2($author$project$Drawing$Color$Orange, 'orange')
+		]),
+	_Utils_Tuple2($author$project$Drawing$Color$Black, 'black'));
+var $author$project$ArrowStyle$DefaultHead = {$: 'DefaultHead'};
+var $author$project$ArrowStyle$NoHead = {$: 'NoHead'};
+var $author$project$ArrowStyle$TwoHeads = {$: 'TwoHeads'};
+var $author$project$ArrowStyle$headCodec = A2(
+	$author$project$Codec$enum,
+	_List_fromArray(
+		[
+			_Utils_Tuple2($author$project$ArrowStyle$TwoHeads, 'twoheads'),
+			_Utils_Tuple2($author$project$ArrowStyle$NoHead, 'none')
+		]),
+	_Utils_Tuple2($author$project$ArrowStyle$DefaultHead, 'default'));
+var $author$project$Codec$identity = $author$project$Codec$Codec(
+	{decoder: $elm$core$Basics$identity, encoder: $elm$core$Basics$identity});
+var $author$project$ArrowStyle$DoubleArrow = {$: 'DoubleArrow'};
+var $author$project$ArrowStyle$NoneArrow = {$: 'NoneArrow'};
+var $author$project$ArrowStyle$NormalArrow = {$: 'NormalArrow'};
+var $author$project$ArrowStyle$kindCodec = A2(
+	$author$project$Codec$enum,
+	_List_fromArray(
+		[
+			_Utils_Tuple2($author$project$ArrowStyle$NoneArrow, 'none'),
+			_Utils_Tuple2($author$project$ArrowStyle$DoubleArrow, 'double')
+		]),
+	_Utils_Tuple2($author$project$ArrowStyle$NormalArrow, 'normal'));
+var $elm$core$Basics$min = F2(
+	function (x, y) {
+		return (_Utils_cmp(x, y) < 0) ? x : y;
+	});
+var $author$project$Codec$object = F2(
+	function (b1, b2) {
+		return $author$project$Codec$ObjectCodec(
+			{
+				decoder: $elm$core$Basics$always(b1),
+				encoder: $elm$core$Basics$always(b2)
+			});
+	});
+var $author$project$ArrowStyle$DefaultTail = {$: 'DefaultTail'};
+var $author$project$ArrowStyle$Hook = {$: 'Hook'};
+var $author$project$ArrowStyle$HookAlt = {$: 'HookAlt'};
+var $author$project$ArrowStyle$Mapsto = {$: 'Mapsto'};
+var $author$project$ArrowStyle$tailCodec = A2(
+	$author$project$Codec$enum,
+	_List_fromArray(
+		[
+			_Utils_Tuple2($author$project$ArrowStyle$Hook, 'hook'),
+			_Utils_Tuple2($author$project$ArrowStyle$HookAlt, 'hookalt'),
+			_Utils_Tuple2($author$project$ArrowStyle$Mapsto, 'mapsto')
+		]),
+	_Utils_Tuple2($author$project$ArrowStyle$DefaultTail, 'none'));
+var $author$project$Format$Version12$arrowStyleCodec = $author$project$Codec$buildObject(
+	A4(
+		$author$project$Codec$bothFields,
+		function ($) {
+			return $.color;
+		},
+		function ($) {
+			return $.color;
+		},
+		$author$project$Drawing$Color$codec,
+		A4(
+			$author$project$Codec$bothFields,
+			function ($) {
+				return $.labelPosition;
+			},
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.position;
+				},
+				A2(
+					$elm$core$Basics$composeR,
+					$elm$core$Basics$min(0.9),
+					$elm$core$Basics$max(0.1))),
+			$author$project$Codec$identity,
+			A4(
+				$author$project$Codec$bothFields,
+				function ($) {
+					return $.labelAlignment;
+				},
+				function ($) {
+					return $.alignment;
+				},
+				$author$project$ArrowStyle$alignmentCodec,
+				A4(
+					$author$project$Codec$bothFields,
+					function ($) {
+						return $.bend;
+					},
+					function ($) {
+						return $.bend;
+					},
+					$author$project$Codec$identity,
+					A4(
+						$author$project$Codec$bothFields,
+						function ($) {
+							return $.dashed;
+						},
+						function ($) {
+							return $.dashed;
+						},
+						$author$project$Codec$identity,
+						A4(
+							$author$project$Codec$bothFields,
+							function ($) {
+								return $.kind;
+							},
+							function ($) {
+								return $.kind;
+							},
+							$author$project$ArrowStyle$kindCodec,
+							A4(
+								$author$project$Codec$bothFields,
+								function ($) {
+									return $.head;
+								},
+								function ($) {
+									return $.head;
+								},
+								$author$project$ArrowStyle$headCodec,
+								A4(
+									$author$project$Codec$bothFields,
+									function ($) {
+										return $.tail;
+									},
+									function ($) {
+										return $.tail;
+									},
+									$author$project$ArrowStyle$tailCodec,
+									A2(
+										$author$project$Codec$object,
+										F8(
+											function (tail, head, kind, dashed, bend, alignment, position, color) {
+												return {bend: bend, color: color, dashed: dashed, head: head, kind: kind, labelAlignment: alignment, labelPosition: position, tail: tail};
+											}),
+										F8(
+											function (tail, head, kind, dashed, bend, alignment, position, color) {
+												return {alignment: alignment, bend: bend, color: color, dashed: dashed, head: head, kind: kind, position: position, tail: tail};
+											})))))))))));
+var $author$project$ArrowStyle$getStyle = function (_v0) {
+	var style = _v0.style;
+	var isAdjunction = _v0.isAdjunction;
+	return isAdjunction ? _Utils_update(
+		style,
+		{head: $author$project$ArrowStyle$NoHead, kind: $author$project$ArrowStyle$NoneArrow, labelAlignment: $author$project$Geometry$Over, tail: $author$project$ArrowStyle$DefaultTail}) : style;
+};
+var $author$project$Format$Version12$normalKey = 'normal';
+var $author$project$Format$Version12$Edge = F4(
+	function (label, style, kind, zindex) {
+		return {kind: kind, label: label, style: style, zindex: zindex};
+	});
+var $author$project$Format$Version12$ArrowStyle = F8(
+	function (tail, head, kind, dashed, bend, alignment, position, color) {
+		return {alignment: alignment, bend: bend, color: color, dashed: dashed, head: head, kind: kind, position: position, tail: tail};
+	});
+var $author$project$Format$Version12$emptyArrowStyle = A8($author$project$Format$Version12$ArrowStyle, '', '', 'normal', false, 0, '', 0, 'black');
+var $author$project$Format$Version12$pullshoutKey = 'pullshout';
+var $author$project$Format$Version12$pullshoutEdge = function (z) {
+	return A4($author$project$Format$Version12$Edge, '', $author$project$Format$Version12$emptyArrowStyle, $author$project$Format$Version12$pullshoutKey, z);
+};
+var $author$project$Format$Version12$fromEdgeLabel = function (e) {
+	var _v0 = e.details;
+	if (_v0.$ === 'PullshoutEdge') {
+		return $author$project$Format$Version12$pullshoutEdge(e.zindex);
+	} else {
+		var l = _v0.a;
+		var label = l.label;
+		var isAdjunction = l.isAdjunction;
+		var style = $author$project$ArrowStyle$getStyle(l);
+		return {
+			kind: isAdjunction ? $author$project$Format$Version12$adjunctionKey : $author$project$Format$Version12$normalKey,
+			label: label,
+			style: A2($author$project$Codec$encoder, $author$project$Format$Version12$arrowStyleCodec, style),
+			zindex: e.zindex
+		};
+	}
+};
+var $author$project$GraphDefs$NormalEdge = function (a) {
+	return {$: 'NormalEdge', a: a};
+};
+var $author$project$GraphDefs$PullshoutEdge = {$: 'PullshoutEdge'};
+var $author$project$Format$Version12$toEdgeLabel = function (_v0) {
+	var label = _v0.label;
+	var style = _v0.style;
+	var kind = _v0.kind;
+	var zindex = _v0.zindex;
+	return {
+		details: _Utils_eq(kind, $author$project$Format$Version12$pullshoutKey) ? $author$project$GraphDefs$PullshoutEdge : $author$project$GraphDefs$NormalEdge(
+			{
+				dims: $elm$core$Maybe$Nothing,
+				isAdjunction: _Utils_eq(kind, $author$project$Format$Version12$adjunctionKey),
+				label: label,
+				style: A2($author$project$Codec$decoder, $author$project$Format$Version12$arrowStyleCodec, style)
+			}),
+		selected: false,
+		weaklySelected: false,
+		zindex: zindex
+	};
+};
+var $author$project$Format$Version12$edgeCodec = A2($author$project$Codec$build, $author$project$Format$Version12$fromEdgeLabel, $author$project$Format$Version12$toEdgeLabel);
 var $elm_community$intdict$IntDict$map = F2(
 	function (f, dict) {
 		switch (dict.$) {
@@ -6337,152 +6829,121 @@ var $author$project$Polygraph$map = F2(
 						fe(i));
 				}));
 	});
-var $author$project$GraphDefs$NormalEdge = function (a) {
-	return {$: 'NormalEdge', a: a};
-};
-var $author$project$GraphDefs$PullshoutEdge = {$: 'PullshoutEdge'};
-var $author$project$Format$Version12$adjunctionKey = 'adjunction';
-var $author$project$Geometry$Centre = {$: 'Centre'};
-var $author$project$Geometry$Left = {$: 'Left'};
-var $author$project$Geometry$Over = {$: 'Over'};
-var $author$project$Geometry$Right = {$: 'Right'};
-var $author$project$ArrowStyle$alignmentFromString = function (tail) {
-	switch (tail) {
-		case 'centre':
-			return $author$project$Geometry$Centre;
-		case 'right':
-			return $author$project$Geometry$Right;
-		case 'over':
-			return $author$project$Geometry$Over;
-		default:
-			return $author$project$Geometry$Left;
-	}
-};
-var $author$project$Drawing$Color$Black = {$: 'Black'};
-var $author$project$Drawing$Color$Blue = {$: 'Blue'};
-var $author$project$Drawing$Color$Green = {$: 'Green'};
-var $author$project$Drawing$Color$Orange = {$: 'Orange'};
-var $author$project$Drawing$Color$Purple = {$: 'Purple'};
-var $author$project$Drawing$Color$Red = {$: 'Red'};
-var $author$project$Drawing$Color$Yellow = {$: 'Yellow'};
-var $author$project$Drawing$Color$fromString = function (s) {
-	switch (s) {
-		case 'red':
-			return $author$project$Drawing$Color$Red;
-		case 'blue':
-			return $author$project$Drawing$Color$Blue;
-		case 'purple':
-			return $author$project$Drawing$Color$Purple;
-		case 'green':
-			return $author$project$Drawing$Color$Green;
-		case 'yellow':
-			return $author$project$Drawing$Color$Yellow;
-		case 'orange':
-			return $author$project$Drawing$Color$Orange;
-		default:
-			return $author$project$Drawing$Color$Black;
-	}
-};
-var $author$project$ArrowStyle$DefaultHead = {$: 'DefaultHead'};
-var $author$project$ArrowStyle$NoHead = {$: 'NoHead'};
-var $author$project$ArrowStyle$TwoHeads = {$: 'TwoHeads'};
-var $author$project$ArrowStyle$headFromString = function (head) {
-	switch (head) {
-		case 'twoheads':
-			return $author$project$ArrowStyle$TwoHeads;
-		case 'none':
-			return $author$project$ArrowStyle$NoHead;
-		default:
-			return $author$project$ArrowStyle$DefaultHead;
-	}
-};
-var $author$project$ArrowStyle$DoubleArrow = {$: 'DoubleArrow'};
-var $author$project$ArrowStyle$NoneArrow = {$: 'NoneArrow'};
-var $author$project$ArrowStyle$NormalArrow = {$: 'NormalArrow'};
-var $author$project$ArrowStyle$kindFromString = function (kind) {
-	switch (kind) {
-		case 'none':
-			return $author$project$ArrowStyle$NoneArrow;
-		case 'double':
-			return $author$project$ArrowStyle$DoubleArrow;
-		default:
-			return $author$project$ArrowStyle$NormalArrow;
-	}
-};
-var $elm$core$Basics$min = F2(
-	function (x, y) {
-		return (_Utils_cmp(x, y) < 0) ? x : y;
+var $author$project$Polygraph$mapCodec = F2(
+	function (c1, c2) {
+		return A2(
+			$author$project$Codec$build,
+			A2(
+				$author$project$Polygraph$map,
+				$elm$core$Basics$always(
+					$author$project$Codec$encoder(c1)),
+				$elm$core$Basics$always(
+					$author$project$Codec$encoder(c2))),
+			A2(
+				$author$project$Polygraph$map,
+				$elm$core$Basics$always(
+					$author$project$Codec$decoder(c1)),
+				$elm$core$Basics$always(
+					$author$project$Codec$decoder(c2))));
 	});
-var $author$project$Format$Version12$pullshoutKey = 'pullshout';
-var $author$project$ArrowStyle$DefaultTail = {$: 'DefaultTail'};
-var $author$project$ArrowStyle$Hook = {$: 'Hook'};
-var $author$project$ArrowStyle$HookAlt = {$: 'HookAlt'};
-var $author$project$ArrowStyle$Mapsto = {$: 'Mapsto'};
-var $author$project$ArrowStyle$tailFromString = function (tail) {
-	switch (tail) {
-		case 'hook':
-			return $author$project$ArrowStyle$Hook;
-		case 'hookalt':
-			return $author$project$ArrowStyle$HookAlt;
-		case 'mapsto':
-			return $author$project$ArrowStyle$Mapsto;
-		default:
-			return $author$project$ArrowStyle$DefaultTail;
-	}
-};
-var $author$project$Format$Version12$toEdgeLabel = function (_v0) {
-	var label = _v0.label;
-	var style = _v0.style;
-	var kind = _v0.kind;
-	var zindex = _v0.zindex;
-	return {
-		details: _Utils_eq(kind, $author$project$Format$Version12$pullshoutKey) ? $author$project$GraphDefs$PullshoutEdge : $author$project$GraphDefs$NormalEdge(
-			{
-				dims: $elm$core$Maybe$Nothing,
-				isAdjunction: _Utils_eq(kind, $author$project$Format$Version12$adjunctionKey),
-				label: label,
-				style: {
-					bend: style.bend,
-					color: $author$project$Drawing$Color$fromString(style.color),
-					dashed: style.dashed,
-					head: $author$project$ArrowStyle$headFromString(style.head),
-					kind: $author$project$ArrowStyle$kindFromString(style.kind),
-					labelAlignment: $author$project$ArrowStyle$alignmentFromString(style.alignment),
-					labelPosition: A2(
-						$elm$core$Basics$max,
-						0.1,
-						A2($elm$core$Basics$min, 0.9, style.position)),
-					tail: $author$project$ArrowStyle$tailFromString(style.tail)
-				}
-			}),
-		selected: false,
-		weaklySelected: false,
-		zindex: zindex
-	};
-};
-var $author$project$Format$Version12$toNodeLabel = function (_v0) {
-	var pos = _v0.pos;
-	var label = _v0.label;
-	var isMath = _v0.isMath;
-	var zindex = _v0.zindex;
-	return {dims: $elm$core$Maybe$Nothing, isCoqValidated: false, isMath: isMath, label: label, pos: pos, selected: false, weaklySelected: false, zindex: zindex};
-};
-var $author$project$Format$Version12$fromJSTab = function (tab) {
-	return {
-		active: tab.active,
-		graph: A3(
-			$author$project$Polygraph$map,
-			function (_v0) {
-				return $author$project$Format$Version12$toNodeLabel;
+var $author$project$Format$Version12$nodeCodec = $author$project$Codec$buildObject(
+	A4(
+		$author$project$Codec$bothFields,
+		function ($) {
+			return $.zindex;
+		},
+		function ($) {
+			return $.zindex;
+		},
+		$author$project$Codec$identity,
+		A4(
+			$author$project$Codec$bothFields,
+			function ($) {
+				return $.isMath;
 			},
-			function (_v1) {
-				return $author$project$Format$Version12$toEdgeLabel;
+			function ($) {
+				return $.isMath;
 			},
-			A2($author$project$Polygraph$fromNodesAndEdges, tab.nodes, tab.edges)),
-		sizeGrid: tab.sizeGrid,
-		title: tab.title
-	};
-};
+			$author$project$Codec$identity,
+			A4(
+				$author$project$Codec$bothFields,
+				function ($) {
+					return $.label;
+				},
+				function ($) {
+					return $.label;
+				},
+				$author$project$Codec$identity,
+				A4(
+					$author$project$Codec$bothFields,
+					function ($) {
+						return $.pos;
+					},
+					function ($) {
+						return $.pos;
+					},
+					$author$project$Codec$identity,
+					A2(
+						$author$project$Codec$object,
+						F4(
+							function (pos, label, isMath, zindex) {
+								return {dims: $elm$core$Maybe$Nothing, isCoqValidated: false, isMath: isMath, label: label, pos: pos, selected: false, weaklySelected: false, zindex: zindex};
+							}),
+						F4(
+							function (pos, label, isMath, zindex) {
+								return {isMath: isMath, label: label, pos: pos, zindex: zindex};
+							})))))));
+var $author$project$Format$Version12$tabCodec = $author$project$Codec$buildObject(
+	A4(
+		$author$project$Codec$bothFields,
+		function ($) {
+			return $.sizeGrid;
+		},
+		function ($) {
+			return $.sizeGrid;
+		},
+		$author$project$Codec$identity,
+		A4(
+			$author$project$Codec$bothFields,
+			function ($) {
+				return $.active;
+			},
+			function ($) {
+				return $.active;
+			},
+			$author$project$Codec$identity,
+			A4(
+				$author$project$Codec$bothFields,
+				function ($) {
+					return $.title;
+				},
+				function ($) {
+					return $.title;
+				},
+				$author$project$Codec$identity,
+				A4(
+					$author$project$Codec$bothFields,
+					function ($) {
+						return $.graph;
+					},
+					function (e) {
+						return {edges: e.edges, nodes: e.nodes};
+					},
+					A2(
+						$author$project$Codec$compose,
+						$author$project$Polygraph$codec,
+						A2($author$project$Polygraph$mapCodec, $author$project$Format$Version12$nodeCodec, $author$project$Format$Version12$edgeCodec)),
+					A2(
+						$author$project$Codec$object,
+						F4(
+							function (graph, title, active, sizeGrid) {
+								return {active: active, graph: graph, sizeGrid: sizeGrid, title: title};
+							}),
+						F4(
+							function (graph, title, active, sizeGrid) {
+								return {active: active, edges: graph.edges, nodes: graph.nodes, sizeGrid: sizeGrid, title: title};
+							})))))));
+var $author$project$Format$Version12$fromJSTab = $author$project$Codec$decoder($author$project$Format$Version12$tabCodec);
 var $author$project$Format$Version12$fromJSGraph = function (_v0) {
 	var tabs = _v0.tabs;
 	var latexPreamble = _v0.latexPreamble;
@@ -6504,7 +6965,6 @@ var $author$project$Polygraph$edgeMap = F2(
 			to: to
 		};
 	});
-var $author$project$Format$Version12$normalKey = 'normal';
 var $author$project$Format$Version11$toNextStyle = function (_v0) {
 	var tail = _v0.tail;
 	var head = _v0.head;
@@ -6573,15 +7033,6 @@ var $elm$core$List$maximum = function (list) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var $author$project$Format$Version10$biggestZindex = function (el) {
 	return A2(
 		$elm$core$Maybe$withDefault,
@@ -9406,24 +9857,6 @@ var $elm$browser$Browser$Events$onEffects = F3(
 				$elm$core$Task$sequence(
 					A2($elm$core$List$map, $elm$core$Process$kill, deadPids))));
 	});
-var $elm$core$List$maybeCons = F3(
-	function (f, mx, xs) {
-		var _v0 = f(mx);
-		if (_v0.$ === 'Just') {
-			var x = _v0.a;
-			return A2($elm$core$List$cons, x, xs);
-		} else {
-			return xs;
-		}
-	});
-var $elm$core$List$filterMap = F2(
-	function (f, xs) {
-		return A3(
-			$elm$core$List$foldr,
-			$elm$core$List$maybeCons(f),
-			_List_Nil,
-			xs);
-	});
 var $elm$browser$Browser$Events$onSelfMsg = F3(
 	function (router, _v0, state) {
 		var key = _v0.key;
@@ -9907,27 +10340,6 @@ var $author$project$HtmlDefs$computeLayout = _Platform_outgoingPort(
 		return $elm$json$Json$Encode$null;
 	});
 var $author$project$Model$emptyTab = {active: true, graph: $author$project$Polygraph$empty, sizeGrid: 200, title: '1'};
-var $elm_community$list_extra$List$Extra$find = F2(
-	function (predicate, list) {
-		find:
-		while (true) {
-			if (!list.b) {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var first = list.a;
-				var rest = list.b;
-				if (predicate(first)) {
-					return $elm$core$Maybe$Just(first);
-				} else {
-					var $temp$predicate = predicate,
-						$temp$list = rest;
-					predicate = $temp$predicate;
-					list = $temp$list;
-					continue find;
-				}
-			}
-		}
-	});
 var $author$project$Model$getActiveTabInTabs = function (tabs) {
 	return A2(
 		$elm$core$Maybe$withDefault,
@@ -9975,75 +10387,6 @@ var $author$project$Model$duplicateTab = F2(
 						]))
 			});
 	});
-var $author$project$Polygraph$Edge = F4(
-	function (id, from, to, label) {
-		return {from: from, id: id, label: label, to: to};
-	});
-var $author$project$Polygraph$objEdge = F2(
-	function (id, o) {
-		if (o.$ === 'EdgeObj') {
-			var i1 = o.a;
-			var i2 = o.b;
-			var e = o.c;
-			return $elm$core$Maybe$Just(
-				{from: i1, id: id, label: e, to: i2});
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $elm_community$intdict$IntDict$foldr = F3(
-	function (f, acc, dict) {
-		foldr:
-		while (true) {
-			switch (dict.$) {
-				case 'Empty':
-					return acc;
-				case 'Leaf':
-					var l = dict.a;
-					return A3(f, l.key, l.value, acc);
-				default:
-					var i = dict.a;
-					var $temp$f = f,
-						$temp$acc = A3($elm_community$intdict$IntDict$foldr, f, acc, i.right),
-						$temp$dict = i.left;
-					f = $temp$f;
-					acc = $temp$acc;
-					dict = $temp$dict;
-					continue foldr;
-			}
-		}
-	});
-var $elm_community$intdict$IntDict$toList = function (dict) {
-	return A3(
-		$elm_community$intdict$IntDict$foldr,
-		F3(
-			function (key, value, list) {
-				return A2(
-					$elm$core$List$cons,
-					_Utils_Tuple2(key, value),
-					list);
-			}),
-		_List_Nil,
-		dict);
-};
-var $author$project$Polygraph$edges = function (_v0) {
-	var g = _v0.a;
-	var mkEdge = F2(
-		function (id, _v2) {
-			var i1 = _v2.a;
-			var i2 = _v2.b;
-			var e = _v2.c;
-			return A4($author$project$Polygraph$Edge, id, i1, i2, e);
-		});
-	return A2(
-		$elm$core$List$filterMap,
-		function (_v1) {
-			var id = _v1.a;
-			var e = _v1.b;
-			return A2($author$project$Polygraph$objEdge, id, e);
-		},
-		$elm_community$intdict$IntDict$toList(g));
-};
 var $elm$json$Json$Encode$int = _Json_wrap;
 var $author$project$GraphDefs$filterNormalEdges = function (d) {
 	if (d.$ === 'PullshoutEdge') {
@@ -10053,16 +10396,6 @@ var $author$project$GraphDefs$filterNormalEdges = function (d) {
 		return $elm$core$Maybe$Just(l);
 	}
 };
-var $elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return $elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
 var $author$project$GraphDefs$mapDetails = F2(
 	function (f, e) {
 		return {
@@ -10360,32 +10693,6 @@ var $elm$json$Json$Encode$list = F2(
 				_Json_emptyArray(_Utils_Tuple0),
 				entries));
 	});
-var $author$project$Polygraph$Node = F2(
-	function (id, label) {
-		return {id: id, label: label};
-	});
-var $author$project$Polygraph$objNode = function (o) {
-	if (o.$ === 'NodeObj') {
-		var n = o.a;
-		return $elm$core$Maybe$Just(n);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $author$project$Polygraph$nodes = function (_v0) {
-	var g = _v0.a;
-	return A2(
-		$elm$core$List$filterMap,
-		function (_v1) {
-			var id = _v1.a;
-			var n = _v1.b;
-			return A2(
-				$elm$core$Maybe$map,
-				$author$project$Polygraph$Node(id),
-				$author$project$Polygraph$objNode(n));
-		},
-		$elm_community$intdict$IntDict$toList(g));
-};
 var $author$project$Polygraph$mapRec = F6(
 	function (cn, ce, fn, fe, ids, _v0) {
 		var g = _v0.a;
@@ -10428,10 +10735,6 @@ var $author$project$Polygraph$mapRecAll = F5(
 			$elm_community$intdict$IntDict$keys(g),
 			$author$project$Polygraph$Graph(g));
 	});
-var $elm$core$Tuple$second = function (_v0) {
-	var y = _v0.b;
-	return y;
-};
 var $author$project$Polygraph$computeDimensions = A4(
 	$author$project$Polygraph$mapRecAll,
 	$elm$core$Basics$always(0),
@@ -12404,13 +12707,6 @@ var $elm$core$String$concat = function (strings) {
 	return A2($elm$core$String$join, '', strings);
 };
 var $elm$core$String$fromFloat = _String_fromNumber;
-var $author$project$ArrowStyle$getStyle = function (_v0) {
-	var style = _v0.style;
-	var isAdjunction = _v0.isAdjunction;
-	return isAdjunction ? _Utils_update(
-		style,
-		{head: $author$project$ArrowStyle$NoHead, kind: $author$project$ArrowStyle$NoneArrow, labelAlignment: $author$project$Geometry$Over, tail: $author$project$ArrowStyle$DefaultTail}) : style;
-};
 var $author$project$ArrowStyle$headTikzStyle = function (hd) {
 	switch (hd.$) {
 		case 'DefaultHead':
@@ -12421,26 +12717,7 @@ var $author$project$ArrowStyle$headTikzStyle = function (hd) {
 			return '-,';
 	}
 };
-var $author$project$Drawing$Color$toString = function (c) {
-	switch (c.$) {
-		case 'Black':
-			return 'black';
-		case 'Red':
-			return 'red';
-		case 'Blue':
-			return 'blue';
-		case 'White':
-			return 'white';
-		case 'Purple':
-			return 'purple';
-		case 'Green':
-			return 'green';
-		case 'Yellow':
-			return 'yellow';
-		default:
-			return 'orange';
-	}
-};
+var $author$project$Drawing$Color$toString = $author$project$Codec$encoder($author$project$Drawing$Color$codec);
 var $author$project$ArrowStyle$tikzStyle = function (stl) {
 	return 'fore, ' + ($author$project$Drawing$Color$toString(stl.color) + (',' + (function () {
 		var _v0 = _Utils_Tuple2(stl.head, stl.kind);
@@ -16675,111 +16952,23 @@ var $author$project$Model$setSaveGraph = F2(
 		var m2 = $author$project$Model$pushHistory(m);
 		return A2($author$project$Model$setActiveGraph, m2, g);
 	});
-var $author$project$ArrowStyle$alignmentToString = function (tail) {
-	switch (tail.$) {
-		case 'Centre':
-			return 'centre';
-		case 'Over':
-			return 'over';
-		case 'Left':
-			return 'left';
-		default:
-			return 'right';
-	}
+var $author$project$Format$GraphInfo$normalise = function (gi) {
+	return _Utils_update(
+		gi,
+		{
+			tabs: A2(
+				$elm$core$List$map,
+				function (tab) {
+					return _Utils_update(
+						tab,
+						{
+							graph: $author$project$Polygraph$normalise(tab.graph)
+						});
+				},
+				gi.tabs)
+		});
 };
-var $author$project$ArrowStyle$headToString = function (head) {
-	switch (head.$) {
-		case 'DefaultHead':
-			return 'default';
-		case 'TwoHeads':
-			return 'twoheads';
-		default:
-			return 'none';
-	}
-};
-var $author$project$ArrowStyle$kindToString = function (kind) {
-	switch (kind.$) {
-		case 'NormalArrow':
-			return 'normal';
-		case 'NoneArrow':
-			return 'none';
-		default:
-			return 'double';
-	}
-};
-var $author$project$Format$Version12$Edge = F4(
-	function (label, style, kind, zindex) {
-		return {kind: kind, label: label, style: style, zindex: zindex};
-	});
-var $author$project$Format$Version12$ArrowStyle = F8(
-	function (tail, head, kind, dashed, bend, alignment, position, color) {
-		return {alignment: alignment, bend: bend, color: color, dashed: dashed, head: head, kind: kind, position: position, tail: tail};
-	});
-var $author$project$Format$Version12$emptyArrowStyle = A8($author$project$Format$Version12$ArrowStyle, '', '', 'normal', false, 0, '', 0, 'black');
-var $author$project$Format$Version12$pullshoutEdge = function (z) {
-	return A4($author$project$Format$Version12$Edge, '', $author$project$Format$Version12$emptyArrowStyle, $author$project$Format$Version12$pullshoutKey, z);
-};
-var $author$project$ArrowStyle$tailToString = function (tail) {
-	switch (tail.$) {
-		case 'DefaultTail':
-			return 'none';
-		case 'Hook':
-			return 'hook';
-		case 'HookAlt':
-			return 'hookalt';
-		default:
-			return 'mapsto';
-	}
-};
-var $author$project$Format$Version12$fromEdgeLabel = function (e) {
-	var _v0 = e.details;
-	if (_v0.$ === 'PullshoutEdge') {
-		return $author$project$Format$Version12$pullshoutEdge(e.zindex);
-	} else {
-		var l = _v0.a;
-		var label = l.label;
-		var isAdjunction = l.isAdjunction;
-		var style = $author$project$ArrowStyle$getStyle(l);
-		return {
-			kind: isAdjunction ? $author$project$Format$Version12$adjunctionKey : $author$project$Format$Version12$normalKey,
-			label: label,
-			style: {
-				alignment: $author$project$ArrowStyle$alignmentToString(style.labelAlignment),
-				bend: style.bend,
-				color: $author$project$Drawing$Color$toString(style.color),
-				dashed: style.dashed,
-				head: $author$project$ArrowStyle$headToString(style.head),
-				kind: $author$project$ArrowStyle$kindToString(style.kind),
-				position: style.labelPosition,
-				tail: $author$project$ArrowStyle$tailToString(style.tail)
-			},
-			zindex: e.zindex
-		};
-	}
-};
-var $author$project$Format$Version12$fromNodeLabel = function (_v0) {
-	var pos = _v0.pos;
-	var label = _v0.label;
-	var isMath = _v0.isMath;
-	var zindex = _v0.zindex;
-	return {isMath: isMath, label: label, pos: pos, zindex: zindex};
-};
-var $author$project$Format$Version12$toJSTab = function (tab) {
-	var g = tab.graph;
-	var gjs = $author$project$Polygraph$normalise(
-		A3(
-			$author$project$Polygraph$map,
-			function (_v0) {
-				return $author$project$Format$Version12$fromNodeLabel;
-			},
-			function (_v1) {
-				return $author$project$Format$Version12$fromEdgeLabel;
-			},
-			g));
-	var nodes = $author$project$Polygraph$nodes(gjs);
-	var edges = $author$project$Polygraph$edges(gjs);
-	return {active: tab.active, edges: edges, nodes: nodes, sizeGrid: tab.sizeGrid, title: tab.title};
-};
+var $author$project$Format$Version12$toJSTab = $author$project$Codec$encoder($author$project$Format$Version12$tabCodec);
 var $author$project$Format$Version12$toJSGraph = function (m) {
 	return {
 		latexPreamble: m.latexPreamble,
@@ -16792,7 +16981,8 @@ var $author$project$Format$LastVersion$version = $author$project$Format$Version1
 var $author$project$Main$toJsGraphInfo = function (model) {
 	return {
 		graph: $author$project$Format$LastVersion$toJSGraph(
-			$author$project$Model$toGraphInfo(model)),
+			$author$project$Format$GraphInfo$normalise(
+				$author$project$Model$toGraphInfo(model))),
 		version: $author$project$Format$LastVersion$version
 	};
 };
