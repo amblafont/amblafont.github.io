@@ -1,3 +1,15 @@
+"use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -43,6 +55,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 // some defaults
 var defaultConfig = { magic: "% YADE DIAGRAM",
     externalOutput: false,
@@ -450,4 +463,75 @@ function checkWatchedFile(config, d) {
             }
         });
     });
+}
+/* ****************
+
+
+
+maintenant on traite l'aspect websocket
+
+
+
+
+***************** */
+var expectedIdFromServer = 0;
+function logExpectedId() {
+    console.log("expectedId: ");
+    console.log(expectedIdFromServer);
+}
+function requestSnapshot(send) {
+    var msg = null;
+    sendDataOnSocket(send, {
+        snapshot: false,
+        break: false,
+        history: false,
+        broadcast: false,
+        msg: msg
+    });
+}
+function handleServerToClientMsg(send, snapshotRequest, normalRequest, data) {
+    var msg = JSON.parse(data);
+    switch (msg.type) {
+        case "diffs":
+            handleServerToClientDiffs(send, normalRequest, msg.data);
+            break;
+        case "snapshotRequest":
+            snapshotRequest(null);
+            break;
+    }
+}
+function handleServerToClientDiffs(send, normalRequest, data) {
+    var diffs = [];
+    for (var i = 0; i < data.length; i++) {
+        var diff = data[i];
+        // logExpectedId();
+        if (diff.id > expectedIdFromServer && !diff.snapshot) {
+            requestSnapshot(send);
+            return [];
+        }
+        // logExpectedId();
+        // console.log("avant");
+        expectedIdFromServer = diff.id + 1;
+        // console.log("apres");
+        // logExpectedId();
+        diffs.push(diff);
+    }
+    normalRequest(diffs);
+}
+function sendDiffOnSocket(send, d) {
+    console.log("sending " + JSON.stringify(d));
+    send(JSON.stringify(d));
+}
+function sendDataOnSocket(send, data) {
+    // console.log("avant2");
+    // logExpectedId();
+    var moreData = Object.assign(data, { "expectedId": expectedIdFromServer });
+    // {...data, "expectedId" :expectedId};
+    // logExpectedId();
+    // console.log("sending moredata: ");
+    // console.log(moreData);
+    sendDiffOnSocket(send, moreData);
+}
+function broadcastDataOnSocket(send, data) {
+    sendDataOnSocket(send, __assign(__assign({}, data), { broadcast: true }));
 }
