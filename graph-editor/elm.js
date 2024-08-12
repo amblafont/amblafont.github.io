@@ -13369,6 +13369,15 @@ var $author$project$Polygraph$applyModifTrans = F3(
 				});
 		}
 	});
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
 var $author$project$ListExtraExtra$move = F3(
 	function (isRight, f, l) {
 		if (!l.b) {
@@ -13397,19 +13406,54 @@ var $author$project$ListExtraExtra$move = F3(
 			}
 		}
 	});
+var $elm$core$List$tail = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(xs);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
 var $author$project$ListExtraExtra$moveLeftCycle = F2(
 	function (f, l) {
-		if (l.b) {
-			var t = l.a;
-			var q = l.b;
-			return f(t) ? _Utils_ap(
-				q,
-				_List_fromArray(
-					[t])) : A3($author$project$ListExtraExtra$move, false, f, l);
+		var _v0 = $elm$core$List$head(l);
+		if (_v0.$ === 'Just') {
+			var c = _v0.a;
+			return A2(
+				$elm$core$Maybe$withDefault,
+				l,
+				$elm$core$List$tail(
+					A3(
+						$author$project$ListExtraExtra$move,
+						false,
+						f,
+						_Utils_ap(
+							l,
+							_List_fromArray(
+								[c])))));
 		} else {
 			return _List_Nil;
 		}
 	});
+var $elm_community$list_extra$List$Extra$last = function (items) {
+	last:
+	while (true) {
+		if (!items.b) {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			if (!items.b.b) {
+				var x = items.a;
+				return $elm$core$Maybe$Just(x);
+			} else {
+				var rest = items.b;
+				var $temp$items = rest;
+				items = $temp$items;
+				continue last;
+			}
+		}
+	}
+};
 var $elm_community$list_extra$List$Extra$unconsLast = function (list) {
 	var _v0 = $elm$core$List$reverse(list);
 	if (!_v0.b) {
@@ -13425,12 +13469,21 @@ var $elm_community$list_extra$List$Extra$unconsLast = function (list) {
 };
 var $author$project$ListExtraExtra$moveRightCycle = F2(
 	function (f, l) {
-		var _v0 = $elm_community$list_extra$List$Extra$unconsLast(l);
+		var _v0 = $elm_community$list_extra$List$Extra$last(l);
 		if (_v0.$ === 'Just') {
-			var _v1 = _v0.a;
-			var t = _v1.a;
-			var q = _v1.b;
-			return f(t) ? A2($elm$core$List$cons, t, q) : A3($author$project$ListExtraExtra$move, true, f, l);
+			var c = _v0.a;
+			return A2(
+				$elm$core$Maybe$withDefault,
+				l,
+				A2(
+					$elm$core$Maybe$map,
+					$elm$core$Tuple$second,
+					$elm_community$list_extra$List$Extra$unconsLast(
+						A3(
+							$author$project$ListExtraExtra$move,
+							true,
+							f,
+							A2($elm$core$List$cons, c, l)))));
 		} else {
 			return _List_Nil;
 		}
@@ -13454,7 +13507,7 @@ var $author$project$Format$GraphInfo$applyTabMove = F3(
 								$elm$core$Basics$eq(id)),
 							gi.tabs)
 					}),
-				undo: isRight ? $author$project$Format$GraphInfo$TabMoveLeft(id) : $author$project$Format$GraphInfo$TabMoveRight(id)
+				undo: $author$project$Format$GraphInfo$TabMoveRight(id)
 			});
 	});
 var $author$project$Format$GraphInfo$isActiveTab = F2(
@@ -13578,15 +13631,6 @@ var $elm$core$List$drop = F2(
 			}
 		}
 	});
-var $elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(x);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
 var $elm_community$list_extra$List$Extra$getAt = F2(
 	function (idx, xs) {
 		return (idx < 0) ? $elm$core$Maybe$Nothing : $elm$core$List$head(
@@ -15831,24 +15875,6 @@ var $author$project$GraphProof$adjacentListToDict = function (l) {
 				return _Utils_Tuple2(e1.edge.id, e2.edge);
 			},
 			l));
-};
-var $elm_community$list_extra$List$Extra$last = function (items) {
-	last:
-	while (true) {
-		if (!items.b) {
-			return $elm$core$Maybe$Nothing;
-		} else {
-			if (!items.b.b) {
-				var x = items.a;
-				return $elm$core$Maybe$Just(x);
-			} else {
-				var rest = items.b;
-				var $temp$items = rest;
-				items = $temp$items;
-				continue last;
-			}
-		}
-	}
 };
 var $author$project$GraphProof$checkEndPoints = function (_v0) {
 	var lhs = _v0.lhs;
@@ -27218,16 +27244,16 @@ var $author$project$Main$update_DefaultMode = F2(
 									id: modifId,
 									modif: A2(
 										$author$project$Format$GraphInfo$makeGraphChange,
-										model.graphInfo.activeTabId,
+										tab.id,
 										$author$project$Polygraph$finaliseModif(info.extendedGraph)),
 									selIds: A3(
 										$elm_community$intdict$IntDict$insert,
-										model.graphInfo.activeTabId,
+										tab.id,
 										$author$project$Polygraph$allIds(info.subGraph),
 										$elm_community$intdict$IntDict$empty)
 								};
 								return _Utils_Tuple2(
-									nextModel,
+									model,
 									$author$project$CommandCodec$protocolSend(protocolMsg));
 							}
 						}
@@ -31685,15 +31711,6 @@ var $elm$core$Result$mapError = F2(
 				f(e));
 		}
 	});
-var $elm$core$List$tail = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(xs);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
 var $rtfeldman$elm_hex$Hex$fromString = function (str) {
 	if ($elm$core$String$isEmpty(str)) {
 		return $elm$core$Result$Err('Empty strings are not valid hexadecimal strings.');
