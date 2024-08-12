@@ -17354,7 +17354,7 @@ var $author$project$Drawing$ofSvgs = F2(
 			A2(
 				$elm$core$List$map,
 				function (s) {
-					return {key: $elm$core$Maybe$Nothing, svg: s, zindex: z};
+					return {svg: s, zindex: z};
 				},
 				l));
 	});
@@ -17489,19 +17489,11 @@ var $author$project$String$Html$Custom = F2(
 var $author$project$String$Html$customNode = $author$project$String$Html$Custom;
 var $author$project$String$Svg$foreignObject = $author$project$String$Svg$node('foreignObject');
 var $author$project$String$Svg$height = $author$project$String$Html$attribute('height');
-var $author$project$Drawing$ofSvgWithKey = F3(
-	function (z, k, s) {
-		return $author$project$Drawing$Drawing(
-			_List_fromArray(
-				[
-					{key: k, svg: s, zindex: z}
-				]));
-	});
 var $author$project$String$Svg$width = $author$project$String$Html$attribute('width');
 var $author$project$String$Svg$x = $author$project$String$Html$attribute('x');
 var $author$project$String$Svg$y = $author$project$String$Html$attribute('y');
-var $author$project$Drawing$htmlAnchor = F7(
-	function (key, z, _v0, _v1, center, str, h) {
+var $author$project$Drawing$htmlAnchor = F6(
+	function (z, _v0, _v1, center, str, h) {
 		var x1 = _v0.a;
 		var y1 = _v0.b;
 		var width = _v1.a;
@@ -17510,10 +17502,9 @@ var $author$project$Drawing$htmlAnchor = F7(
 		var _v2 = center ? _Utils_Tuple2(x1 - (width / 2), y1 - (height / 2)) : _Utils_Tuple2(x1, y1);
 		var x = _v2.a;
 		var y = _v2.b;
-		return A3(
-			$author$project$Drawing$ofSvgWithKey,
+		return A2(
+			$author$project$Drawing$ofSvg,
 			z,
-			key,
 			A2(
 				$author$project$String$Svg$foreignObject,
 				_List_fromArray(
@@ -17557,12 +17548,10 @@ var $author$project$GraphDrawing$withPreamble = F2(
 	function (cfg, s) {
 		return cfg.latexPreamble + ('\n' + s);
 	});
-var $author$project$GraphDrawing$makeLatex = F7(
-	function (cfg, pos, id, dims, label, z, attrs) {
-		return A7(
+var $author$project$GraphDrawing$makeLatex = F6(
+	function (cfg, pos, dims, label, z, attrs) {
+		return A6(
 			$author$project$Drawing$htmlAnchor,
-			$elm$core$Maybe$Just(
-				$elm$core$String$fromInt(id)),
 			z,
 			pos,
 			dims,
@@ -17704,9 +17693,8 @@ var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$GraphDrawing$make_input = F3(
 	function (pos, label, onChange) {
-		return A7(
+		return A6(
 			$author$project$Drawing$htmlAnchor,
-			$elm$core$Maybe$Nothing,
 			$author$project$Zindex$foregroundZ,
 			pos,
 			_Utils_Tuple2(100, 16),
@@ -17753,11 +17741,10 @@ var $author$project$GraphDrawing$nodeLabelDrawing = F3(
 			var label = _Utils_ap(
 				n.isValidated ? '\\color{green}' : '',
 				(n.label === '') ? '\\bullet' : (n.isMath ? n.label : ('\\text{' + (n.label + '}'))));
-			return A7(
+			return A6(
 				$author$project$GraphDrawing$makeLatex,
 				cfg,
 				n.pos,
-				id,
 				n.dims,
 				label,
 				n.zindex,
@@ -18992,11 +18979,10 @@ var $author$project$GraphDrawing$segmentLabel = F6(
 						return _List_Nil;
 					}
 				}();
-				return A7(
+				return A6(
 					$author$project$GraphDrawing$makeLatex,
 					cfg,
 					labelpos,
-					edgeId,
 					label.dims,
 					finalLabel,
 					$author$project$Zindex$foregroundZ,
@@ -19224,57 +19210,23 @@ var $author$project$GraphDrawing$toDrawingGraph = function (g) {
 			}),
 		graphWithPos);
 };
-var $elm_community$maybe_extra$Maybe$Extra$isNothing = function (m) {
-	if (m.$ === 'Nothing') {
-		return true;
-	} else {
-		return false;
-	}
-};
-var $author$project$String$Html$KeyedNodeNS = F4(
-	function (a, b, c, d) {
-		return {$: 'KeyedNodeNS', a: a, b: b, c: c, d: d};
-	});
-var $author$project$String$Html$keyedNodeNS = $author$project$String$Html$KeyedNodeNS;
-var $author$project$String$Svg$keyedNode = $author$project$String$Html$keyedNodeNS('http://www.w3.org/2000/svg');
-var $author$project$String$Svg$ksvg = $author$project$String$Svg$keyedNode('svg');
+var $author$project$String$Svg$svg = $author$project$String$Svg$node('svg');
 var $author$project$Drawing$svgHelper = F2(
 	function (l, d) {
-		var _v0 = A2(
-			$elm$core$List$partition,
-			A2(
-				$elm$core$Basics$composeR,
-				function ($) {
-					return $.key;
-				},
-				$elm_community$maybe_extra$Maybe$Extra$isNothing),
-			$author$project$Drawing$drawingToZSvgs(d));
-		var unkeyedList = _v0.a;
-		var keyedList = _v0.b;
-		var unkeyedGroup = A2(
-			$author$project$String$Svg$g,
-			_List_Nil,
+		return A2(
+			$author$project$String$Svg$svg,
+			l,
 			A2(
 				$elm$core$List$map,
 				function ($) {
 					return $.svg;
 				},
-				unkeyedList));
-		var keyedGroup = A2(
-			$elm$core$List$map,
-			function (item) {
-				return _Utils_Tuple2(
-					A2($elm$core$Maybe$withDefault, '', item.key),
-					item.svg);
-			},
-			keyedList);
-		return A2(
-			$author$project$String$Svg$ksvg,
-			l,
-			A2(
-				$elm$core$List$cons,
-				_Utils_Tuple2('unkeyed', unkeyedGroup),
-				keyedGroup));
+				A2(
+					$elm$core$List$sortBy,
+					function ($) {
+						return $.zindex;
+					},
+					$author$project$Drawing$drawingToZSvgs(d))));
 	});
 var $zwilias$elm_html_string$Html$Types$Node = F3(
 	function (a, b, c) {
@@ -19311,35 +19263,16 @@ var $author$project$String$Html$toHtmlStringAttribute = function (attr) {
 	}
 };
 var $author$project$String$Html$toHtmlString = function (root) {
-	var computeNode = F3(
-		function (name, attrs, children) {
-			return A3(
-				$zwilias$elm_html_string$Html$String$node,
-				name,
-				A2($elm$core$List$filterMap, $author$project$String$Html$toHtmlStringAttribute, attrs),
-				A2($elm$core$List$map, $author$project$String$Html$toHtmlString, children));
-		});
 	switch (root.$) {
 		case 'NodeNS':
 			var name = root.b;
 			var attrs = root.c;
 			var children = root.d;
-			return A3(computeNode, name, attrs, children);
-		case 'KeyedNodeNS':
-			var name = root.b;
-			var attrs = root.c;
-			var children = root.d;
 			return A3(
-				computeNode,
+				$zwilias$elm_html_string$Html$String$node,
 				name,
-				attrs,
-				A2(
-					$elm$core$List$map,
-					function (_v1) {
-						var x = _v1.b;
-						return x;
-					},
-					children));
+				A2($elm$core$List$filterMap, $author$project$String$Html$toHtmlStringAttribute, attrs),
+				A2($elm$core$List$map, $author$project$String$Html$toHtmlString, children));
 		case 'TextNode':
 			var s = root.a;
 			return $zwilias$elm_html_string$Html$String$text(s);
@@ -32534,17 +32467,6 @@ var $author$project$HtmlDefs$slider = F5(
 					$elm$html$Html$text(name)
 				]));
 	});
-var $elm$virtual_dom$VirtualDom$keyedNode = function (tag) {
-	return _VirtualDom_keyedNode(
-		_VirtualDom_noScript(tag));
-};
-var $elm$virtual_dom$VirtualDom$keyedNodeNS = F2(
-	function (namespace, tag) {
-		return A2(
-			_VirtualDom_keyedNodeNS,
-			namespace,
-			_VirtualDom_noScript(tag));
-	});
 var $elm$virtual_dom$VirtualDom$nodeNS = function (tag) {
 	return _VirtualDom_nodeNS(
 		_VirtualDom_noScript(tag));
@@ -32572,41 +32494,17 @@ var $author$project$String$Html$toHtmlAttribute = function (attr) {
 	}
 };
 var $author$project$String$Html$toHtml = function (root) {
-	var computeNode = F7(
-		function (vnode, vnodeNS, toHtmlArg, nameSpace, tagName, attrs, children) {
-			return A3(
-				(nameSpace === '') ? vnode : vnodeNS(nameSpace),
-				tagName,
-				A2($elm$core$List$map, $author$project$String$Html$toHtmlAttribute, attrs),
-				A2($elm$core$List$map, toHtmlArg, children));
-		});
 	switch (root.$) {
 		case 'NodeNS':
 			var nameSpace = root.a;
 			var tagName = root.b;
 			var attrs = root.c;
 			var children = root.d;
-			return A7(computeNode, $elm$virtual_dom$VirtualDom$node, $elm$virtual_dom$VirtualDom$nodeNS, $author$project$String$Html$toHtml, nameSpace, tagName, attrs, children);
-		case 'KeyedNodeNS':
-			var nameSpace = root.a;
-			var tagName = root.b;
-			var attrs = root.c;
-			var children = root.d;
-			return A7(
-				computeNode,
-				$elm$virtual_dom$VirtualDom$keyedNode,
-				$elm$virtual_dom$VirtualDom$keyedNodeNS,
-				function (_v1) {
-					var s = _v1.a;
-					var h = _v1.b;
-					return _Utils_Tuple2(
-						s,
-						$author$project$String$Html$toHtml(h));
-				},
-				nameSpace,
+			return A3(
+				(nameSpace === '') ? $elm$virtual_dom$VirtualDom$node : $elm$virtual_dom$VirtualDom$nodeNS(nameSpace),
 				tagName,
-				attrs,
-				children);
+				A2($elm$core$List$map, $author$project$String$Html$toHtmlAttribute, attrs),
+				A2($elm$core$List$map, $author$project$String$Html$toHtml, children));
 		case 'TextNode':
 			var s = root.a;
 			return $elm$html$Html$text(s);
