@@ -478,9 +478,9 @@ function logExpectedId() {
     console.log("expectedId: ");
     console.log(expectedIdFromServer);
 }
-function requestSnapshot(send) {
+function requestSnapshot(ws) {
     var msg = null;
-    sendDataOnSocket(send, {
+    sendDataOnSocket(ws, {
         snapshot: false,
         break: false,
         history: false,
@@ -488,24 +488,24 @@ function requestSnapshot(send) {
         msg: msg
     });
 }
-function handleServerToClientMsg(send, snapshotRequest, normalRequest, data) {
+function handleServerToClientMsg(ws, snapshotRequest, normalRequest, data) {
     var msg = JSON.parse(data);
     switch (msg.type) {
         case "diffs":
-            handleServerToClientDiffs(send, normalRequest, msg.data);
+            handleServerToClientDiffs(ws, normalRequest, msg.data);
             break;
         case "snapshotRequest":
             snapshotRequest(null);
             break;
     }
 }
-function handleServerToClientDiffs(send, normalRequest, data) {
+function handleServerToClientDiffs(ws, normalRequest, data) {
     var diffs = [];
     for (var i = 0; i < data.length; i++) {
         var diff = data[i];
         // logExpectedId();
         if (diff.id > expectedIdFromServer && !diff.snapshot) {
-            requestSnapshot(send);
+            requestSnapshot(ws);
             return [];
         }
         // logExpectedId();
@@ -517,11 +517,12 @@ function handleServerToClientDiffs(send, normalRequest, data) {
     }
     normalRequest(diffs);
 }
-function sendDiffOnSocket(send, d) {
-    console.log("sending " + JSON.stringify(d));
-    send(JSON.stringify(d));
+function sendDiffOnSocket(ws, d) {
+    console.log("sending data on websocket");
+    console.log(d);
+    ws.send(JSON.stringify(d));
 }
-function sendDataOnSocket(send, data) {
+function sendDataOnSocket(ws, data) {
     // console.log("avant2");
     // logExpectedId();
     var moreData = Object.assign(data, { "expectedId": expectedIdFromServer });
@@ -529,8 +530,8 @@ function sendDataOnSocket(send, data) {
     // logExpectedId();
     // console.log("sending moredata: ");
     // console.log(moreData);
-    sendDiffOnSocket(send, moreData);
+    sendDiffOnSocket(ws, moreData);
 }
-function broadcastDataOnSocket(send, data) {
-    sendDataOnSocket(send, __assign(__assign({}, data), { broadcast: true }));
+function broadcastDataOnSocket(ws, data) {
+    sendDataOnSocket(ws, __assign(__assign({}, data), { broadcast: true }));
 }
