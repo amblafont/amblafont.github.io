@@ -13966,7 +13966,6 @@ var $author$project$Polygraph$isEmptyModif = function (_v0) {
 	var m = _v0.a;
 	return $elm_community$intdict$IntDict$isEmpty(m.editGraph) && ($elm_community$intdict$IntDict$isEmpty(m.newGraph) && _Utils_eq(m.removeIds, _List_Nil));
 };
-var $elm$core$Debug$log = _Debug_log;
 var $elm_community$intdict$IntDict$member = F2(
 	function (key, dict) {
 		var _v0 = A2($elm_community$intdict$IntDict$get, key, dict);
@@ -14217,7 +14216,7 @@ var $author$project$Polygraph$applyModifTrans = F3(
 	function (merge, g, modif) {
 		var t = A2($author$project$Polygraph$normaliseModif, g, modif);
 		if ($author$project$Polygraph$isEmptyModif(t)) {
-			return A2($elm$core$Debug$log, 'c\'etait rien', $elm$core$Maybe$Nothing);
+			return $elm$core$Maybe$Nothing;
 		} else {
 			var _v0 = A3($author$project$Polygraph$doModif, merge, t, g);
 			var g2 = _v0.a;
@@ -15846,6 +15845,7 @@ var $author$project$Command$mergeUndoStatus = F2(
 		var _v2 = _v0.b;
 		return $author$project$Command$FailedUndo;
 	});
+var $elm$core$Debug$log = _Debug_log;
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$core$Maybe$destruct = F3(
 	function (_default, func, maybe) {
@@ -24329,6 +24329,34 @@ var $author$project$Modes$Move$mkInfo = F3(
 var $author$project$InputPosition$InputPosKeyboard = function (a) {
 	return {$: 'InputPosKeyboard', a: a};
 };
+var $author$project$InputPosition$computeKeyboardPos = F3(
+	function (_v0, offsetKeyboardPos, _v1) {
+		var originx = _v0.a;
+		var originy = _v0.b;
+		var posx = _v1.a;
+		var posy = _v1.b;
+		var size = offsetKeyboardPos;
+		var diff = F2(
+			function (z1, z2) {
+				return $elm$core$Basics$floor(z2 / size) - $elm$core$Basics$floor(z1 / size);
+			});
+		var _v2 = _Utils_Tuple2(
+			A2(diff, originx, posx),
+			A2(diff, originy, posy));
+		var x = _v2.a;
+		var y = _v2.b;
+		return $author$project$InputPosition$InputPosKeyboard(
+			_Utils_Tuple2(x, y));
+	});
+var $author$project$Model$truncateInputPosition = F2(
+	function (model, graph) {
+		return A3(
+			$author$project$InputPosition$computeKeyboardPos,
+			$author$project$GraphDefs$centerOfNodes(
+				$author$project$Polygraph$nodes(graph)),
+			$author$project$Model$getActiveSizeGrid(model),
+			model.mousePos);
+	});
 var $author$project$InputPosition$getKeyboardPos = function (pos) {
 	if (pos.$ === 'InputPosKeyboard') {
 		var p = pos.a;
@@ -24413,7 +24441,7 @@ var $author$project$Modes$Move$update = F3(
 						state,
 						{direction: direction})));
 		};
-		_v0$10:
+		_v0$11:
 		while (true) {
 			switch (msg.$) {
 				case 'PressTimeout':
@@ -24429,7 +24457,7 @@ var $author$project$Modes$Move$update = F3(
 						if ((msg.c.$ === 'Control') && (msg.c.a === 'Control')) {
 							return terminedRet(true);
 						} else {
-							break _v0$10;
+							break _v0$11;
 						}
 					} else {
 						if (msg.c.$ === 'Character') {
@@ -24451,14 +24479,26 @@ var $author$project$Modes$Move$update = F3(
 										default:
 											return $author$project$Model$noCmd(model);
 									}
-								case 'f':
+								case 'z':
 									return updateDirection($author$project$Modes$Free);
 								case 'x':
 									return updateDirection($author$project$Modes$Horizontal);
 								case 'y':
 									return updateDirection($author$project$Modes$Vertical);
+								case 'f':
+									return $author$project$Model$noCmd(
+										updateState(
+											_Utils_update(
+												state,
+												{
+													pos: A2(
+														$author$project$Model$truncateInputPosition,
+														model,
+														$author$project$GraphDefs$selectedGraph(
+															$author$project$Model$getActiveGraph(model)))
+												})));
 								default:
-									break _v0$10;
+									break _v0$11;
 							}
 						} else {
 							switch (msg.c.a) {
@@ -24467,12 +24507,12 @@ var $author$project$Modes$Move$update = F3(
 								case 'Enter':
 									return terminedRet(false);
 								default:
-									break _v0$10;
+									break _v0$11;
 							}
 						}
 					}
 				default:
-					break _v0$10;
+					break _v0$11;
 			}
 		}
 		return $author$project$Model$noCmd(
@@ -24944,7 +24984,7 @@ var $author$project$Modes$NewArrow$update = F3(
 					}
 				}());
 		};
-		_v0$12:
+		_v0$13:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseClick':
@@ -24956,7 +24996,7 @@ var $author$project$Modes$NewArrow$update = F3(
 							return next(
 								{finish: false, merge: true});
 						} else {
-							break _v0$12;
+							break _v0$13;
 						}
 					} else {
 						if (msg.c.$ === 'Control') {
@@ -24970,7 +25010,7 @@ var $author$project$Modes$NewArrow$update = F3(
 									return next(
 										{finish: false, merge: state.isAdjunction});
 								default:
-									break _v0$12;
+									break _v0$13;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -24988,6 +25028,16 @@ var $author$project$Modes$NewArrow$update = F3(
 											_Utils_update(
 												state,
 												{isAdjunction: !state.isAdjunction})));
+								case 'f':
+									return $author$project$Model$noCmd(
+										A2(
+											$author$project$Modes$NewArrow$updateState,
+											model,
+											_Utils_update(
+												state,
+												{
+													pos: A2($author$project$Model$truncateInputPosition, model, state.chosen)
+												})));
 								case 'i':
 									return $author$project$Model$noCmd(
 										A2(
@@ -25013,12 +25063,12 @@ var $author$project$Modes$NewArrow$update = F3(
 												state,
 												{mode: mode})));
 								default:
-									break _v0$12;
+									break _v0$13;
 							}
 						}
 					}
 				default:
-					break _v0$12;
+					break _v0$13;
 			}
 		}
 		var newStyle = function () {
@@ -27355,7 +27405,10 @@ var $author$project$GraphDefs$getSurroundingDiagrams = F2(
 		return A2(
 			$elm$core$List$filter,
 			A2($author$project$GraphProof$isInDiag, gp, pos),
-			$author$project$GraphProof$getAllValidDiagrams(gp));
+			A2(
+				$elm$core$Debug$log,
+				'all valid diagrams',
+				$author$project$GraphProof$getAllValidDiagrams(gp)));
 	});
 var $author$project$GraphDefs$selectedNodes = function (g) {
 	return A2(
@@ -27699,11 +27752,25 @@ var $author$project$Main$graphQuickInput = F2(
 					A2(split, d.rhs, eq2)));
 		}
 	});
-var $author$project$Modes$CreatePoint$initialise = F2(
-	function (isMath, model) {
+var $author$project$Geometry$Point$snapToGrid = F2(
+	function (sizeGrid, _v0) {
+		var px = _v0.a;
+		var py = _v0.b;
+		var approx = function (c) {
+			return ($elm$core$Basics$floor(c / sizeGrid) * sizeGrid) + (sizeGrid / 2);
+		};
+		return _Utils_Tuple2(
+			approx(px),
+			approx(py));
+	});
+var $author$project$Modes$CreatePoint$initialise = F3(
+	function (isMath, snapToGrid, model) {
 		var modelGraph = $author$project$Model$getActiveGraph(model);
 		var tabId = model.graphInfo.activeTabId;
-		var pos = model.mousePos;
+		var pos = (!snapToGrid) ? model.mousePos : A2(
+			$author$project$Geometry$Point$snapToGrid,
+			$author$project$Model$getActiveSizeGrid(model),
+			model.mousePos);
 		var _v0 = A2(
 			$author$project$Polygraph$md_newNode,
 			$author$project$Polygraph$newModif(modelGraph),
@@ -28329,17 +28396,6 @@ var $author$project$GraphDefs$selectedChain = function (g) {
 	}
 };
 var $elm$core$Process$sleep = _Process_sleep;
-var $author$project$Geometry$Point$snapToGrid = F2(
-	function (sizeGrid, _v0) {
-		var px = _v0.a;
-		var py = _v0.b;
-		var approx = function (c) {
-			return ($elm$core$Basics$floor(c / sizeGrid) * sizeGrid) + (sizeGrid / 2);
-		};
-		return _Utils_Tuple2(
-			approx(px),
-			approx(py));
-	});
 var $author$project$GraphDefs$snapNodeToGrid = F2(
 	function (sizeGrid, n) {
 		return _Utils_update(
@@ -28571,9 +28627,10 @@ var $author$project$Main$update_DefaultMode = F2(
 				$author$project$Model$setActiveGraph,
 				model,
 				$author$project$GraphDefs$clearSelection(modelGraph)));
-		var createPoint = function (isMath) {
-			return A2($author$project$Modes$CreatePoint$initialise, isMath, model);
-		};
+		var createPoint = F2(
+			function (isMath, snapToGrid) {
+				return A3($author$project$Modes$CreatePoint$initialise, isMath, snapToGrid, model);
+			});
 		var increaseZBy = function (offset) {
 			var _v26 = $author$project$GraphDefs$selectedId(modelGraph);
 			if (_v26.$ === 'Nothing') {
@@ -28599,9 +28656,9 @@ var $author$project$Main$update_DefaultMode = F2(
 						$author$project$Polygraph$newModif(modelGraph)));
 			}
 		};
-		_v0$48:
+		_v0$49:
 		while (true) {
-			_v0$49:
+			_v0$50:
 			while (true) {
 				switch (msg.$) {
 					case 'MouseOn':
@@ -28774,7 +28831,7 @@ var $author$project$Main$update_DefaultMode = F2(
 										$elm$core$Basics$always($author$project$Msg$PressTimeout),
 										$elm$core$Process$sleep(pressTimeoutMs)));
 							} else {
-								break _v0$49;
+								break _v0$50;
 							}
 						} else {
 							if (msg.c.$ === 'Control') {
@@ -28787,7 +28844,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											model,
 											$author$project$GraphDefs$removeSelected(modelGraph));
 									default:
-										break _v0$48;
+										break _v0$49;
 								}
 							} else {
 								switch (msg.c.a.valueOf()) {
@@ -28929,9 +28986,11 @@ var $author$project$Main$update_DefaultMode = F2(
 									case 's':
 										return $author$project$Modes$Square$initialise(model);
 									case 't':
-										return createPoint(false);
+										return A2(createPoint, false, false);
+									case 'm':
+										return A2(createPoint, true, true);
 									case 'p':
-										return createPoint(true);
+										return A2(createPoint, true, false);
 									case '/':
 										return $author$project$Modes$SplitArrow$initialise(model);
 									case 'x':
@@ -29069,12 +29128,12 @@ var $author$project$Main$update_DefaultMode = F2(
 										var k = msg.b;
 										return increaseZBy(-1);
 									default:
-										break _v0$48;
+										break _v0$49;
 								}
 							}
 						}
 					default:
-						break _v0$49;
+						break _v0$50;
 				}
 			}
 			return $author$project$Model$noCmd(model);
@@ -29134,11 +29193,11 @@ var $author$project$Main$enlargeModif = F2(
 				A3(
 					$author$project$Polygraph$map,
 					F2(
-						function (_v7, _v8) {
+						function (_v11, _v12) {
 							return false;
 						}),
 					F2(
-						function (_v9, _v10) {
+						function (_v13, _v14) {
 							return false;
 						}),
 					modelGraph)));
@@ -29178,17 +29237,41 @@ var $author$project$Main$enlargeModif = F2(
 				var _v6 = _Utils_Tuple2(
 					A4(mkp, id, nx, xi, ox),
 					A4(mkp, id, ny, yi, oy));
-				if ((_v6.a.$ === 'Just') && (_v6.b.$ === 'Just')) {
-					var xx = _v6.a.a;
-					var yy = _v6.b.a;
-					return $elm$core$Maybe$Just(
-						_Utils_update(
-							n,
-							{
-								pos: _Utils_Tuple2(xx, yy)
-							}));
+				if (_v6.a.$ === 'Just') {
+					if (_v6.b.$ === 'Just') {
+						var xx = _v6.a.a;
+						var yy = _v6.b.a;
+						return $elm$core$Maybe$Just(
+							_Utils_update(
+								n,
+								{
+									pos: _Utils_Tuple2(xx, yy)
+								}));
+					} else {
+						var xx = _v6.a.a;
+						var _v7 = _v6.b;
+						return $elm$core$Maybe$Just(
+							_Utils_update(
+								n,
+								{
+									pos: _Utils_Tuple2(xx, ny)
+								}));
+					}
 				} else {
-					return $elm$core$Maybe$Nothing;
+					if (_v6.b.$ === 'Just') {
+						var _v8 = _v6.a;
+						var yy = _v6.b.a;
+						return $elm$core$Maybe$Just(
+							_Utils_update(
+								n,
+								{
+									pos: _Utils_Tuple2(nx, yy)
+								}));
+					} else {
+						var _v9 = _v6.a;
+						var _v10 = _v6.b;
+						return $elm$core$Maybe$Nothing;
+					}
 				}
 			});
 		var g = A3(
@@ -29234,7 +29317,7 @@ var $author$project$Main$update_Enlarge = F3(
 								case '?':
 									return $author$project$Model$noCmd(
 										$author$project$Model$toggleHelpOverlay(model));
-								case 'f':
+								case 'z':
 									return updateDirection($author$project$Modes$Free);
 								case 'x':
 									return updateDirection($author$project$Modes$Horizontal);
@@ -30242,7 +30325,7 @@ var $author$project$ArrowStyle$controlChars = '|>(=-bBA][';
 var $author$project$HtmlDefs$overlayHelpMsg = '[?] to toggle help overlay';
 var $author$project$Modes$CutHead$help = $author$project$HtmlDefs$overlayHelpMsg + (', [RET] or [click] to confirm, [ctrl] to merge. [ESC] to cancel. ' + ('[c] to switch between head/tail' + ', [d] to duplicate (or not) the arrow.'));
 var $author$project$Modes$Move$help = function (s) {
-	return 'Mode Move. ' + ($author$project$HtmlDefs$overlayHelpMsg + ('. Use mouse or h,j,k,l.' + (' [ctrl] to merge,' + (' Press [x] or [y] to restrict to horizontal / vertical directions, or let it [f]ree ' + ('(currently, ' + (function () {
+	return 'Mode Move. ' + ($author$project$HtmlDefs$overlayHelpMsg + ('. Use mouse or h,j,k,l. [f] to move by a multiple of the grid size' + (' [ctrl] to merge,' + (' Press [x] or [y] to restrict to horizontal / vertical directions, or let it free with [z]' + ('(currently, ' + (function () {
 		var _v0 = s.direction;
 		switch (_v0.$) {
 			case 'Vertical':
@@ -30265,7 +30348,7 @@ var $author$project$Modes$Move$help = function (s) {
 	}())))))));
 };
 var $author$project$Drawing$Color$helpMsg = 'bla[c]k, bl[u]e, [g]reen, [o]range, [r]ed, [v]iolet, [y]ellow';
-var $author$project$Modes$NewArrow$help = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard, ' + ('[ctrl] merge, [a] merge without renaming, ' + ('[RET] terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + $author$project$Drawing$Color$helpMsg)))))))))))));
+var $author$project$Modes$NewArrow$help = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard ' + ('([f] to move by a multiple of the grid size), ' + ('[ctrl] merge, [a] merge without renaming, ' + ('[RET] terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + $author$project$Drawing$Color$helpMsg))))))))))))));
 var $author$project$Modes$NewLine$help = $author$project$HtmlDefs$overlayHelpMsg + ', [ESC] cancel, [click, n] to finalise, ';
 var $author$project$Modes$Pullshout$help = '[ESC] cancel, ' + ($author$project$HtmlDefs$overlayHelpMsg + (', cycle between [p]ullback/[P]ushout possibilities, ' + '[RET] confirm'));
 var $author$project$Modes$Rename$help = 'Rename mode: [RET] to confirm, [TAB] to next label, [ESC] to cancel';
@@ -30494,7 +30577,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]olor arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + ', export selection to LaTe[X]/s[V]g'))))))))))))))))))))))))))))))))))))))))))))))));
+			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint ([m] to create a point snapped to grid)' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]olor arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + ', export selection to LaTe[X]/s[V]g'))))))))))))))))))))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return $elm$html$Html$text('Debug Mode. [ESC] to cancel and come back to the default mode. ' + '');
 		case 'NewArrow':
@@ -30519,7 +30602,7 @@ var $author$project$Main$helpMsg = function (model) {
 			return msg($author$project$Modes$Rename$help);
 		case 'EnlargeMode':
 			var s = _v0.a;
-			return msg('Enlarge mode. ' + ($author$project$Main$overlayHelpMsgNewLine + ('Draw a rectangle to create space. ' + ('Use mouse or h,j,k,l. [RET] or click to confirm.' + ' Press [x] or [y] to restrict to horizontal / vertical directions, or let it [f]ree.'))));
+			return msg('Enlarge mode. ' + ($author$project$Main$overlayHelpMsgNewLine + ('Draw a rectangle to create space. ' + ('Use mouse or h,j,k,l. [RET] or click to confirm.' + ' Press [x] or [y] to restrict to horizontal / vertical directions, or let it free with [z].'))));
 		case 'ResizeMode':
 			var onlyGrid = _v0.a.onlyGrid;
 			return msg(
