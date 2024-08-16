@@ -569,7 +569,8 @@ function disableInAppInstallPrompt() {
 
          app.ports.select.subscribe(function(id) {
             var elmnt = document.getElementById(id);
-            elmnt.select();
+            if (elmnt != null)
+                elmnt.select();
          });
 
          app.ports.computeLayout.subscribe(function(s) {                         
@@ -869,6 +870,23 @@ function disableInAppInstallPrompt() {
          // so we make our custom event listener.
          document.addEventListener("keydown", function(event)  {
                     app.ports.onKeyDownActive.send(event);
+         });
+
+         app.ports.focusPosition.subscribe(function(pos) {
+            var x = pos[0];
+            var y = pos[1];
+            const svg = document.getElementById("canvas");
+            const svgRect = svg.getBoundingClientRect();
+
+            const centerX = svgRect.x + window.pageXOffset + x - window.innerWidth / 2;
+            const centerY = svgRect.y + window.pageYOffset + y - window.innerHeight / 2;
+            
+            // Scroll to the calculated position
+            window.scrollTo({
+                top: centerY,
+                left: centerX,
+                behavior: 'smooth' // Optional: 'smooth' for a smooth scrolling effect
+            });
          });
 
          /*

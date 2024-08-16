@@ -10516,6 +10516,9 @@ var $author$project$Main$promptedTabTitle = _Platform_incomingPort('promptedTabT
 var $author$project$Msg$ClearProtocol = function (a) {
 	return {$: 'ClearProtocol', a: a};
 };
+var $author$project$Msg$FocusPosition = function (a) {
+	return {$: 'FocusPosition', a: a};
+};
 var $author$project$Msg$LoadProtocol = function (a) {
 	return {$: 'LoadProtocol', a: a};
 };
@@ -11463,8 +11466,8 @@ var $author$project$CommandCodec$protocolMsgCodec = function () {
 						function (scenario, preamble) {
 							return {preamble: preamble, scenario: scenario};
 						})))));
-	var splitMsg = F6(
-		function (snapshot, clear, undo, load, modif, v) {
+	var splitMsg = F7(
+		function (snapshot, clear, undo, load, modif, focus, v) {
 			switch (v.$) {
 				case 'Snapshot':
 					var arg = v.a;
@@ -11478,9 +11481,12 @@ var $author$project$CommandCodec$protocolMsgCodec = function () {
 				case 'ClearProtocol':
 					var arg = v.a;
 					return clear(arg);
-				default:
+				case 'Undo':
 					var arg = v.a;
 					return undo(arg);
+				default:
+					var arg = v.a;
+					return focus(arg);
 			}
 		});
 	return A2(
@@ -11488,46 +11494,53 @@ var $author$project$CommandCodec$protocolMsgCodec = function () {
 		$author$project$CommandCodec$defaultProtocolMsg,
 		A4(
 			$author$project$Codec$maybeVariant1,
-			$author$project$Msg$ModifProtocol,
+			$author$project$Msg$FocusPosition,
 			function ($) {
-				return $.modif;
+				return $.focus;
 			},
-			$author$project$CommandCodec$protocolModifCodec,
+			$author$project$Codec$identity,
 			A4(
 				$author$project$Codec$maybeVariant1,
-				$author$project$Msg$LoadProtocol,
+				$author$project$Msg$ModifProtocol,
 				function ($) {
-					return $.load;
+					return $.modif;
 				},
-				loadCodec,
+				$author$project$CommandCodec$protocolModifCodec,
 				A4(
 					$author$project$Codec$maybeVariant1,
-					$author$project$Msg$Undo,
+					$author$project$Msg$LoadProtocol,
 					function ($) {
-						return $.undo;
+						return $.load;
 					},
-					$author$project$Codec$list($author$project$Format$GraphInfoCodec$codecModif),
+					loadCodec,
 					A4(
 						$author$project$Codec$maybeVariant1,
-						$author$project$Msg$ClearProtocol,
+						$author$project$Msg$Undo,
 						function ($) {
-							return $.clear;
+							return $.undo;
 						},
-						clearCodec,
+						$author$project$Codec$list($author$project$Format$GraphInfoCodec$codecModif),
 						A4(
 							$author$project$Codec$maybeVariant1,
-							$author$project$Msg$Snapshot,
+							$author$project$Msg$ClearProtocol,
 							function ($) {
-								return $.snapshot;
+								return $.clear;
 							},
-							$author$project$Format$LastVersion$graphInfoCodec,
-							A2(
-								$author$project$Codec$maybeCustom,
-								splitMsg,
-								F5(
-									function (snapshot, clear, undo, load, modif) {
-										return {clear: clear, load: load, modif: modif, snapshot: snapshot, undo: undo};
-									}))))))));
+							clearCodec,
+							A4(
+								$author$project$Codec$maybeVariant1,
+								$author$project$Msg$Snapshot,
+								function ($) {
+									return $.snapshot;
+								},
+								$author$project$Format$LastVersion$graphInfoCodec,
+								A2(
+									$author$project$Codec$maybeCustom,
+									splitMsg,
+									F6(
+										function (snapshot, clear, undo, load, modif, focus) {
+											return {clear: clear, focus: focus, load: load, modif: modif, snapshot: snapshot, undo: undo};
+										})))))))));
 }();
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
 var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
@@ -11561,13 +11574,40 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 											function (load) {
 												return A2(
 													$elm$json$Json$Decode$andThen,
-													function (clear) {
-														return $elm$json$Json$Decode$succeed(
-															{clear: clear, load: load, modif: modif, snapshot: snapshot, undo: undo});
+													function (focus) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (clear) {
+																return $elm$json$Json$Decode$succeed(
+																	{clear: clear, focus: focus, load: load, modif: modif, snapshot: snapshot, undo: undo});
+															},
+															A2(
+																$elm$json$Json$Decode$field,
+																'clear',
+																$elm$json$Json$Decode$oneOf(
+																	_List_fromArray(
+																		[
+																			$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
+																			A2(
+																			$elm$json$Json$Decode$map,
+																			$elm$core$Maybe$Just,
+																			A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (scenario) {
+																					return A2(
+																						$elm$json$Json$Decode$andThen,
+																						function (preamble) {
+																							return $elm$json$Json$Decode$succeed(
+																								{preamble: preamble, scenario: scenario});
+																						},
+																						A2($elm$json$Json$Decode$field, 'preamble', $elm$json$Json$Decode$string));
+																				},
+																				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string)))
+																		]))));
 													},
 													A2(
 														$elm$json$Json$Decode$field,
-														'clear',
+														'focus',
 														$elm$json$Json$Decode$oneOf(
 															_List_fromArray(
 																[
@@ -11577,16 +11617,30 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																	$elm$core$Maybe$Just,
 																	A2(
 																		$elm$json$Json$Decode$andThen,
-																		function (scenario) {
+																		function (tabId) {
 																			return A2(
 																				$elm$json$Json$Decode$andThen,
-																				function (preamble) {
+																				function (pos) {
 																					return $elm$json$Json$Decode$succeed(
-																						{preamble: preamble, scenario: scenario});
+																						{pos: pos, tabId: tabId});
 																				},
-																				A2($elm$json$Json$Decode$field, 'preamble', $elm$json$Json$Decode$string));
+																				A2(
+																					$elm$json$Json$Decode$field,
+																					'pos',
+																					A2(
+																						$elm$json$Json$Decode$andThen,
+																						function (_v0) {
+																							return A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (_v1) {
+																									return $elm$json$Json$Decode$succeed(
+																										_Utils_Tuple2(_v0, _v1));
+																								},
+																								A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																						},
+																						A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))));
 																		},
-																		A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string)))
+																		A2($elm$json$Json$Decode$field, 'tabId', $elm$json$Json$Decode$int)))
 																]))));
 											},
 											A2(
@@ -15712,7 +15766,7 @@ var $author$project$Command$applyCommand = F2(
 		var isSender = _v0.isSender;
 		var msg = _v0.msg;
 		var returnComputeLayout = function (m) {
-			return {computeLayout: true, model: m, undo: $author$project$Command$NoUndo};
+			return {computeLayout: true, focus: $elm$core$Maybe$Nothing, model: m, undo: $author$project$Command$NoUndo};
 		};
 		switch (msg.$) {
 			case 'Snapshot':
@@ -15732,6 +15786,7 @@ var $author$project$Command$applyCommand = F2(
 					var r = _v2.a;
 					return {
 						computeLayout: true,
+						focus: $elm$core$Maybe$Nothing,
 						model: _Utils_update(
 							model,
 							{graphInfo: r.next}),
@@ -15740,6 +15795,7 @@ var $author$project$Command$applyCommand = F2(
 				} else {
 					return {
 						computeLayout: false,
+						focus: $elm$core$Maybe$Nothing,
 						model: model,
 						undo: isSender ? $author$project$Command$FailedUndo : $author$project$Command$NoUndo
 					};
@@ -15764,7 +15820,7 @@ var $author$project$Command$applyCommand = F2(
 								}),
 							scenario: scenario
 						}));
-			default:
+			case 'LoadProtocol':
 				var graph = msg.a.graph;
 				var scenario = msg.a.scenario;
 				var m = $author$project$Model$clearHistory(
@@ -15797,6 +15853,14 @@ var $author$project$Command$applyCommand = F2(
 								});
 						}));
 				return returnComputeLayout(m2);
+			default:
+				var arg = msg.a;
+				return {
+					computeLayout: false,
+					focus: (!isSender) ? $elm$core$Maybe$Just(arg) : $elm$core$Maybe$Nothing,
+					model: model,
+					undo: $author$project$Command$NoUndo
+				};
 		}
 	});
 var $elm$json$Json$Encode$null = _Json_encodeNull;
@@ -15804,6 +15868,30 @@ var $author$project$HtmlDefs$computeLayout = _Platform_outgoingPort(
 	'computeLayout',
 	function ($) {
 		return $elm$json$Json$Encode$null;
+	});
+var $elm$json$Json$Encode$float = _Json_wrap;
+var $elm$json$Json$Encode$list = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				$elm$core$List$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(_Utils_Tuple0),
+				entries));
+	});
+var $author$project$HtmlDefs$focusPosition = _Platform_outgoingPort(
+	'focusPosition',
+	function ($) {
+		var a = $.a;
+		var b = $.b;
+		return A2(
+			$elm$json$Json$Encode$list,
+			$elm$core$Basics$identity,
+			_List_fromArray(
+				[
+					$elm$json$Json$Encode$float(a),
+					$elm$json$Json$Encode$float(b)
+				]));
 	});
 var $author$project$Command$mergeUndoStatus = F2(
 	function (s1, s2) {
@@ -15845,6 +15933,14 @@ var $author$project$Command$mergeUndoStatus = F2(
 		var _v2 = _v0.b;
 		return $author$project$Command$FailedUndo;
 	});
+var $elm_community$maybe_extra$Maybe$Extra$or = F2(
+	function (ma, mb) {
+		if (ma.$ === 'Nothing') {
+			return mb;
+		} else {
+			return ma;
+		}
+	});
 var $elm$core$Debug$log = _Debug_log;
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$core$Maybe$destruct = F3(
@@ -15856,17 +15952,7 @@ var $elm$core$Maybe$destruct = F3(
 			return _default;
 		}
 	});
-var $elm$json$Json$Encode$float = _Json_wrap;
 var $elm$json$Json$Encode$int = _Json_wrap;
-var $elm$json$Json$Encode$list = F2(
-	function (func, entries) {
-		return _Json_wrap(
-			A3(
-				$elm$core$List$foldl,
-				_Json_addEntry(func),
-				_Json_emptyArray(_Utils_Tuple0),
-				entries));
-	});
 var $elm$json$Json$Encode$object = function (pairs) {
 	return _Json_wrap(
 		A3(
@@ -15919,6 +16005,37 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 											},
 											$);
 									}($.clear)),
+									_Utils_Tuple2(
+									'focus',
+									function ($) {
+										return A3(
+											$elm$core$Maybe$destruct,
+											$elm$json$Json$Encode$null,
+											function ($) {
+												return $elm$json$Json$Encode$object(
+													_List_fromArray(
+														[
+															_Utils_Tuple2(
+															'pos',
+															function ($) {
+																var a = $.a;
+																var b = $.b;
+																return A2(
+																	$elm$json$Json$Encode$list,
+																	$elm$core$Basics$identity,
+																	_List_fromArray(
+																		[
+																			$elm$json$Json$Encode$float(a),
+																			$elm$json$Json$Encode$float(b)
+																		]));
+															}($.pos)),
+															_Utils_Tuple2(
+															'tabId',
+															$elm$json$Json$Encode$int($.tabId))
+														]));
+											},
+											$);
+									}($.focus)),
 									_Utils_Tuple2(
 									'load',
 									function ($) {
@@ -17116,8 +17233,10 @@ var $author$project$CommandCodec$protocolSendMsg = function (c) {
 					return {_break: true, history: true, msg: msg, snapshot: true};
 				case 'ModifProtocol':
 					return {_break: false, history: true, msg: msg, snapshot: false};
-				default:
+				case 'Undo':
 					return {_break: false, history: true, msg: msg, snapshot: false};
+				default:
+					return {_break: false, history: false, msg: msg, snapshot: false};
 			}
 		}());
 };
@@ -17144,6 +17263,7 @@ var $author$project$Command$applyCommands = F2(
 				var ret = A2($author$project$Command$applyCommand, msg, status.model);
 				return {
 					computeLayout: ret.computeLayout || status.computeLayout,
+					focus: A2($elm_community$maybe_extra$Maybe$Extra$or, ret.focus, status.focus),
 					model: ret.model,
 					undo: A2($author$project$Command$mergeUndoStatus, ret.undo, status.undo)
 				};
@@ -17151,21 +17271,44 @@ var $author$project$Command$applyCommands = F2(
 		var ret = A3(
 			$elm$core$List$foldl,
 			aux,
-			{computeLayout: false, model: model, undo: $author$project$Command$NoUndo},
+			{computeLayout: false, focus: $elm$core$Maybe$Nothing, model: model, undo: $author$project$Command$NoUndo},
 			arg);
 		var _v0 = _Utils_eq(ret.undo, $author$project$Command$FailedUndo) ? $author$project$Command$undo(ret.model) : $author$project$Model$noCmd(ret.model);
 		var finalModel = _v0.a;
 		var cmd = _v0.b;
+		var _v1 = function () {
+			var _v2 = ret.focus;
+			if (_v2.$ === 'Nothing') {
+				return $author$project$Model$noCmd(finalModel);
+			} else {
+				var tabId = _v2.a.tabId;
+				var pos = _v2.a.pos;
+				var _v3 = A2($author$project$Model$activateTab, finalModel, tabId);
+				if (_v3.$ === 'Nothing') {
+					return $author$project$Model$noCmd(finalModel);
+				} else {
+					var newModel = _v3.a;
+					return _Utils_Tuple2(
+						newModel,
+						$author$project$HtmlDefs$focusPosition(pos));
+				}
+			}
+		}();
+		var finalModel2 = _v1.a;
+		var cmd2 = _v1.b;
 		return _Utils_Tuple2(
-			finalModel,
+			finalModel2,
 			$elm$core$Platform$Cmd$batch(
 				A2(
 					$elm$core$List$cons,
 					cmd,
-					ret.computeLayout ? _List_fromArray(
-						[
-							$author$project$HtmlDefs$computeLayout(_Utils_Tuple0)
-						]) : _List_Nil)));
+					A2(
+						$elm$core$List$cons,
+						cmd2,
+						ret.computeLayout ? _List_fromArray(
+							[
+								$author$project$HtmlDefs$computeLayout(_Utils_Tuple0)
+							]) : _List_Nil))));
 	});
 var $author$project$GraphDefs$mapDetails = F2(
 	function (f, e) {
@@ -21522,7 +21665,12 @@ var $author$project$Drawing$svgHelper = F2(
 					return $.key;
 				},
 				$elm_community$maybe_extra$Maybe$Extra$isNothing),
-			$author$project$Drawing$drawingToZSvgs(d));
+			A2(
+				$elm$core$List$sortBy,
+				function ($) {
+					return $.zindex;
+				},
+				$author$project$Drawing$drawingToZSvgs(d)));
 		var unkeyedList = _v0.a;
 		var keyedList = _v0.b;
 		var unkeyedGroup = A2(
@@ -27478,14 +27626,6 @@ var $author$project$GraphProof$isEmptyBranch = function (l) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
-var $elm_community$maybe_extra$Maybe$Extra$or = F2(
-	function (ma, mb) {
-		if (ma.$ === 'Nothing') {
-			return mb;
-		} else {
-			return ma;
-		}
-	});
 var $author$project$GraphProof$angleDir = F2(
 	function (dir, edge) {
 		return dir ? edge.angleIn : edge.angleOut;
@@ -28690,9 +28830,9 @@ var $author$project$Main$update_DefaultMode = F2(
 						$author$project$Polygraph$newModif(modelGraph)));
 			}
 		};
-		_v0$49:
+		_v0$50:
 		while (true) {
-			_v0$50:
+			_v0$51:
 			while (true) {
 				switch (msg.$) {
 					case 'MouseOn':
@@ -28865,7 +29005,7 @@ var $author$project$Main$update_DefaultMode = F2(
 										$elm$core$Basics$always($author$project$Msg$PressTimeout),
 										$elm$core$Process$sleep(pressTimeoutMs)));
 							} else {
-								break _v0$50;
+								break _v0$51;
 							}
 						} else {
 							if (msg.c.$ === 'Control') {
@@ -28878,7 +29018,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											model,
 											$author$project$GraphDefs$removeSelected(modelGraph));
 									default:
-										break _v0$49;
+										break _v0$50;
 								}
 							} else {
 								switch (msg.c.a.valueOf()) {
@@ -28945,57 +29085,61 @@ var $author$project$Main$update_DefaultMode = F2(
 									case 'n':
 										return $author$project$Modes$NewLine$initialise(model);
 									case 'v':
-										var cmd = function () {
-											var _v3 = $author$project$GraphDefs$selectedIncompleteDiagram(modelGraph);
-											if (_v3.$ === 'Nothing') {
-												var _v4 = $author$project$GraphDefs$selectedChain(modelGraph);
-												switch (_v4.$) {
-													case 'NoClearOrientation':
-														return $author$project$Main$alert('Not clear how to orient the equation (closing the chain should not overlap with other arrows)');
-													case 'NoChain':
-														var _v5 = $author$project$GraphDefs$getSelectedProofDiagram(modelGraph);
-														switch (_v5.$) {
-															case 'NoProofNode':
-																return $author$project$Main$alert('Selected subdiagram or proof node not found.');
-															case 'NoDiagram':
-																return $author$project$Main$alert('No diagram found around node.');
-															default:
-																var proof = _v5.a.proof;
-																var diagram = _v5.a.diagram;
-																return $author$project$Main$applyProof(
-																	{
-																		script: proof,
-																		statement: $author$project$GraphProof$statementToString(diagram)
-																	});
-														}
-													default:
-														var _v6 = _v4.a;
-														var d = _v6.b;
-														return $author$project$Main$requestProof(
-															{
-																script: 'reflexivity.',
-																statement: $author$project$GraphProof$statementToString(d)
-															});
+										if (model.specialKeys.ctrl) {
+											return $author$project$Model$noCmd(model);
+										} else {
+											var cmd = function () {
+												var _v3 = $author$project$GraphDefs$selectedIncompleteDiagram(modelGraph);
+												if (_v3.$ === 'Nothing') {
+													var _v4 = $author$project$GraphDefs$selectedChain(modelGraph);
+													switch (_v4.$) {
+														case 'NoClearOrientation':
+															return $author$project$Main$alert('Not clear how to orient the equation (closing the chain should not overlap with other arrows)');
+														case 'NoChain':
+															var _v5 = $author$project$GraphDefs$getSelectedProofDiagram(modelGraph);
+															switch (_v5.$) {
+																case 'NoProofNode':
+																	return $author$project$Main$alert('Selected subdiagram or proof node not found.');
+																case 'NoDiagram':
+																	return $author$project$Main$alert('No diagram found around node.');
+																default:
+																	var proof = _v5.a.proof;
+																	var diagram = _v5.a.diagram;
+																	return $author$project$Main$applyProof(
+																		{
+																			script: proof,
+																			statement: $author$project$GraphProof$statementToString(diagram)
+																		});
+															}
+														default:
+															var _v6 = _v4.a;
+															var d = _v6.b;
+															return $author$project$Main$requestProof(
+																{
+																	script: 'reflexivity.',
+																	statement: $author$project$GraphProof$statementToString(d)
+																});
+													}
+												} else {
+													var d = _v3.a;
+													var gp = $author$project$GraphDefs$toProofGraph(modelGraph);
+													var proof = A2(
+														$elm$core$Maybe$withDefault,
+														'',
+														A3(
+															$author$project$GraphProof$findProofOfDiagram,
+															gp,
+															$author$project$Polygraph$nodes(gp),
+															d));
+													return $author$project$Main$requestProof(
+														{
+															script: proof,
+															statement: $author$project$GraphProof$statementToString(d)
+														});
 												}
-											} else {
-												var d = _v3.a;
-												var gp = $author$project$GraphDefs$toProofGraph(modelGraph);
-												var proof = A2(
-													$elm$core$Maybe$withDefault,
-													'',
-													A3(
-														$author$project$GraphProof$findProofOfDiagram,
-														gp,
-														$author$project$Polygraph$nodes(gp),
-														d));
-												return $author$project$Main$requestProof(
-													{
-														script: proof,
-														statement: $author$project$GraphProof$statementToString(d)
-													});
-											}
-										}();
-										return _Utils_Tuple2(model, cmd);
+											}();
+											return _Utils_Tuple2(model, cmd);
+										}
 									case 'q':
 										return _Utils_Tuple2(
 											model,
@@ -29158,13 +29302,19 @@ var $author$project$Main$update_DefaultMode = F2(
 									case '<':
 										var k = msg.b;
 										return increaseZBy(-1);
+									case '#':
+										return _Utils_Tuple2(
+											model,
+											$author$project$CommandCodec$protocolSendMsg(
+												$author$project$Msg$FocusPosition(
+													{pos: model.mousePos, tabId: model.graphInfo.activeTabId})));
 									default:
-										break _v0$49;
+										break _v0$50;
 								}
 							}
 						}
 					default:
-						break _v0$50;
+						break _v0$51;
 				}
 			}
 			return $author$project$Model$noCmd(model);
@@ -30608,7 +30758,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint ([m] to create a point snapped to grid)' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]olor arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + ', export selection to LaTe[X]/s[V]g'))))))))))))))))))))))))))))))))))))))))))))))));
+			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint ([m] to create a point snapped to grid)' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]olor arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + (', export selection to LaTe[X]/s[V]g' + ', [#] make the other user focus on the mouse position')))))))))))))))))))))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return $elm$html$Html$text('Debug Mode. [ESC] to cancel and come back to the default mode. ' + '');
 		case 'NewArrow':
