@@ -27405,10 +27405,7 @@ var $author$project$GraphDefs$getSurroundingDiagrams = F2(
 		return A2(
 			$elm$core$List$filter,
 			A2($author$project$GraphProof$isInDiag, gp, pos),
-			A2(
-				$elm$core$Debug$log,
-				'all valid diagrams',
-				$author$project$GraphProof$getAllValidDiagrams(gp)));
+			$author$project$GraphProof$getAllValidDiagrams(gp));
 	});
 var $author$project$GraphDefs$selectedNodes = function (g) {
 	return A2(
@@ -27981,6 +27978,78 @@ var $author$project$Main$initialise_Resize = function (model) {
 				})
 		});
 };
+var $author$project$ArrowStyle$invert = function (st) {
+	return _Utils_update(
+		st,
+		{
+			bend: 0 - st.bend,
+			labelAlignment: function () {
+				var _v0 = st.labelAlignment;
+				switch (_v0.$) {
+					case 'Left':
+						return $author$project$Geometry$Right;
+					case 'Right':
+						return $author$project$Geometry$Left;
+					default:
+						return st.labelAlignment;
+				}
+			}(),
+			labelPosition: 1 - st.labelPosition
+		});
+};
+var $author$project$Polygraph$md_invertEdge = F2(
+	function (id, _v0) {
+		var m = _v0.a;
+		return $author$project$Polygraph$ModifHelper(
+			_Utils_update(
+				m,
+				{
+					graph: A2(
+						$author$project$Polygraph$mapRep,
+						A2(
+							$elm_community$intdict$IntDict$update,
+							id,
+							function (e) {
+								if ((e.$ === 'Just') && (e.a.$ === 'EdgeObj')) {
+									var _v2 = e.a;
+									var i1 = _v2.a;
+									var i2 = _v2.b;
+									var l = _v2.c;
+									return $elm$core$Maybe$Just(
+										A3(
+											$author$project$Polygraph$EdgeObj,
+											i2,
+											i1,
+											_Utils_update(
+												l,
+												{
+													edit: $author$project$Polygraph$updateStatus(l.edit)
+												})));
+								} else {
+									return e;
+								}
+							}),
+						m.graph)
+				}));
+	});
+var $author$project$GraphDefs$invertEdge = F2(
+	function (g, id) {
+		return A3(
+			$author$project$Polygraph$md_updateEdge,
+			id,
+			$author$project$GraphDefs$mapNormalEdge(
+				function (l) {
+					return _Utils_update(
+						l,
+						{
+							style: $author$project$ArrowStyle$invert(l.style)
+						});
+				}),
+			A2(
+				$author$project$Polygraph$md_invertEdge,
+				id,
+				$author$project$Polygraph$newModif(g)));
+	});
 var $author$project$Main$toClipboard = _Platform_outgoingPort(
 	'toClipboard',
 	function ($) {
@@ -28037,41 +28106,6 @@ var $author$project$Polygraph$md_disjointUnion = F2(
 					}),
 				result.subGraph)
 		};
-	});
-var $author$project$Polygraph$md_invertEdge = F2(
-	function (id, _v0) {
-		var m = _v0.a;
-		return $author$project$Polygraph$ModifHelper(
-			_Utils_update(
-				m,
-				{
-					graph: A2(
-						$author$project$Polygraph$mapRep,
-						A2(
-							$elm_community$intdict$IntDict$update,
-							id,
-							function (e) {
-								if ((e.$ === 'Just') && (e.a.$ === 'EdgeObj')) {
-									var _v2 = e.a;
-									var i1 = _v2.a;
-									var i2 = _v2.b;
-									var l = _v2.c;
-									return $elm$core$Maybe$Just(
-										A3(
-											$author$project$Polygraph$EdgeObj,
-											i2,
-											i1,
-											_Utils_update(
-												l,
-												{
-													edit: $author$project$Polygraph$updateStatus(l.edit)
-												})));
-								} else {
-									return e;
-								}
-							}),
-						m.graph)
-				}));
 	});
 var $author$project$Main$promptEquation = _Platform_outgoingPort(
 	'promptEquation',
@@ -28880,10 +28914,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											return A2(
 												$author$project$CommandCodec$updateModifHelper,
 												model,
-												A2(
-													$author$project$Polygraph$md_invertEdge,
-													id,
-													$author$project$Polygraph$newModif(modelGraph)));
+												A2($author$project$GraphDefs$invertEdge, modelGraph, id));
 										} else {
 											return $author$project$Model$noCmd(model);
 										}
