@@ -11620,25 +11620,33 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																		function (tabId) {
 																			return A2(
 																				$elm$json$Json$Decode$andThen,
-																				function (pos) {
-																					return $elm$json$Json$Decode$succeed(
-																						{pos: pos, tabId: tabId});
+																				function (selIds) {
+																					return A2(
+																						$elm$json$Json$Decode$andThen,
+																						function (pos) {
+																							return $elm$json$Json$Decode$succeed(
+																								{pos: pos, selIds: selIds, tabId: tabId});
+																						},
+																						A2(
+																							$elm$json$Json$Decode$field,
+																							'pos',
+																							A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (_v0) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (_v1) {
+																											return $elm$json$Json$Decode$succeed(
+																												_Utils_Tuple2(_v0, _v1));
+																										},
+																										A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																								},
+																								A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))));
 																				},
 																				A2(
 																					$elm$json$Json$Decode$field,
-																					'pos',
-																					A2(
-																						$elm$json$Json$Decode$andThen,
-																						function (_v0) {
-																							return A2(
-																								$elm$json$Json$Decode$andThen,
-																								function (_v1) {
-																									return $elm$json$Json$Decode$succeed(
-																										_Utils_Tuple2(_v0, _v1));
-																								},
-																								A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
-																						},
-																						A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))));
+																					'selIds',
+																					$elm$json$Json$Decode$list($elm$json$Json$Decode$int)));
 																		},
 																		A2($elm$json$Json$Decode$field, 'tabId', $elm$json$Json$Decode$int)))
 																]))));
@@ -16030,6 +16038,9 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																		]));
 															}($.pos)),
 															_Utils_Tuple2(
+															'selIds',
+															$elm$json$Json$Encode$list($elm$json$Json$Encode$int)($.selIds)),
+															_Utils_Tuple2(
 															'tabId',
 															$elm$json$Json$Encode$int($.tabId))
 														]));
@@ -17256,6 +17267,45 @@ var $author$project$Command$undo = function (m) {
 				$author$project$Msg$Undo(t)));
 	}
 };
+var $elm_community$list_extra$List$Extra$updateIf = F3(
+	function (predicate, update, list) {
+		return A2(
+			$elm$core$List$map,
+			function (item) {
+				return predicate(item) ? update(item) : item;
+			},
+			list);
+	});
+var $author$project$Model$updateActiveTab = F2(
+	function (m, f) {
+		var gi = m.graphInfo;
+		return _Utils_update(
+			m,
+			{
+				graphInfo: _Utils_update(
+					gi,
+					{
+						tabs: A3(
+							$elm_community$list_extra$List$Extra$updateIf,
+							$author$project$Format$GraphInfo$isActiveTab(m.graphInfo),
+							f,
+							gi.tabs)
+					})
+			});
+	});
+var $author$project$Model$updateActiveGraph = F2(
+	function (m, f) {
+		return A2(
+			$author$project$Model$updateActiveTab,
+			m,
+			function (t) {
+				return _Utils_update(
+					t,
+					{
+						graph: f(t.graph)
+					});
+			});
+	});
 var $author$project$Command$applyCommands = F2(
 	function (arg, model) {
 		var aux = F2(
@@ -17283,13 +17333,20 @@ var $author$project$Command$applyCommands = F2(
 			} else {
 				var tabId = _v2.a.tabId;
 				var pos = _v2.a.pos;
+				var selIds = _v2.a.selIds;
 				var _v3 = A2($author$project$Model$activateTab, finalModel, tabId);
 				if (_v3.$ === 'Nothing') {
 					return $author$project$Model$noCmd(finalModel);
 				} else {
 					var newModel = _v3.a;
+					var model2 = A2(
+						$author$project$Model$updateActiveGraph,
+						_Utils_update(
+							newModel,
+							{mode: $author$project$Modes$DefaultMode}),
+						$author$project$GraphDefs$selectIds(selIds));
 					return _Utils_Tuple2(
-						newModel,
+						model2,
 						$author$project$HtmlDefs$focusPosition(pos));
 				}
 			}
@@ -26943,45 +27000,6 @@ var $author$project$Modes$Square$update = F3(
 		}
 		return $author$project$Model$noCmd(model);
 	});
-var $elm_community$list_extra$List$Extra$updateIf = F3(
-	function (predicate, update, list) {
-		return A2(
-			$elm$core$List$map,
-			function (item) {
-				return predicate(item) ? update(item) : item;
-			},
-			list);
-	});
-var $author$project$Model$updateActiveTab = F2(
-	function (m, f) {
-		var gi = m.graphInfo;
-		return _Utils_update(
-			m,
-			{
-				graphInfo: _Utils_update(
-					gi,
-					{
-						tabs: A3(
-							$elm_community$list_extra$List$Extra$updateIf,
-							$author$project$Format$GraphInfo$isActiveTab(m.graphInfo),
-							f,
-							gi.tabs)
-					})
-			});
-	});
-var $author$project$Model$updateActiveGraph = F2(
-	function (m, f) {
-		return A2(
-			$author$project$Model$updateActiveTab,
-			m,
-			function (t) {
-				return _Utils_update(
-					t,
-					{
-						graph: f(t.graph)
-					});
-			});
-	});
 var $author$project$CommandCodec$updateModif = F2(
 	function (model, modif) {
 		return _Utils_Tuple2(
@@ -27980,8 +27998,8 @@ var $author$project$GraphDefs$isNormalId = F2(
 				$author$project$GraphDefs$isNormal,
 				g));
 	});
-var $author$project$GraphDefs$selectedId = function (g) {
-	var _v0 = _Utils_ap(
+var $author$project$GraphDefs$selectedIds = function (g) {
+	return _Utils_ap(
 		A2(
 			$elm$core$List$map,
 			function ($) {
@@ -27994,6 +28012,9 @@ var $author$project$GraphDefs$selectedId = function (g) {
 				return $.id;
 			},
 			$author$project$GraphDefs$selectedEdges(g)));
+};
+var $author$project$GraphDefs$selectedId = function (g) {
+	var _v0 = $author$project$GraphDefs$selectedIds(g);
 	if (_v0.b && (!_v0.b.b)) {
 		var x = _v0.a;
 		return $elm$core$Maybe$Just(x);
@@ -29303,11 +29324,12 @@ var $author$project$Main$update_DefaultMode = F2(
 										var k = msg.b;
 										return increaseZBy(-1);
 									case '#':
+										var selIds = $author$project$GraphDefs$selectedIds(modelGraph);
 										return _Utils_Tuple2(
 											model,
 											$author$project$CommandCodec$protocolSendMsg(
 												$author$project$Msg$FocusPosition(
-													{pos: model.mousePos, tabId: model.graphInfo.activeTabId})));
+													{pos: model.mousePos, selIds: selIds, tabId: model.graphInfo.activeTabId})));
 									default:
 										break _v0$50;
 								}
@@ -30758,7 +30780,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint ([m] to create a point snapped to grid)' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]olor arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + (', export selection to LaTe[X]/s[V]g' + ', [#] make the other user focus on the mouse position')))))))))))))))))))))))))))))))))))))))))))))))));
+			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint ([m] to create a point snapped to grid)' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]olor arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + (', export selection to LaTe[X]/s[V]g' + ', [#] make the other user focus on the mouse position and share selection')))))))))))))))))))))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return $elm$html$Html$text('Debug Mode. [ESC] to cancel and come back to the default mode. ' + '');
 		case 'NewArrow':
