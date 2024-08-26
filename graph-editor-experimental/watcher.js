@@ -104,9 +104,9 @@ function joinPath() {
     return parts.join('/');
 }
 function pathBasename(p) {
-    var lastSlash = p.lastIndexOf('/');
+    // let lastSlash = p.lastIndexOf('/');
     var lastDot = p.lastIndexOf('.');
-    var startIdx = lastSlash + 1;
+    var startIdx = 0; // lastSlash + 1;
     var endIdx = lastDot === -1 ? p.length : lastDot;
     return p.substring(startIdx, endIdx);
 }

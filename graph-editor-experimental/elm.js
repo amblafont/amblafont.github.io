@@ -5063,6 +5063,7 @@ var $author$project$Model$createModel = F2(
 	function (sizeGrid, rulerMargin) {
 		var g = $author$project$Polygraph$empty;
 		return {
+			alternativeLatex: false,
 			autoSave: true,
 			defaultGridSize: sizeGrid,
 			graphInfo: {
@@ -5422,6 +5423,7 @@ var $author$project$Msg$KeyChanged = F3(
 	function (a, b, c) {
 		return {$: 'KeyChanged', a: a, b: b, c: c};
 	});
+var $author$project$Msg$MakeSave = {$: 'MakeSave'};
 var $author$project$Msg$MinuteTick = {$: 'MinuteTick'};
 var $author$project$Msg$MouseClick = {$: 'MouseClick'};
 var $author$project$Msg$MouseMove = function (a) {
@@ -5437,7 +5439,6 @@ var $author$project$Msg$QuickInput = function (a) {
 var $author$project$Msg$RenameTab = function (a) {
 	return {$: 'RenameTab', a: a};
 };
-var $author$project$Msg$Save = {$: 'Save'};
 var $author$project$Msg$SetFirstTabEquation = function (a) {
 	return {$: 'SetFirstTabEquation', a: a};
 };
@@ -13355,7 +13356,7 @@ var $author$project$Main$subscriptions = function (m) {
 					$author$project$CommandCodec$protocolRequestSnapshot(
 					$elm$core$Basics$always($author$project$Msg$ProtocolRequestSnapshot)),
 					$author$project$Main$makeSave(
-					$elm$core$Basics$always($author$project$Msg$Save)),
+					$elm$core$Basics$always($author$project$Msg$MakeSave)),
 					$author$project$Main$findReplace($author$project$Msg$FindReplace),
 					$author$project$Main$simpleMsg($author$project$Msg$SimpleMsg),
 					$author$project$Main$promptedTabTitle($author$project$Msg$RenameTab),
@@ -13535,6 +13536,7 @@ var $author$project$Main$subscriptions = function (m) {
 var $author$project$Model$noCmd = function (m) {
 	return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
 };
+var $author$project$Modes$MakeSaveMode = {$: 'MakeSaveMode'};
 var $elm$core$Basics$abs = function (n) {
 	return (n < 0) ? (-n) : n;
 };
@@ -15663,6 +15665,8 @@ var $author$project$Command$fixModel = function (modeli) {
 		$elm$core$Basics$always(model));
 	var _v1 = model.mode;
 	switch (_v1.$) {
+		case 'MakeSaveMode':
+			return model;
 		case 'DefaultMode':
 			return model;
 		case 'DebugMode':
@@ -17391,461 +17395,51 @@ var $author$project$GraphDefs$filterLabelNormal = A2(
 	$elm$core$Basics$composeR,
 	$author$project$GraphDefs$mapDetails($author$project$GraphDefs$filterNormalEdges),
 	$author$project$GraphDefs$flattenDetails);
-var $author$project$Polygraph$invalidEdges = function (fullGraph) {
-	var g = $author$project$Polygraph$graphRep(fullGraph);
-	var dict = A6(
-		$author$project$Polygraph$mapRecAux,
-		$elm$core$Basics$always(_Utils_Tuple0),
-		$elm$core$Basics$always(_Utils_Tuple0),
-		$elm$core$Basics$always($elm$core$Basics$identity),
-		F3(
-			function (_v2, _v3, _v4) {
-				return $elm$core$Basics$identity;
-			}),
-		A2(
-			$elm_community$intdict$IntDict$map,
-			function (_v5) {
-				return $author$project$Polygraph$Input;
-			},
-			g),
-		$elm_community$intdict$IntDict$keys(g));
-	var l = $elm_community$intdict$IntDict$toList(dict);
-	var missings = A2(
-		$elm$core$List$filterMap,
-		function (_v0) {
-			var id = _v0.a;
-			var o = _v0.b;
-			if (o.$ === 'Waiting') {
-				var i1 = o.a;
-				var i2 = o.b;
-				var e = o.c;
-				return $elm$core$Maybe$Just(
-					{from: i1, id: id, label: e, to: i2});
+var $author$project$GraphDefs$allDimsReady = function (g) {
+	var checkDim = function (e) {
+		if (e.label === '') {
+			return true;
+		} else {
+			var _v0 = e.dims;
+			if (_v0.$ === 'Nothing') {
+				return false;
 			} else {
-				return $elm$core$Maybe$Nothing;
-			}
-		},
-		l);
-	return missings;
-};
-var $author$project$Polygraph$sanitise = function (g) {
-	var d = $author$project$Polygraph$graphRep(g);
-	var ids = A2(
-		$elm$core$List$map,
-		function ($) {
-			return $.id;
-		},
-		$author$project$Polygraph$invalidEdges(g));
-	return A2(
-		$author$project$Polygraph$setGraphRep,
-		g,
-		A2($author$project$IntDictExtra$removeList, ids, d));
-};
-var $author$project$Polygraph$filterMap = F3(
-	function (fn, fe, g) {
-		var g2 = A3(
-			$author$project$Polygraph$rawFilterMap,
-			fn,
-			fe,
-			$author$project$Polygraph$graphRep(g));
-		return $author$project$Polygraph$sanitise(
-			A2($author$project$Polygraph$setGraphRep, g, g2));
-	});
-var $author$project$GraphDefs$keepNormalEdges = A2($author$project$Polygraph$filterMap, $elm$core$Maybe$Just, $author$project$GraphDefs$filterLabelNormal);
-var $author$project$Polygraph$mapRecAll = F4(
-	function (cn, ce, fn, fe) {
-		return $author$project$Polygraph$mapRep(
-			A4($author$project$Polygraph$mapRecRepAll, cn, ce, fn, fe));
-	});
-var $author$project$Polygraph$computeDimensions = A4(
-	$author$project$Polygraph$mapRecAll,
-	$elm$core$Basics$always(0),
-	$elm$core$Tuple$second,
-	$elm$core$Basics$always($elm$core$Basics$identity),
-	F4(
-		function (_v0, n1, n2, e) {
-			return _Utils_Tuple2(
-				e,
-				1 + A2($elm$core$Basics$max, n1, n2));
-		}));
-var $elm$core$List$sortBy = _List_sortBy;
-var $author$project$Polygraph$normalise = function (g) {
-	var getDim = function (_v7) {
-		var o = _v7.b;
-		if (o.$ === 'NodeObj') {
-			return 0;
-		} else {
-			var _v6 = o.c;
-			var dim = _v6.b;
-			return dim;
-		}
-	};
-	var gWithDims = A2(
-		$elm$core$List$sortBy,
-		getDim,
-		$elm_community$intdict$IntDict$toList(
-			$author$project$Polygraph$graphRep(
-				$author$project$Polygraph$computeDimensions(g))));
-	var idDict = A3(
-		$elm$core$List$foldl,
-		F2(
-			function (_v4, d) {
-				var id = _v4.a;
-				return A3(
-					$elm_community$intdict$IntDict$insert,
-					id,
-					$elm_community$intdict$IntDict$size(d),
-					d);
-			}),
-		$elm_community$intdict$IntDict$empty,
-		gWithDims);
-	var getId = function (id) {
-		var _v3 = A2($elm_community$intdict$IntDict$get, id, idDict);
-		if (_v3.$ === 'Nothing') {
-			return id;
-		} else {
-			var i = _v3.a;
-			return i;
-		}
-	};
-	var updateId = function (o) {
-		if (o.$ === 'NodeObj') {
-			var l = o.a;
-			return $author$project$Polygraph$NodeObj(l);
-		} else {
-			var i1 = o.a;
-			var i2 = o.b;
-			var _v2 = o.c;
-			var e = _v2.a;
-			var dim = _v2.b;
-			return A3(
-				$author$project$Polygraph$EdgeObj,
-				getId(i1),
-				getId(i2),
-				e);
-		}
-	};
-	var newGraph = $elm_community$intdict$IntDict$fromList(
-		A2(
-			$elm$core$List$map,
-			function (_v0) {
-				var id = _v0.a;
-				var o = _v0.b;
-				return _Utils_Tuple2(
-					getId(id),
-					updateId(o));
-			},
-			gWithDims));
-	return $author$project$Polygraph$Graph(
-		{
-			graph: newGraph,
-			nextId: $elm_community$intdict$IntDict$size(idDict)
-		});
-};
-var $author$project$ArrowStyle$isDouble = function (_v0) {
-	var kind = _v0.kind;
-	return _Utils_eq(kind, $author$project$ArrowStyle$DoubleArrow);
-};
-var $author$project$ArrowStyle$quiverStyle = function (st) {
-	var _v0 = st;
-	var tail = _v0.tail;
-	var head = _v0.head;
-	var kind = _v0.kind;
-	var dashed = _v0.dashed;
-	var makeIf = F2(
-		function (b, x) {
-			return b ? _List_fromArray(
-				[x]) : _List_Nil;
-		});
-	var _double = $author$project$ArrowStyle$isDouble(st);
-	var headStyle = function () {
-		switch (head.$) {
-			case 'DefaultHead':
-				return _List_Nil;
-			case 'TwoHeads':
-				return _List_fromArray(
-					[
-						_Utils_Tuple2(
-						'head',
-						_List_fromArray(
-							[
-								_Utils_Tuple2('name', 'epi')
-							]))
-					]);
-			default:
-				return _List_fromArray(
-					[
-						_Utils_Tuple2(
-						'head',
-						_List_fromArray(
-							[
-								_Utils_Tuple2('name', 'none')
-							]))
-					]);
-		}
-	}();
-	var tailStyle = function () {
-		switch (tail.$) {
-			case 'DefaultTail':
-				return _List_Nil;
-			case 'Mapsto':
-				return _List_fromArray(
-					[
-						_Utils_Tuple2(
-						'tail',
-						_List_fromArray(
-							[
-								_Utils_Tuple2('name', 'maps to')
-							]))
-					]);
-			case 'Hook':
-				return _List_fromArray(
-					[
-						_Utils_Tuple2(
-						'tail',
-						_List_fromArray(
-							[
-								_Utils_Tuple2('name', 'hook'),
-								_Utils_Tuple2('side', 'top')
-							]))
-					]);
-			default:
-				return _List_fromArray(
-					[
-						_Utils_Tuple2(
-						'tail',
-						_List_fromArray(
-							[
-								_Utils_Tuple2('name', 'hook'),
-								_Utils_Tuple2('side', 'bottom')
-							]))
-					]);
-		}
-	}();
-	var style = A2(
-		$elm$core$List$map,
-		function (_v1) {
-			var x = _v1.a;
-			var y = _v1.b;
-			return _Utils_Tuple2(
-				x,
-				$elm$json$Json$Encode$object(
-					A2(
-						$elm$core$List$map,
-						function (_v2) {
-							var s = _v2.a;
-							var l = _v2.b;
-							return _Utils_Tuple2(
-								s,
-								$elm$json$Json$Encode$string(l));
-						},
-						y)));
-		},
-		_Utils_ap(
-			headStyle,
-			_Utils_ap(
-				tailStyle,
-				A2(
-					makeIf,
-					dashed,
-					_Utils_Tuple2(
-						'body',
-						_List_fromArray(
-							[
-								_Utils_Tuple2('name', 'dashed')
-							]))))));
-	return _Utils_ap(
-		A2(
-			makeIf,
-			_double,
-			_Utils_Tuple2(
-				'level',
-				$elm$json$Json$Encode$int(2))),
-		_Utils_ap(
-			_List_fromArray(
-				[
-					_Utils_Tuple2(
-					'style',
-					$elm$json$Json$Encode$object(style))
-				]),
-			_Utils_ap(
-				A2(
-					makeIf,
-					!(!st.bend),
-					_Utils_Tuple2(
-						'curve',
-						$elm$json$Json$Encode$int(
-							$elm$core$Basics$floor(st.bend * 10)))),
-				A2(
-					makeIf,
-					st.labelPosition !== 0.5,
-					_Utils_Tuple2(
-						'label_position',
-						$elm$json$Json$Encode$int(
-							$elm$core$Basics$floor(st.labelPosition * 100)))))));
-};
-var $author$project$GraphDefs$exportQuiver = F2(
-	function (sizeGrid, g) {
-		var gnorm = $author$project$Polygraph$normalise(
-			$author$project$GraphDefs$keepNormalEdges(g));
-		var nodes = $author$project$Polygraph$nodes(gnorm);
-		var edges = $author$project$Polygraph$edges(gnorm);
-		var coordInt = function (x) {
-			return $elm$json$Json$Encode$int(
-				$elm$core$Basics$floor(x / sizeGrid));
-		};
-		var encodePos = function (_v0) {
-			var x = _v0.a;
-			var y = _v0.b;
-			return _List_fromArray(
-				[
-					coordInt(x),
-					coordInt(y)
-				]);
-		};
-		var encodeNode = function (n) {
-			return A2(
-				$elm$json$Json$Encode$list,
-				$elm$core$Basics$identity,
-				_Utils_ap(
-					encodePos(n.label.pos),
-					_List_fromArray(
-						[
-							$elm$json$Json$Encode$string(
-							(n.label.label === '') ? '\\bullet' : n.label.label)
-						])));
-		};
-		var encodeEdge = function (e) {
-			return A2(
-				$elm$json$Json$Encode$list,
-				$elm$core$Basics$identity,
-				_List_fromArray(
-					[
-						$elm$json$Json$Encode$int(e.from),
-						$elm$json$Json$Encode$int(e.to),
-						$elm$json$Json$Encode$string(e.label.details.label),
-						$elm$json$Json$Encode$int(
-						_Utils_eq(e.label.details.style.labelAlignment, $author$project$Geometry$Right) ? 2 : 0),
-						$elm$json$Json$Encode$object(
-						$author$project$ArrowStyle$quiverStyle(e.label.details.style))
-					]));
-		};
-		var jnodes = A2($elm$core$List$map, encodeNode, nodes);
-		var jedges = A2($elm$core$List$map, encodeEdge, edges);
-		return A2(
-			$elm$json$Json$Encode$list,
-			$elm$core$Basics$identity,
-			_Utils_ap(
-				_List_fromArray(
-					[
-						$elm$json$Json$Encode$int(0),
-						$elm$json$Json$Encode$int(
-						$elm$core$List$length(nodes))
-					]),
-				_Utils_ap(jnodes, jedges)));
-	});
-var $author$project$Main$exportQuiver = _Platform_outgoingPort('exportQuiver', $elm$core$Basics$identity);
-var $author$project$GraphDefs$mapMaybeNormalEdge = F2(
-	function (f, e) {
-		var _v0 = e.details;
-		if (_v0.$ === 'PullshoutEdge') {
-			return $elm$core$Maybe$Nothing;
-		} else {
-			var l = _v0.a;
-			var _v1 = f(l);
-			if (_v1.$ === 'Nothing') {
-				return $elm$core$Maybe$Nothing;
-			} else {
+				var _v1 = _v0.a;
 				var x = _v1.a;
-				return $elm$core$Maybe$Just(
-					_Utils_update(
-						e,
-						{
-							details: $author$project$GraphDefs$NormalEdge(x)
-						}));
+				return x > 0;
 			}
 		}
-	});
-var $author$project$Polygraph$updateStatus = function (s) {
-	switch (s.$) {
-		case 'New':
-			return $author$project$Polygraph$New;
-		case 'Edit':
-			return $author$project$Polygraph$Edit;
-		default:
-			return $author$project$Polygraph$Edit;
-	}
+	};
+	return A2(
+		$elm$core$List$all,
+		function (n) {
+			return checkDim(n.label);
+		},
+		$author$project$Polygraph$nodes(g)) && A2(
+		$elm$core$List$all,
+		function (e) {
+			return checkDim(e.details);
+		},
+		A2(
+			$elm$core$List$filterMap,
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.label;
+				},
+				$author$project$GraphDefs$filterLabelNormal),
+			$author$project$Polygraph$edges(g)));
 };
-var $author$project$Polygraph$md_map = F3(
-	function (fn, fe, _v0) {
-		var m = _v0.a;
-		var makeFun = function (f) {
-			return F2(
-				function (i, x) {
-					return A2(
-						$elm$core$Maybe$withDefault,
-						x,
-						A2(
-							$elm$core$Maybe$map,
-							function (r) {
-								return {
-									edit: $author$project$Polygraph$updateStatus(x.edit),
-									label: r
-								};
-							},
-							A2(f, i, x.label)));
-				});
-		};
-		var mappedGraph = A3(
-			$author$project$Polygraph$map,
-			makeFun(fn),
-			makeFun(fe),
-			m.graph);
-		return $author$project$Polygraph$ModifHelper(
-			_Utils_update(
-				m,
-				{graph: mappedGraph}));
-	});
-var $elm$core$String$replace = F3(
-	function (before, after, string) {
-		return A2(
-			$elm$core$String$join,
-			after,
-			A2($elm$core$String$split, before, string));
-	});
-var $author$project$GraphDefs$findReplaceInSelected = F2(
-	function (g, r) {
-		var sel = $author$project$GraphDefs$fieldSelect(g);
-		var repl = F2(
-			function (b, x) {
-				return (b && A2($elm$core$String$contains, r.search, x.label)) ? $elm$core$Maybe$Just(
-					_Utils_update(
-						x,
-						{
-							label: A3($elm$core$String$replace, r.search, r.replace, x.label)
-						})) : $elm$core$Maybe$Nothing;
-			});
-		return A3(
-			$author$project$Polygraph$md_map,
-			F2(
-				function (_v0, n) {
-					return A2(
-						repl,
-						sel(n),
-						n);
-				}),
-			F2(
-				function (_v1, e) {
-					return A2(
-						$author$project$GraphDefs$mapMaybeNormalEdge,
-						repl(
-							sel(e)),
-						e);
-				}),
-			$author$project$Polygraph$newModif(g));
-	});
-var $author$project$Model$getActiveSizeGrid = function (m) {
-	return $author$project$Format$GraphInfo$getActiveSizeGrid(m.graphInfo);
+var $author$project$GraphDefs$filterEdgeNormal = function (e) {
+	return A2(
+		$elm$core$Maybe$map,
+		function (l) {
+			return A2(
+				$author$project$Polygraph$edgeMap,
+				$elm$core$Basics$always(l),
+				e);
+		},
+		$author$project$GraphDefs$filterLabelNormal(e.label));
 };
 var $author$project$GraphProof$prefixProofStep = F2(
 	function (id, r) {
@@ -18224,6 +17818,7 @@ var $author$project$Polygraph$incidence = function (g) {
 		gDict);
 	return A2(aux, es, di);
 };
+var $elm$core$List$sortBy = _List_sortBy;
 var $elm_community$intdict$IntDict$values = function (dict) {
 	return A3(
 		$elm_community$intdict$IntDict$foldr,
@@ -18490,6 +18085,11 @@ var $author$project$GraphProof$isOuterDiagram = function (_v0) {
 		$author$project$Geometry$Point$countRounds(angles),
 		-1);
 };
+var $author$project$Polygraph$mapRecAll = F4(
+	function (cn, ce, fn, fe) {
+		return $author$project$Polygraph$mapRep(
+			A4($author$project$Polygraph$mapRecRepAll, cn, ce, fn, fe));
+	});
 var $author$project$GraphProof$nameIdentities = A4(
 	$author$project$Polygraph$mapRecAll,
 	function (n) {
@@ -18827,6 +18427,66 @@ var $author$project$GraphProof$proofStatementToString = function (st) {
 		'\n',
 		A2($elm$core$List$map, $author$project$GraphProof$proofStepToString, st.proof)) + ('\n apply idpath.' + '\nQed.'))));
 };
+var $author$project$Polygraph$invalidEdges = function (fullGraph) {
+	var g = $author$project$Polygraph$graphRep(fullGraph);
+	var dict = A6(
+		$author$project$Polygraph$mapRecAux,
+		$elm$core$Basics$always(_Utils_Tuple0),
+		$elm$core$Basics$always(_Utils_Tuple0),
+		$elm$core$Basics$always($elm$core$Basics$identity),
+		F3(
+			function (_v2, _v3, _v4) {
+				return $elm$core$Basics$identity;
+			}),
+		A2(
+			$elm_community$intdict$IntDict$map,
+			function (_v5) {
+				return $author$project$Polygraph$Input;
+			},
+			g),
+		$elm_community$intdict$IntDict$keys(g));
+	var l = $elm_community$intdict$IntDict$toList(dict);
+	var missings = A2(
+		$elm$core$List$filterMap,
+		function (_v0) {
+			var id = _v0.a;
+			var o = _v0.b;
+			if (o.$ === 'Waiting') {
+				var i1 = o.a;
+				var i2 = o.b;
+				var e = o.c;
+				return $elm$core$Maybe$Just(
+					{from: i1, id: id, label: e, to: i2});
+			} else {
+				return $elm$core$Maybe$Nothing;
+			}
+		},
+		l);
+	return missings;
+};
+var $author$project$Polygraph$sanitise = function (g) {
+	var d = $author$project$Polygraph$graphRep(g);
+	var ids = A2(
+		$elm$core$List$map,
+		function ($) {
+			return $.id;
+		},
+		$author$project$Polygraph$invalidEdges(g));
+	return A2(
+		$author$project$Polygraph$setGraphRep,
+		g,
+		A2($author$project$IntDictExtra$removeList, ids, d));
+};
+var $author$project$Polygraph$filterMap = F3(
+	function (fn, fe, g) {
+		var g2 = A3(
+			$author$project$Polygraph$rawFilterMap,
+			fn,
+			fe,
+			$author$project$Polygraph$graphRep(g));
+		return $author$project$Polygraph$sanitise(
+			A2($author$project$Polygraph$setGraphRep, g, g2));
+	});
 var $elm$core$String$trim = _String_trim;
 var $author$project$GraphDefs$getProofFromLabel = function (s) {
 	var s2 = $elm$core$String$trim(s);
@@ -18837,6 +18497,10 @@ var $author$project$GraphDefs$getProofFromLabel = function (s) {
 			$elm$core$String$length(prefix),
 			-1,
 			s2)) : $elm$core$Maybe$Nothing;
+};
+var $author$project$ArrowStyle$isDouble = function (_v0) {
+	var kind = _v0.kind;
+	return _Utils_eq(kind, $author$project$ArrowStyle$DoubleArrow);
 };
 var $author$project$Geometry$Point$middle = F2(
 	function (_v0, _v1) {
@@ -19328,6 +18992,7 @@ var $author$project$Main$coqExport = F2(
 var $elm$core$String$concat = function (strings) {
 	return A2($elm$core$String$join, '', strings);
 };
+var $author$project$GraphDefs$edgeScaleFactor = 0.7;
 var $elm$core$String$fromFloat = _String_fromNumber;
 var $author$project$ArrowStyle$headTikzStyle = function (hd) {
 	switch (hd.$) {
@@ -19352,7 +19017,7 @@ var $author$project$ArrowStyle$tikzStyle = function (stl) {
 				} else {
 					var hd = _v0.a;
 					var _v3 = _v0.b;
-					return $author$project$ArrowStyle$headTikzStyle(hd) + 'cell=0.2, ';
+					return $author$project$ArrowStyle$headTikzStyle(hd) + 'cell=0, ';
 				}
 			case 'NormalArrow':
 				var hd = _v0.a;
@@ -19384,18 +19049,18 @@ var $author$project$Tikz$encodeLabel = function (e) {
 	} else {
 		var l = _v0.a;
 		var style = $author$project$ArrowStyle$getStyle(l);
-		var lbl = '${\\scriptstyle ' + (l.label + '}$');
+		var lbl = '${ ' + (l.label + '}$');
 		return function () {
 			var _v1 = style.labelAlignment;
 			switch (_v1.$) {
 				case 'Over':
-					return 'labelonatsloped={' + (lbl + ('}{' + ($elm$core$String$fromFloat(style.labelPosition) + '}, ')));
+					return 'sloped, allow upside down, \"' + (lbl + '\" centered, ');
 				case 'Centre':
 					return 'labelonat={' + (l.label + ('}{' + ($elm$core$String$fromFloat(style.labelPosition) + '}, ')));
 				case 'Left':
-					return '\"' + (lbl + '\", ');
+					return '\"' + (lbl + '\" auto=left, ');
 				default:
-					return '\"' + (lbl + '\"\', ');
+					return '\"' + (lbl + '\" auto=right, ');
 			}
 		}() + ('pos=' + ($elm$core$String$fromFloat(style.labelPosition) + (', ' + $author$project$ArrowStyle$tikzStyle(style))));
 	}
@@ -19415,6 +19080,9 @@ var $author$project$Tikz$encodeFakeLabel = function (e) {
 var $author$project$Tikz$encodeFakeEdgeTikZ = function (e) {
 	return '(' + ($elm$core$String$fromInt(e.from) + (') to[' + ($author$project$Tikz$encodeFakeLabel(e) + ('] node[coordinate](' + ($elm$core$String$fromInt(e.id) + ('){} (' + ($elm$core$String$fromInt(e.to) + ') \n')))))));
 };
+var $author$project$Tikz$dimToTikz = function (d) {
+	return d / (16 * 1.2);
+};
 var $author$project$GraphDefs$getNodePos = function (n) {
 	return n.isMath ? n.pos : A2(
 		$author$project$Geometry$Point$add,
@@ -19430,7 +19098,7 @@ var $author$project$Tikz$encodeNodeTikZ = F2(
 		var x = _v0.a;
 		var y = _v0.b;
 		var coord = function (u) {
-			return u / 21;
+			return $author$project$Tikz$dimToTikz(u);
 		};
 		var label = (n.label.label === '') ? '\\bullet' : n.label.label;
 		return '\\node[inner sep=5pt] (' + ($elm$core$String$fromInt(n.id) + (') at (' + ($elm$core$String$fromFloat(
@@ -19460,16 +19128,89 @@ var $author$project$Tikz$encodePullshoutTikZ = F2(
 			return 'raté!';
 		}
 	});
-var $author$project$GraphDefs$filterEdgeNormal = function (e) {
-	return A2(
-		$elm$core$Maybe$map,
-		function (l) {
-			return A2(
-				$author$project$Polygraph$edgeMap,
-				$elm$core$Basics$always(l),
+var $author$project$Polygraph$computeDimensions = A4(
+	$author$project$Polygraph$mapRecAll,
+	$elm$core$Basics$always(0),
+	$elm$core$Tuple$second,
+	$elm$core$Basics$always($elm$core$Basics$identity),
+	F4(
+		function (_v0, n1, n2, e) {
+			return _Utils_Tuple2(
+				e,
+				1 + A2($elm$core$Basics$max, n1, n2));
+		}));
+var $author$project$Polygraph$normalise = function (g) {
+	var getDim = function (_v7) {
+		var o = _v7.b;
+		if (o.$ === 'NodeObj') {
+			return 0;
+		} else {
+			var _v6 = o.c;
+			var dim = _v6.b;
+			return dim;
+		}
+	};
+	var gWithDims = A2(
+		$elm$core$List$sortBy,
+		getDim,
+		$elm_community$intdict$IntDict$toList(
+			$author$project$Polygraph$graphRep(
+				$author$project$Polygraph$computeDimensions(g))));
+	var idDict = A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v4, d) {
+				var id = _v4.a;
+				return A3(
+					$elm_community$intdict$IntDict$insert,
+					id,
+					$elm_community$intdict$IntDict$size(d),
+					d);
+			}),
+		$elm_community$intdict$IntDict$empty,
+		gWithDims);
+	var getId = function (id) {
+		var _v3 = A2($elm_community$intdict$IntDict$get, id, idDict);
+		if (_v3.$ === 'Nothing') {
+			return id;
+		} else {
+			var i = _v3.a;
+			return i;
+		}
+	};
+	var updateId = function (o) {
+		if (o.$ === 'NodeObj') {
+			var l = o.a;
+			return $author$project$Polygraph$NodeObj(l);
+		} else {
+			var i1 = o.a;
+			var i2 = o.b;
+			var _v2 = o.c;
+			var e = _v2.a;
+			var dim = _v2.b;
+			return A3(
+				$author$project$Polygraph$EdgeObj,
+				getId(i1),
+				getId(i2),
 				e);
-		},
-		$author$project$GraphDefs$filterLabelNormal(e.label));
+		}
+	};
+	var newGraph = $elm_community$intdict$IntDict$fromList(
+		A2(
+			$elm$core$List$map,
+			function (_v0) {
+				var id = _v0.a;
+				var o = _v0.b;
+				return _Utils_Tuple2(
+					getId(id),
+					updateId(o));
+			},
+			gWithDims));
+	return $author$project$Polygraph$Graph(
+		{
+			graph: newGraph,
+			nextId: $elm_community$intdict$IntDict$size(idDict)
+		});
 };
 var $author$project$Tikz$graphToTikz = F2(
 	function (sizeGrid, g) {
@@ -19489,7 +19230,7 @@ var $author$project$Tikz$graphToTikz = F2(
 				nodes));
 		var tikzFakeEdges = '\\path \n' + ($elm$core$String$concat(
 			A2($elm$core$List$map, $author$project$Tikz$encodeFakeEdgeTikZ, edges)) + '; \n');
-		var tikzEdges = '\\path[->] \n' + ($elm$core$String$concat(
+		var tikzEdges = '\\path[->, transform shape, every edge quotes/.style={}, ' + ('scale=' + ($elm$core$String$fromFloat($author$project$GraphDefs$edgeScaleFactor) + ('] \n' + ($elm$core$String$concat(
 			A2(
 				$elm$core$List$map,
 				$author$project$Tikz$encodeEdgeTikZ,
@@ -19503,7 +19244,7 @@ var $author$project$Tikz$graphToTikz = F2(
 						function ($) {
 							return $.zindex;
 						}),
-					edges))) + '; \n');
+					edges))) + '; \n'))));
 		var tikzPullshouts = $elm$core$String$concat(
 			A2(
 				$elm$core$List$map,
@@ -19511,90 +19252,131 @@ var $author$project$Tikz$graphToTikz = F2(
 				pullshouts));
 		return '\\begin{tikzpicture}[every node/.style={outer sep=0pt,anchor=base,text height=1.2ex, text depth=0.25ex}] \n' + (tikzNodes + (tikzFakeEdges + (tikzEdges + (tikzPullshouts + '\\end{tikzpicture}'))));
 	});
-var $author$project$GraphDefs$clearWeakSelection = function (g) {
-	return A3(
-		$author$project$Polygraph$map,
-		F2(
-			function (_v0, n) {
-				return _Utils_update(
-					n,
-					{weaklySelected: false});
-			}),
-		F2(
-			function (_v1, e) {
-				return _Utils_update(
-					e,
-					{weaklySelected: false});
-			}),
-		g);
+var $elm_community$maybe_extra$Maybe$Extra$isNothing = function (m) {
+	if (m.$ === 'Nothing') {
+		return true;
+	} else {
+		return false;
+	}
 };
-var $author$project$Geometry$PosDims = F2(
-	function (pos, dims) {
-		return {dims: dims, pos: pos};
-	});
-var $author$project$Geometry$posDimsFromRect = function (_v0) {
-	var topLeft = _v0.topLeft;
-	var bottomRight = _v0.bottomRight;
-	var center = A2(
-		$author$project$Geometry$Point$resize,
-		0.5,
-		A2($author$project$Geometry$Point$add, topLeft, bottomRight));
-	return A2(
-		$author$project$Geometry$PosDims,
-		center,
-		A2($author$project$Geometry$Point$subtract, bottomRight, topLeft));
-};
-var $elm$core$List$unzip = function (pairs) {
-	var step = F2(
-		function (_v0, _v1) {
-			var x = _v0.a;
-			var y = _v0.b;
-			var xs = _v1.a;
-			var ys = _v1.b;
-			return _Utils_Tuple2(
-				A2($elm$core$List$cons, x, xs),
-				A2($elm$core$List$cons, y, ys));
-		});
-	return A3(
-		$elm$core$List$foldr,
-		step,
-		_Utils_Tuple2(_List_Nil, _List_Nil),
-		pairs);
-};
-var $author$project$Geometry$rectEnveloppe = function (l) {
-	var _v0 = $elm$core$List$unzip(l);
-	var xs = _v0.a;
-	var ys = _v0.b;
-	var lmin = A2(
-		$elm$core$Basics$composeR,
-		$elm$core$List$minimum,
-		$elm$core$Maybe$withDefault(0));
-	var lmax = A2(
-		$elm$core$Basics$composeR,
-		$elm$core$List$maximum,
-		$elm$core$Maybe$withDefault(0));
-	return {
-		bottomRight: _Utils_Tuple2(
-			lmax(xs),
-			lmax(ys)),
-		topLeft: _Utils_Tuple2(
-			lmin(xs),
-			lmin(ys))
-	};
-};
-var $author$project$GraphDefs$rectEnveloppe = function (g) {
-	var points = A2(
-		$elm$core$List$map,
+var $author$project$Drawing$keyPartition = function (_v0) {
+	var l = _v0.a;
+	var _v1 = A2(
+		$elm$core$List$partition,
 		A2(
 			$elm$core$Basics$composeR,
 			function ($) {
-				return $.label;
+				return $.key;
 			},
+			$elm_community$maybe_extra$Maybe$Extra$isNothing),
+		A2(
+			$elm$core$List$sortBy,
 			function ($) {
-				return $.pos;
-			}),
-		$author$project$Polygraph$nodes(g));
-	return $author$project$Geometry$rectEnveloppe(points);
+				return $.zindex;
+			},
+			l));
+	var unkeyedList = _v1.a;
+	var keyedList = _v1.b;
+	return _Utils_Tuple2(unkeyedList, keyedList);
+};
+var $author$project$Drawing$dimToTikz = function (d) {
+	return $elm$core$String$fromFloat(
+		$author$project$Tikz$dimToTikz(d)) + 'em';
+};
+var $author$project$Drawing$pointToTikz = function (_v0) {
+	var x = _v0.a;
+	var y = _v0.b;
+	return '(' + ($author$project$Drawing$dimToTikz(x) + (',' + ($author$project$Drawing$dimToTikz(0 - y) + ')')));
+};
+var $author$project$Geometry$Point$scale = F3(
+	function (sx, sy, _v0) {
+		var x = _v0.a;
+		var y = _v0.b;
+		return _Utils_Tuple2(x * sx, y * sy);
+	});
+var $author$project$Geometry$QuadraticBezier$toCubic = function (_v0) {
+	var from = _v0.from;
+	var to = _v0.to;
+	var controlPoint = _v0.controlPoint;
+	var rescale = function (n) {
+		return A2($author$project$Geometry$Point$scale, n / 3, n / 3);
+	};
+	var q1 = A2(
+		$author$project$Geometry$Point$add,
+		A2(rescale, 1, from),
+		A2(rescale, 2, controlPoint));
+	var q2 = A2(
+		$author$project$Geometry$Point$add,
+		A2(rescale, 2, controlPoint),
+		A2(rescale, 1, to));
+	return {controlPoint1: q1, controlPoint2: q2, from: from, to: to};
+};
+var $author$project$Drawing$arrowToTikz = function (args) {
+	var width = (args.strokeWidth === 1) ? '' : ('line width=' + $author$project$Drawing$dimToTikz(args.strokeWidth));
+	var bez = $author$project$Geometry$QuadraticBezier$toCubic(args.bezier);
+	return '\\draw[' + ($author$project$ArrowStyle$tikzStyle(args.style) + (width + ('] ' + ($author$project$Drawing$pointToTikz(bez.from) + (' .. controls ' + ($author$project$Drawing$pointToTikz(bez.controlPoint1) + (' and ' + ($author$project$Drawing$pointToTikz(bez.controlPoint2) + (' .. ' + ($author$project$Drawing$pointToTikz(bez.to) + ';'))))))))));
+};
+var $author$project$Drawing$lineToTikz = function (arg) {
+	return '\\draw[' + ($author$project$Drawing$Color$toString(arg.color) + ('] ' + ($author$project$Drawing$pointToTikz(arg.from) + (' -- ' + ($author$project$Drawing$pointToTikz(arg.to) + ';')))));
+};
+var $author$project$Drawing$nodeToTikz = function (arg) {
+	var _v0 = arg.pos;
+	var x = _v0.a;
+	var y = _v0.b;
+	var rotate = (!arg.angle) ? _List_Nil : _List_fromArray(
+		[
+			'rotate=' + $elm$core$String$fromFloat(0 - ((arg.angle * 180) / $elm$core$Basics$pi))
+		]);
+	var scale = (arg.scale === 1) ? _List_Nil : _List_fromArray(
+		[
+			'scale=' + $elm$core$String$fromFloat(arg.scale)
+		]);
+	var options = function () {
+		var loptions = _Utils_ap(rotate, scale);
+		return _Utils_eq(loptions, _List_Nil) ? '' : ('[' + (A2($elm$core$String$join, ',', loptions) + ']'));
+	}();
+	return '\\node' + (options + (' at ' + ($author$project$Drawing$pointToTikz(
+		_Utils_Tuple2(x, y)) + (' {$' + (arg.label + '$} ;')))));
+};
+var $author$project$Drawing$tikzShapeToTikz = function (shape) {
+	switch (shape.$) {
+		case 'Node':
+			var arg = shape.a;
+			return $author$project$Drawing$nodeToTikz(arg);
+		case 'Line':
+			var arg = shape.a;
+			return $author$project$Drawing$lineToTikz(arg);
+		default:
+			var arg = shape.a;
+			return $author$project$Drawing$arrowToTikz(arg);
+	}
+};
+var $author$project$Drawing$shapeToTikz = function (shape) {
+	if (shape.$ === 'SvgShape') {
+		var s = shape.a;
+		return '';
+	} else {
+		var s = shape.b;
+		return $author$project$Drawing$tikzShapeToTikz(s);
+	}
+};
+var $author$project$Drawing$tikz = function (d) {
+	var _v0 = $author$project$Drawing$keyPartition(d);
+	var unkeyedList = _v0.a;
+	var keyedList = _v0.b;
+	var data = A2(
+		$elm$core$String$join,
+		'\n',
+		A2(
+			$elm$core$List$map,
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.shape;
+				},
+				$author$project$Drawing$shapeToTikz),
+			_Utils_ap(unkeyedList, keyedList)));
+	return '\\begin{tikzpicture}\n' + (data + '\n\\end{tikzpicture}');
 };
 var $author$project$Msg$EdgeClick = F2(
 	function (a, b) {
@@ -19613,64 +19395,23 @@ var $author$project$GraphDrawing$activityToEdgeClasses = function (a) {
 	}
 };
 var $author$project$Drawing$Color$black = $author$project$Drawing$Color$Black;
-var $author$project$Drawing$Class = function (a) {
-	return {$: 'Class', a: a};
-};
-var $author$project$Drawing$class = $author$project$Drawing$Class;
-var $author$project$Drawing$Color = function (a) {
-	return {$: 'Color', a: a};
-};
-var $author$project$Drawing$color = $author$project$Drawing$Color;
-var $author$project$Drawing$Drawing = function (a) {
-	return {$: 'Drawing', a: a};
-};
-var $author$project$Drawing$drawingToZSvgs = function (_v0) {
-	var c = _v0.a;
-	return c;
-};
-var $author$project$Drawing$group = function (l) {
-	return $author$project$Drawing$Drawing(
-		$elm$core$List$concat(
-			A2($elm$core$List$map, $author$project$Drawing$drawingToZSvgs, l)));
-};
-var $author$project$Drawing$attributeToZIndex = function (a) {
-	if (a.$ === 'ZIndex') {
-		var n = a.a;
-		return $elm$core$Maybe$Just(n);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $author$project$Drawing$attributesToZIndex = A2(
-	$elm$core$Basics$composeR,
-	$elm_community$list_extra$List$Extra$findMap($author$project$Drawing$attributeToZIndex),
-	$elm$core$Maybe$withDefault($author$project$Zindex$defaultZ));
-var $author$project$String$Html$AttributeNS = F3(
-	function (a, b, c) {
-		return {$: 'AttributeNS', a: a, b: b, c: c};
-	});
-var $author$project$String$Html$attribute = $author$project$String$Html$AttributeNS('');
-var $author$project$String$Svg$class = $author$project$String$Html$attribute('class');
-var $author$project$String$Html$GhostAttribute = function (a) {
-	return {$: 'GhostAttribute', a: a};
-};
-var $author$project$String$Html$ghostAttribute = $author$project$String$Html$GhostAttribute;
-var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var $elm$html$Html$Events$on = F2(
-	function (event, decoder) {
+var $elm$virtual_dom$VirtualDom$attribute = F2(
+	function (key, value) {
 		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$Normal(decoder));
+			_VirtualDom_attribute,
+			_VirtualDom_noOnOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlUri(value));
 	});
-var $elm$svg$Svg$Events$on = $elm$html$Html$Events$on;
+var $elm$html$Html$Attributes$attribute = $elm$virtual_dom$VirtualDom$attribute;
+var $author$project$GraphDrawing$class = A2(
+	$elm$core$Basics$composeL,
+	$elm$html$Html$Attributes$attribute('class'),
+	$elm$core$String$join(' '));
 var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$defaultOptions = {preventDefault: true, stopPropagation: false};
 var $elm$virtual_dom$VirtualDom$Custom = function (a) {
 	return {$: 'Custom', a: a};
 };
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
 var $elm$html$Html$Events$custom = F2(
 	function (event, decoder) {
 		return A2(
@@ -19769,165 +19510,117 @@ var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions = F3(
 				$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder));
 	});
 var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onClick = A2($mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions, 'click', $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$defaultOptions);
-var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDoubleClick = A2($mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions, 'dblclick', $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$defaultOptions);
-var $author$project$String$Svg$strokeWidth = $author$project$String$Html$attribute('stroke-width');
-var $author$project$String$Svg$style = $author$project$String$Html$attribute('style');
-var $author$project$Drawing$attrToSvgAttr = F2(
-	function (col, a) {
-		switch (a.$) {
-			case 'Color':
-				var c = a.a;
-				return $elm$core$Maybe$Just(
-					col(
-						$author$project$Drawing$Color$toString(c)));
-			case 'Class':
-				var s = a.a;
-				return $elm$core$Maybe$Just(
-					$author$project$String$Svg$class(s));
-			case 'Style':
-				var s = a.a;
-				return $elm$core$Maybe$Just(
-					$author$project$String$Svg$style(s));
-			case 'StrokeWidth':
-				var s = a.a;
-				return $elm$core$Maybe$Just(
-					$author$project$String$Svg$strokeWidth(s));
-			case 'On':
-				var e = a.a;
-				var d = a.b;
-				return $elm$core$Maybe$Just(
-					$author$project$String$Html$ghostAttribute(
-						A2($elm$svg$Svg$Events$on, e, d)));
-			case 'OnClick':
-				var f = a.a;
-				return $elm$core$Maybe$Just(
-					$author$project$String$Html$ghostAttribute(
-						$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onClick(f)));
-			case 'OnDoubleClick':
-				var f = a.a;
-				return $elm$core$Maybe$Just(
-					$author$project$String$Html$ghostAttribute(
-						$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDoubleClick(f)));
-			default:
-				return $elm$core$Maybe$Nothing;
-		}
-	});
-var $author$project$Drawing$attrsToSvgAttrs = function (f) {
-	return $elm$core$List$filterMap(
-		$author$project$Drawing$attrToSvgAttr(f));
+var $author$project$GraphDrawing$onClick = $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onClick;
+var $author$project$Drawing$Line = function (a) {
+	return {$: 'Line', a: a};
 };
-var $author$project$String$Html$NodeNS = F4(
-	function (a, b, c, d) {
-		return {$: 'NodeNS', a: a, b: b, c: c, d: d};
+var $author$project$Drawing$TikzShape = F2(
+	function (a, b) {
+		return {$: 'TikzShape', a: a, b: b};
 	});
-var $author$project$String$Html$nodeNS = $author$project$String$Html$NodeNS;
-var $author$project$String$Svg$node = $author$project$String$Html$nodeNS('http://www.w3.org/2000/svg');
-var $author$project$String$Svg$line = $author$project$String$Svg$node('line');
-var $author$project$Drawing$ofSvgs = F2(
-	function (z, l) {
-		return $author$project$Drawing$Drawing(
+var $author$project$Drawing$Drawing = function (a) {
+	return {$: 'Drawing', a: a};
+};
+var $author$project$Drawing$group = function (l) {
+	return $author$project$Drawing$Drawing(
+		$elm$core$List$concat(
 			A2(
 				$elm$core$List$map,
-				function (s) {
-					return {key: $elm$core$Maybe$Nothing, svg: s, zindex: z};
+				function (_v0) {
+					var d = _v0.a;
+					return d;
 				},
-				l));
-	});
-var $author$project$Drawing$ofSvg = F2(
-	function (z, s) {
-		return A2(
-			$author$project$Drawing$ofSvgs,
-			z,
-			_List_fromArray(
-				[s]));
-	});
-var $author$project$String$Svg$stroke = $author$project$String$Html$attribute('stroke');
-var $author$project$String$Svg$x1 = $author$project$String$Html$attribute('x1');
-var $author$project$String$Svg$x2 = $author$project$String$Html$attribute('x2');
-var $author$project$String$Svg$y1 = $author$project$String$Html$attribute('y1');
-var $author$project$String$Svg$y2 = $author$project$String$Html$attribute('y2');
-var $author$project$Drawing$line = F3(
-	function (l, _v0, _v1) {
-		var fromx = _v0.a;
-		var fromy = _v0.b;
-		var tox = _v1.a;
-		var toy = _v1.b;
-		var z = $author$project$Drawing$attributesToZIndex(l);
-		var f = $elm$core$String$fromFloat;
-		return A2(
-			$author$project$Drawing$ofSvg,
-			z,
-			A2(
-				$author$project$String$Svg$line,
-				_Utils_ap(
-					_List_fromArray(
-						[
-							$author$project$String$Svg$x1(
-							f(fromx)),
-							$author$project$String$Svg$y1(
-							f(fromy)),
-							$author$project$String$Svg$x2(
-							f(tox)),
-							$author$project$String$Svg$y2(
-							f(toy))
-						]),
-					A2($author$project$Drawing$attrsToSvgAttrs, $author$project$String$Svg$stroke, l)),
-				_List_Nil));
-	});
-var $author$project$Drawing$OnClick = function (a) {
-	return {$: 'OnClick', a: a};
+				l)));
 };
-var $author$project$Drawing$onClick = $author$project$Drawing$OnClick;
-var $author$project$Drawing$shadowClass = 'shadow-line';
-var $author$project$Drawing$ZIndex = function (a) {
-	return {$: 'ZIndex', a: a};
-};
-var $author$project$Drawing$zindexAttr = $author$project$Drawing$ZIndex;
-var $author$project$GraphDrawing$drawHat = F4(
-	function (edgeId, a, z, hat) {
-		var blackline = function (classes) {
-			return $author$project$Drawing$line(
-				_Utils_ap(
-					classes,
-					_List_fromArray(
-						[
-							$author$project$Drawing$zindexAttr(z),
-							$author$project$Drawing$onClick(
-							$author$project$Msg$EdgeClick(edgeId)),
-							$author$project$Drawing$color($author$project$Drawing$Color$black)
-						])));
-		};
-		var mk_pbk = function (classes) {
-			return $author$project$Drawing$group(
-				_List_fromArray(
-					[
-						A3(blackline, classes, hat.p1, hat.summit),
-						A3(blackline, classes, hat.summit, hat.p2)
-					]));
-		};
-		var classes = A2(
-			$elm$core$List$map,
-			$author$project$Drawing$class,
-			$author$project$GraphDrawing$activityToEdgeClasses(a));
-		return $author$project$Drawing$group(
+var $author$project$Drawing$ofShapeWithKey = F3(
+	function (z, k, s) {
+		return $author$project$Drawing$Drawing(
 			_List_fromArray(
 				[
-					mk_pbk(
-					A2(
-						$elm$core$List$cons,
-						$author$project$Drawing$class($author$project$Drawing$shadowClass),
-						classes)),
-					mk_pbk(classes)
+					{key: k, shape: s, zindex: z}
+				]));
+	});
+var $author$project$Drawing$ofShape = F2(
+	function (z, s) {
+		return A3($author$project$Drawing$ofShapeWithKey, z, $elm$core$Maybe$Nothing, s);
+	});
+var $author$project$Drawing$shadowWidth = 4;
+var $author$project$ListExtraExtra$succPairs = function (l) {
+	if (l.b && l.b.b) {
+		var t1 = l.a;
+		var _v1 = l.b;
+		var t2 = _v1.a;
+		var q = _v1.b;
+		return A2(
+			$elm$core$List$cons,
+			_Utils_Tuple2(t1, t2),
+			$author$project$ListExtraExtra$succPairs(
+				A2($elm$core$List$cons, t2, q)));
+	} else {
+		return _List_Nil;
+	}
+};
+var $author$project$Drawing$Color$white = $author$project$Drawing$Color$White;
+var $author$project$Drawing$polyLine = F2(
+	function (args, attrs) {
+		var pairs = $author$project$ListExtraExtra$succPairs(args.points);
+		var normalArg = function (_v1) {
+			var from = _v1.a;
+			var to = _v1.b;
+			return {color: args.color, from: from, strokeWidth: 1, to: to};
+		};
+		var shadowArg = function (_v0) {
+			var from = _v0.a;
+			var to = _v0.b;
+			return {color: $author$project$Drawing$Color$white, from: from, strokeWidth: $author$project$Drawing$shadowWidth, to: to};
+		};
+		var makeShape = function (arg) {
+			return A2(
+				$author$project$Drawing$ofShape,
+				args.zindex,
+				A2(
+					$author$project$Drawing$TikzShape,
+					attrs,
+					$author$project$Drawing$Line(arg)));
+		};
+		var shadow = A2(
+			$elm$core$List$map,
+			makeShape,
+			A2($elm$core$List$map, shadowArg, pairs));
+		var normal = A2(
+			$elm$core$List$map,
+			makeShape,
+			A2($elm$core$List$map, normalArg, pairs));
+		return $author$project$Drawing$group(
+			_Utils_ap(shadow, normal));
+	});
+var $author$project$GraphDrawing$drawHat = F4(
+	function (edgeId, a, z, hat) {
+		var classes = $author$project$GraphDrawing$class(
+			$author$project$GraphDrawing$activityToEdgeClasses(a));
+		return A2(
+			$author$project$Drawing$polyLine,
+			{
+				color: $author$project$Drawing$Color$black,
+				points: _List_fromArray(
+					[hat.p1, hat.summit, hat.p2]),
+				zindex: z
+			},
+			_List_fromArray(
+				[
+					classes,
+					$author$project$GraphDrawing$onClick(
+					$author$project$Msg$EdgeClick(edgeId))
 				]));
 	});
 var $author$project$Drawing$empty = $author$project$Drawing$Drawing(_List_Nil);
-var $author$project$Msg$NodeClick = F2(
-	function (a, b) {
-		return {$: 'NodeClick', a: a, b: b};
-	});
 var $author$project$Msg$EltDoubleClick = F2(
 	function (a, b) {
 		return {$: 'EltDoubleClick', a: a, b: b};
+	});
+var $author$project$Msg$NodeClick = F2(
+	function (a, b) {
+		return {$: 'NodeClick', a: a, b: b};
 	});
 var $author$project$Msg$NodeLabelEdit = F2(
 	function (a, b) {
@@ -19949,104 +19642,19 @@ var $author$project$GraphDrawing$activityToClasses = function (a) {
 			return _List_Nil;
 	}
 };
-var $elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
+var $author$project$Drawing$Node = function (a) {
+	return {$: 'Node', a: a};
+};
+var $author$project$Drawing$makeLatex = F2(
+	function (arg, attrs) {
 		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
-var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
-var $author$project$String$Html$Custom = F2(
-	function (a, b) {
-		return {$: 'Custom', a: a, b: b};
-	});
-var $author$project$String$Html$customNode = $author$project$String$Html$Custom;
-var $author$project$String$Svg$foreignObject = $author$project$String$Svg$node('foreignObject');
-var $author$project$String$Svg$height = $author$project$String$Html$attribute('height');
-var $author$project$Drawing$ofSvgWithKey = F3(
-	function (z, k, s) {
-		return $author$project$Drawing$Drawing(
-			_List_fromArray(
-				[
-					{key: k, svg: s, zindex: z}
-				]));
-	});
-var $author$project$String$Svg$width = $author$project$String$Html$attribute('width');
-var $author$project$String$Svg$x = $author$project$String$Html$attribute('x');
-var $author$project$String$Svg$y = $author$project$String$Html$attribute('y');
-var $author$project$Drawing$htmlAnchor = F7(
-	function (key, z, _v0, _v1, center, str, h) {
-		var x1 = _v0.a;
-		var y1 = _v0.b;
-		var width = _v1.a;
-		var height = _v1.b;
-		var f = $elm$core$String$fromFloat;
-		var _v2 = center ? _Utils_Tuple2(x1 - (width / 2), y1 - (height / 2)) : _Utils_Tuple2(x1, y1);
-		var x = _v2.a;
-		var y = _v2.b;
-		return A3(
-			$author$project$Drawing$ofSvgWithKey,
-			z,
-			key,
+			$author$project$Drawing$ofShape,
+			arg.zindex,
 			A2(
-				$author$project$String$Svg$foreignObject,
-				_List_fromArray(
-					[
-						$author$project$String$Svg$x(
-						f(x)),
-						$author$project$String$Svg$y(
-						f(y)),
-						$author$project$String$Svg$width('100%'),
-						$author$project$String$Svg$height(
-						f(height))
-					]),
-				_List_fromArray(
-					[
-						A2($author$project$String$Html$customNode, str, h)
-					])));
-	});
-var $author$project$HtmlDefs$latexElement = 'math-latex';
-var $elm$virtual_dom$VirtualDom$node = function (tag) {
-	return _VirtualDom_node(
-		_VirtualDom_noScript(tag));
-};
-var $elm$html$Html$node = $elm$virtual_dom$VirtualDom$node;
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $author$project$HtmlDefs$makeLatex = F2(
-	function (attrs, s) {
-		return A3(
-			$elm$html$Html$node,
-			$author$project$HtmlDefs$latexElement,
-			attrs,
-			_List_fromArray(
-				[
-					$elm$html$Html$text(s)
-				]));
-	});
-var $author$project$GraphDrawing$makeLatexString = function (s) {
-	return '\\(' + (s + '\\)');
-};
-var $author$project$GraphDrawing$withPreamble = F2(
-	function (cfg, s) {
-		return cfg.latexPreamble + ('\n' + s);
-	});
-var $author$project$GraphDrawing$makeLatex = F7(
-	function (cfg, pos, id, dims, label, z, attrs) {
-		return A7(
-			$author$project$Drawing$htmlAnchor,
-			$elm$core$Maybe$Just(
-				$elm$core$String$fromInt(id)),
-			z,
-			pos,
-			dims,
-			true,
-			$author$project$GraphDrawing$makeLatexString(label),
-			A2(
-				$author$project$HtmlDefs$makeLatex,
+				$author$project$Drawing$TikzShape,
 				attrs,
-				A2($author$project$GraphDrawing$withPreamble, cfg, label)));
+				$author$project$Drawing$Node(
+					{angle: arg.angle, dims: arg.dims, label: arg.label, pos: arg.pos, preamble: arg.preamble, scale: arg.scale})));
 	});
 var $elm$html$Html$Attributes$boolProperty = F2(
 	function (key, bool) {
@@ -20085,6 +19693,94 @@ var $author$project$Msg$focusId = function (s) {
 		$elm$browser$Browser$Dom$focus(s));
 };
 var $author$project$Zindex$foregroundZ = 10000;
+var $author$project$String$Html$Custom = F2(
+	function (a, b) {
+		return {$: 'Custom', a: a, b: b};
+	});
+var $author$project$String$Html$customNode = $author$project$String$Html$Custom;
+var $author$project$String$Html$NodeNS = F4(
+	function (a, b, c, d) {
+		return {$: 'NodeNS', a: a, b: b, c: c, d: d};
+	});
+var $author$project$String$Html$nodeNS = $author$project$String$Html$NodeNS;
+var $author$project$String$Svg$node = $author$project$String$Html$nodeNS('http://www.w3.org/2000/svg');
+var $author$project$String$Svg$foreignObject = $author$project$String$Svg$node('foreignObject');
+var $author$project$String$Html$AttributeNS = F3(
+	function (a, b, c) {
+		return {$: 'AttributeNS', a: a, b: b, c: c};
+	});
+var $author$project$String$Html$attribute = $author$project$String$Html$AttributeNS('');
+var $author$project$String$Svg$height = $author$project$String$Html$attribute('height');
+var $author$project$String$Svg$width = $author$project$String$Html$attribute('width');
+var $author$project$String$Svg$x = $author$project$String$Html$attribute('x');
+var $author$project$String$Svg$y = $author$project$String$Html$attribute('y');
+var $author$project$Drawing$htmlAnchorSvg = F5(
+	function (_v0, _v1, center, str, h) {
+		var x1 = _v0.a;
+		var y1 = _v0.b;
+		var width = _v1.a;
+		var height = _v1.b;
+		var f = $elm$core$String$fromFloat;
+		var _v2 = center ? _Utils_Tuple2(x1 - (width / 2), y1 - (height / 2)) : _Utils_Tuple2(x1, y1);
+		var x = _v2.a;
+		var y = _v2.b;
+		return A2(
+			$author$project$String$Svg$foreignObject,
+			_List_fromArray(
+				[
+					$author$project$String$Svg$x(
+					f(x)),
+					$author$project$String$Svg$y(
+					f(y)),
+					$author$project$String$Svg$width('100%'),
+					$author$project$String$Svg$height(
+					f(height))
+				]),
+			_List_fromArray(
+				[
+					A2($author$project$String$Html$customNode, str, h)
+				]));
+	});
+var $author$project$Drawing$SvgShape = function (a) {
+	return {$: 'SvgShape', a: a};
+};
+var $author$project$Drawing$ofSvgWithKey = F3(
+	function (z, k, s) {
+		return $author$project$Drawing$Drawing(
+			_List_fromArray(
+				[
+					{
+					key: k,
+					shape: $author$project$Drawing$SvgShape(s),
+					zindex: z
+				}
+				]));
+	});
+var $author$project$Drawing$htmlAnchor = F7(
+	function (key, z, _v0, _v1, center, str, h) {
+		var x1 = _v0.a;
+		var y1 = _v0.b;
+		var width = _v1.a;
+		var height = _v1.b;
+		return A3(
+			$author$project$Drawing$ofSvgWithKey,
+			z,
+			key,
+			A5(
+				$author$project$Drawing$htmlAnchorSvg,
+				_Utils_Tuple2(x1, y1),
+				_Utils_Tuple2(width, height),
+				center,
+				str,
+				h));
+	});
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
 var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
 var $author$project$HtmlDefs$idInput = 'edited_label';
 var $elm$html$Html$input = _VirtualDom_node('input');
@@ -20119,7 +19815,16 @@ var $elm$html$Html$Events$onInput = function (tagger) {
 			$elm$html$Html$Events$alwaysStop,
 			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
 };
-var $author$project$HtmlDefs$renderedClass = 'rendered-callback';
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
 var $author$project$HtmlDefs$renderedDecoder = A2(
 	$elm$json$Json$Decode$field,
 	'detail',
@@ -20130,14 +19835,10 @@ var $author$project$HtmlDefs$renderedDecoder = A2(
 		A2($elm$json$Json$Decode$field, 'height', $elm$json$Json$Decode$float)));
 var $author$project$HtmlDefs$renderedEvent = 'rendered';
 var $author$project$HtmlDefs$onRendered = function (onRender) {
-	return _List_fromArray(
-		[
-			A2(
-			$elm$html$Html$Events$on,
-			$author$project$HtmlDefs$renderedEvent,
-			A2($elm$json$Json$Decode$map, onRender, $author$project$HtmlDefs$renderedDecoder)),
-			$elm$html$Html$Attributes$class($author$project$HtmlDefs$renderedClass)
-		]);
+	return A2(
+		$elm$html$Html$Events$on,
+		$author$project$HtmlDefs$renderedEvent,
+		A2($elm$json$Json$Decode$map, onRender, $author$project$HtmlDefs$renderedDecoder));
 };
 var $elm$virtual_dom$VirtualDom$MayPreventDefault = function (a) {
 	return {$: 'MayPreventDefault', a: a};
@@ -20172,6 +19873,7 @@ var $author$project$Msg$onTabPreventDefault = A2(
 				k,
 				$author$project$HtmlDefs$Control('Tab'));
 		}));
+var $author$project$HtmlDefs$renderedClass = 'rendered-callback';
 var $author$project$HtmlDefs$select = _Platform_outgoingPort('select', $elm$json$Json$Encode$string);
 var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
@@ -20203,18 +19905,32 @@ var $author$project$GraphDrawing$make_input = F3(
 								$elm$core$String$length(label) + 1) + 'ch')
 						]),
 					_Utils_ap(
-						$author$project$HtmlDefs$onRendered(
-							$elm$core$Basics$always(
-								$author$project$Msg$Do(
-									$author$project$Msg$focusId($author$project$HtmlDefs$idInput)))),
-						$author$project$HtmlDefs$onRendered(
-							$elm$core$Basics$always(
-								$author$project$Msg$Do(
-									$author$project$HtmlDefs$select($author$project$HtmlDefs$idInput)))))),
+						_List_fromArray(
+							[
+								$author$project$GraphDrawing$class(
+								_List_fromArray(
+									[$author$project$HtmlDefs$renderedClass]))
+							]),
+						_Utils_ap(
+							_List_fromArray(
+								[
+									$author$project$HtmlDefs$onRendered(
+									$elm$core$Basics$always(
+										$author$project$Msg$Do(
+											$author$project$Msg$focusId($author$project$HtmlDefs$idInput))))
+								]),
+							_List_fromArray(
+								[
+									$author$project$HtmlDefs$onRendered(
+									$elm$core$Basics$always(
+										$author$project$Msg$Do(
+											$author$project$HtmlDefs$select($author$project$HtmlDefs$idInput))))
+								])))),
 				_List_Nil));
 	});
-var $author$project$GraphDrawing$nodeLabelDrawing = F3(
-	function (cfg, attrs, node) {
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDoubleClick = A2($mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions, 'dblclick', $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$defaultOptions);
+var $author$project$GraphDrawing$nodeDrawing = F2(
+	function (cfg, node) {
 		var n = node.label;
 		var id = node.id;
 		if (n.editable) {
@@ -20227,14 +19943,9 @@ var $author$project$GraphDrawing$nodeLabelDrawing = F3(
 			var label = _Utils_ap(
 				n.isValidated ? '\\color{green}' : '',
 				(n.label === '') ? '\\bullet' : (n.isMath ? n.label : ('\\text{' + (n.label + '}'))));
-			return A7(
-				$author$project$GraphDrawing$makeLatex,
-				cfg,
-				n.pos,
-				id,
-				n.dims,
-				label,
-				n.zindex,
+			return A2(
+				$author$project$Drawing$makeLatex,
+				{angle: 0, dims: n.dims, label: label, pos: n.pos, preamble: cfg.latexPreamble, scale: 1, zindex: n.zindex},
 				_Utils_ap(
 					_List_fromArray(
 						[
@@ -20244,30 +19955,952 @@ var $author$project$GraphDrawing$nodeLabelDrawing = F3(
 							$author$project$Msg$EltDoubleClick(id))
 						]),
 					_Utils_ap(
-						A2(
-							$elm$core$List$map,
-							$elm$html$Html$Attributes$class,
-							$author$project$GraphDrawing$activityToClasses(n.isActive)),
-						$author$project$HtmlDefs$onRendered(
-							$author$project$Msg$NodeRendered(id)))));
+						_List_fromArray(
+							[
+								$author$project$GraphDrawing$class(
+								A2(
+									$elm$core$List$cons,
+									$author$project$HtmlDefs$renderedClass,
+									$author$project$GraphDrawing$activityToClasses(n.isActive)))
+							]),
+						_List_fromArray(
+							[
+								$author$project$HtmlDefs$onRendered(
+								$author$project$Msg$NodeRendered(id))
+							]))));
 		}
-	});
-var $author$project$GraphDrawing$nodeDrawing = F2(
-	function (cfg, n) {
-		return A3(
-			$author$project$GraphDrawing$nodeLabelDrawing,
-			cfg,
-			_List_fromArray(
-				[
-					$author$project$Drawing$onClick(
-					$author$project$Msg$NodeClick(n.id))
-				]),
-			n);
 	});
 var $author$project$Msg$MouseOn = function (a) {
 	return {$: 'MouseOn', a: a};
 };
+var $author$project$Drawing$Arrow = function (a) {
+	return {$: 'Arrow', a: a};
+};
+var $author$project$ArrowStyle$shadow = function (st) {
+	return _Utils_update(
+		st,
+		{color: $author$project$Drawing$Color$white, dashed: false, head: $author$project$ArrowStyle$NoHead, tail: $author$project$ArrowStyle$DefaultTail});
+};
+var $author$project$Drawing$arrow = F2(
+	function (args, attrs0) {
+		var normalArg = {bezier: args.bezier, strokeWidth: 1, style: args.style};
+		var shadowArg = {
+			bezier: args.bezier,
+			strokeWidth: $author$project$Drawing$shadowWidth,
+			style: $author$project$ArrowStyle$shadow(args.style)
+		};
+		var makeShape = function (arg) {
+			return A2(
+				$author$project$Drawing$ofShape,
+				args.zindex,
+				A2(
+					$author$project$Drawing$TikzShape,
+					attrs0,
+					$author$project$Drawing$Arrow(arg)));
+		};
+		return $author$project$Drawing$group(
+			_List_fromArray(
+				[
+					makeShape(shadowArg),
+					makeShape(normalArg)
+				]));
+	});
+var $author$project$GraphDrawing$onDoubleClick = $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDoubleClick;
+var $author$project$Msg$EdgeLabelEdit = F2(
+	function (a, b) {
+		return {$: 'EdgeLabelEdit', a: a, b: b};
+	});
+var $author$project$Msg$EdgeRendered = F2(
+	function (a, b) {
+		return {$: 'EdgeRendered', a: a, b: b};
+	});
+var $author$project$Geometry$RoundedRectangle$RoundedRectangle = F3(
+	function (centre, size, radius) {
+		return {centre: centre, radius: radius, size: size};
+	});
+var $author$project$Geometry$Point$NamedPoint = F2(
+	function (x, y) {
+		return {x: x, y: y};
+	});
+var $elm$core$Basics$pow = _Basics_pow;
+var $author$project$Geometry$Epsilon$epsilon = A2($elm$core$Basics$pow, 10, -10);
+var $elm$core$Basics$ge = _Utils_ge;
+var $author$project$Geometry$Epsilon$inv_epsilon = 1 / $author$project$Geometry$Epsilon$epsilon;
+var $author$project$Geometry$Point$inv_scale = F3(
+	function (sx, sy, _v0) {
+		var x = _v0.a;
+		var y = _v0.b;
+		return _Utils_Tuple2(x / sx, y / sy);
+	});
+var $elm$core$Dict$isEmpty = function (dict) {
+	if (dict.$ === 'RBEmpty_elm_builtin') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $elm$core$Set$isEmpty = function (_v0) {
+	var dict = _v0.a;
+	return $elm$core$Dict$isEmpty(dict);
+};
+var $author$project$Geometry$Point$name = function (_v0) {
+	var x = _v0.a;
+	var y = _v0.b;
+	return {x: x, y: y};
+};
+var $elm$core$Basics$cos = _Basics_cos;
+var $elm$core$Basics$sin = _Basics_sin;
+var $author$project$Geometry$Point$lendir = F2(
+	function (length, direction) {
+		return _Utils_Tuple2(
+			length * $elm$core$Basics$cos(direction),
+			length * $elm$core$Basics$sin(direction));
+	});
+var $author$project$Geometry$RoundedRectangle$points = F2(
+	function (_this, max_segment_length) {
+		var n = (!_this.radius) ? 0 : ($elm$core$Basics$pi / $elm$core$Basics$atan(max_segment_length / (2 * _this.radius)));
+		var sides = $elm$core$Basics$ceiling(n);
+		var r = _this.radius / $elm$core$Basics$cos($elm$core$Basics$pi / sides);
+		var add_corner_points = F3(
+			function (sx, sy, _v5) {
+				var angle_offset = _v5.a;
+				var pts = _v5.b;
+				var pts2 = A2(
+					$elm$core$List$cons,
+					A2(
+						$author$project$Geometry$Point$add,
+						_this.centre,
+						A2(
+							$author$project$Geometry$Point$add,
+							A2($author$project$Geometry$Point$lendir, _this.radius, angle_offset),
+							A3(
+								$author$project$Geometry$Point$scale,
+								sx,
+								sy,
+								A2(
+									$author$project$Geometry$Point$subtract,
+									A2($author$project$Geometry$Point$resize, 0.5, _this.size),
+									_Utils_Tuple2(_this.radius, _this.radius))))),
+					pts);
+				var _for = F2(
+					function (i, pts_for) {
+						if (_Utils_cmp(i, sides / 4) > -1) {
+							return pts_for;
+						} else {
+							var angle = ((((i + 0.5) / sides) * 2) * $elm$core$Basics$pi) + angle_offset;
+							var pt = A2(
+								$author$project$Geometry$Point$add,
+								_this.centre,
+								A2(
+									$author$project$Geometry$Point$add,
+									A2($author$project$Geometry$Point$lendir, r, angle),
+									A3(
+										$author$project$Geometry$Point$scale,
+										sx,
+										sy,
+										A2(
+											$author$project$Geometry$Point$subtract,
+											A2($author$project$Geometry$Point$resize, 0.5, _this.size),
+											_Utils_Tuple2(_this.radius, _this.radius)))));
+							return A2(
+								_for,
+								i + 1,
+								A2($elm$core$List$cons, pt, pts_for));
+						}
+					});
+				var pts3 = A2(_for, 0, pts2);
+				var angle_offset2 = angle_offset + ($elm$core$Basics$pi / 2);
+				var pt = A2(
+					$author$project$Geometry$Point$add,
+					_this.centre,
+					A2(
+						$author$project$Geometry$Point$add,
+						A2($author$project$Geometry$Point$lendir, _this.radius, angle_offset2),
+						A3(
+							$author$project$Geometry$Point$scale,
+							sx,
+							sy,
+							A2(
+								$author$project$Geometry$Point$subtract,
+								A2($author$project$Geometry$Point$resize, 0.5, _this.size),
+								_Utils_Tuple2(_this.radius, _this.radius)))));
+				return _Utils_Tuple2(
+					angle_offset2,
+					A2($elm$core$List$cons, pt, pts3));
+			});
+		var _v0 = A3(
+			add_corner_points,
+			1,
+			-1,
+			A3(
+				add_corner_points,
+				-1,
+				-1,
+				A3(
+					add_corner_points,
+					-1,
+					1,
+					A3(
+						add_corner_points,
+						1,
+						1,
+						_Utils_Tuple2(0, _List_Nil)))));
+		var pts = _v0.b;
+		var elim0 = F2(
+			function (l, acc) {
+				if (l.b && l.b.b) {
+					var _v2 = l.a;
+					var x1 = _v2.a;
+					var y1 = _v2.b;
+					var _v3 = l.b;
+					var _v4 = _v3.a;
+					var x2 = _v4.a;
+					var y2 = _v4.b;
+					var t = _v3.b;
+					return A2(
+						elim0,
+						A2(
+							$elm$core$List$cons,
+							_Utils_Tuple2(x2, y2),
+							t),
+						((_Utils_cmp(
+							$elm$core$Basics$abs(x2 - x1),
+							$author$project$Geometry$Epsilon$epsilon) < 1) && (_Utils_cmp(
+							$elm$core$Basics$abs(y2 - y1),
+							$author$project$Geometry$Epsilon$epsilon) < 1)) ? acc : A2(
+							$elm$core$List$cons,
+							_Utils_Tuple2(x1, y1),
+							acc));
+				} else {
+					return $elm$core$List$reverse(acc);
+				}
+			});
+		return A2(elim0, pts, _List_Nil);
+	});
+var $author$project$Geometry$RoundedRectangle$points5 = function (_this) {
+	return A2($author$project$Geometry$RoundedRectangle$points, _this, 5);
+};
+var $author$project$Geometry$Point$rotate = F2(
+	function (theta, _v0) {
+		var x = _v0.a;
+		var y = _v0.b;
+		return _Utils_Tuple2(
+			(x * $elm$core$Basics$cos(theta)) - (y * $elm$core$Basics$sin(theta)),
+			(y * $elm$core$Basics$cos(theta)) + (x * $elm$core$Basics$sin(theta)));
+	});
+var $elm$core$Dict$singleton = F2(
+	function (key, value) {
+		return A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, key, value, $elm$core$Dict$RBEmpty_elm_builtin, $elm$core$Dict$RBEmpty_elm_builtin);
+	});
+var $elm$core$Set$singleton = function (key) {
+	return $elm$core$Set$Set_elm_builtin(
+		A2($elm$core$Dict$singleton, key, _Utils_Tuple0));
+};
+var $author$project$Geometry$Bezier$x_intersections_with_nonvertical_line = F2(
+	function (m, c) {
+		var determinant = (((m * m) - (4 * m)) + 4) - (8 * c);
+		return (determinant > 0) ? _List_fromArray(
+			[
+				((2 - m) + $elm$core$Basics$sqrt(determinant)) / 4,
+				((2 - m) - $elm$core$Basics$sqrt(determinant)) / 4
+			]) : ((!determinant) ? _List_fromArray(
+			[
+				((2 - m) + $elm$core$Basics$sqrt(determinant)) / 4
+			]) : _List_Nil);
+	});
+var $author$project$Geometry$Bezier$y_intersection_with_vertical_line = function (a) {
+	return (2 * a) * (1 - a);
+};
+var $author$project$Geometry$Bezier$intersections_with_rounded_rectangle = F3(
+	function (_this, rect, permit_containment) {
+		var h = (!_this.h) ? 1 : _this.h;
+		var points = A2(
+			$elm$core$List$map,
+			function (p) {
+				return $author$project$Geometry$Point$name(
+					A3(
+						$author$project$Geometry$Point$inv_scale,
+						_this.w,
+						h,
+						A2(
+							$author$project$Geometry$Point$rotate,
+							-_this.angle,
+							A2($author$project$Geometry$Point$subtract, p, _this.origin))));
+			},
+			$author$project$Geometry$RoundedRectangle$points5(rect));
+		var add_intersection = F2(
+			function (p, intersections) {
+				return A2(
+					$elm$core$Set$insert,
+					_Utils_Tuple2(
+						$elm$core$Basics$round(p.x * $author$project$Geometry$Epsilon$inv_epsilon) / $author$project$Geometry$Epsilon$inv_epsilon,
+						$elm$core$Basics$round(p.y * $author$project$Geometry$Epsilon$inv_epsilon) / $author$project$Geometry$Epsilon$inv_epsilon),
+					intersections);
+			});
+		var m_c = function (_v4) {
+			var endpoint0 = _v4.a;
+			var endpoint1 = _v4.b;
+			var m = (endpoint1.y - endpoint0.y) / (endpoint1.x - endpoint0.x);
+			return _Utils_Tuple2(m, endpoint0.y - (m * endpoint0.x));
+		};
+		var intersections2 = function () {
+			if (!_this.h) {
+				var _for = F3(
+					function (pt0, pts, intersections) {
+						if (!pts.b) {
+							return intersections;
+						} else {
+							var endpoint0 = pts.a;
+							var q = pts.b;
+							var endpoint1 = A2(
+								$elm$core$Maybe$withDefault,
+								pt0,
+								$elm$core$List$head(q));
+							var endpoints = _Utils_Tuple2(endpoint0, endpoint1);
+							return A3(
+								_for,
+								pt0,
+								q,
+								function () {
+									if (_Utils_cmp(
+										$elm$core$Basics$abs(endpoint0.x - endpoint1.x),
+										$author$project$Geometry$Epsilon$epsilon) < 1) {
+										return ((endpoint0.x >= 0) && ((endpoint0.x <= 1) && ((A2($elm$core$Basics$min, endpoint0.y, endpoint1.y) <= 0) && (A2($elm$core$Basics$max, endpoint0.y, endpoint1.y) >= 0)))) ? A2(
+											add_intersection,
+											A2($author$project$Geometry$Point$NamedPoint, endpoint0.x, 0),
+											intersections) : intersections;
+									} else {
+										var _v1 = m_c(endpoints);
+										var m = _v1.a;
+										var c = _v1.b;
+										if (_Utils_cmp(
+											$elm$core$Basics$abs(m),
+											$author$project$Geometry$Epsilon$epsilon) > 0) {
+											var x = (-c) / m;
+											return ((x >= 0) && ((x <= 1) && ((_Utils_cmp(
+												x,
+												A2($elm$core$Basics$min, endpoint0.x, endpoint1.x)) > -1) && (_Utils_cmp(
+												x,
+												A2($elm$core$Basics$max, endpoint0.x, endpoint1.x)) < 1)))) ? A2(
+												add_intersection,
+												A2($author$project$Geometry$Point$NamedPoint, x, 0),
+												intersections) : intersections;
+										} else {
+											if (_Utils_cmp(
+												$elm$core$Basics$abs(endpoint0.y),
+												$author$project$Geometry$Epsilon$epsilon) < 1) {
+												var minx = A2($elm$core$Basics$min, endpoint0.x, endpoint1.x);
+												var maxx = A2($elm$core$Basics$min, endpoint0.x, endpoint1.x);
+												return ((minx <= 1) && (maxx >= 0)) ? A2(
+													add_intersection,
+													A2(
+														$author$project$Geometry$Point$NamedPoint,
+														A2($elm$core$Basics$max, maxx, 1),
+														0),
+													A2(
+														add_intersection,
+														A2(
+															$author$project$Geometry$Point$NamedPoint,
+															A2($elm$core$Basics$max, minx, 0),
+															0),
+														intersections)) : intersections;
+											} else {
+												return intersections;
+											}
+										}
+									}
+								}());
+						}
+					});
+				return A3(
+					_for,
+					A2(
+						$elm$core$Maybe$withDefault,
+						A2($author$project$Geometry$Point$NamedPoint, 0, 0),
+						$elm$core$List$head(points)),
+					points,
+					$elm$core$Set$empty);
+			} else {
+				var _for = F3(
+					function (pt0, pts, intersections) {
+						if (!pts.b) {
+							return intersections;
+						} else {
+							var endpoint0 = pts.a;
+							var q = pts.b;
+							var endpoint1 = A2(
+								$elm$core$Maybe$withDefault,
+								pt0,
+								$elm$core$List$head(q));
+							var endpoints = _Utils_Tuple2(endpoint0, endpoint1);
+							return A3(
+								_for,
+								pt0,
+								q,
+								function () {
+									if (_Utils_cmp(
+										$elm$core$Basics$abs(endpoint0.x - endpoint1.x),
+										$author$project$Geometry$Epsilon$epsilon) < 1) {
+										var y = $author$project$Geometry$Bezier$y_intersection_with_vertical_line(endpoint0.x);
+										return ((y >= 0) && ((_Utils_cmp(
+											y,
+											A2($elm$core$Basics$min, endpoint0.y, endpoint1.y)) > -1) && (_Utils_cmp(
+											y,
+											A2($elm$core$Basics$max, endpoint0.y, endpoint1.y)) < 1))) ? A2(
+											add_intersection,
+											A2($author$project$Geometry$Point$NamedPoint, endpoint0.x, y),
+											intersections) : intersections;
+									} else {
+										var _v3 = m_c(endpoints);
+										var m = _v3.a;
+										var c = _v3.b;
+										var inters = A2(
+											$elm$core$List$map,
+											function (x) {
+												return A2($author$project$Geometry$Point$NamedPoint, x, (m * x) + c);
+											},
+											A2(
+												$elm$core$List$filter,
+												function (x) {
+													return (x >= 0) && ((x <= 1) && ((_Utils_cmp(
+														x,
+														A2($elm$core$Basics$min, endpoint0.x, endpoint1.x)) > -1) && (_Utils_cmp(
+														x,
+														A2($elm$core$Basics$max, endpoint0.x, endpoint1.x)) < 1)));
+												},
+												A2($author$project$Geometry$Bezier$x_intersections_with_nonvertical_line, m, c)));
+										return A3($elm$core$List$foldl, add_intersection, intersections, inters);
+									}
+								}());
+						}
+					});
+				return A3(
+					_for,
+					A2(
+						$elm$core$Maybe$withDefault,
+						A2($author$project$Geometry$Point$NamedPoint, 0, 0),
+						$elm$core$List$head(points)),
+					points,
+					$elm$core$Set$empty);
+			}
+		}();
+		var intersections3 = function () {
+			if ($elm$core$Set$isEmpty(intersections2)) {
+				var sharp_rect = A3($author$project$Geometry$RoundedRectangle$RoundedRectangle, rect.centre, rect.size, 0);
+				return A2(
+					$author$project$Geometry$Point$isInPoly,
+					_this.origin,
+					$author$project$Geometry$RoundedRectangle$points5(sharp_rect)) ? (permit_containment ? $elm$core$Set$singleton(
+					_Utils_Tuple2(0, 0)) : intersections2) : intersections2;
+			} else {
+				return intersections2;
+			}
+		}();
+		return A2(
+			$elm$core$List$map,
+			A2($author$project$Geometry$Point$scale, _this.w, h),
+			$elm$core$Set$toList(intersections3));
+	});
+var $author$project$Geometry$Bezier$new = F4(
+	function (origin, w, h, angle) {
+		return {
+			angle: angle,
+			control: A2(
+				$author$project$Geometry$Point$add,
+				origin,
+				_Utils_Tuple2(w / 2, h)),
+			end: A2(
+				$author$project$Geometry$Point$add,
+				origin,
+				_Utils_Tuple2(w, 0)),
+			h: h,
+			origin: origin,
+			w: w
+		};
+	});
+var $author$project$Geometry$Point$lerp = F3(
+	function (_this, other, t) {
+		return A2(
+			$author$project$Geometry$Point$add,
+			_this,
+			A2(
+				$author$project$Geometry$Point$resize,
+				t,
+				A2($author$project$Geometry$Point$subtract, other, _this)));
+	});
+var $author$project$Geometry$Bezier$point = F2(
+	function (_this, t) {
+		return A3(
+			$author$project$Geometry$Point$lerp,
+			A3($author$project$Geometry$Point$lerp, _this.origin, _this.control, t),
+			A3($author$project$Geometry$Point$lerp, _this.control, _this.end, t),
+			t);
+	});
+var $author$project$Geometry$determine_label_position = F9(
+	function (length, angle, edge_width, start, end, curve, label_position, label_alignement, label_size) {
+		var bezier = A4(
+			$author$project$Geometry$Bezier$new,
+			_Utils_Tuple2(0, 0),
+			length,
+			curve,
+			angle);
+		var centre = A2($author$project$Geometry$Bezier$point, bezier, start + ((end - start) * label_position));
+		if (_Utils_eq(label_alignement, $author$project$Geometry$Over)) {
+			return centre;
+		} else {
+			var offset_angle = function () {
+				switch (label_alignement.$) {
+					case 'Centre':
+						return 0;
+					case 'Over':
+						return 0;
+					case 'Left':
+						return 0 - ($elm$core$Basics$pi / 2);
+					default:
+						return $elm$core$Basics$pi / 2;
+				}
+			}();
+			var offset_allowance = 4;
+			var bail_out = 1024;
+			var _while = F3(
+				function (i, offset_min, offset_max) {
+					_while:
+					while (true) {
+						var label_offset = (offset_min + offset_max) / 2;
+						if (!i) {
+							return label_offset;
+						} else {
+							var nexti = i - 1;
+							var rect_centre = A2(
+								$author$project$Geometry$Point$add,
+								A2($author$project$Geometry$Point$lendir, label_offset, angle + offset_angle),
+								A2($author$project$Geometry$Point$rotate, angle, centre));
+							var intersections = A3(
+								$author$project$Geometry$Bezier$intersections_with_rounded_rectangle,
+								bezier,
+								A3(
+									$author$project$Geometry$RoundedRectangle$RoundedRectangle,
+									rect_centre,
+									A2(
+										$author$project$Geometry$Point$add,
+										_Utils_Tuple2(edge_width, edge_width),
+										label_size),
+									edge_width / 2),
+								true);
+							if (_Utils_eq(intersections, _List_Nil)) {
+								if ((offset_max - offset_min) < 1) {
+									return label_offset;
+								} else {
+									var $temp$i = nexti,
+										$temp$offset_min = offset_min,
+										$temp$offset_max = label_offset;
+									i = $temp$i;
+									offset_min = $temp$offset_min;
+									offset_max = $temp$offset_max;
+									continue _while;
+								}
+							} else {
+								var $temp$i = nexti,
+									$temp$offset_min = label_offset,
+									$temp$offset_max = offset_max;
+								i = $temp$i;
+								offset_min = $temp$offset_min;
+								offset_max = $temp$offset_max;
+								continue _while;
+							}
+						}
+					}
+				});
+			var offset_min = 0;
+			var offset_max = (offset_allowance + ($elm$core$Basics$abs(curve) / 2)) + $author$project$Geometry$Point$radius(
+				A2(
+					$author$project$Geometry$Point$resize,
+					0.5,
+					A2(
+						$author$project$Geometry$Point$add,
+						label_size,
+						_Utils_Tuple2(edge_width, edge_width))));
+			var label_offset = A3(_while, bail_out, offset_min, offset_max);
+			return A2(
+				$author$project$Geometry$Point$add,
+				centre,
+				A2($author$project$Geometry$Point$lendir, label_offset, offset_angle));
+		}
+	});
 var $author$project$ArrowStyle$doubleSize = 2.5;
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onMove = A2($mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions, 'mousemove', $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$defaultOptions);
+var $author$project$GraphDrawing$segmentLabel = F6(
+	function (cfg, q, edgeId, activity, label, curve) {
+		var offset = 10 + ($author$project$ArrowStyle$isDouble(label.style) ? $author$project$ArrowStyle$doubleSize : 0);
+		var labelpos = function () {
+			var diffP = A2($author$project$Geometry$Point$subtract, q.to, q.from);
+			var angle = $author$project$Geometry$Point$pointToAngle(diffP);
+			var length = $author$project$Geometry$Point$radius(diffP);
+			return A2(
+				$author$project$Geometry$Point$add,
+				q.from,
+				A2(
+					$author$project$Geometry$Point$rotate,
+					angle,
+					A9(
+						$author$project$Geometry$determine_label_position,
+						length,
+						angle,
+						2,
+						0,
+						1,
+						curve * length,
+						label.style.labelPosition,
+						label.style.labelAlignment,
+						label.editable ? _Utils_Tuple2(2, 2) : label.dims)));
+		}();
+		if (label.editable) {
+			return A3(
+				$author$project$GraphDrawing$make_input,
+				labelpos,
+				label.label,
+				$author$project$Msg$EdgeLabelEdit(edgeId));
+		} else {
+			if (label.label === '') {
+				return $author$project$Drawing$empty;
+			} else {
+				var finalLabel = label.label;
+				var angle = _Utils_eq(label.style.labelAlignment, $author$project$Geometry$Over) ? $author$project$Geometry$Point$pointToAngle(
+					A2($author$project$Geometry$Point$subtract, q.to, q.from)) : 0;
+				return A2(
+					$author$project$Drawing$makeLatex,
+					{angle: angle, dims: label.dims, label: finalLabel, pos: labelpos, preamble: cfg.latexPreamble, scale: $author$project$GraphDefs$edgeScaleFactor, zindex: $author$project$Zindex$foregroundZ},
+					_Utils_ap(
+						_List_fromArray(
+							[
+								$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onClick(
+								$author$project$Msg$EdgeClick(edgeId)),
+								$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDoubleClick(
+								$author$project$Msg$EltDoubleClick(edgeId)),
+								$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onMove(
+								$elm$core$Basics$always(
+									$author$project$Msg$MouseOn(edgeId)))
+							]),
+						_Utils_ap(
+							_List_fromArray(
+								[
+									$author$project$GraphDrawing$class(
+									A2(
+										$elm$core$List$cons,
+										$author$project$HtmlDefs$renderedClass,
+										$author$project$GraphDrawing$activityToClasses(activity)))
+								]),
+							_List_fromArray(
+								[
+									$author$project$HtmlDefs$onRendered(
+									$author$project$Msg$EdgeRendered(edgeId))
+								]))));
+			}
+		}
+	});
+var $author$project$GraphDrawing$simpleOn = function (event) {
+	return A2(
+		$elm$core$Basics$composeR,
+		$elm$json$Json$Decode$succeed,
+		$elm$html$Html$Events$on(event));
+};
+var $author$project$GraphDrawing$normalEdgeDrawing = F7(
+	function (cfg, edgeId, activity, z, label, q, curve) {
+		var style = $author$project$ArrowStyle$getStyle(label);
+		var classes = label.isAdjunction ? $author$project$GraphDrawing$activityToClasses(activity) : $author$project$GraphDrawing$activityToEdgeClasses(activity);
+		var attrs = A2(
+			$elm$core$List$cons,
+			$author$project$GraphDrawing$class(classes),
+			_List_fromArray(
+				[
+					$author$project$GraphDrawing$onClick(
+					$author$project$Msg$EdgeClick(edgeId)),
+					$author$project$GraphDrawing$onDoubleClick(
+					$author$project$Msg$EltDoubleClick(edgeId)),
+					A2(
+					$author$project$GraphDrawing$simpleOn,
+					'mousemove',
+					$author$project$Msg$MouseOn(edgeId))
+				]));
+		return $author$project$Drawing$group(
+			_List_fromArray(
+				[
+					A2(
+					$author$project$Drawing$arrow,
+					{bezier: q, style: style, zindex: z},
+					attrs),
+					A6($author$project$GraphDrawing$segmentLabel, cfg, q, edgeId, activity, label, curve)
+				]));
+	});
+var $author$project$GraphDrawing$graphDrawing = F2(
+	function (cfg, g0) {
+		var drawEdge = F2(
+			function (id, e) {
+				var _v0 = _Utils_Tuple2(e.details, e.shape);
+				_v0$2:
+				while (true) {
+					if (_v0.a.$ === 'PullshoutEdge') {
+						if (_v0.b.$ === 'HatShape') {
+							var _v1 = _v0.a;
+							var hat = _v0.b.a;
+							return A4($author$project$GraphDrawing$drawHat, id, e.isActive, e.zindex, hat);
+						} else {
+							break _v0$2;
+						}
+					} else {
+						if (_v0.b.$ === 'Bezier') {
+							var l = _v0.a.a;
+							var q = _v0.b.a;
+							return A7($author$project$GraphDrawing$normalEdgeDrawing, cfg, id, e.isActive, e.zindex, l, q, l.style.bend);
+						} else {
+							break _v0$2;
+						}
+					}
+				}
+				return $author$project$Drawing$empty;
+			});
+		var g = A3(
+			$author$project$Polygraph$map,
+			F2(
+				function (id, n) {
+					return A2(
+						$author$project$GraphDrawing$nodeDrawing,
+						cfg,
+						A2($author$project$Polygraph$Node, id, n));
+				}),
+			drawEdge,
+			g0);
+		var nodes = A2(
+			$elm$core$List$map,
+			function ($) {
+				return $.label;
+			},
+			$author$project$Polygraph$nodes(g));
+		var edges = A2(
+			$elm$core$List$map,
+			function ($) {
+				return $.label;
+			},
+			$author$project$Polygraph$edges(g));
+		var drawings = _Utils_ap(nodes, edges);
+		return $author$project$Drawing$group(drawings);
+	});
+var $author$project$Main$toDrawing = F2(
+	function (model, graph) {
+		var cfg = {
+			latexPreamble: function () {
+				var _v0 = model.scenario;
+				if (_v0.$ === 'Exercise1') {
+					return '\\newcommand{\\depthHistory}{' + ($elm$core$String$fromInt(
+						$elm$core$List$length(model.history)) + '}');
+				} else {
+					return model.graphInfo.latexPreamble;
+				}
+			}()
+		};
+		return A2($author$project$GraphDrawing$graphDrawing, cfg, graph);
+	});
+var $author$project$GraphDrawing$MainActive = {$: 'MainActive'};
+var $author$project$GraphDrawing$NoActive = {$: 'NoActive'};
+var $author$project$GraphDrawing$WeakActive = {$: 'WeakActive'};
+var $author$project$GraphDrawing$NormalEdge = function (a) {
+	return {$: 'NormalEdge', a: a};
+};
+var $author$project$GraphDrawing$PullshoutEdge = {$: 'PullshoutEdge'};
+var $author$project$GraphDefs$getEdgeDims = function (n) {
+	var _v0 = n.dims;
+	if (_v0.$ === 'Nothing') {
+		return $author$project$GraphDefs$defaultDims(n.label);
+	} else {
+		var p = _v0.a;
+		return p;
+	}
+};
+var $author$project$GraphDrawing$make_edgeDrawingLabel = F2(
+	function (_v0, e) {
+		var editable = _v0.editable;
+		var isActive = _v0.isActive;
+		var shape = _v0.shape;
+		return {
+			details: function () {
+				var _v1 = e.details;
+				if (_v1.$ === 'PullshoutEdge') {
+					return $author$project$GraphDrawing$PullshoutEdge;
+				} else {
+					var l = _v1.a;
+					var label = l.label;
+					var style = l.style;
+					var isAdjunction = l.isAdjunction;
+					return $author$project$GraphDrawing$NormalEdge(
+						{
+							dims: $author$project$GraphDefs$getEdgeDims(l),
+							editable: editable,
+							isAdjunction: isAdjunction,
+							label: label,
+							style: style
+						});
+				}
+			}(),
+			isActive: isActive,
+			shape: shape,
+			zindex: e.zindex
+		};
+	});
+var $author$project$GraphDrawing$make_nodeDrawingLabel = F2(
+	function (_v0, l) {
+		var editable = _v0.editable;
+		var isActive = _v0.isActive;
+		var label = l.label;
+		var pos = l.pos;
+		var isMath = l.isMath;
+		var nodePos = $author$project$GraphDefs$getNodePos(l);
+		return {
+			dims: editable ? _Utils_Tuple2(0, 0) : $author$project$GraphDefs$getNodeDims(l),
+			editable: editable,
+			inputPos: pos,
+			isActive: isActive,
+			isMath: isMath,
+			isValidated: l.isCoqValidated,
+			label: label,
+			pos: nodePos,
+			zindex: l.zindex
+		};
+	});
+var $author$project$GraphDrawing$toDrawingGraph = function (g) {
+	var makeActivity = function (r) {
+		return r.selected ? $author$project$GraphDrawing$MainActive : (r.weaklySelected ? $author$project$GraphDrawing$WeakActive : $author$project$GraphDrawing$NoActive);
+	};
+	var graphWithPos = $author$project$GraphDefs$posGraph(g);
+	return A3(
+		$author$project$Polygraph$map,
+		F2(
+			function (_v0, n) {
+				return A2(
+					$author$project$GraphDrawing$make_nodeDrawingLabel,
+					{
+						editable: false,
+						isActive: makeActivity(n)
+					},
+					n);
+			}),
+		F2(
+			function (_v1, e) {
+				return A2(
+					$author$project$GraphDrawing$make_edgeDrawingLabel,
+					{
+						editable: false,
+						isActive: makeActivity(e.label),
+						shape: e.shape
+					},
+					e.label);
+			}),
+		graphWithPos);
+};
+var $author$project$Main$graphToTikz = F2(
+	function (model, graph) {
+		if (model.alternativeLatex) {
+			var d = A2(
+				$author$project$Main$toDrawing,
+				model,
+				$author$project$GraphDrawing$toDrawingGraph(graph));
+			return $author$project$Drawing$tikz(d);
+		} else {
+			return A2($author$project$Tikz$graphToTikz, model.defaultGridSize, graph);
+		}
+	});
+var $author$project$GraphDefs$clearWeakSelection = function (g) {
+	return A3(
+		$author$project$Polygraph$map,
+		F2(
+			function (_v0, n) {
+				return _Utils_update(
+					n,
+					{weaklySelected: false});
+			}),
+		F2(
+			function (_v1, e) {
+				return _Utils_update(
+					e,
+					{weaklySelected: false});
+			}),
+		g);
+};
+var $author$project$Model$getActiveSizeGrid = function (m) {
+	return $author$project$Format$GraphInfo$getActiveSizeGrid(m.graphInfo);
+};
+var $author$project$Geometry$PosDims = F2(
+	function (pos, dims) {
+		return {dims: dims, pos: pos};
+	});
+var $author$project$Geometry$posDimsFromRect = function (_v0) {
+	var topLeft = _v0.topLeft;
+	var bottomRight = _v0.bottomRight;
+	var center = A2(
+		$author$project$Geometry$Point$resize,
+		0.5,
+		A2($author$project$Geometry$Point$add, topLeft, bottomRight));
+	return A2(
+		$author$project$Geometry$PosDims,
+		center,
+		A2($author$project$Geometry$Point$subtract, bottomRight, topLeft));
+};
+var $elm$core$List$unzip = function (pairs) {
+	var step = F2(
+		function (_v0, _v1) {
+			var x = _v0.a;
+			var y = _v0.b;
+			var xs = _v1.a;
+			var ys = _v1.b;
+			return _Utils_Tuple2(
+				A2($elm$core$List$cons, x, xs),
+				A2($elm$core$List$cons, y, ys));
+		});
+	return A3(
+		$elm$core$List$foldr,
+		step,
+		_Utils_Tuple2(_List_Nil, _List_Nil),
+		pairs);
+};
+var $author$project$Geometry$rectEnveloppe = function (l) {
+	var _v0 = $elm$core$List$unzip(l);
+	var xs = _v0.a;
+	var ys = _v0.b;
+	var lmin = A2(
+		$elm$core$Basics$composeR,
+		$elm$core$List$minimum,
+		$elm$core$Maybe$withDefault(0));
+	var lmax = A2(
+		$elm$core$Basics$composeR,
+		$elm$core$List$maximum,
+		$elm$core$Maybe$withDefault(0));
+	return {
+		bottomRight: _Utils_Tuple2(
+			lmax(xs),
+			lmax(ys)),
+		topLeft: _Utils_Tuple2(
+			lmin(xs),
+			lmin(ys))
+	};
+};
+var $author$project$GraphDefs$rectEnveloppe = function (g) {
+	var points = A2(
+		$elm$core$List$map,
+		A2(
+			$elm$core$Basics$composeR,
+			function ($) {
+				return $.label;
+			},
+			function ($) {
+				return $.pos;
+			}),
+		$author$project$Polygraph$nodes(g));
+	return $author$project$Geometry$rectEnveloppe(points);
+};
+var $author$project$String$Svg$g = $author$project$String$Svg$node('g');
+var $author$project$String$Html$GhostAttribute = function (a) {
+	return {$: 'GhostAttribute', a: a};
+};
+var $author$project$String$Html$ghostAttribute = $author$project$String$Html$GhostAttribute;
 var $author$project$ArrowStyle$isNone = function (_v0) {
 	var kind = _v0.kind;
 	return _Utils_eq(kind, $author$project$ArrowStyle$NoneArrow);
@@ -20276,11 +20909,12 @@ var $author$project$Drawing$ArrowStyle$imgHeadWidth = 9.764;
 var $author$project$Drawing$ArrowStyle$imgTailWidth = 3.089 * 2;
 var $author$project$String$Svg$d = $author$project$String$Html$attribute('d');
 var $author$project$String$Svg$fill = $author$project$String$Html$attribute('fill');
-var $author$project$String$Svg$g = $author$project$String$Svg$node('g');
 var $author$project$String$Svg$path = $author$project$String$Svg$node('path');
+var $author$project$String$Svg$stroke = $author$project$String$Html$attribute('stroke');
 var $author$project$String$Svg$strokeLinecap = $author$project$String$Html$attribute('stroke-linecap');
 var $author$project$String$Svg$strokeLinejoin = $author$project$String$Html$attribute('stroke-linejoin');
 var $author$project$String$Svg$strokeMiterlimit = $author$project$String$Html$attribute('stroke-miterlimit');
+var $author$project$String$Svg$strokeWidth = $author$project$String$Html$attribute('stroke-width');
 var $author$project$String$Svg$transform = $author$project$String$Html$attribute('transform');
 var $author$project$ArrowStyle$makeHeadShape = function (style) {
 	if (_Utils_eq(style.kind, $author$project$ArrowStyle$NoneArrow)) {
@@ -20806,8 +21440,15 @@ var $author$project$Drawing$quadraticBezierToAttr = function (_v0) {
 	return $author$project$String$Svg$d(
 		'M' + (p(from) + (' Q ' + (p(controlPoint) + (', ' + p(to))))));
 };
+var $author$project$String$Svg$strokeFromColor = A2($elm$core$Basics$composeL, $author$project$String$Svg$stroke, $author$project$Drawing$Color$toString);
+var $author$project$String$Svg$strokeWidthPx = function (w) {
+	return A2(
+		$author$project$String$Html$attribute,
+		'stroke-width',
+		$elm$core$String$fromInt(w) + 'px');
+};
 var $author$project$Drawing$mkPath = F3(
-	function (dashed, attrs, q) {
+	function (arg, attrs, q) {
 		return A2(
 			$author$project$String$Svg$path,
 			A2(
@@ -20816,9 +21457,17 @@ var $author$project$Drawing$mkPath = F3(
 				A2(
 					$elm$core$List$cons,
 					$author$project$String$Svg$fill('none'),
-					_Utils_ap(
-						A2($author$project$Drawing$attrsToSvgAttrs, $author$project$String$Svg$stroke, attrs),
-						$author$project$Drawing$dashedToAttrs(dashed)))),
+					A2(
+						$elm$core$List$cons,
+						$author$project$String$Svg$strokeFromColor(arg.color),
+						_Utils_ap(
+							attrs,
+							_Utils_ap(
+								$author$project$Drawing$dashedToAttrs(arg.dashed),
+								(arg.strokeWidth !== 1) ? _List_fromArray(
+									[
+										$author$project$String$Svg$strokeWidthPx(arg.strokeWidth)
+									]) : _List_Nil))))),
 			_List_Nil);
 	});
 var $author$project$Geometry$QuadraticBezier$orthoVectPx = F2(
@@ -20838,36 +21487,25 @@ var $author$project$Geometry$QuadraticBezier$orthoVectPx = F2(
 			to: A2($author$project$Geometry$Point$add, deltaTo, to)
 		};
 	});
-var $author$project$Drawing$arrow = F3(
-	function (attrs0, arrowStyle, q) {
+var $author$project$Drawing$arrowToSvg = F2(
+	function (args, attrs0) {
+		var arrowStyle = args.style;
+		var q = args.bezier;
+		var attrs = A2($elm$core$List$map, $author$project$String$Html$ghostAttribute, attrs0);
 		if ($author$project$ArrowStyle$isNone(arrowStyle)) {
-			return $author$project$Drawing$empty;
+			return A2($author$project$String$Svg$g, _List_Nil, _List_Nil);
 		} else {
-			var attrs = A2(
-				$elm$core$List$cons,
-				$author$project$Drawing$Color(arrowStyle.color),
-				attrs0);
-			var zindex = $author$project$Drawing$attributesToZIndex(attrs);
 			var imgs = A2($author$project$Drawing$ArrowStyle$makeHeadTailImgs, q, arrowStyle);
 			var mkgen = F2(
 				function (d, l) {
 					return A2(
 						$author$project$Drawing$mkPath,
-						d,
+						{color: arrowStyle.color, dashed: d, strokeWidth: args.strokeWidth},
 						_Utils_ap(l, attrs));
 				});
 			var mkl = A2(mkgen, arrowStyle.dashed, _List_Nil);
-			var mkshadow = A2(
-				mkgen,
-				false,
-				_List_fromArray(
-					[
-						$author$project$Drawing$class($author$project$Drawing$shadowClass)
-					]));
 			var mkall = function (l) {
-				return _Utils_ap(
-					A2($elm$core$List$map, mkshadow, l),
-					A2($elm$core$List$map, mkl, l));
+				return A2($elm$core$List$map, mkl, l);
 			};
 			var lines = $author$project$ArrowStyle$isDouble(arrowStyle) ? mkall(
 				_List_fromArray(
@@ -20878,832 +21516,167 @@ var $author$project$Drawing$arrow = F3(
 				_List_fromArray(
 					[q]));
 			return A2(
-				$author$project$Drawing$ofSvgs,
-				zindex,
+				$author$project$String$Svg$g,
+				_List_Nil,
 				_Utils_ap(lines, imgs));
 		}
 	});
-var $author$project$Drawing$OnDoubleClick = function (a) {
-	return {$: 'OnDoubleClick', a: a};
-};
-var $author$project$Drawing$onDoubleClick = $author$project$Drawing$OnDoubleClick;
-var $author$project$Msg$EdgeLabelEdit = F2(
-	function (a, b) {
-		return {$: 'EdgeLabelEdit', a: a, b: b};
-	});
-var $author$project$Msg$EdgeRendered = F2(
-	function (a, b) {
-		return {$: 'EdgeRendered', a: a, b: b};
-	});
-var $author$project$Geometry$RoundedRectangle$RoundedRectangle = F3(
-	function (centre, size, radius) {
-		return {centre: centre, radius: radius, size: size};
-	});
-var $author$project$Geometry$Point$NamedPoint = F2(
-	function (x, y) {
-		return {x: x, y: y};
-	});
-var $elm$core$Basics$pow = _Basics_pow;
-var $author$project$Geometry$Epsilon$epsilon = A2($elm$core$Basics$pow, 10, -10);
-var $elm$core$Basics$ge = _Utils_ge;
-var $author$project$Geometry$Epsilon$inv_epsilon = 1 / $author$project$Geometry$Epsilon$epsilon;
-var $author$project$Geometry$Point$inv_scale = F3(
-	function (sx, sy, _v0) {
-		var x = _v0.a;
-		var y = _v0.b;
-		return _Utils_Tuple2(x / sx, y / sy);
-	});
-var $elm$core$Dict$isEmpty = function (dict) {
-	if (dict.$ === 'RBEmpty_elm_builtin') {
-		return true;
-	} else {
-		return false;
-	}
-};
-var $elm$core$Set$isEmpty = function (_v0) {
-	var dict = _v0.a;
-	return $elm$core$Dict$isEmpty(dict);
-};
-var $author$project$Geometry$Point$name = function (_v0) {
-	var x = _v0.a;
-	var y = _v0.b;
-	return {x: x, y: y};
-};
-var $elm$core$Basics$cos = _Basics_cos;
-var $elm$core$Basics$sin = _Basics_sin;
-var $author$project$Geometry$Point$lendir = F2(
-	function (length, direction) {
-		return _Utils_Tuple2(
-			length * $elm$core$Basics$cos(direction),
-			length * $elm$core$Basics$sin(direction));
-	});
-var $author$project$Geometry$Point$scale = F3(
-	function (sx, sy, _v0) {
-		var x = _v0.a;
-		var y = _v0.b;
-		return _Utils_Tuple2(x * sx, y * sy);
-	});
-var $author$project$Geometry$RoundedRectangle$points = F2(
-	function (_this, max_segment_length) {
-		var n = (!_this.radius) ? 0 : ($elm$core$Basics$pi / $elm$core$Basics$atan(max_segment_length / (2 * _this.radius)));
-		var sides = $elm$core$Basics$ceiling(n);
-		var r = _this.radius / $elm$core$Basics$cos($elm$core$Basics$pi / sides);
-		var add_corner_points = F3(
-			function (sx, sy, _v5) {
-				var angle_offset = _v5.a;
-				var pts = _v5.b;
-				var pts2 = A2(
-					$elm$core$List$cons,
-					A2(
-						$author$project$Geometry$Point$add,
-						_this.centre,
-						A2(
-							$author$project$Geometry$Point$add,
-							A2($author$project$Geometry$Point$lendir, _this.radius, angle_offset),
-							A3(
-								$author$project$Geometry$Point$scale,
-								sx,
-								sy,
-								A2(
-									$author$project$Geometry$Point$subtract,
-									A2($author$project$Geometry$Point$resize, 0.5, _this.size),
-									_Utils_Tuple2(_this.radius, _this.radius))))),
-					pts);
-				var _for = F2(
-					function (i, pts_for) {
-						if (_Utils_cmp(i, sides / 4) > -1) {
-							return pts_for;
-						} else {
-							var angle = ((((i + 0.5) / sides) * 2) * $elm$core$Basics$pi) + angle_offset;
-							var pt = A2(
-								$author$project$Geometry$Point$add,
-								_this.centre,
-								A2(
-									$author$project$Geometry$Point$add,
-									A2($author$project$Geometry$Point$lendir, r, angle),
-									A3(
-										$author$project$Geometry$Point$scale,
-										sx,
-										sy,
-										A2(
-											$author$project$Geometry$Point$subtract,
-											A2($author$project$Geometry$Point$resize, 0.5, _this.size),
-											_Utils_Tuple2(_this.radius, _this.radius)))));
-							return A2(
-								_for,
-								i + 1,
-								A2($elm$core$List$cons, pt, pts_for));
-						}
-					});
-				var pts3 = A2(_for, 0, pts2);
-				var angle_offset2 = angle_offset + ($elm$core$Basics$pi / 2);
-				var pt = A2(
-					$author$project$Geometry$Point$add,
-					_this.centre,
-					A2(
-						$author$project$Geometry$Point$add,
-						A2($author$project$Geometry$Point$lendir, _this.radius, angle_offset2),
-						A3(
-							$author$project$Geometry$Point$scale,
-							sx,
-							sy,
-							A2(
-								$author$project$Geometry$Point$subtract,
-								A2($author$project$Geometry$Point$resize, 0.5, _this.size),
-								_Utils_Tuple2(_this.radius, _this.radius)))));
-				return _Utils_Tuple2(
-					angle_offset2,
-					A2($elm$core$List$cons, pt, pts3));
-			});
-		var _v0 = A3(
-			add_corner_points,
-			1,
-			-1,
-			A3(
-				add_corner_points,
-				-1,
-				-1,
-				A3(
-					add_corner_points,
-					-1,
-					1,
-					A3(
-						add_corner_points,
-						1,
-						1,
-						_Utils_Tuple2(0, _List_Nil)))));
-		var pts = _v0.b;
-		var elim0 = F2(
-			function (l, acc) {
-				if (l.b && l.b.b) {
-					var _v2 = l.a;
-					var x1 = _v2.a;
-					var y1 = _v2.b;
-					var _v3 = l.b;
-					var _v4 = _v3.a;
-					var x2 = _v4.a;
-					var y2 = _v4.b;
-					var t = _v3.b;
-					return A2(
-						elim0,
-						A2(
-							$elm$core$List$cons,
-							_Utils_Tuple2(x2, y2),
-							t),
-						((_Utils_cmp(
-							$elm$core$Basics$abs(x2 - x1),
-							$author$project$Geometry$Epsilon$epsilon) < 1) && (_Utils_cmp(
-							$elm$core$Basics$abs(y2 - y1),
-							$author$project$Geometry$Epsilon$epsilon) < 1)) ? acc : A2(
-							$elm$core$List$cons,
-							_Utils_Tuple2(x1, y1),
-							acc));
-				} else {
-					return $elm$core$List$reverse(acc);
-				}
-			});
-		return A2(elim0, pts, _List_Nil);
-	});
-var $author$project$Geometry$RoundedRectangle$points5 = function (_this) {
-	return A2($author$project$Geometry$RoundedRectangle$points, _this, 5);
-};
-var $author$project$Geometry$Point$rotate = F2(
-	function (theta, _v0) {
-		var x = _v0.a;
-		var y = _v0.b;
-		return _Utils_Tuple2(
-			(x * $elm$core$Basics$cos(theta)) - (y * $elm$core$Basics$sin(theta)),
-			(y * $elm$core$Basics$cos(theta)) + (x * $elm$core$Basics$sin(theta)));
-	});
-var $elm$core$Dict$singleton = F2(
-	function (key, value) {
-		return A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, key, value, $elm$core$Dict$RBEmpty_elm_builtin, $elm$core$Dict$RBEmpty_elm_builtin);
-	});
-var $elm$core$Set$singleton = function (key) {
-	return $elm$core$Set$Set_elm_builtin(
-		A2($elm$core$Dict$singleton, key, _Utils_Tuple0));
-};
-var $author$project$Geometry$Bezier$x_intersections_with_nonvertical_line = F2(
-	function (m, c) {
-		var determinant = (((m * m) - (4 * m)) + 4) - (8 * c);
-		return (determinant > 0) ? _List_fromArray(
-			[
-				((2 - m) + $elm$core$Basics$sqrt(determinant)) / 4,
-				((2 - m) - $elm$core$Basics$sqrt(determinant)) / 4
-			]) : ((!determinant) ? _List_fromArray(
-			[
-				((2 - m) + $elm$core$Basics$sqrt(determinant)) / 4
-			]) : _List_Nil);
-	});
-var $author$project$Geometry$Bezier$y_intersection_with_vertical_line = function (a) {
-	return (2 * a) * (1 - a);
-};
-var $author$project$Geometry$Bezier$intersections_with_rounded_rectangle = F3(
-	function (_this, rect, permit_containment) {
-		var h = (!_this.h) ? 1 : _this.h;
-		var points = A2(
-			$elm$core$List$map,
-			function (p) {
-				return $author$project$Geometry$Point$name(
-					A3(
-						$author$project$Geometry$Point$inv_scale,
-						_this.w,
-						h,
-						A2(
-							$author$project$Geometry$Point$rotate,
-							-_this.angle,
-							A2($author$project$Geometry$Point$subtract, p, _this.origin))));
-			},
-			$author$project$Geometry$RoundedRectangle$points5(rect));
-		var add_intersection = F2(
-			function (p, intersections) {
-				return A2(
-					$elm$core$Set$insert,
-					_Utils_Tuple2(
-						$elm$core$Basics$round(p.x * $author$project$Geometry$Epsilon$inv_epsilon) / $author$project$Geometry$Epsilon$inv_epsilon,
-						$elm$core$Basics$round(p.y * $author$project$Geometry$Epsilon$inv_epsilon) / $author$project$Geometry$Epsilon$inv_epsilon),
-					intersections);
-			});
-		var m_c = function (_v4) {
-			var endpoint0 = _v4.a;
-			var endpoint1 = _v4.b;
-			var m = (endpoint1.y - endpoint0.y) / (endpoint1.x - endpoint0.x);
-			return _Utils_Tuple2(m, endpoint0.y - (m * endpoint0.x));
-		};
-		var intersections2 = function () {
-			if (!_this.h) {
-				var _for = F3(
-					function (pt0, pts, intersections) {
-						if (!pts.b) {
-							return intersections;
-						} else {
-							var endpoint0 = pts.a;
-							var q = pts.b;
-							var endpoint1 = A2(
-								$elm$core$Maybe$withDefault,
-								pt0,
-								$elm$core$List$head(q));
-							var endpoints = _Utils_Tuple2(endpoint0, endpoint1);
-							return A3(
-								_for,
-								pt0,
-								q,
-								function () {
-									if (_Utils_cmp(
-										$elm$core$Basics$abs(endpoint0.x - endpoint1.x),
-										$author$project$Geometry$Epsilon$epsilon) < 1) {
-										return ((endpoint0.x >= 0) && ((endpoint0.x <= 1) && ((A2($elm$core$Basics$min, endpoint0.y, endpoint1.y) <= 0) && (A2($elm$core$Basics$max, endpoint0.y, endpoint1.y) >= 0)))) ? A2(
-											add_intersection,
-											A2($author$project$Geometry$Point$NamedPoint, endpoint0.x, 0),
-											intersections) : intersections;
-									} else {
-										var _v1 = m_c(endpoints);
-										var m = _v1.a;
-										var c = _v1.b;
-										if (_Utils_cmp(
-											$elm$core$Basics$abs(m),
-											$author$project$Geometry$Epsilon$epsilon) > 0) {
-											var x = (-c) / m;
-											return ((x >= 0) && ((x <= 1) && ((_Utils_cmp(
-												x,
-												A2($elm$core$Basics$min, endpoint0.x, endpoint1.x)) > -1) && (_Utils_cmp(
-												x,
-												A2($elm$core$Basics$max, endpoint0.x, endpoint1.x)) < 1)))) ? A2(
-												add_intersection,
-												A2($author$project$Geometry$Point$NamedPoint, x, 0),
-												intersections) : intersections;
-										} else {
-											if (_Utils_cmp(
-												$elm$core$Basics$abs(endpoint0.y),
-												$author$project$Geometry$Epsilon$epsilon) < 1) {
-												var minx = A2($elm$core$Basics$min, endpoint0.x, endpoint1.x);
-												var maxx = A2($elm$core$Basics$min, endpoint0.x, endpoint1.x);
-												return ((minx <= 1) && (maxx >= 0)) ? A2(
-													add_intersection,
-													A2(
-														$author$project$Geometry$Point$NamedPoint,
-														A2($elm$core$Basics$max, maxx, 1),
-														0),
-													A2(
-														add_intersection,
-														A2(
-															$author$project$Geometry$Point$NamedPoint,
-															A2($elm$core$Basics$max, minx, 0),
-															0),
-														intersections)) : intersections;
-											} else {
-												return intersections;
-											}
-										}
-									}
-								}());
-						}
-					});
-				return A3(
-					_for,
-					A2(
-						$elm$core$Maybe$withDefault,
-						A2($author$project$Geometry$Point$NamedPoint, 0, 0),
-						$elm$core$List$head(points)),
-					points,
-					$elm$core$Set$empty);
-			} else {
-				var _for = F3(
-					function (pt0, pts, intersections) {
-						if (!pts.b) {
-							return intersections;
-						} else {
-							var endpoint0 = pts.a;
-							var q = pts.b;
-							var endpoint1 = A2(
-								$elm$core$Maybe$withDefault,
-								pt0,
-								$elm$core$List$head(q));
-							var endpoints = _Utils_Tuple2(endpoint0, endpoint1);
-							return A3(
-								_for,
-								pt0,
-								q,
-								function () {
-									if (_Utils_cmp(
-										$elm$core$Basics$abs(endpoint0.x - endpoint1.x),
-										$author$project$Geometry$Epsilon$epsilon) < 1) {
-										var y = $author$project$Geometry$Bezier$y_intersection_with_vertical_line(endpoint0.x);
-										return ((y >= 0) && ((_Utils_cmp(
-											y,
-											A2($elm$core$Basics$min, endpoint0.y, endpoint1.y)) > -1) && (_Utils_cmp(
-											y,
-											A2($elm$core$Basics$max, endpoint0.y, endpoint1.y)) < 1))) ? A2(
-											add_intersection,
-											A2($author$project$Geometry$Point$NamedPoint, endpoint0.x, y),
-											intersections) : intersections;
-									} else {
-										var _v3 = m_c(endpoints);
-										var m = _v3.a;
-										var c = _v3.b;
-										var inters = A2(
-											$elm$core$List$map,
-											function (x) {
-												return A2($author$project$Geometry$Point$NamedPoint, x, (m * x) + c);
-											},
-											A2(
-												$elm$core$List$filter,
-												function (x) {
-													return (x >= 0) && ((x <= 1) && ((_Utils_cmp(
-														x,
-														A2($elm$core$Basics$min, endpoint0.x, endpoint1.x)) > -1) && (_Utils_cmp(
-														x,
-														A2($elm$core$Basics$max, endpoint0.x, endpoint1.x)) < 1)));
-												},
-												A2($author$project$Geometry$Bezier$x_intersections_with_nonvertical_line, m, c)));
-										return A3($elm$core$List$foldl, add_intersection, intersections, inters);
-									}
-								}());
-						}
-					});
-				return A3(
-					_for,
-					A2(
-						$elm$core$Maybe$withDefault,
-						A2($author$project$Geometry$Point$NamedPoint, 0, 0),
-						$elm$core$List$head(points)),
-					points,
-					$elm$core$Set$empty);
-			}
-		}();
-		var intersections3 = function () {
-			if ($elm$core$Set$isEmpty(intersections2)) {
-				var sharp_rect = A3($author$project$Geometry$RoundedRectangle$RoundedRectangle, rect.centre, rect.size, 0);
-				return A2(
-					$author$project$Geometry$Point$isInPoly,
-					_this.origin,
-					$author$project$Geometry$RoundedRectangle$points5(sharp_rect)) ? (permit_containment ? $elm$core$Set$singleton(
-					_Utils_Tuple2(0, 0)) : intersections2) : intersections2;
-			} else {
-				return intersections2;
-			}
-		}();
+var $author$project$String$Svg$line = $author$project$String$Svg$node('line');
+var $author$project$String$Svg$x1 = $author$project$String$Html$attribute('x1');
+var $author$project$String$Svg$x2 = $author$project$String$Html$attribute('x2');
+var $author$project$String$Svg$y1 = $author$project$String$Html$attribute('y1');
+var $author$project$String$Svg$y2 = $author$project$String$Html$attribute('y2');
+var $author$project$Drawing$lineToSvg = F2(
+	function (arg, attrs) {
+		var _v0 = arg.from;
+		var fromx = _v0.a;
+		var fromy = _v0.b;
+		var _v1 = arg.to;
+		var tox = _v1.a;
+		var toy = _v1.b;
+		var f = $elm$core$String$fromFloat;
 		return A2(
-			$elm$core$List$map,
-			A2($author$project$Geometry$Point$scale, _this.w, h),
-			$elm$core$Set$toList(intersections3));
+			$author$project$String$Svg$line,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						$author$project$String$Svg$x1(
+						f(fromx)),
+						$author$project$String$Svg$y1(
+						f(fromy)),
+						$author$project$String$Svg$x2(
+						f(tox)),
+						$author$project$String$Svg$y2(
+						f(toy)),
+						$author$project$String$Svg$strokeFromColor(arg.color),
+						$author$project$String$Svg$strokeWidthPx(arg.strokeWidth)
+					]),
+				A2($elm$core$List$map, $author$project$String$Html$ghostAttribute, attrs)),
+			_List_Nil);
 	});
-var $author$project$Geometry$Bezier$new = F4(
-	function (origin, w, h, angle) {
-		return {
-			angle: angle,
-			control: A2(
-				$author$project$Geometry$Point$add,
-				origin,
-				_Utils_Tuple2(w / 2, h)),
-			end: A2(
-				$author$project$Geometry$Point$add,
-				origin,
-				_Utils_Tuple2(w, 0)),
-			h: h,
-			origin: origin,
-			w: w
-		};
-	});
-var $author$project$Geometry$Point$lerp = F3(
-	function (_this, other, t) {
-		return A2(
-			$author$project$Geometry$Point$add,
-			_this,
-			A2(
-				$author$project$Geometry$Point$resize,
-				t,
-				A2($author$project$Geometry$Point$subtract, other, _this)));
-	});
-var $author$project$Geometry$Bezier$point = F2(
-	function (_this, t) {
+var $author$project$HtmlDefs$latexElement = 'math-latex';
+var $elm$virtual_dom$VirtualDom$node = function (tag) {
+	return _VirtualDom_node(
+		_VirtualDom_noScript(tag));
+};
+var $elm$html$Html$node = $elm$virtual_dom$VirtualDom$node;
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $author$project$HtmlDefs$makeLatex = F2(
+	function (attrs, s) {
 		return A3(
-			$author$project$Geometry$Point$lerp,
-			A3($author$project$Geometry$Point$lerp, _this.origin, _this.control, t),
-			A3($author$project$Geometry$Point$lerp, _this.control, _this.end, t),
-			t);
+			$elm$html$Html$node,
+			$author$project$HtmlDefs$latexElement,
+			attrs,
+			_List_fromArray(
+				[
+					$elm$html$Html$text(s)
+				]));
 	});
-var $author$project$Geometry$determine_label_position = F9(
-	function (length, angle, edge_width, start, end, curve, label_position, label_alignement, label_size) {
-		var bezier = A4(
-			$author$project$Geometry$Bezier$new,
-			_Utils_Tuple2(0, 0),
-			length,
-			curve,
-			angle);
-		var centre = A2($author$project$Geometry$Bezier$point, bezier, start + ((end - start) * label_position));
-		if (_Utils_eq(label_alignement, $author$project$Geometry$Over)) {
-			return centre;
-		} else {
-			var offset_angle = function () {
-				switch (label_alignement.$) {
-					case 'Centre':
-						return 0;
-					case 'Over':
-						return 0;
-					case 'Left':
-						return 0 - ($elm$core$Basics$pi / 2);
-					default:
-						return $elm$core$Basics$pi / 2;
-				}
-			}();
-			var offset_allowance = 4;
-			var bail_out = 1024;
-			var _while = F3(
-				function (i, offset_min, offset_max) {
-					_while:
-					while (true) {
-						var label_offset = (offset_min + offset_max) / 2;
-						if (!i) {
-							return label_offset;
-						} else {
-							var nexti = i - 1;
-							var rect_centre = A2(
-								$author$project$Geometry$Point$add,
-								A2($author$project$Geometry$Point$lendir, label_offset, angle + offset_angle),
-								A2($author$project$Geometry$Point$rotate, angle, centre));
-							var intersections = A3(
-								$author$project$Geometry$Bezier$intersections_with_rounded_rectangle,
-								bezier,
-								A3(
-									$author$project$Geometry$RoundedRectangle$RoundedRectangle,
-									rect_centre,
-									A2(
-										$author$project$Geometry$Point$add,
-										_Utils_Tuple2(edge_width, edge_width),
-										label_size),
-									edge_width / 2),
-								true);
-							if (_Utils_eq(intersections, _List_Nil)) {
-								if ((offset_max - offset_min) < 1) {
-									return label_offset;
-								} else {
-									var $temp$i = nexti,
-										$temp$offset_min = offset_min,
-										$temp$offset_max = label_offset;
-									i = $temp$i;
-									offset_min = $temp$offset_min;
-									offset_max = $temp$offset_max;
-									continue _while;
-								}
-							} else {
-								var $temp$i = nexti,
-									$temp$offset_min = label_offset,
-									$temp$offset_max = offset_max;
-								i = $temp$i;
-								offset_min = $temp$offset_min;
-								offset_max = $temp$offset_max;
-								continue _while;
-							}
-						}
-					}
-				});
-			var offset_min = 0;
-			var offset_max = (offset_allowance + ($elm$core$Basics$abs(curve) / 2)) + $author$project$Geometry$Point$radius(
-				A2(
-					$author$project$Geometry$Point$resize,
-					0.5,
-					A2(
-						$author$project$Geometry$Point$add,
-						label_size,
-						_Utils_Tuple2(edge_width, edge_width))));
-			var label_offset = A3(_while, bail_out, offset_min, offset_max);
-			return A2(
-				$author$project$Geometry$Point$add,
-				centre,
-				A2($author$project$Geometry$Point$lendir, label_offset, offset_angle));
-		}
+var $author$project$Drawing$makeLatexString = function (s) {
+	return '\\(' + (s + '\\)');
+};
+var $author$project$Drawing$withPreamble = F2(
+	function (preamble, s) {
+		return preamble + ('\n' + s);
 	});
-var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onMove = A2($mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions, 'mousemove', $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$defaultOptions);
-var $author$project$GraphDrawing$segmentLabel = F6(
-	function (cfg, q, edgeId, activity, label, curve) {
-		var offset = 10 + ($author$project$ArrowStyle$isDouble(label.style) ? $author$project$ArrowStyle$doubleSize : 0);
-		var labelpos = function () {
-			var diffP = A2($author$project$Geometry$Point$subtract, q.to, q.from);
-			var angle = $author$project$Geometry$Point$pointToAngle(diffP);
-			var length = $author$project$Geometry$Point$radius(diffP);
-			return A2(
-				$author$project$Geometry$Point$add,
-				q.from,
-				A2(
-					$author$project$Geometry$Point$rotate,
-					angle,
-					A9(
-						$author$project$Geometry$determine_label_position,
-						length,
-						angle,
-						2,
-						0,
-						1,
-						curve * length,
-						label.style.labelPosition,
-						label.style.labelAlignment,
-						label.editable ? _Utils_Tuple2(2, 2) : label.dims)));
-		}();
-		if (label.editable) {
-			return A3(
-				$author$project$GraphDrawing$make_input,
-				labelpos,
-				label.label,
-				$author$project$Msg$EdgeLabelEdit(edgeId));
-		} else {
-			if (label.label === '') {
-				return $author$project$Drawing$empty;
+var $author$project$Drawing$nodeToSvg = F2(
+	function (arg, attrs) {
+		var f = $elm$core$String$fromFloat;
+		var _v0 = arg.pos;
+		var x = _v0.a;
+		var y = _v0.b;
+		var _v1 = arg.dims;
+		var width = _v1.a;
+		var height = _v1.b;
+		var angleOption = function () {
+			if (!arg.angle) {
+				return _List_Nil;
 			} else {
-				var finalLabel = ' \\scriptstyle ' + label.label;
-				var rotateAttr = function () {
-					if (_Utils_eq(label.style.labelAlignment, $author$project$Geometry$Over)) {
-						var angle = $author$project$Geometry$Point$pointToAngle(
-							A2($author$project$Geometry$Point$subtract, q.to, q.from));
-						return _List_fromArray(
-							[
-								A2(
-								$elm$html$Html$Attributes$style,
-								'transform',
-								'rotate(' + ($elm$core$String$fromFloat(angle) + 'rad)'))
-							]);
-					} else {
-						return _List_Nil;
-					}
-				}();
-				return A7(
-					$author$project$GraphDrawing$makeLatex,
-					cfg,
-					labelpos,
-					edgeId,
-					label.dims,
-					finalLabel,
-					$author$project$Zindex$foregroundZ,
-					_Utils_ap(
-						_List_fromArray(
-							[
-								$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onClick(
-								$author$project$Msg$EdgeClick(edgeId)),
-								$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDoubleClick(
-								$author$project$Msg$EltDoubleClick(edgeId)),
-								$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onMove(
-								$elm$core$Basics$always(
-									$author$project$Msg$MouseOn(edgeId)))
-							]),
-						_Utils_ap(
-							rotateAttr,
-							_Utils_ap(
-								A2(
-									$elm$core$List$map,
-									$elm$html$Html$Attributes$class,
-									$author$project$GraphDrawing$activityToClasses(activity)),
-								$author$project$HtmlDefs$onRendered(
-									$author$project$Msg$EdgeRendered(edgeId))))));
+				var angle = f((arg.angle * 180) / $elm$core$Basics$pi);
+				return _List_fromArray(
+					[
+						'rotate(' + (angle + (' ' + (f(width / 2) + (' ' + (f(height / 2) + ')')))))
+					]);
 			}
+		}();
+		var rescaleOption = function () {
+			if (arg.scale === 1) {
+				return _List_Nil;
+			} else {
+				var scale = f(arg.scale);
+				return _List_fromArray(
+					['scale(' + (scale + ')')]);
+			}
+		}();
+		var translateOption = _List_fromArray(
+			[
+				'translate(' + (f(x - (width / 2)) + (',' + (f(y - (height / 2)) + ')')))
+			]);
+		var style = function () {
+			var list = _Utils_ap(
+				translateOption,
+				_Utils_ap(angleOption, rescaleOption));
+			return _Utils_eq(list, _List_Nil) ? _List_Nil : _List_fromArray(
+				[
+					$author$project$String$Svg$transform(
+					A2($elm$core$String$join, ' ', list))
+				]);
+		}();
+		return A2(
+			$author$project$String$Svg$g,
+			style,
+			_List_fromArray(
+				[
+					A5(
+					$author$project$Drawing$htmlAnchorSvg,
+					_Utils_Tuple2(0, 0),
+					arg.dims,
+					false,
+					$author$project$Drawing$makeLatexString(arg.label),
+					A2(
+						$author$project$HtmlDefs$makeLatex,
+						attrs,
+						A2($author$project$Drawing$withPreamble, arg.preamble, arg.label)))
+				]));
+	});
+var $author$project$Drawing$tikzShapeToSvg = F2(
+	function (shape, attrs) {
+		switch (shape.$) {
+			case 'Node':
+				var arg = shape.a;
+				return A2($author$project$Drawing$nodeToSvg, arg, attrs);
+			case 'Line':
+				var arg = shape.a;
+				return A2($author$project$Drawing$lineToSvg, arg, attrs);
+			default:
+				var arg = shape.a;
+				return A2($author$project$Drawing$arrowToSvg, arg, attrs);
 		}
 	});
-var $author$project$Drawing$On = F2(
-	function (a, b) {
-		return {$: 'On', a: a, b: b};
-	});
-var $author$project$Drawing$on = $author$project$Drawing$On;
-var $author$project$Drawing$simpleOn = F2(
-	function (s, m) {
-		return A2(
-			$author$project$Drawing$on,
-			s,
-			$elm$json$Json$Decode$succeed(m));
-	});
-var $author$project$GraphDrawing$normalEdgeDrawing = F7(
-	function (cfg, edgeId, activity, z, label, q, curve) {
-		var style = $author$project$ArrowStyle$getStyle(label);
-		var classes = label.isAdjunction ? $author$project$GraphDrawing$activityToClasses(activity) : $author$project$GraphDrawing$activityToEdgeClasses(activity);
-		var attrs = _Utils_ap(
-			A2($elm$core$List$map, $author$project$Drawing$class, classes),
-			_List_fromArray(
-				[
-					$author$project$Drawing$zindexAttr(z),
-					$author$project$Drawing$onClick(
-					$author$project$Msg$EdgeClick(edgeId)),
-					$author$project$Drawing$onDoubleClick(
-					$author$project$Msg$EltDoubleClick(edgeId)),
-					A2(
-					$author$project$Drawing$simpleOn,
-					'mousemove',
-					$author$project$Msg$MouseOn(edgeId))
-				]));
-		return $author$project$Drawing$group(
-			_List_fromArray(
-				[
-					A3($author$project$Drawing$arrow, attrs, style, q),
-					A6($author$project$GraphDrawing$segmentLabel, cfg, q, edgeId, activity, label, curve)
-				]));
-	});
-var $author$project$GraphDrawing$graphDrawing = F2(
-	function (cfg, g0) {
-		var drawEdge = F2(
-			function (id, e) {
-				var _v0 = _Utils_Tuple2(e.details, e.shape);
-				_v0$2:
-				while (true) {
-					if (_v0.a.$ === 'PullshoutEdge') {
-						if (_v0.b.$ === 'HatShape') {
-							var _v1 = _v0.a;
-							var hat = _v0.b.a;
-							return A4($author$project$GraphDrawing$drawHat, id, e.isActive, e.zindex, hat);
-						} else {
-							break _v0$2;
-						}
-					} else {
-						if (_v0.b.$ === 'Bezier') {
-							var l = _v0.a.a;
-							var q = _v0.b.a;
-							return A7($author$project$GraphDrawing$normalEdgeDrawing, cfg, id, e.isActive, e.zindex, l, q, l.style.bend);
-						} else {
-							break _v0$2;
-						}
-					}
-				}
-				return $author$project$Drawing$empty;
-			});
-		var g = A3(
-			$author$project$Polygraph$map,
-			F2(
-				function (id, n) {
-					return A2(
-						$author$project$GraphDrawing$nodeDrawing,
-						cfg,
-						A2($author$project$Polygraph$Node, id, n));
-				}),
-			drawEdge,
-			g0);
-		var nodes = A2(
-			$elm$core$List$map,
-			function ($) {
-				return $.label;
-			},
-			$author$project$Polygraph$nodes(g));
-		var edges = A2(
-			$elm$core$List$map,
-			function ($) {
-				return $.label;
-			},
-			$author$project$Polygraph$edges(g));
-		var drawings = _Utils_ap(nodes, edges);
-		return $author$project$Drawing$group(drawings);
-	});
-var $author$project$Main$toDrawing = F2(
-	function (model, graph) {
-		var cfg = {
-			latexPreamble: function () {
-				var _v0 = model.scenario;
-				if (_v0.$ === 'Exercise1') {
-					return '\\newcommand{\\depthHistory}{' + ($elm$core$String$fromInt(
-						$elm$core$List$length(model.history)) + '}');
-				} else {
-					return model.graphInfo.latexPreamble;
-				}
-			}()
-		};
-		return A2($author$project$GraphDrawing$graphDrawing, cfg, graph);
-	});
-var $author$project$GraphDrawing$MainActive = {$: 'MainActive'};
-var $author$project$GraphDrawing$NoActive = {$: 'NoActive'};
-var $author$project$GraphDrawing$WeakActive = {$: 'WeakActive'};
-var $author$project$GraphDrawing$NormalEdge = function (a) {
-	return {$: 'NormalEdge', a: a};
-};
-var $author$project$GraphDrawing$PullshoutEdge = {$: 'PullshoutEdge'};
-var $author$project$GraphDefs$getEdgeDims = function (n) {
-	var _v0 = n.dims;
-	if (_v0.$ === 'Nothing') {
-		return $author$project$GraphDefs$defaultDims(n.label);
+var $author$project$Drawing$shapeToSvg = function (shape) {
+	if (shape.$ === 'SvgShape') {
+		var s = shape.a;
+		return s;
 	} else {
-		var p = _v0.a;
-		return p;
+		var attrs = shape.a;
+		var s = shape.b;
+		return A2($author$project$Drawing$tikzShapeToSvg, s, attrs);
 	}
 };
-var $author$project$GraphDrawing$make_edgeDrawingLabel = F2(
-	function (_v0, e) {
-		var editable = _v0.editable;
-		var isActive = _v0.isActive;
-		var shape = _v0.shape;
-		return {
-			details: function () {
-				var _v1 = e.details;
-				if (_v1.$ === 'PullshoutEdge') {
-					return $author$project$GraphDrawing$PullshoutEdge;
-				} else {
-					var l = _v1.a;
-					var label = l.label;
-					var style = l.style;
-					var isAdjunction = l.isAdjunction;
-					return $author$project$GraphDrawing$NormalEdge(
-						{
-							dims: $author$project$GraphDefs$getEdgeDims(l),
-							editable: editable,
-							isAdjunction: isAdjunction,
-							label: label,
-							style: style
-						});
-				}
-			}(),
-			isActive: isActive,
-			shape: shape,
-			zindex: e.zindex
-		};
-	});
-var $author$project$GraphDrawing$make_nodeDrawingLabel = F2(
-	function (_v0, l) {
-		var editable = _v0.editable;
-		var isActive = _v0.isActive;
-		var label = l.label;
-		var pos = l.pos;
-		var isMath = l.isMath;
-		var nodePos = $author$project$GraphDefs$getNodePos(l);
-		return {
-			dims: editable ? _Utils_Tuple2(0, 0) : $author$project$GraphDefs$getNodeDims(l),
-			editable: editable,
-			inputPos: pos,
-			isActive: isActive,
-			isMath: isMath,
-			isValidated: l.isCoqValidated,
-			label: label,
-			pos: nodePos,
-			zindex: l.zindex
-		};
-	});
-var $author$project$GraphDrawing$toDrawingGraph = function (g) {
-	var makeActivity = function (r) {
-		return r.selected ? $author$project$GraphDrawing$MainActive : (r.weaklySelected ? $author$project$GraphDrawing$WeakActive : $author$project$GraphDrawing$NoActive);
-	};
-	var graphWithPos = $author$project$GraphDefs$posGraph(g);
-	return A3(
-		$author$project$Polygraph$map,
-		F2(
-			function (_v0, n) {
-				return A2(
-					$author$project$GraphDrawing$make_nodeDrawingLabel,
-					{
-						editable: false,
-						isActive: makeActivity(n)
-					},
-					n);
-			}),
-		F2(
-			function (_v1, e) {
-				return A2(
-					$author$project$GraphDrawing$make_edgeDrawingLabel,
-					{
-						editable: false,
-						isActive: makeActivity(e.label),
-						shape: e.shape
-					},
-					e.label);
-			}),
-		graphWithPos);
-};
-var $elm_community$maybe_extra$Maybe$Extra$isNothing = function (m) {
-	if (m.$ === 'Nothing') {
-		return true;
-	} else {
-		return false;
-	}
+var $author$project$Drawing$drawingToSvgs = function (_v0) {
+	var c = _v0.a;
+	return A2(
+		$elm$core$List$map,
+		function (_v1) {
+			var shape = _v1.shape;
+			var key = _v1.key;
+			return {
+				key: key,
+				svg: $author$project$Drawing$shapeToSvg(shape)
+			};
+		},
+		c);
 };
 var $author$project$String$Html$KeyedNodeNS = F4(
 	function (a, b, c, d) {
@@ -21714,20 +21687,16 @@ var $author$project$String$Svg$keyedNode = $author$project$String$Html$keyedNode
 var $author$project$String$Svg$ksvg = $author$project$String$Svg$keyedNode('svg');
 var $author$project$Drawing$svgHelper = F2(
 	function (l, d) {
-		var _v0 = A2(
-			$elm$core$List$partition,
-			A2(
-				$elm$core$Basics$composeR,
-				function ($) {
-					return $.key;
-				},
-				$elm_community$maybe_extra$Maybe$Extra$isNothing),
-			A2(
-				$elm$core$List$sortBy,
-				function ($) {
-					return $.zindex;
-				},
-				$author$project$Drawing$drawingToZSvgs(d)));
+		var _v0 = function () {
+			var _v1 = $author$project$Drawing$keyPartition(d);
+			var unkeyed = _v1.a;
+			var keyed = _v1.b;
+			return _Utils_Tuple2(
+				$author$project$Drawing$drawingToSvgs(
+					$author$project$Drawing$Drawing(unkeyed)),
+				$author$project$Drawing$drawingToSvgs(
+					$author$project$Drawing$Drawing(keyed)));
+		}();
 		var unkeyedList = _v0.a;
 		var keyedList = _v0.b;
 		var unkeyedGroup = A2(
@@ -21873,6 +21842,13 @@ var $zwilias$elm_html_string$Html$Types$join = F2(
 var $zwilias$elm_html_string$Html$Types$closingTag = function (tagName) {
 	return '</' + (tagName + '>');
 };
+var $elm$core$String$replace = F3(
+	function (before, after, string) {
+		return A2(
+			$elm$core$String$join,
+			after,
+			A2($elm$core$String$split, before, string));
+	});
 var $zwilias$elm_html_string$Html$Types$escapeHtmlText = A2(
 	$elm$core$Basics$composeR,
 	A2($elm$core$String$replace, '&', '&amp;'),
@@ -22262,23 +22238,18 @@ var $author$project$Main$svgExport = F2(
 	});
 var $author$project$Main$makeExports = function (model) {
 	var modelGraph = $author$project$Model$getActiveGraph(model);
-	var sizeGrid = $author$project$Model$getActiveSizeGrid(model);
 	return {
 		coq: A2($author$project$Main$coqExport, model, modelGraph),
 		svg: A2($author$project$Main$svgExport, model, modelGraph),
-		tex: A2($author$project$Tikz$graphToTikz, sizeGrid, modelGraph)
+		tex: A2($author$project$Main$graphToTikz, model, modelGraph)
 	};
 };
-var $author$project$Main$onMouseMove = _Platform_outgoingPort('onMouseMove', $elm$core$Basics$identity);
-var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
-	'quicksaveGraph',
+var $author$project$Main$saveGraph = _Platform_outgoingPort(
+	'saveGraph',
 	function ($) {
 		return $elm$json$Json$Encode$object(
 			_List_fromArray(
 				[
-					_Utils_Tuple2(
-					'autosave',
-					$elm$json$Json$Encode$bool($.autosave)),
 					_Utils_Tuple2(
 					'export',
 					function ($) {
@@ -22457,12 +22428,409 @@ var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
 					}($.info))
 				]));
 	});
-var $author$project$Main$saveGraph = _Platform_outgoingPort(
-	'saveGraph',
+var $author$project$Format$GraphInfo$normalise = function (gi) {
+	var idx = A2(
+		$elm$core$Maybe$withDefault,
+		0,
+		A2(
+			$elm_community$list_extra$List$Extra$findIndex,
+			$author$project$Format$GraphInfo$isActiveTab(gi),
+			gi.tabs));
+	return _Utils_update(
+		gi,
+		{
+			activeTabId: idx,
+			tabs: A2(
+				$elm$core$List$indexedMap,
+				F2(
+					function (id, tab) {
+						return _Utils_update(
+							tab,
+							{
+								graph: $author$project$Polygraph$normalise(tab.graph),
+								id: id
+							});
+					}),
+				gi.tabs)
+		});
+};
+var $author$project$Model$toGraphInfo = function (m) {
+	return m.graphInfo;
+};
+var $author$project$Format$Version13$toJSGraph = $author$project$Codec$encoder($author$project$Format$Version13$graphInfoCodec);
+var $author$project$Format$LastVersion$toJSGraph = $author$project$Format$Version13$toJSGraph;
+var $author$project$Format$Version13$version = 13;
+var $author$project$Format$LastVersion$version = $author$project$Format$Version13$version;
+var $author$project$Main$toJsGraphInfo = function (model) {
+	return {
+		graph: $author$project$Format$LastVersion$toJSGraph(
+			$author$project$Format$GraphInfo$normalise(
+				$author$project$Model$toGraphInfo(model))),
+		version: $author$project$Format$LastVersion$version
+	};
+};
+var $author$project$Main$save = function (model) {
+	return _Utils_Tuple2(
+		model,
+		$author$project$Main$saveGraph(
+			{
+				_export: $author$project$Main$makeExports(model),
+				info: $author$project$Main$toJsGraphInfo(model)
+			}));
+};
+var $author$project$Main$checkMakeSave = function (model) {
+	if (_Utils_eq(model.mode, $author$project$Modes$MakeSaveMode) && $author$project$GraphDefs$allDimsReady(
+		$author$project$Model$getActiveGraph(model))) {
+		var edges = A2(
+			$elm$core$List$map,
+			function (e) {
+				return _Utils_Tuple2(e.id, e.label.details.dims);
+			},
+			A2(
+				$elm$core$List$filterMap,
+				$author$project$GraphDefs$filterEdgeNormal,
+				$author$project$Polygraph$edges(
+					$author$project$Model$getActiveGraph(model))));
+		return $author$project$Main$save(
+			_Utils_update(
+				model,
+				{mode: $author$project$Modes$DefaultMode}));
+	} else {
+		return $author$project$Model$noCmd(model);
+	}
+};
+var $author$project$GraphDefs$mapEdgeType = F2(
+	function (f, e) {
+		if (e.$ === 'PullshoutEdge') {
+			return $author$project$GraphDefs$PullshoutEdge;
+		} else {
+			var l = e.a;
+			return $author$project$GraphDefs$NormalEdge(
+				f(l));
+		}
+	});
+var $author$project$GraphDefs$mapNormalEdge = A2($elm$core$Basics$composeR, $author$project$GraphDefs$mapEdgeType, $author$project$GraphDefs$mapDetails);
+var $author$project$GraphDefs$clearDims = function (g) {
+	return A3(
+		$author$project$Polygraph$map,
+		F2(
+			function (_v0, n) {
+				return _Utils_update(
+					n,
+					{dims: $elm$core$Maybe$Nothing});
+			}),
+		function (_v1) {
+			return $author$project$GraphDefs$mapNormalEdge(
+				function (e) {
+					return _Utils_update(
+						e,
+						{dims: $elm$core$Maybe$Nothing});
+				});
+		},
+		g);
+};
+var $author$project$GraphDefs$keepNormalEdges = A2($author$project$Polygraph$filterMap, $elm$core$Maybe$Just, $author$project$GraphDefs$filterLabelNormal);
+var $author$project$ArrowStyle$quiverStyle = function (st) {
+	var _v0 = st;
+	var tail = _v0.tail;
+	var head = _v0.head;
+	var kind = _v0.kind;
+	var dashed = _v0.dashed;
+	var makeIf = F2(
+		function (b, x) {
+			return b ? _List_fromArray(
+				[x]) : _List_Nil;
+		});
+	var _double = $author$project$ArrowStyle$isDouble(st);
+	var headStyle = function () {
+		switch (head.$) {
+			case 'DefaultHead':
+				return _List_Nil;
+			case 'TwoHeads':
+				return _List_fromArray(
+					[
+						_Utils_Tuple2(
+						'head',
+						_List_fromArray(
+							[
+								_Utils_Tuple2('name', 'epi')
+							]))
+					]);
+			default:
+				return _List_fromArray(
+					[
+						_Utils_Tuple2(
+						'head',
+						_List_fromArray(
+							[
+								_Utils_Tuple2('name', 'none')
+							]))
+					]);
+		}
+	}();
+	var tailStyle = function () {
+		switch (tail.$) {
+			case 'DefaultTail':
+				return _List_Nil;
+			case 'Mapsto':
+				return _List_fromArray(
+					[
+						_Utils_Tuple2(
+						'tail',
+						_List_fromArray(
+							[
+								_Utils_Tuple2('name', 'maps to')
+							]))
+					]);
+			case 'Hook':
+				return _List_fromArray(
+					[
+						_Utils_Tuple2(
+						'tail',
+						_List_fromArray(
+							[
+								_Utils_Tuple2('name', 'hook'),
+								_Utils_Tuple2('side', 'top')
+							]))
+					]);
+			default:
+				return _List_fromArray(
+					[
+						_Utils_Tuple2(
+						'tail',
+						_List_fromArray(
+							[
+								_Utils_Tuple2('name', 'hook'),
+								_Utils_Tuple2('side', 'bottom')
+							]))
+					]);
+		}
+	}();
+	var style = A2(
+		$elm$core$List$map,
+		function (_v1) {
+			var x = _v1.a;
+			var y = _v1.b;
+			return _Utils_Tuple2(
+				x,
+				$elm$json$Json$Encode$object(
+					A2(
+						$elm$core$List$map,
+						function (_v2) {
+							var s = _v2.a;
+							var l = _v2.b;
+							return _Utils_Tuple2(
+								s,
+								$elm$json$Json$Encode$string(l));
+						},
+						y)));
+		},
+		_Utils_ap(
+			headStyle,
+			_Utils_ap(
+				tailStyle,
+				A2(
+					makeIf,
+					dashed,
+					_Utils_Tuple2(
+						'body',
+						_List_fromArray(
+							[
+								_Utils_Tuple2('name', 'dashed')
+							]))))));
+	return _Utils_ap(
+		A2(
+			makeIf,
+			_double,
+			_Utils_Tuple2(
+				'level',
+				$elm$json$Json$Encode$int(2))),
+		_Utils_ap(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'style',
+					$elm$json$Json$Encode$object(style))
+				]),
+			_Utils_ap(
+				A2(
+					makeIf,
+					!(!st.bend),
+					_Utils_Tuple2(
+						'curve',
+						$elm$json$Json$Encode$int(
+							$elm$core$Basics$floor(st.bend * 10)))),
+				A2(
+					makeIf,
+					st.labelPosition !== 0.5,
+					_Utils_Tuple2(
+						'label_position',
+						$elm$json$Json$Encode$int(
+							$elm$core$Basics$floor(st.labelPosition * 100)))))));
+};
+var $author$project$GraphDefs$exportQuiver = F2(
+	function (sizeGrid, g) {
+		var gnorm = $author$project$Polygraph$normalise(
+			$author$project$GraphDefs$keepNormalEdges(g));
+		var nodes = $author$project$Polygraph$nodes(gnorm);
+		var edges = $author$project$Polygraph$edges(gnorm);
+		var coordInt = function (x) {
+			return $elm$json$Json$Encode$int(
+				$elm$core$Basics$floor(x / sizeGrid));
+		};
+		var encodePos = function (_v0) {
+			var x = _v0.a;
+			var y = _v0.b;
+			return _List_fromArray(
+				[
+					coordInt(x),
+					coordInt(y)
+				]);
+		};
+		var encodeNode = function (n) {
+			return A2(
+				$elm$json$Json$Encode$list,
+				$elm$core$Basics$identity,
+				_Utils_ap(
+					encodePos(n.label.pos),
+					_List_fromArray(
+						[
+							$elm$json$Json$Encode$string(
+							(n.label.label === '') ? '\\bullet' : n.label.label)
+						])));
+		};
+		var encodeEdge = function (e) {
+			return A2(
+				$elm$json$Json$Encode$list,
+				$elm$core$Basics$identity,
+				_List_fromArray(
+					[
+						$elm$json$Json$Encode$int(e.from),
+						$elm$json$Json$Encode$int(e.to),
+						$elm$json$Json$Encode$string(e.label.details.label),
+						$elm$json$Json$Encode$int(
+						_Utils_eq(e.label.details.style.labelAlignment, $author$project$Geometry$Right) ? 2 : 0),
+						$elm$json$Json$Encode$object(
+						$author$project$ArrowStyle$quiverStyle(e.label.details.style))
+					]));
+		};
+		var jnodes = A2($elm$core$List$map, encodeNode, nodes);
+		var jedges = A2($elm$core$List$map, encodeEdge, edges);
+		return A2(
+			$elm$json$Json$Encode$list,
+			$elm$core$Basics$identity,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						$elm$json$Json$Encode$int(0),
+						$elm$json$Json$Encode$int(
+						$elm$core$List$length(nodes))
+					]),
+				_Utils_ap(jnodes, jedges)));
+	});
+var $author$project$Main$exportQuiver = _Platform_outgoingPort('exportQuiver', $elm$core$Basics$identity);
+var $author$project$GraphDefs$mapMaybeNormalEdge = F2(
+	function (f, e) {
+		var _v0 = e.details;
+		if (_v0.$ === 'PullshoutEdge') {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			var l = _v0.a;
+			var _v1 = f(l);
+			if (_v1.$ === 'Nothing') {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var x = _v1.a;
+				return $elm$core$Maybe$Just(
+					_Utils_update(
+						e,
+						{
+							details: $author$project$GraphDefs$NormalEdge(x)
+						}));
+			}
+		}
+	});
+var $author$project$Polygraph$updateStatus = function (s) {
+	switch (s.$) {
+		case 'New':
+			return $author$project$Polygraph$New;
+		case 'Edit':
+			return $author$project$Polygraph$Edit;
+		default:
+			return $author$project$Polygraph$Edit;
+	}
+};
+var $author$project$Polygraph$md_map = F3(
+	function (fn, fe, _v0) {
+		var m = _v0.a;
+		var makeFun = function (f) {
+			return F2(
+				function (i, x) {
+					return A2(
+						$elm$core$Maybe$withDefault,
+						x,
+						A2(
+							$elm$core$Maybe$map,
+							function (r) {
+								return {
+									edit: $author$project$Polygraph$updateStatus(x.edit),
+									label: r
+								};
+							},
+							A2(f, i, x.label)));
+				});
+		};
+		var mappedGraph = A3(
+			$author$project$Polygraph$map,
+			makeFun(fn),
+			makeFun(fe),
+			m.graph);
+		return $author$project$Polygraph$ModifHelper(
+			_Utils_update(
+				m,
+				{graph: mappedGraph}));
+	});
+var $author$project$GraphDefs$findReplaceInSelected = F2(
+	function (g, r) {
+		var sel = $author$project$GraphDefs$fieldSelect(g);
+		var repl = F2(
+			function (b, x) {
+				return (b && A2($elm$core$String$contains, r.search, x.label)) ? $elm$core$Maybe$Just(
+					_Utils_update(
+						x,
+						{
+							label: A3($elm$core$String$replace, r.search, r.replace, x.label)
+						})) : $elm$core$Maybe$Nothing;
+			});
+		return A3(
+			$author$project$Polygraph$md_map,
+			F2(
+				function (_v0, n) {
+					return A2(
+						repl,
+						sel(n),
+						n);
+				}),
+			F2(
+				function (_v1, e) {
+					return A2(
+						$author$project$GraphDefs$mapMaybeNormalEdge,
+						repl(
+							sel(e)),
+						e);
+				}),
+			$author$project$Polygraph$newModif(g));
+	});
+var $author$project$Main$onMouseMove = _Platform_outgoingPort('onMouseMove', $elm$core$Basics$identity);
+var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
+	'quicksaveGraph',
 	function ($) {
 		return $elm$json$Json$Encode$object(
 			_List_fromArray(
 				[
+					_Utils_Tuple2(
+					'autosave',
+					$elm$json$Json$Encode$bool($.autosave)),
 					_Utils_Tuple2(
 					'export',
 					function ($) {
@@ -23471,47 +23839,6 @@ var $author$project$Main$setFirstTabEquationPerform = F2(
 				$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
 		}
 	});
-var $author$project$Format$GraphInfo$normalise = function (gi) {
-	var idx = A2(
-		$elm$core$Maybe$withDefault,
-		0,
-		A2(
-			$elm_community$list_extra$List$Extra$findIndex,
-			$author$project$Format$GraphInfo$isActiveTab(gi),
-			gi.tabs));
-	return _Utils_update(
-		gi,
-		{
-			activeTabId: idx,
-			tabs: A2(
-				$elm$core$List$indexedMap,
-				F2(
-					function (id, tab) {
-						return _Utils_update(
-							tab,
-							{
-								graph: $author$project$Polygraph$normalise(tab.graph),
-								id: id
-							});
-					}),
-				gi.tabs)
-		});
-};
-var $author$project$Model$toGraphInfo = function (m) {
-	return m.graphInfo;
-};
-var $author$project$Format$Version13$toJSGraph = $author$project$Codec$encoder($author$project$Format$Version13$graphInfoCodec);
-var $author$project$Format$LastVersion$toJSGraph = $author$project$Format$Version13$toJSGraph;
-var $author$project$Format$Version13$version = 13;
-var $author$project$Format$LastVersion$version = $author$project$Format$Version13$version;
-var $author$project$Main$toJsGraphInfo = function (model) {
-	return {
-		graph: $author$project$Format$LastVersion$toJSGraph(
-			$author$project$Format$GraphInfo$normalise(
-				$author$project$Model$toGraphInfo(model))),
-		version: $author$project$Format$LastVersion$version
-	};
-};
 var $author$project$IntDictExtra$getList = F2(
 	function (l, d) {
 		var d2 = A2($elm_community$intdict$IntDict$map, $elm$core$Tuple$pair, d);
@@ -23573,17 +23900,6 @@ var $author$project$ArrowStyle$keyMaybeUpdateColor = F2(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$GraphDefs$mapEdgeType = F2(
-	function (f, e) {
-		if (e.$ === 'PullshoutEdge') {
-			return $author$project$GraphDefs$PullshoutEdge;
-		} else {
-			var l = e.a;
-			return $author$project$GraphDefs$NormalEdge(
-				f(l));
-		}
-	});
-var $author$project$GraphDefs$mapNormalEdge = A2($elm$core$Basics$composeR, $author$project$GraphDefs$mapEdgeType, $author$project$GraphDefs$mapDetails);
 var $author$project$Polygraph$md_graphMap = F2(
 	function (f, _v0) {
 		var m = _v0.a;
@@ -25333,8 +25649,8 @@ var $author$project$Modes$NewLine$update = F3(
 				{mode: $author$project$Modes$DefaultMode});
 			return A2(
 				$author$project$CommandCodec$updateModifHelper,
-				model,
-				A2($author$project$Modes$NewLine$makeGraph, model, state));
+				newModel,
+				A2($author$project$Modes$NewLine$makeGraph, newModel, state));
 		};
 		_v0$4:
 		while (true) {
@@ -29196,8 +29512,8 @@ var $author$project$Main$update_DefaultMode = F2(
 											$author$project$GraphDefs$removeSelected(modelGraph));
 									case 'X':
 										var latex = A2(
-											$author$project$Tikz$graphToTikz,
-											$author$project$Model$getActiveSizeGrid(model),
+											$author$project$Main$graphToTikz,
+											model,
 											$author$project$GraphDefs$selectedGraph(modelGraph));
 										var cmd = (latex === '') ? $author$project$Main$alert('No diagram found!') : $author$project$Main$latexToClipboard(latex);
 										return _Utils_Tuple2(model, cmd);
@@ -29824,14 +30140,15 @@ var $author$project$Main$update = F2(
 			case 'SetFirstTabEquation':
 				var s = msg.a;
 				return A2($author$project$Main$setFirstTabEquationPerform, modeli, s);
-			case 'Save':
+			case 'MakeSave':
+				var newModel = A2($author$project$Model$updateActiveGraph, model, $author$project$GraphDefs$clearDims);
 				return _Utils_Tuple2(
-					model,
-					$author$project$Main$saveGraph(
-						{
-							_export: $author$project$Main$makeExports(model),
-							info: $author$project$Main$toJsGraphInfo(model)
-						}));
+					_Utils_update(
+						newModel,
+						{mode: $author$project$Modes$MakeSaveMode}),
+					$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
+			case 'Save':
+				return $author$project$Main$save(model);
 			case 'RulerMargin':
 				var rulerMargin = msg.a;
 				return $author$project$Model$noCmd(
@@ -29864,6 +30181,11 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{rulerShow: !model.rulerShow}));
+			case 'ToggleAlternativeLatex':
+				return $author$project$Model$noCmd(
+					_Utils_update(
+						model,
+						{alternativeLatex: !model.alternativeLatex}));
 			case 'ToggleAutosave':
 				return $author$project$Model$noCmd(
 					_Utils_update(
@@ -29890,7 +30212,7 @@ var $author$project$Main$update = F2(
 				var dims = _Utils_Tuple2(
 					x,
 					(!y) ? 12 : y);
-				return $author$project$Model$noCmd(
+				return $author$project$Main$checkMakeSave(
 					A2(
 						$author$project$Model$updateActiveGraph,
 						model,
@@ -29906,26 +30228,27 @@ var $author$project$Main$update = F2(
 							})));
 			case 'EdgeRendered':
 				var e = msg.a;
-				var _v5 = msg.b;
+				var rawDims = msg.b;
+				var _v5 = A2($author$project$Geometry$Point$resize, $author$project$GraphDefs$edgeScaleFactor, rawDims);
 				var x = _v5.a;
 				var y = _v5.b;
 				var dims = _Utils_Tuple2(
 					x,
 					(!y) ? 12 : y);
-				return $author$project$Model$noCmd(
+				var newModel = A2(
+					$author$project$Model$updateActiveGraph,
+					model,
 					A2(
-						$author$project$Model$updateActiveGraph,
-						model,
-						A2(
-							$author$project$GraphDefs$updateNormalEdge,
-							e,
-							function (l) {
-								return _Utils_update(
-									l,
-									{
-										dims: $elm$core$Maybe$Just(dims)
-									});
-							})));
+						$author$project$GraphDefs$updateNormalEdge,
+						e,
+						function (l) {
+							return _Utils_update(
+								l,
+								{
+									dims: $elm$core$Maybe$Just(dims)
+								});
+						}));
+				return $author$project$Main$checkMakeSave(newModel);
 			case 'Do':
 				var cmd = msg.a;
 				return _Utils_Tuple2(model, cmd);
@@ -29969,6 +30292,8 @@ var $author$project$Main$update = F2(
 			default:
 				var _v6 = model.mode;
 				switch (_v6.$) {
+					case 'MakeSaveMode':
+						return $author$project$Model$noCmd(model);
 					case 'NewLine':
 						var state = _v6.a;
 						return A3($author$project$Modes$NewLine$update, state, msg, model);
@@ -30057,14 +30382,39 @@ var $author$project$Msg$OptimalGridSize = {$: 'OptimalGridSize'};
 var $author$project$Msg$RulerMargin = function (a) {
 	return {$: 'RulerMargin', a: a};
 };
+var $author$project$Msg$Save = {$: 'Save'};
 var $author$project$Msg$SaveRulerGridSize = {$: 'SaveRulerGridSize'};
 var $author$project$Msg$SizeGrid = function (a) {
 	return {$: 'SizeGrid', a: a};
 };
+var $author$project$Msg$ToggleAlternativeLatex = {$: 'ToggleAlternativeLatex'};
 var $author$project$Msg$ToggleAutosave = {$: 'ToggleAutosave'};
 var $author$project$Msg$ToggleHideGrid = {$: 'ToggleHideGrid'};
 var $author$project$Msg$ToggleHideRuler = {$: 'ToggleHideRuler'};
 var $elm$html$Html$a = _VirtualDom_node('a');
+var $author$project$String$Svg$class = $author$project$String$Html$attribute('class');
+var $author$project$Drawing$ofSvgs = F2(
+	function (z, l) {
+		return $author$project$Drawing$Drawing(
+			A2(
+				$elm$core$List$map,
+				function (s) {
+					return {
+						key: $elm$core$Maybe$Nothing,
+						shape: $author$project$Drawing$SvgShape(s),
+						zindex: z
+					};
+				},
+				l));
+	});
+var $author$project$Drawing$ofSvg = F2(
+	function (z, s) {
+		return A2(
+			$author$project$Drawing$ofSvgs,
+			z,
+			_List_fromArray(
+				[s]));
+	});
 var $author$project$String$Svg$rect = $author$project$String$Svg$node('rect');
 var $author$project$Drawing$rect = F2(
 	function (z, _v0) {
@@ -30201,6 +30551,7 @@ var $author$project$HtmlDefs$checkbox = F4(
 					$elm$html$Html$text(name)
 				]));
 	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$Attributes$cols = function (n) {
 	return A2(
 		_VirtualDom_attribute,
@@ -30406,6 +30757,8 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 	var modelGraph = $author$project$Model$getActiveGraph(m);
 	var _v0 = m.mode;
 	switch (_v0.$) {
+		case 'MakeSaveMode':
+			return A2($author$project$Model$collageGraphFromGraph, m, modelGraph);
 		case 'ColorMode':
 			return A2($author$project$Model$collageGraphFromGraph, m, modelGraph);
 		case 'DefaultMode':
@@ -30507,7 +30860,7 @@ var $author$project$Drawing$grid = function (n) {
 										$author$project$String$Svg$d('M ' + (sn + (' 0 L 0 0 0 ' + sn))),
 										$author$project$String$Svg$fill('none'),
 										$author$project$String$Svg$stroke('gray'),
-										$author$project$String$Svg$strokeWidth('1px')
+										$author$project$String$Svg$strokeWidthPx(1)
 									]),
 								_List_Nil)
 							]))
@@ -30747,8 +31100,10 @@ var $author$project$Modes$toString = function (m) {
 			return 'Resize';
 		case 'PullshoutMode':
 			return 'Pullshout';
-		default:
+		case 'ColorMode':
 			return 'Color';
+		default:
+			return 'MakeSave';
 	}
 };
 var $author$project$Main$helpMsg = function (model) {
@@ -34025,14 +34380,6 @@ var $hecrj$html_parser$Html$Parser$run = function (str) {
 		A2($hecrj$html_parser$Html$Parser$oneOrMore, 'node', $hecrj$html_parser$Html$Parser$node),
 		str);
 };
-var $elm$virtual_dom$VirtualDom$attribute = F2(
-	function (key, value) {
-		return A2(
-			_VirtualDom_attribute,
-			_VirtualDom_noOnOrFormAction(key),
-			_VirtualDom_noJavaScriptOrHtmlUri(value));
-	});
-var $elm$html$Html$Attributes$attribute = $elm$virtual_dom$VirtualDom$attribute;
 var $hecrj$html_parser$Html$Parser$Util$toAttribute = function (_v0) {
 	var name = _v0.a;
 	var value = _v0.b;
@@ -34238,13 +34585,10 @@ var $author$project$Drawing$ruler = function (offset) {
 						$author$project$String$Svg$y1('0'),
 						$author$project$String$Svg$y2('100%')
 					]),
-				A2(
-					$author$project$Drawing$attrsToSvgAttrs,
-					$author$project$String$Svg$stroke,
-					_List_fromArray(
-						[
-							$author$project$Drawing$Color($author$project$Drawing$Color$black)
-						]))),
+				_List_fromArray(
+					[
+						$author$project$String$Svg$strokeFromColor($author$project$Drawing$Color$black)
+					])),
 			_List_Nil));
 };
 var $elm$html$Html$Attributes$max = $elm$html$Html$Attributes$stringProperty('max');
@@ -34524,6 +34868,7 @@ var $author$project$Main$viewGraph = function (model) {
 						])),
 					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleHideGrid, 'Show grid', '', !model.hideGrid),
 					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleHideRuler, 'Show ruler', '', model.rulerShow),
+					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleAlternativeLatex, 'Alternative latex generation', 'The alternative generated code should render something closer to what you see here, but is more verbose', model.alternativeLatex),
 					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleAutosave, 'Autosave', 'Quicksave every minute', model.autoSave),
 					A2(
 					$elm$html$Html$button,
