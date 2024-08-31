@@ -6525,7 +6525,7 @@ var $author$project$Codec$compose = F2(
 					$author$project$Codec$encoder(dec))
 			});
 	});
-var $author$project$Format$Version13$adjunctionKey = 'adjunction';
+var $author$project$Format$Version14$adjunctionKey = 'adjunction';
 var $author$project$Geometry$Centre = {$: 'Centre'};
 var $author$project$Geometry$Left = {$: 'Left'};
 var $author$project$Geometry$Over = {$: 'Over'};
@@ -6824,7 +6824,7 @@ var $author$project$ArrowStyle$tailCodec = function () {
 						$author$project$ArrowStyle$Hook,
 						$author$project$Codec$customEnum(split))))));
 }();
-var $author$project$Format$Version13$arrowStyleCodec = $author$project$Codec$buildObject(
+var $author$project$Format$Version14$arrowStyleCodec = $author$project$Codec$buildObject(
 	A4(
 		$author$project$Codec$fields,
 		function ($) {
@@ -6920,33 +6920,33 @@ var $author$project$ArrowStyle$getStyle = function (_v0) {
 		style,
 		{head: $author$project$ArrowStyle$NoHead, kind: $author$project$ArrowStyle$NoneArrow, labelAlignment: $author$project$Geometry$Over, tail: $author$project$ArrowStyle$DefaultTail}) : style;
 };
-var $author$project$Format$Version13$normalKey = 'normal';
-var $author$project$Format$Version13$Edge = F4(
+var $author$project$Format$Version14$normalKey = 'normal';
+var $author$project$Format$Version14$Edge = F4(
 	function (label, style, kind, zindex) {
 		return {kind: kind, label: label, style: style, zindex: zindex};
 	});
-var $author$project$Format$Version13$ArrowStyle = F8(
+var $author$project$Format$Version14$ArrowStyle = F8(
 	function (tail, head, kind, dashed, bend, alignment, position, color) {
 		return {alignment: alignment, bend: bend, color: color, dashed: dashed, head: head, kind: kind, position: position, tail: tail};
 	});
-var $author$project$Format$Version13$emptyArrowStyle = A8($author$project$Format$Version13$ArrowStyle, '', '', 'normal', false, 0, '', 0, 'black');
-var $author$project$Format$Version13$pullshoutKey = 'pullshout';
-var $author$project$Format$Version13$pullshoutEdge = function (z) {
-	return A4($author$project$Format$Version13$Edge, '', $author$project$Format$Version13$emptyArrowStyle, $author$project$Format$Version13$pullshoutKey, z);
+var $author$project$Format$Version14$emptyArrowStyle = A8($author$project$Format$Version14$ArrowStyle, '', '', 'normal', false, 0, '', 0, 'black');
+var $author$project$Format$Version14$pullshoutKey = 'pullshout';
+var $author$project$Format$Version14$pullshoutEdge = function (z) {
+	return A4($author$project$Format$Version14$Edge, '', $author$project$Format$Version14$emptyArrowStyle, $author$project$Format$Version14$pullshoutKey, z);
 };
-var $author$project$Format$Version13$fromEdgeLabel = function (e) {
+var $author$project$Format$Version14$fromEdgeLabel = function (e) {
 	var _v0 = e.details;
 	if (_v0.$ === 'PullshoutEdge') {
-		return $author$project$Format$Version13$pullshoutEdge(e.zindex);
+		return $author$project$Format$Version14$pullshoutEdge(e.zindex);
 	} else {
 		var l = _v0.a;
 		var label = l.label;
 		var isAdjunction = l.isAdjunction;
 		var style = $author$project$ArrowStyle$getStyle(l);
 		return {
-			kind: isAdjunction ? $author$project$Format$Version13$adjunctionKey : $author$project$Format$Version13$normalKey,
+			kind: isAdjunction ? $author$project$Format$Version14$adjunctionKey : $author$project$Format$Version14$normalKey,
 			label: label,
-			style: A2($author$project$Codec$encoder, $author$project$Format$Version13$arrowStyleCodec, style),
+			style: A2($author$project$Codec$encoder, $author$project$Format$Version14$arrowStyleCodec, style),
 			zindex: e.zindex
 		};
 	}
@@ -6955,25 +6955,25 @@ var $author$project$GraphDefs$NormalEdge = function (a) {
 	return {$: 'NormalEdge', a: a};
 };
 var $author$project$GraphDefs$PullshoutEdge = {$: 'PullshoutEdge'};
-var $author$project$Format$Version13$toEdgeLabel = function (_v0) {
+var $author$project$Format$Version14$toEdgeLabel = function (_v0) {
 	var label = _v0.label;
 	var style = _v0.style;
 	var kind = _v0.kind;
 	var zindex = _v0.zindex;
 	return {
-		details: _Utils_eq(kind, $author$project$Format$Version13$pullshoutKey) ? $author$project$GraphDefs$PullshoutEdge : $author$project$GraphDefs$NormalEdge(
+		details: _Utils_eq(kind, $author$project$Format$Version14$pullshoutKey) ? $author$project$GraphDefs$PullshoutEdge : $author$project$GraphDefs$NormalEdge(
 			{
 				dims: $elm$core$Maybe$Nothing,
-				isAdjunction: _Utils_eq(kind, $author$project$Format$Version13$adjunctionKey),
+				isAdjunction: _Utils_eq(kind, $author$project$Format$Version14$adjunctionKey),
 				label: label,
-				style: A2($author$project$Codec$decoder, $author$project$Format$Version13$arrowStyleCodec, style)
+				style: A2($author$project$Codec$decoder, $author$project$Format$Version14$arrowStyleCodec, style)
 			}),
 		selected: false,
 		weaklySelected: false,
 		zindex: zindex
 	};
 };
-var $author$project$Format$Version13$edgeCodec = A2($author$project$Codec$build, $author$project$Format$Version13$fromEdgeLabel, $author$project$Format$Version13$toEdgeLabel);
+var $author$project$Format$Version14$edgeCodec = A2($author$project$Codec$build, $author$project$Format$Version14$fromEdgeLabel, $author$project$Format$Version14$toEdgeLabel);
 var $elm_community$intdict$IntDict$map = F2(
 	function (f, dict) {
 		switch (dict.$) {
@@ -7057,54 +7057,63 @@ var $author$project$Polygraph$mapCodec = F2(
 				$elm$core$Basics$always(
 					$author$project$Codec$decoder(c2))));
 	});
-var $author$project$Format$Version13$nodeCodec = $author$project$Codec$buildObject(
+var $author$project$Format$Version14$nodeCodec = $author$project$Codec$buildObject(
 	A4(
 		$author$project$Codec$fields,
 		function ($) {
-			return $.zindex;
+			return $.isCoqValidated;
 		},
 		function ($) {
-			return $.zindex;
+			return $.isCoqValidated;
 		},
 		$author$project$Codec$identity,
 		A4(
 			$author$project$Codec$fields,
 			function ($) {
-				return $.isMath;
+				return $.zindex;
 			},
 			function ($) {
-				return $.isMath;
+				return $.zindex;
 			},
 			$author$project$Codec$identity,
 			A4(
 				$author$project$Codec$fields,
 				function ($) {
-					return $.label;
+					return $.isMath;
 				},
 				function ($) {
-					return $.label;
+					return $.isMath;
 				},
 				$author$project$Codec$identity,
 				A4(
 					$author$project$Codec$fields,
 					function ($) {
-						return $.pos;
+						return $.label;
 					},
 					function ($) {
-						return $.pos;
+						return $.label;
 					},
 					$author$project$Codec$identity,
-					A2(
-						$author$project$Codec$object,
-						F4(
-							function (pos, label, isMath, zindex) {
-								return {dims: $elm$core$Maybe$Nothing, isCoqValidated: false, isMath: isMath, label: label, pos: pos, selected: false, weaklySelected: false, zindex: zindex};
-							}),
-						F4(
-							function (pos, label, isMath, zindex) {
-								return {isMath: isMath, label: label, pos: pos, zindex: zindex};
-							})))))));
-var $author$project$Format$Version13$tabCodec = $author$project$Codec$buildObject(
+					A4(
+						$author$project$Codec$fields,
+						function ($) {
+							return $.pos;
+						},
+						function ($) {
+							return $.pos;
+						},
+						$author$project$Codec$identity,
+						A2(
+							$author$project$Codec$object,
+							F5(
+								function (pos, label, isMath, zindex, isCoqValidated) {
+									return {dims: $elm$core$Maybe$Nothing, isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, selected: false, weaklySelected: false, zindex: zindex};
+								}),
+							F5(
+								function (pos, label, isMath, zindex, isCoqValidated) {
+									return {isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex};
+								}))))))));
+var $author$project$Format$Version14$tabCodec = $author$project$Codec$buildObject(
 	A4(
 		$author$project$Codec$fields,
 		function ($) {
@@ -7143,7 +7152,7 @@ var $author$project$Format$Version13$tabCodec = $author$project$Codec$buildObjec
 					A2(
 						$author$project$Codec$compose,
 						$author$project$Polygraph$codec,
-						A2($author$project$Polygraph$mapCodec, $author$project$Format$Version13$nodeCodec, $author$project$Format$Version13$edgeCodec)),
+						A2($author$project$Polygraph$mapCodec, $author$project$Format$Version14$nodeCodec, $author$project$Format$Version14$edgeCodec)),
 					A2(
 						$author$project$Codec$object,
 						F4(
@@ -7154,7 +7163,7 @@ var $author$project$Format$Version13$tabCodec = $author$project$Codec$buildObjec
 							function (graph, title, sizeGrid, tabId) {
 								return {edges: graph.edges, id: tabId, nextGraphId: graph.nextId, nodes: graph.nodes, sizeGrid: sizeGrid, title: title};
 							})))))));
-var $author$project$Format$Version13$graphInfoCodec = $author$project$Codec$buildObject(
+var $author$project$Format$Version14$graphInfoCodec = $author$project$Codec$buildObject(
 	A4(
 		$author$project$Codec$fields,
 		function ($) {
@@ -7190,7 +7199,7 @@ var $author$project$Format$Version13$graphInfoCodec = $author$project$Codec$buil
 					function ($) {
 						return $.tabs;
 					},
-					$author$project$Codec$list($author$project$Format$Version13$tabCodec),
+					$author$project$Codec$list($author$project$Format$Version14$tabCodec),
 					A2(
 						$author$project$Codec$object,
 						F4(
@@ -7201,7 +7210,58 @@ var $author$project$Format$Version13$graphInfoCodec = $author$project$Codec$buil
 							function (tabs, nextTabId, latexPreamble, activeTabId) {
 								return {activeTabId: activeTabId, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs};
 							})))))));
-var $author$project$Format$Version13$fromJSGraph = $author$project$Codec$decoder($author$project$Format$Version13$graphInfoCodec);
+var $author$project$Format$Version14$fromJSGraph = $author$project$Codec$decoder($author$project$Format$Version14$graphInfoCodec);
+var $author$project$Polygraph$nodeMap = F2(
+	function (f, _v0) {
+		var id = _v0.id;
+		var label = _v0.label;
+		return {
+			id: id,
+			label: f(label)
+		};
+	});
+var $author$project$Format$Version13$toNextNode = function (_v0) {
+	var pos = _v0.pos;
+	var label = _v0.label;
+	var isMath = _v0.isMath;
+	var zindex = _v0.zindex;
+	return {isCoqValidated: false, isMath: isMath, label: label, pos: pos, zindex: zindex};
+};
+var $author$project$Format$Version13$toNextTab = F2(
+	function (id, _v0) {
+		var title = _v0.title;
+		var sizeGrid = _v0.sizeGrid;
+		var nodes = _v0.nodes;
+		var edges = _v0.edges;
+		var nextGraphId = _v0.nextGraphId;
+		return {
+			edges: edges,
+			id: id,
+			nextGraphId: nextGraphId,
+			nodes: A2(
+				$elm$core$List$map,
+				$author$project$Polygraph$nodeMap($author$project$Format$Version13$toNextNode),
+				nodes),
+			sizeGrid: sizeGrid,
+			title: title
+		};
+	});
+var $author$project$Format$Version13$toNextVersion = function (_v0) {
+	var tabs = _v0.tabs;
+	var nextTabId = _v0.nextTabId;
+	var activeTabId = _v0.activeTabId;
+	var latexPreamble = _v0.latexPreamble;
+	return {
+		activeTabId: activeTabId,
+		latexPreamble: latexPreamble,
+		nextTabId: nextTabId,
+		tabs: A2($elm$core$List$indexedMap, $author$project$Format$Version13$toNextTab, tabs)
+	};
+};
+var $author$project$Format$Version13$fromJSGraph = function (g) {
+	return $author$project$Format$Version14$fromJSGraph(
+		$author$project$Format$Version13$toNextVersion(g));
+};
 var $elm_community$list_extra$List$Extra$findIndexHelp = F3(
 	function (index, predicate, list) {
 		findIndexHelp:
@@ -7249,15 +7309,6 @@ var $elm$core$List$maximum = function (list) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
-var $author$project$Polygraph$nodeMap = F2(
-	function (f, _v0) {
-		var id = _v0.id;
-		var label = _v0.label;
-		return {
-			id: id,
-			label: f(label)
-		};
-	});
 var $author$project$Format$Version12$toNextEdge = function (_v0) {
 	var label = _v0.label;
 	var style = _v0.style;
@@ -7342,7 +7393,9 @@ var $author$project$Format$Version12$fromJSGraph = function (g) {
 	return $author$project$Format$Version13$fromJSGraph(
 		$author$project$Format$Version12$toNextVersion(g));
 };
+var $author$project$Format$Version13$normalKey = $author$project$Format$Version14$normalKey;
 var $author$project$Format$Version12$normalKey = $author$project$Format$Version13$normalKey;
+var $author$project$Format$Version13$pullshoutKey = $author$project$Format$Version14$pullshoutKey;
 var $author$project$Format$Version12$pullshoutKey = $author$project$Format$Version13$pullshoutKey;
 var $author$project$Format$Version11$toNextStyle = function (_v0) {
 	var tail = _v0.tail;
@@ -8855,6 +8908,240 @@ var $author$project$Main$loadedGraph13 = _Platform_incomingPort(
 																										function (isMath) {
 																											return $elm$json$Json$Decode$succeed(
 																												{isMath: isMath, label: label, pos: pos, zindex: zindex});
+																										},
+																										A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																								},
+																								A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																						},
+																						A2(
+																							$elm$json$Json$Decode$field,
+																							'pos',
+																							A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (_v0) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (_v1) {
+																											return $elm$json$Json$Decode$succeed(
+																												_Utils_Tuple2(_v0, _v1));
+																										},
+																										A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																								},
+																								A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))));
+																				},
+																				A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int)))))));
+													},
+													A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int));
+											},
+											A2($elm$json$Json$Decode$field, 'title', $elm$json$Json$Decode$string)))))));
+				},
+				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
+		},
+		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
+var $author$project$Main$loadedGraph14 = _Platform_incomingPort(
+	'loadedGraph14',
+	A2(
+		$elm$json$Json$Decode$andThen,
+		function (setFirstTab) {
+			return A2(
+				$elm$json$Json$Decode$andThen,
+				function (scenario) {
+					return A2(
+						$elm$json$Json$Decode$andThen,
+						function (graph) {
+							return A2(
+								$elm$json$Json$Decode$andThen,
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
+								},
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (tabs) {
+									return A2(
+										$elm$json$Json$Decode$andThen,
+										function (nextTabId) {
+											return A2(
+												$elm$json$Json$Decode$andThen,
+												function (latexPreamble) {
+													return A2(
+														$elm$json$Json$Decode$andThen,
+														function (activeTabId) {
+															return $elm$json$Json$Decode$succeed(
+																{activeTabId: activeTabId, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs});
+														},
+														A2($elm$json$Json$Decode$field, 'activeTabId', $elm$json$Json$Decode$int));
+												},
+												A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
+										},
+										A2($elm$json$Json$Decode$field, 'nextTabId', $elm$json$Json$Decode$int));
+								},
+								A2(
+									$elm$json$Json$Decode$field,
+									'tabs',
+									$elm$json$Json$Decode$list(
+										A2(
+											$elm$json$Json$Decode$andThen,
+											function (title) {
+												return A2(
+													$elm$json$Json$Decode$andThen,
+													function (sizeGrid) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (nodes) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (nextGraphId) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (id) {
+																				return A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (edges) {
+																						return $elm$json$Json$Decode$succeed(
+																							{edges: edges, id: id, nextGraphId: nextGraphId, nodes: nodes, sizeGrid: sizeGrid, title: title});
+																					},
+																					A2(
+																						$elm$json$Json$Decode$field,
+																						'edges',
+																						$elm$json$Json$Decode$list(
+																							A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (to) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (label) {
+																											return A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (id) {
+																													return A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (from) {
+																															return $elm$json$Json$Decode$succeed(
+																																{from: from, id: id, label: label, to: to});
+																														},
+																														A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																												},
+																												A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																										},
+																										A2(
+																											$elm$json$Json$Decode$field,
+																											'label',
+																											A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (zindex) {
+																													return A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (style) {
+																															return A2(
+																																$elm$json$Json$Decode$andThen,
+																																function (label) {
+																																	return A2(
+																																		$elm$json$Json$Decode$andThen,
+																																		function (kind) {
+																																			return $elm$json$Json$Decode$succeed(
+																																				{kind: kind, label: label, style: style, zindex: zindex});
+																																		},
+																																		A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
+																																},
+																																A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																														},
+																														A2(
+																															$elm$json$Json$Decode$field,
+																															'style',
+																															A2(
+																																$elm$json$Json$Decode$andThen,
+																																function (tail) {
+																																	return A2(
+																																		$elm$json$Json$Decode$andThen,
+																																		function (position) {
+																																			return A2(
+																																				$elm$json$Json$Decode$andThen,
+																																				function (kind) {
+																																					return A2(
+																																						$elm$json$Json$Decode$andThen,
+																																						function (head) {
+																																							return A2(
+																																								$elm$json$Json$Decode$andThen,
+																																								function (dashed) {
+																																									return A2(
+																																										$elm$json$Json$Decode$andThen,
+																																										function (color) {
+																																											return A2(
+																																												$elm$json$Json$Decode$andThen,
+																																												function (bend) {
+																																													return A2(
+																																														$elm$json$Json$Decode$andThen,
+																																														function (alignment) {
+																																															return $elm$json$Json$Decode$succeed(
+																																																{alignment: alignment, bend: bend, color: color, dashed: dashed, head: head, kind: kind, position: position, tail: tail});
+																																														},
+																																														A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
+																																												},
+																																												A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
+																																										},
+																																										A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string));
+																																								},
+																																								A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
+																																						},
+																																						A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
+																																				},
+																																				A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
+																																		},
+																																		A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
+																																},
+																																A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string))));
+																												},
+																												A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
+																								},
+																								A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+																			},
+																			A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																	},
+																	A2($elm$json$Json$Decode$field, 'nextGraphId', $elm$json$Json$Decode$int));
+															},
+															A2(
+																$elm$json$Json$Decode$field,
+																'nodes',
+																$elm$json$Json$Decode$list(
+																	A2(
+																		$elm$json$Json$Decode$andThen,
+																		function (label) {
+																			return A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (id) {
+																					return $elm$json$Json$Decode$succeed(
+																						{id: id, label: label});
+																				},
+																				A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																		},
+																		A2(
+																			$elm$json$Json$Decode$field,
+																			'label',
+																			A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (zindex) {
+																					return A2(
+																						$elm$json$Json$Decode$andThen,
+																						function (pos) {
+																							return A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (label) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (isMath) {
+																											return A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (isCoqValidated) {
+																													return $elm$json$Json$Decode$succeed(
+																														{isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
+																												},
+																												A2($elm$json$Json$Decode$field, 'isCoqValidated', $elm$json$Json$Decode$bool));
 																										},
 																										A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
 																								},
@@ -10563,7 +10850,7 @@ var $author$project$Format$GraphInfo$TabSizeGrid = F2(
 var $author$project$Format$GraphInfo$TabUnremove = function (a) {
 	return {$: 'TabUnremove', a: a};
 };
-var $author$project$Format$LastVersion$edgeCodec = $author$project$Format$Version13$edgeCodec;
+var $author$project$Format$LastVersion$edgeCodec = $author$project$Format$Version14$edgeCodec;
 var $author$project$Polygraph$Modif = function (a) {
 	return {$: 'Modif', a: a};
 };
@@ -10737,7 +11024,7 @@ var $author$project$Polygraph$modifCodec = A2(
 			return m;
 		},
 		$author$project$Polygraph$Modif));
-var $author$project$Format$LastVersion$nodeCodec = $author$project$Format$Version13$nodeCodec;
+var $author$project$Format$LastVersion$nodeCodec = $author$project$Format$Version14$nodeCodec;
 var $author$project$Format$GraphInfoCodec$codecGraphModif = A2(
 	$author$project$Codec$compose,
 	$author$project$Polygraph$modifCodec,
@@ -10870,7 +11157,7 @@ var $author$project$Format$GraphInfoCodec$defaultGraphModifJS = A2(
 var $author$project$Format$GraphInfo$emptyTab = function (id) {
 	return {graph: $author$project$Polygraph$empty, id: id, sizeGrid: 200, title: '1'};
 };
-var $author$project$Format$LastVersion$tabCodec = $author$project$Format$Version13$tabCodec;
+var $author$project$Format$LastVersion$tabCodec = $author$project$Format$Version14$tabCodec;
 var $author$project$Format$GraphInfoCodec$defaultModifJS = {
 	graphModif: $author$project$Format$GraphInfoCodec$defaultGraphModifJS,
 	size: 0,
@@ -11143,7 +11430,7 @@ var $author$project$Format$GraphInfoCodec$codecModif = function () {
 var $author$project$Msg$Noop = {$: 'Noop'};
 var $author$project$CommandCodec$defaultProtocolMsg = $author$project$Msg$ModifProtocol(
 	{command: $author$project$Msg$Noop, id: $author$project$Msg$defaultModifId, modif: $author$project$Format$GraphInfo$Noop, selIds: $elm_community$intdict$IntDict$empty});
-var $author$project$Format$LastVersion$graphInfoCodec = $author$project$Format$Version13$graphInfoCodec;
+var $author$project$Format$LastVersion$graphInfoCodec = $author$project$Format$Version14$graphInfoCodec;
 var $author$project$Codec$maybeBuildVariant = F2(
 	function (defaultV, _v0) {
 		var c = _v0.a;
@@ -11849,8 +12136,13 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																					return A2(
 																																						$elm$json$Json$Decode$andThen,
 																																						function (isMath) {
-																																							return $elm$json$Json$Decode$succeed(
-																																								{isMath: isMath, label: label, pos: pos, zindex: zindex});
+																																							return A2(
+																																								$elm$json$Json$Decode$andThen,
+																																								function (isCoqValidated) {
+																																									return $elm$json$Json$Decode$succeed(
+																																										{isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
+																																								},
+																																								A2($elm$json$Json$Decode$field, 'isCoqValidated', $elm$json$Json$Decode$bool));
 																																						},
 																																						A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
 																																				},
@@ -12151,8 +12443,13 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																																return A2(
 																																																	$elm$json$Json$Decode$andThen,
 																																																	function (isMath) {
-																																																		return $elm$json$Json$Decode$succeed(
-																																																			{isMath: isMath, label: label, pos: pos, zindex: zindex});
+																																																		return A2(
+																																																			$elm$json$Json$Decode$andThen,
+																																																			function (isCoqValidated) {
+																																																				return $elm$json$Json$Decode$succeed(
+																																																					{isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
+																																																			},
+																																																			A2($elm$json$Json$Decode$field, 'isCoqValidated', $elm$json$Json$Decode$bool));
 																																																	},
 																																																	A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
 																																															},
@@ -12301,8 +12598,13 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																												return A2(
 																																													$elm$json$Json$Decode$andThen,
 																																													function (isMath) {
-																																														return $elm$json$Json$Decode$succeed(
-																																															{isMath: isMath, label: label, pos: pos, zindex: zindex});
+																																														return A2(
+																																															$elm$json$Json$Decode$andThen,
+																																															function (isCoqValidated) {
+																																																return $elm$json$Json$Decode$succeed(
+																																																	{isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
+																																															},
+																																															A2($elm$json$Json$Decode$field, 'isCoqValidated', $elm$json$Json$Decode$bool));
 																																													},
 																																													A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
 																																											},
@@ -12490,8 +12792,13 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																						return A2(
 																																							$elm$json$Json$Decode$andThen,
 																																							function (isMath) {
-																																								return $elm$json$Json$Decode$succeed(
-																																									{isMath: isMath, label: label, pos: pos, zindex: zindex});
+																																								return A2(
+																																									$elm$json$Json$Decode$andThen,
+																																									function (isCoqValidated) {
+																																										return $elm$json$Json$Decode$succeed(
+																																											{isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
+																																									},
+																																									A2($elm$json$Json$Decode$field, 'isCoqValidated', $elm$json$Json$Decode$bool));
 																																							},
 																																							A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
 																																					},
@@ -12729,8 +13036,13 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																													return A2(
 																														$elm$json$Json$Decode$andThen,
 																														function (isMath) {
-																															return $elm$json$Json$Decode$succeed(
-																																{isMath: isMath, label: label, pos: pos, zindex: zindex});
+																															return A2(
+																																$elm$json$Json$Decode$andThen,
+																																function (isCoqValidated) {
+																																	return $elm$json$Json$Decode$succeed(
+																																		{isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
+																																},
+																																A2($elm$json$Json$Decode$field, 'isCoqValidated', $elm$json$Json$Decode$bool));
 																														},
 																														A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
 																												},
@@ -12945,8 +13257,13 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																									return A2(
 																																										$elm$json$Json$Decode$andThen,
 																																										function (isMath) {
-																																											return $elm$json$Json$Decode$succeed(
-																																												{isMath: isMath, label: label, pos: pos, zindex: zindex});
+																																											return A2(
+																																												$elm$json$Json$Decode$andThen,
+																																												function (isCoqValidated) {
+																																													return $elm$json$Json$Decode$succeed(
+																																														{isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
+																																												},
+																																												A2($elm$json$Json$Decode$field, 'isCoqValidated', $elm$json$Json$Decode$bool));
 																																										},
 																																										A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
 																																								},
@@ -13095,8 +13412,13 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																					return A2(
 																																						$elm$json$Json$Decode$andThen,
 																																						function (isMath) {
-																																							return $elm$json$Json$Decode$succeed(
-																																								{isMath: isMath, label: label, pos: pos, zindex: zindex});
+																																							return A2(
+																																								$elm$json$Json$Decode$andThen,
+																																								function (isCoqValidated) {
+																																									return $elm$json$Json$Decode$succeed(
+																																										{isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
+																																								},
+																																								A2($elm$json$Json$Decode$field, 'isCoqValidated', $elm$json$Json$Decode$bool));
 																																						},
 																																						A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
 																																				},
@@ -13284,8 +13606,13 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																															return A2(
 																																$elm$json$Json$Decode$andThen,
 																																function (isMath) {
-																																	return $elm$json$Json$Decode$succeed(
-																																		{isMath: isMath, label: label, pos: pos, zindex: zindex});
+																																	return A2(
+																																		$elm$json$Json$Decode$andThen,
+																																		function (isCoqValidated) {
+																																			return $elm$json$Json$Decode$succeed(
+																																				{isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
+																																		},
+																																		A2($elm$json$Json$Decode$field, 'isCoqValidated', $elm$json$Json$Decode$bool));
 																																},
 																																A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
 																														},
@@ -13439,6 +13766,11 @@ var $author$project$Main$subscriptions = function (m) {
 					A2(
 						$elm$core$Basics$composeR,
 						$author$project$Msg$mapLoadGraphInfo($author$project$Format$Version13$fromJSGraph),
+						$author$project$Msg$loadGraphInfoToMsg)),
+					$author$project$Main$loadedGraph14(
+					A2(
+						$elm$core$Basics$composeR,
+						$author$project$Msg$mapLoadGraphInfo($author$project$Format$Version14$fromJSGraph),
 						$author$project$Msg$loadGraphInfoToMsg)),
 					$author$project$Main$setFirstTabEquation($author$project$Msg$SetFirstTabEquation),
 					$elm$browser$Browser$Events$onClick(
@@ -14706,9 +15038,10 @@ var $author$project$GraphDefs$mergeFunctions = {
 			var dims = _v1.dims;
 			var isMath = _v1.isMath;
 			var zindex = _v1.zindex;
+			var isCoqValidated = _v1.isCoqValidated;
 			return _Utils_update(
 				n1,
-				{dims: dims, isMath: isMath, label: label, pos: pos, zindex: zindex});
+				{dims: dims, isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
 		})
 };
 var $author$project$Format$GraphInfo$applyModif = F2(
@@ -16173,6 +16506,9 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																															_List_fromArray(
 																																[
 																																	_Utils_Tuple2(
+																																	'isCoqValidated',
+																																	$elm$json$Json$Encode$bool($.isCoqValidated)),
+																																	_Utils_Tuple2(
 																																	'isMath',
 																																	$elm$json$Json$Encode$bool($.isMath)),
 																																	_Utils_Tuple2(
@@ -16370,6 +16706,9 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																														_List_fromArray(
 																															[
 																																_Utils_Tuple2(
+																																'isCoqValidated',
+																																$elm$json$Json$Encode$bool($.isCoqValidated)),
+																																_Utils_Tuple2(
 																																'isMath',
 																																$elm$json$Json$Encode$bool($.isMath)),
 																																_Utils_Tuple2(
@@ -16479,6 +16818,9 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																													return $elm$json$Json$Encode$object(
 																														_List_fromArray(
 																															[
+																																_Utils_Tuple2(
+																																'isCoqValidated',
+																																$elm$json$Json$Encode$bool($.isCoqValidated)),
 																																_Utils_Tuple2(
 																																'isMath',
 																																$elm$json$Json$Encode$bool($.isMath)),
@@ -16615,6 +16957,9 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																													return $elm$json$Json$Encode$object(
 																														_List_fromArray(
 																															[
+																																_Utils_Tuple2(
+																																'isCoqValidated',
+																																$elm$json$Json$Encode$bool($.isCoqValidated)),
 																																_Utils_Tuple2(
 																																'isMath',
 																																$elm$json$Json$Encode$bool($.isMath)),
@@ -16793,6 +17138,9 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																											_List_fromArray(
 																												[
 																													_Utils_Tuple2(
+																													'isCoqValidated',
+																													$elm$json$Json$Encode$bool($.isCoqValidated)),
+																													_Utils_Tuple2(
 																													'isMath',
 																													$elm$json$Json$Encode$bool($.isMath)),
 																													_Utils_Tuple2(
@@ -16935,6 +17283,9 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																											_List_fromArray(
 																												[
 																													_Utils_Tuple2(
+																													'isCoqValidated',
+																													$elm$json$Json$Encode$bool($.isCoqValidated)),
+																													_Utils_Tuple2(
 																													'isMath',
 																													$elm$json$Json$Encode$bool($.isMath)),
 																													_Utils_Tuple2(
@@ -17044,6 +17395,9 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																										return $elm$json$Json$Encode$object(
 																											_List_fromArray(
 																												[
+																													_Utils_Tuple2(
+																													'isCoqValidated',
+																													$elm$json$Json$Encode$bool($.isCoqValidated)),
 																													_Utils_Tuple2(
 																													'isMath',
 																													$elm$json$Json$Encode$bool($.isMath)),
@@ -17180,6 +17534,9 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																										return $elm$json$Json$Encode$object(
 																											_List_fromArray(
 																												[
+																													_Utils_Tuple2(
+																													'isCoqValidated',
+																													$elm$json$Json$Encode$bool($.isCoqValidated)),
 																													_Utils_Tuple2(
 																													'isMath',
 																													$elm$json$Json$Encode$bool($.isMath)),
@@ -22385,6 +22742,9 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 																									_List_fromArray(
 																										[
 																											_Utils_Tuple2(
+																											'isCoqValidated',
+																											$elm$json$Json$Encode$bool($.isCoqValidated)),
+																											_Utils_Tuple2(
 																											'isMath',
 																											$elm$json$Json$Encode$bool($.isMath)),
 																											_Utils_Tuple2(
@@ -22457,10 +22817,10 @@ var $author$project$Format$GraphInfo$normalise = function (gi) {
 var $author$project$Model$toGraphInfo = function (m) {
 	return m.graphInfo;
 };
-var $author$project$Format$Version13$toJSGraph = $author$project$Codec$encoder($author$project$Format$Version13$graphInfoCodec);
-var $author$project$Format$LastVersion$toJSGraph = $author$project$Format$Version13$toJSGraph;
-var $author$project$Format$Version13$version = 13;
-var $author$project$Format$LastVersion$version = $author$project$Format$Version13$version;
+var $author$project$Format$Version14$toJSGraph = $author$project$Codec$encoder($author$project$Format$Version14$graphInfoCodec);
+var $author$project$Format$LastVersion$toJSGraph = $author$project$Format$Version14$toJSGraph;
+var $author$project$Format$Version14$version = 14;
+var $author$project$Format$LastVersion$version = $author$project$Format$Version14$version;
 var $author$project$Main$toJsGraphInfo = function (model) {
 	return {
 		graph: $author$project$Format$LastVersion$toJSGraph(
@@ -22965,6 +23325,9 @@ var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
 																								return $elm$json$Json$Encode$object(
 																									_List_fromArray(
 																										[
+																											_Utils_Tuple2(
+																											'isCoqValidated',
+																											$elm$json$Json$Encode$bool($.isCoqValidated)),
 																											_Utils_Tuple2(
 																											'isMath',
 																											$elm$json$Json$Encode$bool($.isMath)),
@@ -27520,6 +27883,9 @@ var $author$project$Main$clipboardWriteGraph = _Platform_outgoingPort(
 																					_List_fromArray(
 																						[
 																							_Utils_Tuple2(
+																							'isCoqValidated',
+																							$elm$json$Json$Encode$bool($.isCoqValidated)),
+																							_Utils_Tuple2(
 																							'isMath',
 																							$elm$json$Json$Encode$bool($.isMath)),
 																							_Utils_Tuple2(
@@ -27659,16 +28025,6 @@ var $author$project$Geometry$Point$barycenter = function (pts) {
 		$elm$core$List$sum(xs) / length,
 		$elm$core$List$sum(ys) / length);
 };
-var $author$project$GraphDefs$createProofNode = F4(
-	function (g, s, coqValidated, p) {
-		var _v0 = A2(
-			$author$project$Polygraph$newNode,
-			g,
-			A3($author$project$GraphDefs$createProofNodeLabel, s, coqValidated, p));
-		var g2 = _v0.a;
-		var id = _v0.b;
-		return g2;
-	});
 var $author$project$GraphDefs$createValidProofAtBarycenter = F3(
 	function (g, nodes, proof) {
 		var nodePositions = A2(
@@ -27682,12 +28038,17 @@ var $author$project$GraphDefs$createValidProofAtBarycenter = F3(
 					return $.pos;
 				}),
 			nodes);
-		return A4(
-			$author$project$GraphDefs$createProofNode,
+		var _v0 = A2(
+			$author$project$Polygraph$md_newNode,
 			g,
-			proof,
-			true,
-			$author$project$Geometry$Point$barycenter(nodePositions));
+			A3(
+				$author$project$GraphDefs$createProofNodeLabel,
+				proof,
+				true,
+				$author$project$Geometry$Point$barycenter(nodePositions)));
+		var g2 = _v0.a;
+		var id = _v0.b;
+		return g2;
 	});
 var $elm$parser$Parser$deadEndsToString = function (deadEnds) {
 	return 'TODO deadEndsToString';
@@ -27815,6 +28176,9 @@ var $author$project$Main$generateProofJs = _Platform_outgoingPort(
 																								return $elm$json$Json$Encode$object(
 																									_List_fromArray(
 																										[
+																											_Utils_Tuple2(
+																											'isCoqValidated',
+																											$elm$json$Json$Encode$bool($.isCoqValidated)),
 																											_Utils_Tuple2(
 																											'isMath',
 																											$elm$json$Json$Encode$bool($.isMath)),
@@ -28891,9 +29255,15 @@ var $author$project$GraphDefs$selectedChain = function (g) {
 			var label = _Utils_update(
 				$author$project$GraphDefs$emptyEdge,
 				{selected: trueSel, weaklySelected: weakSel});
-			var _v4 = A4($author$project$Polygraph$newEdge, g, minId, maxId, label);
+			var _v4 = A4(
+				$author$project$Polygraph$md_newEdge,
+				$author$project$Polygraph$newModif(g),
+				minId,
+				maxId,
+				label);
 			var newGraph = _v4.a;
-			var _v5 = $author$project$GraphDefs$selectedIncompleteDiagram(newGraph);
+			var _v5 = $author$project$GraphDefs$selectedIncompleteDiagram(
+				$author$project$Polygraph$applyModifHelper(newGraph));
 			if (_v5.$ === 'Nothing') {
 				return $author$project$GraphDefs$NoClearOrientation;
 			} else {
@@ -29005,14 +29375,15 @@ var $author$project$Unification$unifyDiagram = F3(
 					function (_v2, g) {
 						var a = _v2.a;
 						var edges = _v2.b;
-						return A4($author$project$QuickInput$splitWithChain, graph, g, edges, a.id);
+						return A4(
+							$author$project$QuickInput$splitWithChain,
+							$author$project$Polygraph$applyModifHelper(graph),
+							g,
+							edges,
+							a.id);
 					});
 				var ltot = _Utils_ap(l1, l2);
-				var finalg = A3(
-					$elm$core$List$foldl,
-					f,
-					$author$project$Polygraph$newModif(graph),
-					ltot);
+				var finalg = A3($elm$core$List$foldl, f, graph, ltot);
 				return $elm$core$Result$Ok(finalg);
 			}
 		}
@@ -29265,13 +29636,14 @@ var $author$project$Main$update_DefaultMode = F2(
 										default:
 											var diagram = _v10.a.diagram;
 											var validGraph = function () {
+												var initialModif = $author$project$Polygraph$newModif(modelGraph);
 												var _v11 = $author$project$GraphDefs$selectedNode(modelGraph);
 												if (_v11.$ === 'Nothing') {
-													return modelGraph;
+													return initialModif;
 												} else {
 													var n = _v11.a;
 													return $author$project$GraphDefs$isProofLabel(n.label) ? A3(
-														$author$project$Polygraph$updateNode,
+														$author$project$Polygraph$md_updateNode,
 														n.id,
 														function (l) {
 															return _Utils_update(
@@ -29281,7 +29653,7 @@ var $author$project$Main$update_DefaultMode = F2(
 																	label: $author$project$GraphDefs$makeProofString(script)
 																});
 														},
-														modelGraph) : modelGraph;
+														initialModif) : initialModif;
 												}
 											}();
 											return A2(registerProof, validGraph, diagram);
@@ -29289,7 +29661,10 @@ var $author$project$Main$update_DefaultMode = F2(
 							}
 						} else {
 							var d = _v7.a;
-							return A2(registerAndCreateProof, modelGraph, d);
+							return A2(
+								registerAndCreateProof,
+								$author$project$Polygraph$newModif(modelGraph),
+								d);
 						}
 					case 'EltDoubleClick':
 						var n = msg.a;
