@@ -8,9 +8,8 @@
             const renderedClass = "rendered-callback";
             const renderedEvent = "rendered";
         </script>
-        <script src="elm.js"></script>
-        <!-- This script is used for the open directory feature  -->
-        <script src="watcher.js"></script>
+        <script src="js/elm.js"></script>
+        <script src="js/bundle.js"></script>
         
         <!-- The loading of KaTeX is deferred to speed up page rendering -->
         <script src="js/katex.min.css.js"></script>
@@ -110,7 +109,7 @@
 // This is for caching the files for offline use in the PWA version
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js')
+    navigator.serviceWorker.register('./js/service-worker.js')
       .then(registration => {
         console.log('ServiceWorker registration successful with scope: ', registration.scope);
       }, err => {
@@ -169,6 +168,7 @@ if ('serviceWorker' in navigator) {
         <h1>Diagram editor</h1>
         <button id="install" hidden>Install for offline use</button>
         <button id="connect" onclick="tryConnect()">Connect to server</button>
+        <span id="connect-status"></span>
    
      
         <!-- <p>
@@ -433,7 +433,7 @@ function disableInAppInstallPrompt() {
 
         function processWatchedFile(config,preamble,dirHandle) {
             function doit() {
-              return checkWatchedFile(config,dirHandle)
+              return Bundle.checkWatchedFile(config,dirHandle)
                 .then(function (r) {
                     if (r === undefined) {
                         return;
@@ -454,7 +454,7 @@ function disableInAppInstallPrompt() {
                         }
                         saveGraphFun = function (d) {};
                         quicksaveFun = function (d) {};
-                        watchSaveDiagram(config, r, dirHandle, fromElmGraph(d.info), d.export)
+                        Bundle.watchSaveDiagram(config, r, dirHandle, fromElmGraph(d.info), d.export)
                         .then(() => { 
                              doit();
                     });
@@ -512,12 +512,12 @@ function disableInAppInstallPrompt() {
                 var extension = extractExtensionFromPath(json.watchedFile);
                 
                 var data = [];
-                if (extension in defaultsExt)
-                    data.push(defaultsExt[extension]);
+                if (extension in Bundle.defaultsExt)
+                    data.push(Bundle.defaultsExt[extension]);
                 else
-                    console.log("Unknown e  xtension " + extension + ".");
+                    console.log("Unknown extension " + extension + ".");
                 data.push(json);
-                var config = defaultConfig;
+                var config = Bundle.defaultConfig;
                 for (conf of data) {
                     config = Object.assign(config, conf);
                 }
@@ -909,29 +909,31 @@ function disableInAppInstallPrompt() {
             console.log("connecting to " + rep);
             ws = new WebSocket(rep);
             ws.onclose = function(event) {
+                online = false;
+                document.getElementById("connect-status").textContent = "";
                 if (event.wasClean) {
                     customAlert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
                 } else {
                     // par exemple : processus serveur arrêté ou réseau en panne
                     // event.code est généralement 1006 dans ce cas
                     customAlert('[close] Connection died');
-                }
-                online = false;
+                }                
             };
             // La connexion est ouverte
             ws.addEventListener("open", function (event) {
             // socket.send("Coucou le serveur !");
                 online = true;
-                expectedIdFromServer = 0;
+                document.getElementById("connect-status").textContent = "(connected)";
+                Bundle.expectedIdFromServer = 0;
                 customAlert("YADE is connected to server");
-                requestSnapshot(ws);
+                Bundle.requestSnapshot(ws);
                 
             });
 
             // Écouter les messages
             ws.addEventListener("message", function (event) {
                 // console.log("Voici un message du serveur", event.data);
-                handleServerToClientMsg(ws,
+                Bundle.handleServerToClientMsg(ws,
                       app.ports.protocolRequestSnapshot.send
                     , (s) => {
                         console.log("websocket received: ");
@@ -963,7 +965,7 @@ function disableInAppInstallPrompt() {
                 app.ports.protocolReceiveJS.send([{isSender : true, msg:arg.msg}]);
                 return;
             }
-            broadcastDataOnSocket(ws, arg);
+            Bundle.broadcastDataOnSocket(ws, arg);
          });
 
 
