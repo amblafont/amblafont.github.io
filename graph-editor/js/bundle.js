@@ -25,9 +25,9 @@ var Bundle = (() => {
     checkWatchedFile: () => checkWatchedFile,
     defaultConfig: () => defaultConfig,
     defaultsExt: () => defaultsExt,
-    expectedIdFromServer: () => expectedIdFromServer,
     handleServerToClientMsg: () => handleServerToClientMsg,
     requestSnapshot: () => requestSnapshot,
+    resetExpectedId: () => resetExpectedId,
     watchSaveDiagram: () => watchSaveDiagram
   });
 
@@ -318,6 +318,9 @@ var Bundle = (() => {
 
   // ts/client.ts
   var expectedIdFromServer = 0;
+  function resetExpectedId() {
+    expectedIdFromServer = 0;
+  }
   function requestSnapshot(ws) {
     let msg = null;
     sendDataOnSocket(ws, {

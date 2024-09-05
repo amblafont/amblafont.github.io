@@ -15479,7 +15479,7 @@ var $author$project$Modes$Rename$initialise = F2(
 	});
 var $author$project$Modes$Rename$newStateWithDefault = F2(
 	function (modifId, ids) {
-		return {idModif: modifId, next: ids};
+		return {alreadySelected: false, idModif: modifId, next: ids};
 	});
 var $author$project$Modes$Rename$newState = F3(
 	function (graphInfo, modifId, modifs) {
@@ -18918,6 +18918,21 @@ var $author$project$Geometry$Point$add = F2(
 		var y2 = _v1.b;
 		return _Utils_Tuple2(x1 + x2, y1 + y2);
 	});
+var $author$project$Geometry$Point$resize = F2(
+	function (s, _v0) {
+		var x1 = _v0.a;
+		var y1 = _v0.b;
+		return _Utils_Tuple2(x1 * s, y1 * s);
+	});
+var $author$project$GraphDefs$getNodePos = function (n) {
+	return n.isMath ? n.pos : A2(
+		$author$project$Geometry$Point$add,
+		n.pos,
+		A2(
+			$author$project$Geometry$Point$resize,
+			0.5,
+			$author$project$GraphDefs$getNodeDims(n)));
+};
 var $author$project$Geometry$pad = F2(
 	function (n, _v0) {
 		var pos = _v0.pos;
@@ -18967,12 +18982,6 @@ var $author$project$EdgeShape$pullshoutHat = F2(
 		var s2 = A3($author$project$Geometry$Point$towards, r2, extrem, smallshift);
 		var s1 = A3($author$project$Geometry$Point$towards, r1, extrem, smallshift);
 		return {p1: s1, p2: s2, summit: extrem};
-	});
-var $author$project$Geometry$Point$resize = F2(
-	function (s, _v0) {
-		var x1 = _v0.a;
-		var y1 = _v0.b;
-		return _Utils_Tuple2(x1 * s, y1 * s);
 	});
 var $author$project$Geometry$Point$orthogonal = function (_v0) {
 	var x = _v0.a;
@@ -19257,7 +19266,7 @@ var $author$project$GraphDefs$posGraph = function (g) {
 								padding,
 								{
 									dims: $author$project$GraphDefs$getNodeDims(n),
-									pos: n.pos
+									pos: $author$project$GraphDefs$getNodePos(n)
 								})
 						},
 						label: n
@@ -19453,15 +19462,6 @@ var $author$project$Tikz$encodeFakeEdgeTikZ = function (e) {
 };
 var $author$project$Tikz$dimToTikz = function (d) {
 	return d / (16 * 1.2);
-};
-var $author$project$GraphDefs$getNodePos = function (n) {
-	return n.isMath ? n.pos : A2(
-		$author$project$Geometry$Point$add,
-		n.pos,
-		A2(
-			$author$project$Geometry$Point$resize,
-			0.5,
-			$author$project$GraphDefs$getNodeDims(n)));
 };
 var $author$project$Tikz$encodeNodeTikZ = F2(
 	function (sizeGrid, n) {
@@ -20024,20 +20024,23 @@ var $author$project$GraphDrawing$activityToClasses = function (a) {
 			return _List_Nil;
 	}
 };
+var $author$project$GraphDrawing$idToKey = A2($elm$core$Basics$composeR, $elm$core$String$fromInt, $elm$core$Maybe$Just);
 var $author$project$Drawing$Node = function (a) {
 	return {$: 'Node', a: a};
 };
 var $author$project$Drawing$makeLatex = F2(
 	function (arg, attrs) {
-		return A2(
-			$author$project$Drawing$ofShape,
+		return A3(
+			$author$project$Drawing$ofShapeWithKey,
 			arg.zindex,
+			arg.key,
 			A2(
 				$author$project$Drawing$TikzShape,
 				attrs,
 				$author$project$Drawing$Node(
 					{angle: arg.angle, dims: arg.dims, label: arg.label, pos: arg.pos, preamble: arg.preamble, scale: arg.scale})));
 	});
+var $author$project$Msg$RenderedTextInput = {$: 'RenderedTextInput'};
 var $elm$html$Html$Attributes$boolProperty = F2(
 	function (key, bool) {
 		return A2(
@@ -20046,34 +20049,6 @@ var $elm$html$Html$Attributes$boolProperty = F2(
 			$elm$json$Json$Encode$bool(bool));
 	});
 var $elm$html$Html$Attributes$autofocus = $elm$html$Html$Attributes$boolProperty('autofocus');
-var $elm$core$Task$onError = _Scheduler_onError;
-var $elm$core$Task$attempt = F2(
-	function (resultToMessage, task) {
-		return $elm$core$Task$command(
-			$elm$core$Task$Perform(
-				A2(
-					$elm$core$Task$onError,
-					A2(
-						$elm$core$Basics$composeL,
-						A2($elm$core$Basics$composeL, $elm$core$Task$succeed, resultToMessage),
-						$elm$core$Result$Err),
-					A2(
-						$elm$core$Task$andThen,
-						A2(
-							$elm$core$Basics$composeL,
-							A2($elm$core$Basics$composeL, $elm$core$Task$succeed, resultToMessage),
-							$elm$core$Result$Ok),
-						task))));
-	});
-var $elm$browser$Browser$Dom$focus = _Browser_call('focus');
-var $author$project$Msg$focusId = function (s) {
-	return A2(
-		$elm$core$Task$attempt,
-		function (_v0) {
-			return $author$project$Msg$noOp;
-		},
-		$elm$browser$Browser$Dom$focus(s));
-};
 var $author$project$Zindex$foregroundZ = 10000;
 var $author$project$String$Html$Custom = F2(
 	function (a, b) {
@@ -20256,15 +20231,14 @@ var $author$project$Msg$onTabPreventDefault = A2(
 				$author$project$HtmlDefs$Control('Tab'));
 		}));
 var $author$project$HtmlDefs$renderedClass = 'rendered-callback';
-var $author$project$HtmlDefs$select = _Platform_outgoingPort('select', $elm$json$Json$Encode$string);
 var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
-var $author$project$GraphDrawing$make_input = F3(
-	function (pos, label, onChange) {
+var $author$project$GraphDrawing$make_input = F4(
+	function (key, pos, label, onChange) {
 		return A7(
 			$author$project$Drawing$htmlAnchor,
-			$elm$core$Maybe$Nothing,
+			key,
 			$author$project$Zindex$foregroundZ,
 			pos,
 			_Utils_Tuple2(100, 16),
@@ -20293,21 +20267,11 @@ var $author$project$GraphDrawing$make_input = F3(
 								_List_fromArray(
 									[$author$project$HtmlDefs$renderedClass]))
 							]),
-						_Utils_ap(
-							_List_fromArray(
-								[
-									$author$project$HtmlDefs$onRendered(
-									$elm$core$Basics$always(
-										$author$project$Msg$Do(
-											$author$project$Msg$focusId($author$project$HtmlDefs$idInput))))
-								]),
-							_List_fromArray(
-								[
-									$author$project$HtmlDefs$onRendered(
-									$elm$core$Basics$always(
-										$author$project$Msg$Do(
-											$author$project$HtmlDefs$select($author$project$HtmlDefs$idInput))))
-								])))),
+						_List_fromArray(
+							[
+								$author$project$HtmlDefs$onRendered(
+								$elm$core$Basics$always($author$project$Msg$RenderedTextInput))
+							]))),
 				_List_Nil));
 	});
 var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDoubleClick = A2($mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions, 'dblclick', $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$defaultOptions);
@@ -20316,8 +20280,9 @@ var $author$project$GraphDrawing$nodeDrawing = F2(
 		var n = node.label;
 		var id = node.id;
 		if (n.editable) {
-			return A3(
+			return A4(
 				$author$project$GraphDrawing$make_input,
+				$author$project$GraphDrawing$idToKey(id),
 				n.inputPos,
 				n.label,
 				$author$project$Msg$NodeLabelEdit(id));
@@ -20327,7 +20292,16 @@ var $author$project$GraphDrawing$nodeDrawing = F2(
 				(n.label === '') ? '\\bullet' : (n.isMath ? n.label : ('\\text{' + (n.label + '}'))));
 			return A2(
 				$author$project$Drawing$makeLatex,
-				{angle: 0, dims: n.dims, label: label, pos: n.pos, preamble: cfg.latexPreamble, scale: 1, zindex: n.zindex},
+				{
+					angle: 0,
+					dims: n.dims,
+					key: $author$project$GraphDrawing$idToKey(id),
+					label: label,
+					pos: n.pos,
+					preamble: cfg.latexPreamble,
+					scale: 1,
+					zindex: n.zindex
+				},
 				_Utils_ap(
 					_List_fromArray(
 						[
@@ -20937,8 +20911,9 @@ var $author$project$GraphDrawing$segmentLabel = F6(
 						label.editable ? _Utils_Tuple2(2, 2) : label.dims)));
 		}();
 		if (label.editable) {
-			return A3(
+			return A4(
 				$author$project$GraphDrawing$make_input,
+				$author$project$GraphDrawing$idToKey(edgeId),
 				labelpos,
 				label.label,
 				$author$project$Msg$EdgeLabelEdit(edgeId));
@@ -20951,7 +20926,16 @@ var $author$project$GraphDrawing$segmentLabel = F6(
 					A2($author$project$Geometry$Point$subtract, q.to, q.from)) : 0;
 				return A2(
 					$author$project$Drawing$makeLatex,
-					{angle: angle, dims: label.dims, label: finalLabel, pos: labelpos, preamble: cfg.latexPreamble, scale: $author$project$GraphDefs$edgeScaleFactor, zindex: $author$project$Zindex$foregroundZ},
+					{
+						angle: angle,
+						dims: label.dims,
+						key: $author$project$GraphDrawing$idToKey(edgeId),
+						label: finalLabel,
+						pos: labelpos,
+						preamble: cfg.latexPreamble,
+						scale: $author$project$GraphDefs$edgeScaleFactor,
+						zindex: $author$project$Zindex$foregroundZ
+					},
 					_Utils_ap(
 						_List_fromArray(
 							[
@@ -26239,6 +26223,34 @@ var $author$project$Modes$Rename$editLabel = F2(
 				}()
 			});
 	});
+var $elm$core$Task$onError = _Scheduler_onError;
+var $elm$core$Task$attempt = F2(
+	function (resultToMessage, task) {
+		return $elm$core$Task$command(
+			$elm$core$Task$Perform(
+				A2(
+					$elm$core$Task$onError,
+					A2(
+						$elm$core$Basics$composeL,
+						A2($elm$core$Basics$composeL, $elm$core$Task$succeed, resultToMessage),
+						$elm$core$Result$Err),
+					A2(
+						$elm$core$Task$andThen,
+						A2(
+							$elm$core$Basics$composeL,
+							A2($elm$core$Basics$composeL, $elm$core$Task$succeed, resultToMessage),
+							$elm$core$Result$Ok),
+						task))));
+	});
+var $elm$browser$Browser$Dom$focus = _Browser_call('focus');
+var $author$project$Msg$focusId = function (s) {
+	return A2(
+		$elm$core$Task$attempt,
+		function (_v0) {
+			return $author$project$Msg$noOp;
+		},
+		$elm$browser$Browser$Dom$focus(s));
+};
 var $author$project$Polygraph$md_update = F3(
 	function (i, fn, fe) {
 		return $author$project$Polygraph$md_graphMap(
@@ -26350,6 +26362,7 @@ var $author$project$Modes$Rename$nextStage = F3(
 			aux(state.next),
 			command);
 	});
+var $author$project$HtmlDefs$select = _Platform_outgoingPort('select', $elm$json$Json$Encode$string);
 var $author$project$Modes$Rename$update = F3(
 	function (state, msg, model) {
 		var edit_label = function (s) {
@@ -26361,9 +26374,27 @@ var $author$project$Modes$Rename$update = F3(
 							A2($author$project$Modes$Rename$editLabel, state, s))
 					}));
 		};
-		_v0$5:
+		_v0$6:
 		while (true) {
 			switch (msg.$) {
+				case 'RenderedTextInput':
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								mode: $author$project$Modes$RenameMode(
+									_Utils_update(
+										state,
+										{alreadySelected: true}))
+							}),
+						$elm$core$Platform$Cmd$batch(
+							A2(
+								$elm$core$List$cons,
+								$author$project$Msg$focusId($author$project$HtmlDefs$idInput),
+								state.alreadySelected ? _List_Nil : _List_fromArray(
+									[
+										$author$project$HtmlDefs$select($author$project$HtmlDefs$idInput)
+									]))));
 				case 'KeyChanged':
 					if ((!msg.a) && (msg.c.$ === 'Control')) {
 						switch (msg.c.a) {
@@ -26374,10 +26405,10 @@ var $author$project$Modes$Rename$update = F3(
 							case 'Tab':
 								return A3($author$project$Modes$Rename$nextStage, $author$project$Modes$Rename$Tab, state, model);
 							default:
-								break _v0$5;
+								break _v0$6;
 						}
 					} else {
-						break _v0$5;
+						break _v0$6;
 					}
 				case 'NodeLabelEdit':
 					var s = msg.b;
@@ -26386,7 +26417,7 @@ var $author$project$Modes$Rename$update = F3(
 					var s = msg.b;
 					return edit_label(s);
 				default:
-					break _v0$5;
+					break _v0$6;
 			}
 		}
 		return $author$project$Model$noCmd(model);
