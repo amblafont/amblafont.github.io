@@ -16216,7 +16216,7 @@ var $author$project$Command$applyCommand = F2(
 				var arg = msg.a;
 				return {
 					computeLayout: false,
-					focus: (!isSender) ? $elm$core$Maybe$Just(arg) : $elm$core$Maybe$Nothing,
+					focus: $elm$core$Maybe$Just(arg),
 					model: model,
 					undo: $author$project$Command$NoUndo
 				};
@@ -17702,27 +17702,31 @@ var $author$project$Command$applyCommands = F2(
 		var finalModel = _v0.a;
 		var cmd = _v0.b;
 		var _v1 = function () {
-			var _v2 = ret.focus;
-			if (_v2.$ === 'Nothing') {
+			if (!_Utils_eq(finalModel.mode, $author$project$Modes$DefaultMode)) {
 				return $author$project$Model$noCmd(finalModel);
 			} else {
-				var tabId = _v2.a.tabId;
-				var pos = _v2.a.pos;
-				var selIds = _v2.a.selIds;
-				var _v3 = A2($author$project$Model$activateTab, finalModel, tabId);
-				if (_v3.$ === 'Nothing') {
+				var _v2 = ret.focus;
+				if (_v2.$ === 'Nothing') {
 					return $author$project$Model$noCmd(finalModel);
 				} else {
-					var newModel = _v3.a;
-					var model2 = A2(
-						$author$project$Model$updateActiveGraph,
-						_Utils_update(
-							newModel,
-							{mode: $author$project$Modes$DefaultMode}),
-						$author$project$GraphDefs$selectIds(selIds));
-					return _Utils_Tuple2(
-						model2,
-						$author$project$HtmlDefs$focusPosition(pos));
+					var tabId = _v2.a.tabId;
+					var pos = _v2.a.pos;
+					var selIds = _v2.a.selIds;
+					var _v3 = A2($author$project$Model$activateTab, finalModel, tabId);
+					if (_v3.$ === 'Nothing') {
+						return $author$project$Model$noCmd(finalModel);
+					} else {
+						var newModel = _v3.a;
+						var model2 = A2(
+							$author$project$Model$updateActiveGraph,
+							_Utils_update(
+								newModel,
+								{mode: $author$project$Modes$DefaultMode}),
+							$author$project$GraphDefs$selectIds(selIds));
+						return _Utils_Tuple2(
+							model2,
+							$author$project$HtmlDefs$focusPosition(pos));
+					}
 				}
 			}
 		}();
@@ -26339,6 +26343,7 @@ var $author$project$Modes$Rename$nextStage = F3(
 									_Utils_update(
 										state,
 										{
+											alreadySelected: false,
 											next: A2($elm$core$List$cons, t, q)
 										}))
 							}),
