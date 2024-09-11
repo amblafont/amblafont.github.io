@@ -25,6 +25,7 @@ var Bundle = (() => {
     checkWatchedFile: () => checkWatchedFile,
     defaultConfig: () => defaultConfig,
     defaultsExt: () => defaultsExt,
+    getTextFromFilepath: () => getTextFromFilepath,
     handleServerToClientMsg: () => handleServerToClientMsg,
     requestSnapshot: () => requestSnapshot,
     resetExpectedId: () => resetExpectedId,
@@ -324,7 +325,6 @@ var Bundle = (() => {
   function requestSnapshot(ws) {
     let msg = null;
     sendDataOnSocket(ws, {
-      senderFile: false,
       snapshot: false,
       break: false,
       history: false,
@@ -349,7 +349,7 @@ var Bundle = (() => {
       let diff = data[i];
       if (diff.id > expectedIdFromServer && !diff.snapshot) {
         requestSnapshot(ws);
-        return;
+        return [];
       }
       expectedIdFromServer = diff.id + 1;
       diffs.push(diff);

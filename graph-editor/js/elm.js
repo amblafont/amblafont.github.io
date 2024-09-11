@@ -21284,6 +21284,7 @@ var $author$project$String$Svg$d = $author$project$String$Html$attribute('d');
 var $author$project$String$Svg$fill = $author$project$String$Html$attribute('fill');
 var $author$project$String$Svg$path = $author$project$String$Svg$node('path');
 var $author$project$String$Svg$stroke = $author$project$String$Html$attribute('stroke');
+var $author$project$String$Svg$strokeFromColor = A2($elm$core$Basics$composeL, $author$project$String$Svg$stroke, $author$project$Drawing$Color$toString);
 var $author$project$String$Svg$strokeLinecap = $author$project$String$Html$attribute('stroke-linecap');
 var $author$project$String$Svg$strokeLinejoin = $author$project$String$Html$attribute('stroke-linejoin');
 var $author$project$String$Svg$strokeMiterlimit = $author$project$String$Html$attribute('stroke-miterlimit');
@@ -21293,6 +21294,7 @@ var $author$project$ArrowStyle$makeHeadShape = function (style) {
 	if (_Utils_eq(style.kind, $author$project$ArrowStyle$NoneArrow)) {
 		return A2($author$project$String$Svg$g, _List_Nil, _List_Nil);
 	} else {
+		var strokeAttr = $author$project$String$Svg$strokeFromColor(style.color);
 		var _double = $author$project$ArrowStyle$isDouble(style);
 		var _v0 = _Utils_Tuple2(_double, style.head);
 		_v0$4:
@@ -21306,7 +21308,7 @@ var $author$project$ArrowStyle$makeHeadShape = function (style) {
 							_List_fromArray(
 								[
 									$author$project$String$Svg$fill('none'),
-									$author$project$String$Svg$stroke('#000'),
+									strokeAttr,
 									$author$project$String$Svg$strokeWidth('.498'),
 									$author$project$String$Svg$strokeMiterlimit('10')
 								]),
@@ -21337,7 +21339,7 @@ var $author$project$ArrowStyle$makeHeadShape = function (style) {
 							_List_fromArray(
 								[
 									$author$project$String$Svg$fill('none'),
-									$author$project$String$Svg$stroke('#000'),
+									strokeAttr,
 									$author$project$String$Svg$strokeWidth('.498'),
 									$author$project$String$Svg$strokeMiterlimit('10'),
 									$author$project$String$Svg$strokeLinecap('round'),
@@ -21379,7 +21381,7 @@ var $author$project$ArrowStyle$makeHeadShape = function (style) {
 							_List_fromArray(
 								[
 									$author$project$String$Svg$fill('none'),
-									$author$project$String$Svg$stroke('#000'),
+									strokeAttr,
 									$author$project$String$Svg$strokeWidth('.498'),
 									$author$project$String$Svg$strokeMiterlimit('10')
 								]),
@@ -21418,7 +21420,7 @@ var $author$project$ArrowStyle$makeHeadShape = function (style) {
 							_List_fromArray(
 								[
 									$author$project$String$Svg$fill('none'),
-									$author$project$String$Svg$stroke('#000'),
+									strokeAttr,
 									$author$project$String$Svg$strokeWidth('.498'),
 									$author$project$String$Svg$strokeMiterlimit('10')
 								]),
@@ -21477,6 +21479,7 @@ var $author$project$ArrowStyle$makeTailShape = function (style) {
 	if (_Utils_eq(style.kind, $author$project$ArrowStyle$NoneArrow)) {
 		return A2($author$project$String$Svg$g, _List_Nil, _List_Nil);
 	} else {
+		var strokeAttr = $author$project$String$Svg$strokeFromColor(style.color);
 		var _double = $author$project$ArrowStyle$isDouble(style);
 		var _v0 = _Utils_Tuple2(_double, style.tail);
 		_v0$6:
@@ -21490,7 +21493,7 @@ var $author$project$ArrowStyle$makeTailShape = function (style) {
 							_List_fromArray(
 								[
 									$author$project$String$Svg$fill('none'),
-									$author$project$String$Svg$stroke('#000'),
+									strokeAttr,
 									$author$project$String$Svg$strokeWidth('.498'),
 									$author$project$String$Svg$strokeMiterlimit('10')
 								]),
@@ -21519,7 +21522,7 @@ var $author$project$ArrowStyle$makeTailShape = function (style) {
 							_List_fromArray(
 								[
 									$author$project$String$Svg$fill('none'),
-									$author$project$String$Svg$stroke('#000'),
+									strokeAttr,
 									$author$project$String$Svg$strokeWidth('.498'),
 									$author$project$String$Svg$strokeMiterlimit('10'),
 									$author$project$String$Svg$transform('translate(0 6.483) scale(1 -1)')
@@ -21549,7 +21552,7 @@ var $author$project$ArrowStyle$makeTailShape = function (style) {
 							_List_fromArray(
 								[
 									$author$project$String$Svg$fill('none'),
-									$author$project$String$Svg$stroke('#000'),
+									strokeAttr,
 									$author$project$String$Svg$strokeWidth('.498'),
 									$author$project$String$Svg$strokeMiterlimit('10')
 								]),
@@ -21583,7 +21586,7 @@ var $author$project$ArrowStyle$makeTailShape = function (style) {
 							_List_fromArray(
 								[
 									$author$project$String$Svg$fill('none'),
-									$author$project$String$Svg$stroke('#000'),
+									strokeAttr,
 									$author$project$String$Svg$strokeWidth('.498'),
 									$author$project$String$Svg$strokeMiterlimit('10')
 								]),
@@ -21645,7 +21648,7 @@ var $author$project$ArrowStyle$makeTailShape = function (style) {
 							_List_fromArray(
 								[
 									$author$project$String$Svg$fill('none'),
-									$author$project$String$Svg$stroke('#000'),
+									strokeAttr,
 									$author$project$String$Svg$strokeWidth('.498'),
 									$author$project$String$Svg$strokeMiterlimit('10'),
 									$author$project$String$Svg$transform('translate(0 6.483) scale(1 -1)')
@@ -21708,7 +21711,7 @@ var $author$project$ArrowStyle$makeTailShape = function (style) {
 							_List_fromArray(
 								[
 									$author$project$String$Svg$fill('none'),
-									$author$project$String$Svg$stroke('#000'),
+									strokeAttr,
 									$author$project$String$Svg$strokeWidth('.498'),
 									$author$project$String$Svg$strokeMiterlimit('10')
 								]),
@@ -21813,7 +21816,6 @@ var $author$project$Drawing$quadraticBezierToAttr = function (_v0) {
 	return $author$project$String$Svg$d(
 		'M' + (p(from) + (' Q ' + (p(controlPoint) + (', ' + p(to))))));
 };
-var $author$project$String$Svg$strokeFromColor = A2($elm$core$Basics$composeL, $author$project$String$Svg$stroke, $author$project$Drawing$Color$toString);
 var $author$project$String$Svg$strokeWidthPx = function (w) {
 	return A2(
 		$author$project$String$Html$attribute,
