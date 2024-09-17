@@ -16065,12 +16065,14 @@ var $author$project$Command$fixModel = function (modeli) {
 				function (_v7) {
 					return A2($author$project$Modes$Pullshout$fixModel, model, state);
 				});
-		default:
+		case 'SquareMode':
 			var state = _v1.a;
 			return ifTabChanged(
 				function (_v8) {
 					return A2($author$project$Modes$Square$fixModel, model, state);
 				});
+		default:
+			return defaultModel;
 	}
 };
 var $author$project$Modif$fold = F3(
@@ -25889,7 +25891,7 @@ var $author$project$Modes$NewArrow$update = F3(
 					}
 				}());
 		};
-		_v0$13:
+		_v0$14:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseClick':
@@ -25901,7 +25903,7 @@ var $author$project$Modes$NewArrow$update = F3(
 							return next(
 								{finish: false, merge: true});
 						} else {
-							break _v0$13;
+							break _v0$14;
 						}
 					} else {
 						if (msg.c.$ === 'Control') {
@@ -25915,13 +25917,16 @@ var $author$project$Modes$NewArrow$update = F3(
 									return next(
 										{finish: false, merge: state.isAdjunction});
 								default:
-									break _v0$13;
+									break _v0$14;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
 								case '?':
 									return $author$project$Model$noCmd(
 										$author$project$Model$toggleHelpOverlay(model));
+								case ' ':
+									return next(
+										{finish: true, merge: state.isAdjunction});
 								case 'a':
 									return next(
 										{finish: true, merge: true});
@@ -25968,12 +25973,12 @@ var $author$project$Modes$NewArrow$update = F3(
 												state,
 												{mode: mode})));
 								default:
-									break _v0$13;
+									break _v0$14;
 							}
 						}
 					}
 				default:
-					break _v0$13;
+					break _v0$14;
 			}
 		}
 		var newStyle = function () {
@@ -27830,6 +27835,9 @@ var $author$project$Main$update_DebugMode = F2(
 		}
 	});
 var $author$project$Modes$DebugMode = {$: 'DebugMode'};
+var $author$project$Modes$LatexPreamble = function (a) {
+	return {$: 'LatexPreamble', a: a};
+};
 var $author$project$Msg$PressTimeout = {$: 'PressTimeout'};
 var $author$project$Modes$RectSelect = function (a) {
 	return {$: 'RectSelect', a: a};
@@ -29721,9 +29729,9 @@ var $author$project$Main$update_DefaultMode = F2(
 						$author$project$Polygraph$newModif(modelGraph)));
 			}
 		};
-		_v0$50:
+		_v0$51:
 		while (true) {
-			_v0$51:
+			_v0$52:
 			while (true) {
 				switch (msg.$) {
 					case 'MouseOn':
@@ -29759,6 +29767,13 @@ var $author$project$Main$update_DefaultMode = F2(
 								model,
 								{
 									mode: $author$project$Modes$RectSelect(model.mousePos)
+								}));
+					case 'LatexPreambleSwitch':
+						return $author$project$Model$noCmd(
+							_Utils_update(
+								model,
+								{
+									mode: $author$project$Modes$LatexPreamble(model.graphInfo.latexPreamble)
 								}));
 					case 'CopyGraph':
 						return _Utils_Tuple2(
@@ -29900,7 +29915,7 @@ var $author$project$Main$update_DefaultMode = F2(
 										$elm$core$Basics$always($author$project$Msg$PressTimeout),
 										$elm$core$Process$sleep(pressTimeoutMs)));
 							} else {
-								break _v0$51;
+								break _v0$52;
 							}
 						} else {
 							if (msg.c.$ === 'Control') {
@@ -29913,7 +29928,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											model,
 											$author$project$GraphDefs$removeSelected(modelGraph));
 									default:
-										break _v0$50;
+										break _v0$51;
 								}
 							} else {
 								switch (msg.c.a.valueOf()) {
@@ -30205,12 +30220,12 @@ var $author$project$Main$update_DefaultMode = F2(
 												$author$project$Msg$FocusPosition(
 													{pos: model.mousePos, selIds: selIds, tabId: model.graphInfo.activeTabId})));
 									default:
-										break _v0$50;
+										break _v0$51;
 								}
 							}
 						}
 					default:
-						break _v0$51;
+						break _v0$52;
 				}
 			}
 			return $author$project$Model$noCmd(model);
@@ -30431,6 +30446,28 @@ var $author$project$Main$update_Enlarge = F3(
 								pos: A2($author$project$InputPosition$update, state.pos, msg)
 							}))
 				}));
+	});
+var $author$project$Main$update_LatexPreamble = F3(
+	function (s, msg, model) {
+		switch (msg.$) {
+			case 'LatexPreambleSwitch':
+				return A2(
+					$author$project$CommandCodec$updateModif,
+					_Utils_update(
+						model,
+						{mode: $author$project$Modes$DefaultMode}),
+					$author$project$Format$GraphInfo$LatexPreamble(s));
+			case 'LatexPreambleEdit':
+				var newPreamble = msg.a;
+				return $author$project$Model$noCmd(
+					_Utils_update(
+						model,
+						{
+							mode: $author$project$Modes$LatexPreamble(newPreamble)
+						}));
+			default:
+				return $author$project$Model$noCmd(model);
+		}
 	});
 var $author$project$Geometry$makeRect = F2(
 	function (p1, p2) {
@@ -30664,10 +30701,6 @@ var $author$project$Main$update = F2(
 			case 'TabMoveRight':
 				return returnModif(
 					$author$project$Format$GraphInfo$TabMoveRight(activeTabId));
-			case 'LatexPreambleEdit':
-				var s = msg.a;
-				return returnModif(
-					$author$project$Format$GraphInfo$LatexPreamble(s));
 			case 'FindReplace':
 				var req = msg.a;
 				return returnModif(
@@ -30889,9 +30922,12 @@ var $author$project$Main$update = F2(
 					case 'ResizeMode':
 						var s = _v6.a;
 						return A3($author$project$Main$update_Resize, s, msg, model);
-					default:
+					case 'ColorMode':
 						var ids = _v6.a;
 						return A3($author$project$Modes$Color$update, ids, msg, model);
+					default:
+						var s = _v6.a;
+						return A3($author$project$Main$update_LatexPreamble, s, msg, model);
 				}
 		}
 	});
@@ -30927,6 +30963,7 @@ var $author$project$Msg$ExportQuiver = {$: 'ExportQuiver'};
 var $author$project$Msg$LatexPreambleEdit = function (a) {
 	return {$: 'LatexPreambleEdit', a: a};
 };
+var $author$project$Msg$LatexPreambleSwitch = {$: 'LatexPreambleSwitch'};
 var $author$project$Msg$MouseDown = function (a) {
 	return {$: 'MouseDown', a: a};
 };
@@ -30949,7 +30986,6 @@ var $author$project$Msg$ToggleAlternativeLatex = {$: 'ToggleAlternativeLatex'};
 var $author$project$Msg$ToggleAutosave = {$: 'ToggleAutosave'};
 var $author$project$Msg$ToggleHideGrid = {$: 'ToggleHideGrid'};
 var $author$project$Msg$ToggleHideRuler = {$: 'ToggleHideRuler'};
-var $elm$html$Html$a = _VirtualDom_node('a');
 var $author$project$String$Svg$class = $author$project$String$Html$attribute('class');
 var $author$project$Drawing$ofSvgs = F2(
 	function (z, l) {
@@ -31378,11 +31414,13 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 		case 'CutHead':
 			var state = _v0.a;
 			return A2($author$project$Modes$CutHead$graphDrawing, m, state);
-		default:
+		case 'ResizeMode':
 			var sizeGrid = _v0.a;
 			return $author$project$GraphDrawing$toDrawingGraph(
 				$author$project$Polygraph$applyModifHelper(
 					A2($author$project$Main$graphResize, sizeGrid, m)));
+		default:
+			return A2($author$project$Model$collageGraphFromGraph, m, modelGraph);
 	}
 };
 var $author$project$String$Svg$defs = $author$project$String$Svg$node('defs');
@@ -31463,7 +31501,7 @@ var $author$project$Modes$Move$help = function (s) {
 	}())))))));
 };
 var $author$project$Drawing$Color$helpMsg = 'bla[c]k, bl[u]e, [g]reen, [o]range, [r]ed, [v]iolet, [y]ellow';
-var $author$project$Modes$NewArrow$help = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard ' + ('([f] to move by a multiple of the grid size), ' + ('[ctrl] merge, [a] merge without renaming, ' + ('[RET] terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + $author$project$Drawing$Color$helpMsg))))))))))))));
+var $author$project$Modes$NewArrow$help = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard ' + ('([f] to move by a multiple of the grid size), ' + ('[ctrl] merge, [a] merge without renaming, ' + ('[RET] or space to terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + $author$project$Drawing$Color$helpMsg))))))))))))));
 var $author$project$Modes$NewLine$help = $author$project$HtmlDefs$overlayHelpMsg + ', [ESC] cancel, [click, n] to finalise, [bB] change bend';
 var $author$project$Modes$Pullshout$help = '[ESC] cancel, ' + ($author$project$HtmlDefs$overlayHelpMsg + (', cycle between [p]ullback/[P]ushout possibilities, ' + ($author$project$Drawing$Color$helpMsg + ', [RET] confirm')));
 var $author$project$Modes$Rename$help = 'Rename mode: [RET] to confirm, [TAB] to next label, [ESC] to cancel';
@@ -31645,6 +31683,8 @@ var $author$project$Modes$toString = function (m) {
 			return 'Rename';
 		case 'DebugMode':
 			return 'Debug';
+		case 'LatexPreamble':
+			return 'Latex preamble';
 		case 'SquareMode':
 			return 'Square';
 		case 'RectSelect':
@@ -31699,6 +31739,8 @@ var $author$project$Main$helpMsg = function (model) {
 			return $elm$html$Html$text('Debug Mode. [ESC] to cancel and come back to the default mode. ' + '');
 		case 'NewArrow':
 			return msg('Mode NewArrow. ' + $author$project$Modes$NewArrow$help);
+		case 'LatexPreamble':
+			return msg('Mode latex preamble.');
 		case 'NewLine':
 			return msg('Mode NewLine. ' + $author$project$Modes$NewLine$help);
 		case 'PullshoutMode':
@@ -31732,12 +31774,6 @@ var $author$project$Main$helpMsg = function (model) {
 						$elm$html$Html$text(txt)
 					]));
 	}
-};
-var $elm$html$Html$Attributes$href = function (url) {
-	return A2(
-		$elm$html$Html$Attributes$stringProperty,
-		'href',
-		_VirtualDom_noJavaScriptUri(url));
 };
 var $hecrj$html_parser$Html$Parser$Element = F3(
 	function (a, b, c) {
@@ -34982,7 +35018,6 @@ var $author$project$Modes$isResizeMode = function (m) {
 		return false;
 	}
 };
-var $author$project$HtmlDefs$latexPreambleId = 'latex-preamble';
 var $author$project$Model$maxRulerMargin = 2000;
 var $author$project$Model$minRulerMargin = 50;
 var $elm$html$Html$Events$onMouseLeave = function (msg) {
@@ -35415,16 +35450,6 @@ var $author$project$Main$viewGraph = function (model) {
 						[
 							$elm$html$Html$text('Clear')
 						])),
-					A2(
-					$elm$html$Html$a,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$href('#' + $author$project$HtmlDefs$latexPreambleId)
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('Latex preamble')
-						])),
 					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleHideGrid, 'Show grid', '', !model.hideGrid),
 					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleHideRuler, 'Show ruler', '', model.rulerShow),
 					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleAlternativeLatex, 'Alternative latex generation', 'The alternative generated code should render something closer to what you see here, but is more verbose', model.alternativeLatex),
@@ -35484,30 +35509,22 @@ var $author$project$Main$viewGraph = function (model) {
 							$author$project$Model$maxSizeGrid,
 							$author$project$Model$getCurrentSizeGrid(model))
 						]) : _List_Nil,
-					_List_fromArray(
-						[
-							A2(
-							$elm$html$Html$p,
-							_List_fromArray(
+					function () {
+						var _v0 = model.mode;
+						if (_v0.$ === 'LatexPreamble') {
+							var s = _v0.a;
+							return _List_fromArray(
 								[
-									$elm$html$Html$Attributes$class('tabs')
-								]),
-							$author$project$Main$renderTabs(model)),
-							A2(
-							$elm$html$Html$p,
-							_List_Nil,
-							_List_fromArray(
-								[
-									$elm$html$Html$text(
-									(nmissings > 0) ? ($elm$core$String$fromInt(nmissings) + ' nodes or edges could not be rendered.') : '')
-								])),
-							svg,
-							A2(
-							$elm$html$Html$p,
-							_List_Nil,
-							_List_fromArray(
-								[
-									$elm$html$Html$text('LaTeX preamble'),
+									A2(
+									$elm$html$Html$button,
+									_List_fromArray(
+										[
+											$elm$html$Html$Events$onClick($author$project$Msg$LatexPreambleSwitch)
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Confirm preamble')
+										])),
 									A2(
 									$elm$html$Html$textarea,
 									_List_fromArray(
@@ -35515,13 +35532,43 @@ var $author$project$Main$viewGraph = function (model) {
 											$elm$html$Html$Attributes$cols(100),
 											$elm$html$Html$Attributes$rows(100),
 											$elm$html$Html$Attributes$placeholder('latex Preamble'),
-											$elm$html$Html$Attributes$value(model.graphInfo.latexPreamble),
-											$elm$html$Html$Attributes$id($author$project$HtmlDefs$latexPreambleId),
+											$elm$html$Html$Attributes$value(s),
 											$elm$html$Html$Events$onInput($author$project$Msg$LatexPreambleEdit)
 										]),
 									_List_Nil)
-								]))
-						])))));
+								]);
+						} else {
+							return _List_fromArray(
+								[
+									A2(
+									$elm$html$Html$button,
+									_List_fromArray(
+										[
+											$elm$html$Html$Events$onClick($author$project$Msg$LatexPreambleSwitch)
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Edit latex preamble')
+										])),
+									A2(
+									$elm$html$Html$p,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class('tabs')
+										]),
+									$author$project$Main$renderTabs(model)),
+									A2(
+									$elm$html$Html$p,
+									_List_Nil,
+									_List_fromArray(
+										[
+											$elm$html$Html$text(
+											(nmissings > 0) ? ($elm$core$String$fromInt(nmissings) + ' nodes or edges could not be rendered.') : '')
+										])),
+									svg
+								]);
+						}
+					}()))));
 	return A2($elm$html$Html$div, _List_Nil, contents);
 };
 var $author$project$Main$view = function (m) {
