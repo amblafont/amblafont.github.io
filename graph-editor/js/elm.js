@@ -13854,7 +13854,7 @@ var $author$project$Main$subscriptions = function (m) {
 													function (ks, k) {
 														var checkCtrl = (ks.ctrl && _Utils_eq(m.mode, $author$project$Modes$DefaultMode)) ? $author$project$Msg$Do(
 															$author$project$Main$preventDefault(e)) : $author$project$Msg$noOp;
-														_v2$2:
+														_v2$3:
 														while (true) {
 															if (k.$ === 'Character') {
 																switch (k.a.valueOf()) {
@@ -13872,11 +13872,14 @@ var $author$project$Main$subscriptions = function (m) {
 																		}
 																	case 'a':
 																		return checkCtrl;
+																	case ' ':
+																		return $author$project$Msg$Do(
+																			$author$project$Main$preventDefault(e));
 																	default:
-																		break _v2$2;
+																		break _v2$3;
 																}
 															} else {
-																break _v2$2;
+																break _v2$3;
 															}
 														}
 														return $author$project$Msg$noOp;
