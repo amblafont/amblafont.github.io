@@ -19395,7 +19395,7 @@ var $author$project$ArrowStyle$headTikzStyle = function (hd) {
 };
 var $author$project$Drawing$Color$toString = $author$project$Codec$encoder($author$project$Drawing$Color$codec);
 var $author$project$ArrowStyle$tikzStyle = function (stl) {
-	return 'fore, ' + ($author$project$Drawing$Color$toString(stl.color) + (',' + (function () {
+	return $author$project$Drawing$Color$toString(stl.color) + (',' + (function () {
 		var _v0 = _Utils_Tuple2(stl.head, stl.kind);
 		switch (_v0.b.$) {
 			case 'DoubleArrow':
@@ -19429,7 +19429,7 @@ var $author$project$ArrowStyle$tikzStyle = function (stl) {
 			default:
 				return 'linto, ';
 		}
-	}())))));
+	}()))));
 };
 var $author$project$Tikz$encodeLabel = function (e) {
 	var _v0 = e.label.details;
@@ -19463,7 +19463,7 @@ var $author$project$Tikz$encodeFakeLabel = function (e) {
 		return '';
 	} else {
 		var l = _v0.a;
-		return $author$project$ArrowStyle$tikzStyle(l.style);
+		return 'fore,' + $author$project$ArrowStyle$tikzStyle(l.style);
 	}
 };
 var $author$project$Tikz$encodeFakeEdgeTikZ = function (e) {
