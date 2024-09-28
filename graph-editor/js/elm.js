@@ -5066,7 +5066,7 @@ var $author$project$Model$createModel = function (_v0) {
 	var saveLoadButtons = _v0.saveLoadButtons;
 	var g = $author$project$Polygraph$empty;
 	return {
-		alternativeLatex: false,
+		alternativeLatex: true,
 		autoSave: true,
 		defaultGridSize: defaultGridSize,
 		graphInfo: {
@@ -35455,7 +35455,7 @@ var $author$project$Main$viewGraph = function (model) {
 						])),
 					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleHideGrid, 'Show grid', '', !model.hideGrid),
 					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleHideRuler, 'Show ruler', '', model.rulerShow),
-					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleAlternativeLatex, 'Alternative latex generation', 'The alternative generated code should render something closer to what you see here, but is more verbose', model.alternativeLatex),
+					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleAlternativeLatex, 'Legacy latex generation', 'The legacy latex generation relies on Tikz to compute the exact position of edges', !model.alternativeLatex),
 					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleAutosave, 'Autosave', 'Quicksave every minute', model.autoSave),
 					A2(
 					$elm$html$Html$button,
