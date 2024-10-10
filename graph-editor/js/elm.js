@@ -5417,6 +5417,7 @@ var $author$project$Msg$Clear = function (a) {
 	return {$: 'Clear', a: a};
 };
 var $author$project$Msg$CopyGraph = {$: 'CopyGraph'};
+var $author$project$Msg$CutGraph = {$: 'CutGraph'};
 var $author$project$Msg$Do = function (a) {
 	return {$: 'Do', a: a};
 };
@@ -10802,6 +10803,9 @@ var $elm$browser$Browser$Events$onClick = A2($elm$browser$Browser$Events$on, $el
 var $author$project$Main$onCopy = _Platform_incomingPort(
 	'onCopy',
 	$elm$json$Json$Decode$null(_Utils_Tuple0));
+var $author$project$Main$onCut = _Platform_incomingPort(
+	'onCut',
+	$elm$json$Json$Decode$null(_Utils_Tuple0));
 var $elm$browser$Browser$Events$onKeyDown = A2($elm$browser$Browser$Events$on, $elm$browser$Browser$Events$Document, 'keydown');
 var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $author$project$Main$onKeyDownActive = _Platform_incomingPort('onKeyDownActive', $elm$json$Json$Decode$value);
@@ -13840,6 +13844,8 @@ var $author$project$Main$subscriptions = function (m) {
 									$author$project$HtmlDefs$keyDecoder)),
 								$author$project$Main$onCopy(
 								$elm$core$Basics$always($author$project$Msg$CopyGraph)),
+								$author$project$Main$onCut(
+								$elm$core$Basics$always($author$project$Msg$CutGraph)),
 								$author$project$Main$onMouseMoveFromJS($author$project$Msg$MouseMove),
 								$author$project$Main$onKeyDownActive(
 								function (e) {
@@ -29732,9 +29738,9 @@ var $author$project$Main$update_DefaultMode = F2(
 						$author$project$Polygraph$newModif(modelGraph)));
 			}
 		};
-		_v0$51:
+		_v0$52:
 		while (true) {
-			_v0$52:
+			_v0$53:
 			while (true) {
 				switch (msg.$) {
 					case 'MouseOn':
@@ -29784,6 +29790,20 @@ var $author$project$Main$update_DefaultMode = F2(
 							$author$project$Main$clipboardWriteGraph(
 								$author$project$Main$toJsGraphInfo(
 									$author$project$Model$restrictSelection(model))));
+					case 'CutGraph':
+						var copyCmd = $author$project$Main$clipboardWriteGraph(
+							$author$project$Main$toJsGraphInfo(
+								$author$project$Model$restrictSelection(model)));
+						var removeCmd = A3(
+							$author$project$CommandCodec$protocolSendGraphModif,
+							model.graphInfo,
+							$author$project$Msg$defaultModifId,
+							$author$project$GraphDefs$removeSelected(modelGraph));
+						return _Utils_Tuple2(
+							model,
+							$elm$core$Platform$Cmd$batch(
+								_List_fromArray(
+									[copyCmd, removeCmd])));
 					case 'AppliedProof':
 						var statement = msg.a.statement;
 						var script = msg.a.script;
@@ -29918,7 +29938,7 @@ var $author$project$Main$update_DefaultMode = F2(
 										$elm$core$Basics$always($author$project$Msg$PressTimeout),
 										$elm$core$Process$sleep(pressTimeoutMs)));
 							} else {
-								break _v0$52;
+								break _v0$53;
 							}
 						} else {
 							if (msg.c.$ === 'Control') {
@@ -29931,7 +29951,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											model,
 											$author$project$GraphDefs$removeSelected(modelGraph));
 									default:
-										break _v0$51;
+										break _v0$52;
 								}
 							} else {
 								switch (msg.c.a.valueOf()) {
@@ -30082,7 +30102,8 @@ var $author$project$Main$update_DefaultMode = F2(
 									case '/':
 										return $author$project$Modes$SplitArrow$initialise(model);
 									case 'x':
-										return A2(
+										var k = msg.b;
+										return k.ctrl ? $author$project$Model$noCmd(model) : A2(
 											$author$project$CommandCodec$updateModifHelper,
 											model,
 											$author$project$GraphDefs$removeSelected(modelGraph));
@@ -30223,12 +30244,12 @@ var $author$project$Main$update_DefaultMode = F2(
 												$author$project$Msg$FocusPosition(
 													{pos: model.mousePos, selIds: selIds, tabId: model.graphInfo.activeTabId})));
 									default:
-										break _v0$51;
+										break _v0$52;
 								}
 							}
 						}
 					default:
-						break _v0$52;
+						break _v0$53;
 				}
 			}
 			return $author$project$Model$noCmd(model);
@@ -31737,7 +31758,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint ([m] to create a point snapped to grid)' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]olor arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + (', export selection to LaTe[X]/s[V]g' + ', [#] make the other user focus on the mouse position and share selection')))))))))))))))))))))))))))))))))))))))))))))))));
+			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-x] cut selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint ([m] to create a point snapped to grid)' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]olor arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, [i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + (', export selection to LaTe[X]/s[V]g' + ', [#] make the other user focus on the mouse position and share selection'))))))))))))))))))))))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return $elm$html$Html$text('Debug Mode. [ESC] to cancel and come back to the default mode. ' + '');
 		case 'NewArrow':
