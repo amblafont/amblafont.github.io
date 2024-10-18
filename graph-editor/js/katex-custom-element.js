@@ -6,6 +6,7 @@
   function initKatex() {
     const supportsAdoptingStyleSheets = ('adoptedStyleSheets' in Document.prototype) &&
     ('replace' in CSSStyleSheet.prototype);
+    
 let styleSheet = new CSSStyleSheet();
 styleSheet.replace(katexStyles);
 document.adoptedStyleSheets = [styleSheet];
