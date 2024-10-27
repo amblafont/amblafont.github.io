@@ -7293,7 +7293,7 @@ var $author$project$Polygraph$edgeMap = F2(
 			to: to
 		};
 	});
-var $author$project$GraphDefs$defaultPullshoutShift = 30;
+var $author$project$GraphDefs$defaultPullshoutShift = 10;
 var $author$project$Format$Version14$pullshoutKey = $author$project$Format$Version15$pullshoutKey;
 var $author$project$Format$Version14$toNextStyle = function (_v0) {
 	var tail = _v0.tail;
