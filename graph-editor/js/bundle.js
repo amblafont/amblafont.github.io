@@ -180,9 +180,9 @@ var Bundle = (() => {
       writeLine(fd, indent + line);
     }
   }
-  async function writeContent(config, d, newcontent, output, index) {
+  async function writeContent(config, d, newcontent, output, index, watchedFile) {
     let fd = [];
-    const file_lines = await getLinesFromFilepath(d, config.watchedFile);
+    const file_lines = await getLinesFromFilepath(d, watchedFile);
     let line = false;
     let content = null;
     let indent = "";
@@ -223,9 +223,10 @@ var Bundle = (() => {
       }
       writeLine(fd, line);
     }
-    return fsWriteFile(d, config.watchedFile, fd.join(""));
+    return fsWriteFile(d, watchedFile, fd.join(""));
   }
-  async function watchSaveDiagram(config, handleConfig, d, newcontent_json, exports) {
+  async function watchSaveDiagram(handleConfig, d, newcontent_json, exports) {
+    let config = handleConfig.config;
     let newcontent = JSON.stringify(newcontent_json);
     let generatedOutput = exports[config.exportFormat];
     if (handleConfig.diagFile !== null) {
@@ -238,7 +239,14 @@ var Bundle = (() => {
       }
     }
     if (!handleConfig.onlyExternalFile)
-      await writeContent(config, d, newcontent, generatedOutput, handleConfig.index);
+      await writeContent(
+        config,
+        d,
+        newcontent,
+        generatedOutput,
+        handleConfig.index,
+        handleConfig.watchedFile
+      );
   }
   async function getContent(d, config, diagFile) {
     let content = "";
@@ -254,9 +262,12 @@ var Bundle = (() => {
     return content;
   }
   async function checkWatchedFile(config, d) {
+    let watchedFile = config.watchedFile;
+    if (typeof watchedFile != "string")
+      return void 0;
     let file_lines;
     try {
-      file_lines = await getLinesFromFilepath(d, config.watchedFile);
+      file_lines = await getLinesFromFilepath(d, watchedFile);
     } catch (e) {
       alert("Unable to read " + config.watchedFile);
       console.log(e);
@@ -266,11 +277,13 @@ var Bundle = (() => {
     let index = 0;
     let line = "";
     let content = null;
+    let lineNum = 0;
     while (line !== false && remainder !== null && remainder.length == 0) {
       index++;
       content = null;
       while (content === null) {
         line = readLine(file_lines);
+        lineNum++;
         if (line === false)
           break;
         content = parseMagic(config.magic, line).content;
@@ -290,6 +303,9 @@ var Bundle = (() => {
             diagFile: diagFile2,
             index,
             content: data,
+            config,
+            watchedFile,
+            line: lineNum,
             onlyExternalFile: true
           };
         }
@@ -313,7 +329,15 @@ var Bundle = (() => {
       diagFile = content;
       content = await getContent(d, config, content);
     }
-    let handleConfig = { content, diagFile, index, onlyExternalFile: false };
+    let handleConfig = {
+      content,
+      config,
+      watchedFile,
+      line: lineNum,
+      diagFile,
+      index,
+      onlyExternalFile: false
+    };
     return handleConfig;
   }
 
