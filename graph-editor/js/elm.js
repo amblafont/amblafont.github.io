@@ -30434,7 +30434,8 @@ var $author$project$Main$update_DefaultMode = F2(
 							_Utils_update(
 								model,
 								{
-									mode: $author$project$Modes$RectSelect(model.mousePos)
+									mode: $author$project$Modes$RectSelect(
+										{hold: false, orig: model.mousePos})
 								}));
 					case 'LatexPreambleSwitch':
 						return $author$project$Model$noCmd(
@@ -31182,25 +31183,48 @@ var $author$project$Main$selectGraph = F3(
 		return A2($author$project$GraphDefs$addNodesSelection, g, isSel);
 	});
 var $author$project$Main$update_RectSelect = F4(
-	function (msg, orig, keep, model) {
-		_v0$2:
+	function (msg, _v0, keep, model) {
+		var orig = _v0.orig;
+		var hold = _v0.hold;
+		var finalise = function (_v2) {
+			return $author$project$Model$switch_Default(
+				A2(
+					$author$project$Model$setActiveGraph,
+					model,
+					A3($author$project$Main$selectGraph, model, orig, keep)));
+		};
+		_v1$3:
 		while (true) {
 			switch (msg.$) {
 				case 'KeyChanged':
-					if (((!msg.a) && (msg.c.$ === 'Control')) && (msg.c.a === 'Escape')) {
-						return $author$project$Model$switch_Default(model);
+					if (!msg.a) {
+						if (msg.c.$ === 'Control') {
+							if (msg.c.a === 'Escape') {
+								return $author$project$Model$switch_Default(model);
+							} else {
+								break _v1$3;
+							}
+						} else {
+							if ('s' === msg.c.a.valueOf()) {
+								return hold ? finalise(_Utils_Tuple0) : $author$project$Model$noCmd(
+									_Utils_update(
+										model,
+										{
+											mode: $author$project$Modes$RectSelect(
+												{hold: true, orig: orig})
+										}));
+							} else {
+								break _v1$3;
+							}
+						}
 					} else {
-						break _v0$2;
+						break _v1$3;
 					}
 				case 'MouseClick':
-					return _Utils_eq(model.mousePos, orig) ? $author$project$Model$switch_Default(
-						$author$project$Main$selectByClick(model)) : $author$project$Model$switch_Default(
-						A2(
-							$author$project$Model$setActiveGraph,
-							model,
-							A3($author$project$Main$selectGraph, model, orig, keep)));
+					return hold ? $author$project$Model$noCmd(model) : (_Utils_eq(model.mousePos, orig) ? $author$project$Model$switch_Default(
+						$author$project$Main$selectByClick(model)) : finalise(_Utils_Tuple0));
 				default:
-					break _v0$2;
+					break _v1$3;
 			}
 		}
 		return $author$project$Model$noCmd(model);
@@ -31587,8 +31611,8 @@ var $author$project$Main$update = F2(
 					case 'DefaultMode':
 						return A2($author$project$Main$update_DefaultMode, msg, model);
 					case 'RectSelect':
-						var orig = _v6.a;
-						return A4($author$project$Main$update_RectSelect, msg, orig, model.specialKeys.shift, model);
+						var state = _v6.a;
+						return A4($author$project$Main$update_RectSelect, msg, state, model.specialKeys.shift, model);
 					case 'EnlargeMode':
 						var state = _v6.a;
 						return A3($author$project$Main$update_Enlarge, msg, state, model);
@@ -31771,7 +31795,7 @@ var $author$project$Main$additionnalDrawing = function (m) {
 	var _v0 = m.mode;
 	switch (_v0.$) {
 		case 'RectSelect':
-			var orig = _v0.a;
+			var orig = _v0.a.orig;
 			return A2(drawSel, $author$project$InputPosition$InputPosMouse, orig);
 		case 'EnlargeMode':
 			var state = _v0.a;
@@ -32055,9 +32079,9 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 		case 'DefaultMode':
 			return A2($author$project$Model$collageGraphFromGraph, m, modelGraph);
 		case 'RectSelect':
-			var p = _v0.a;
+			var orig = _v0.a.orig;
 			return $author$project$GraphDrawing$toDrawingGraph(
-				A3($author$project$Main$selectGraph, m, p, m.specialKeys.shift));
+				A3($author$project$Main$selectGraph, m, orig, m.specialKeys.shift));
 		case 'EnlargeMode':
 			var p = _v0.a;
 			return A2(
@@ -32462,6 +32486,10 @@ var $author$project$Main$helpMsg = function (model) {
 			var onlyGrid = _v0.a.onlyGrid;
 			return msg(
 				'Resize mode. ' + ($author$project$Main$overlayHelpMsgNewLine + ('[k]/[j] to increase/decrease, ' + ('or use the slider above. ' + (onlyGrid ? '[g] to resize the objects as well as the grid. ' : ('[g] to resize the grid only. ' + ('[ESC] to cancel, ' + '[RET] to confirm')))))));
+		case 'RectSelect':
+			var hold = _v0.a.hold;
+			return msg(
+				'Rectangle selection mode. ' + ('Draw a rectangle to select objects. [ESC] to cancel. ' + (hold ? '[s] to confirm.' : '[s] to select without holding the mouse, [click] to confirm.')));
 		default:
 			var txt = 'Mode: ' + ($author$project$Modes$toString(model.mode) + ('. [ESC] to cancel and come back to the default' + ' mode.'));
 			return makeHelpDiv(
