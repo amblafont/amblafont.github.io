@@ -291,7 +291,7 @@ var Bundle = (() => {
       if (line === false)
         break;
       console.log("Graph found");
-      if (content !== null && config.exportFormat && contentIsFile(content)) {
+      if (content !== null && config.externalOutput && contentIsFile(content)) {
         let diagFile2 = content;
         let outputFile = outputFileName(config, diagFile2);
         let checkExist = await checkFileExistsFromPath(d, outputFile);

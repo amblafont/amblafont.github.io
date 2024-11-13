@@ -20844,8 +20844,8 @@ var $author$project$Drawing$arrow = F2(
 					makeShape(normalArg)
 				]));
 	});
-var $author$project$GraphDrawing$drawStringMarker = F2(
-	function (marker, q) {
+var $author$project$GraphDrawing$drawStringMarker = F3(
+	function (color, marker, q) {
 		var pos = $author$project$Geometry$QuadraticBezier$middle(q);
 		var angle = $author$project$Geometry$Point$pointToAngle(
 			A2($author$project$Geometry$Point$subtract, q.to, q.from));
@@ -20857,21 +20857,21 @@ var $author$project$GraphDrawing$drawStringMarker = F2(
 				key: $elm$core$Maybe$Nothing,
 				label: marker,
 				pos: pos,
-				preamble: '',
+				preamble: '\\color{' + ($author$project$Drawing$Color$toString(color) + '}'),
 				scale: $author$project$GraphDefs$edgeScaleFactor,
 				zindex: $author$project$Zindex$foregroundZ
 			},
 			_List_Nil);
 	});
-var $author$project$GraphDrawing$drawMarker = F2(
-	function (marker, q) {
+var $author$project$GraphDrawing$drawMarker = F3(
+	function (color, marker, q) {
 		switch (marker.$) {
 			case 'NoMarker':
 				return $author$project$Drawing$empty;
 			case 'BulletMarker':
-				return A2($author$project$GraphDrawing$drawStringMarker, '\\bullet', q);
+				return A3($author$project$GraphDrawing$drawStringMarker, color, '\\bullet', q);
 			default:
-				return A2($author$project$GraphDrawing$drawStringMarker, '|', q);
+				return A3($author$project$GraphDrawing$drawStringMarker, color, '|', q);
 		}
 	});
 var $author$project$GraphDrawing$onDoubleClick = $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDoubleClick;
@@ -21397,10 +21397,14 @@ var $author$project$Geometry$determine_label_position = F9(
 		}
 	});
 var $author$project$ArrowStyle$doubleSize = 2.5;
+var $author$project$ArrowStyle$isMarker = function (marker) {
+	return !_Utils_eq(marker, $author$project$ArrowStyle$NoMarker);
+};
 var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onMove = A2($mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions, 'mousemove', $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$defaultOptions);
-var $author$project$GraphDrawing$segmentLabel = F6(
-	function (cfg, q, edgeId, activity, label, curve) {
-		var offset = 10 + ($author$project$ArrowStyle$isDouble(label.style) ? $author$project$ArrowStyle$doubleSize : 0);
+var $author$project$GraphDrawing$segmentLabel = F7(
+	function (cfg, q, edgeId, activity, label, marker, curve) {
+		var offset = $author$project$ArrowStyle$isDouble(label.style) ? (2 * $author$project$ArrowStyle$doubleSize) : ($author$project$ArrowStyle$isMarker(marker) ? 5 : 0);
+		var edge_width = 2 + offset;
 		var labelpos = function () {
 			var diffP = A2($author$project$Geometry$Point$subtract, q.to, q.from);
 			var angle = $author$project$Geometry$Point$pointToAngle(diffP);
@@ -21415,7 +21419,7 @@ var $author$project$GraphDrawing$segmentLabel = F6(
 						$author$project$Geometry$determine_label_position,
 						length,
 						angle,
-						2,
+						edge_width,
 						0,
 						1,
 						curve * length,
@@ -21508,8 +21512,8 @@ var $author$project$GraphDrawing$normalEdgeDrawing = F7(
 					$author$project$Drawing$arrow,
 					{bezier: q, style: style, zindex: z},
 					attrs),
-					A6($author$project$GraphDrawing$segmentLabel, cfg, q, edgeId, activity, label, curve),
-					A2($author$project$GraphDrawing$drawMarker, style.marker, q)
+					A7($author$project$GraphDrawing$segmentLabel, cfg, q, edgeId, activity, label, style.marker, curve),
+					A3($author$project$GraphDrawing$drawMarker, style.color, style.marker, q)
 				]));
 	});
 var $author$project$GraphDrawing$graphDrawing = F2(
@@ -26125,7 +26129,7 @@ var $author$project$ArrowStyle$toggleLabelAlignement = function (s) {
 			labelAlignment: A2(
 				$author$project$ListExtraExtra$nextInList,
 				_List_fromArray(
-					[$author$project$Geometry$Left, $author$project$Geometry$Right, $author$project$Geometry$Over]),
+					[$author$project$Geometry$Left, $author$project$Geometry$Right]),
 				s.labelAlignment)
 		});
 };
