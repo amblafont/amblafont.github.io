@@ -25158,7 +25158,7 @@ var $author$project$GraphDefs$distanceToNode = F2(
 	function (p, n) {
 		var posDims = {
 			dims: $author$project$GraphDefs$getNodeDims(n),
-			pos: n.pos
+			pos: $author$project$GraphDefs$getNodePos(n)
 		};
 		var rect = $author$project$Geometry$rectFromPosDims(posDims);
 		return A2($author$project$Geometry$distanceToRect, p, rect);
