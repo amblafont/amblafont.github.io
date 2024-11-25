@@ -16476,7 +16476,7 @@ var $author$project$Command$fixModel = function (modeli) {
 					return A2($author$project$Modes$Square$fixModel, model, state);
 				});
 		default:
-			return defaultModel;
+			return model;
 	}
 };
 var $author$project$Modif$fold = F3(
@@ -36240,14 +36240,20 @@ var $author$project$Main$viewGraph = function (model) {
 							return _List_fromArray(
 								[
 									A2(
-									$elm$html$Html$button,
+									$elm$html$Html$p,
+									_List_Nil,
 									_List_fromArray(
 										[
-											$elm$html$Html$Events$onClick($author$project$Msg$LatexPreambleSwitch)
-										]),
-									_List_fromArray(
-										[
-											$elm$html$Html$text('Confirm preamble')
+											A2(
+											$elm$html$Html$button,
+											_List_fromArray(
+												[
+													$elm$html$Html$Events$onClick($author$project$Msg$LatexPreambleSwitch)
+												]),
+											_List_fromArray(
+												[
+													$elm$html$Html$text('Confirm preamble')
+												]))
 										])),
 									A2(
 									$elm$html$Html$textarea,
