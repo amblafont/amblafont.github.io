@@ -20117,6 +20117,23 @@ var $author$project$Tikz$graphToTikz = F2(
 				pullshouts));
 		return '\\begin{tikzpicture}[every node/.style={outer sep=0pt,anchor=base,text height=1.2ex, text depth=0.25ex}] \n' + (tikzNodes + (tikzFakeEdges + (tikzEdges + (tikzPullshouts + '\\end{tikzpicture}'))));
 	});
+var $author$project$Main$textNodesToLatex = function (nodes) {
+	return A2(
+		$elm$core$String$join,
+		'\n\n',
+		A2(
+			$elm$core$List$map,
+			function ($) {
+				return $.label;
+			},
+			A2(
+				$elm$core$List$sortBy,
+				function (_v0) {
+					var pos = _v0.pos;
+					return pos.b;
+				},
+				nodes)));
+};
 var $elm_community$maybe_extra$Maybe$Extra$isNothing = function (m) {
 	if (m.$ === 'Nothing') {
 		return true;
@@ -21686,14 +21703,34 @@ var $author$project$GraphDrawing$toDrawingGraph = function (g) {
 };
 var $author$project$Main$graphToTikz = F2(
 	function (model, graph) {
-		if (model.alternativeLatex) {
-			var d = A2(
-				$author$project$Main$toDrawing,
-				model,
-				$author$project$GraphDrawing$toDrawingGraph(graph));
-			return $author$project$Drawing$tikz(d);
+		var nodes = A2(
+			$elm$core$List$map,
+			function ($) {
+				return $.label;
+			},
+			$author$project$Polygraph$nodes(graph));
+		if (A2(
+			$elm$core$List$all,
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.isMath;
+				},
+				$elm$core$Basics$not),
+			nodes) && _Utils_eq(
+			$author$project$Polygraph$edges(graph),
+			_List_Nil)) {
+			return $author$project$Main$textNodesToLatex(nodes);
 		} else {
-			return A2($author$project$Tikz$graphToTikz, model.defaultGridSize, graph);
+			if (model.alternativeLatex) {
+				var d = A2(
+					$author$project$Main$toDrawing,
+					model,
+					$author$project$GraphDrawing$toDrawingGraph(graph));
+				return $author$project$Drawing$tikz(d);
+			} else {
+				return A2($author$project$Tikz$graphToTikz, model.defaultGridSize, graph);
+			}
 		}
 	});
 var $author$project$GraphDefs$clearWeakSelection = function (g) {
