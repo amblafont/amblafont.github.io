@@ -185,40 +185,35 @@ var Bundle = (() => {
     let fd = [];
     const file_lines = await getLinesFromFilepath(d, watchedFile);
     let line = false;
-    let content = void 0;
-    let indent = "";
-    let prefix = "";
+    let magicInfo = void 0;
     for (let i = 0; i < index; i++) {
       writeLine(fd, line);
-      content = void 0;
       line = false;
-      while (content === void 0) {
+      magicInfo = void 0;
+      while (magicInfo === void 0) {
         writeLine(fd, line);
         line = readLine(file_lines);
         if (line === false)
           break;
-        let magic = parseMagic(config.magic, line);
-        content = magic?.content;
-        indent = magic?.indent || "";
-        prefix = magic?.prefix || "";
+        magicInfo = parseMagic(config.magic, line);
       }
     }
-    if (content === void 0) {
+    if (magicInfo === void 0) {
       console.log("error");
       throw new Error("error");
       return;
     }
-    let isFile = contentIsFile(content);
+    let isFile = contentIsFile(magicInfo.content);
     if (isFile)
       writeLine(fd, line);
     else
-      writeLine(fd, prefix + config.magic + " " + newcontent);
-    writeLines(fd, config.prefixes, indent);
+      writeLine(fd, magicInfo.prefix + config.magic + " " + newcontent);
+    writeLines(fd, config.prefixes, magicInfo.indent);
     if (!config.externalOutput || !isFile)
-      writeLines(fd, output.split("\n"), indent);
+      writeLines(fd, output.split("\n"), magicInfo.indent);
     else
-      writeLine(fd, indent + config.includeCmd.replace("@", outputFileName(config, content)));
-    writeLines(fd, config.suffixes, indent);
+      writeLine(fd, magicInfo.indent + config.includeCmd.replace("@", outputFileName(config, magicInfo.content)));
+    writeLines(fd, config.suffixes, magicInfo.indent);
     while (line !== false) {
       line = readLine(file_lines);
       if (line === false) {
@@ -281,6 +276,7 @@ var Bundle = (() => {
     let line = "";
     let content = void 0;
     let lineNum = 0;
+    let magicLineNumber = 0;
     while (line !== false && remainder !== null && remainder.length == 0) {
       index++;
       content = void 0;
@@ -291,6 +287,7 @@ var Bundle = (() => {
           break;
         content = parseMagic(config.magic, line)?.content;
       }
+      magicLineNumber = lineNum;
       if (line === false)
         break;
       console.log("Graph found");
@@ -320,6 +317,7 @@ var Bundle = (() => {
         line = readLine(file_lines);
         if (line === false)
           break;
+        lineNum++;
         remainder = parsePrefix(line, remainder);
       }
     }
@@ -336,7 +334,7 @@ var Bundle = (() => {
       content,
       config,
       watchedFile,
-      line: lineNum,
+      line: magicLineNumber,
       diagFile,
       index,
       onlyExternalFile: false
