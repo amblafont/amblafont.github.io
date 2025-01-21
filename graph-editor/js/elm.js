@@ -6533,37 +6533,77 @@ var $author$project$Codec$compose = F2(
 					$author$project$Codec$encoder(dec))
 			});
 	});
-var $author$project$Format$Keys$adjunctionKey = 'adjunction';
+var $author$project$Format$Version17$Adjunction = {$: 'Adjunction'};
+var $author$project$Format$Version17$Alignment = function (a) {
+	return {$: 'Alignment', a: a};
+};
+var $author$project$Format$Version17$Bend = function (a) {
+	return {$: 'Bend', a: a};
+};
+var $author$project$Format$Version17$Color = function (a) {
+	return {$: 'Color', a: a};
+};
+var $author$project$Format$Version17$Dashed = {$: 'Dashed'};
+var $author$project$Format$Version17$HeadColor = function (a) {
+	return {$: 'HeadColor', a: a};
+};
+var $author$project$Format$Version17$HeadStyle = function (a) {
+	return {$: 'HeadStyle', a: a};
+};
+var $author$project$Format$Version17$Kind = function (a) {
+	return {$: 'Kind', a: a};
+};
+var $author$project$Format$Version17$Marker = function (a) {
+	return {$: 'Marker', a: a};
+};
+var $author$project$Format$Version17$Position = function (a) {
+	return {$: 'Position', a: a};
+};
+var $author$project$Format$Version17$Pullshout = function (a) {
+	return {$: 'Pullshout', a: a};
+};
+var $author$project$Format$Version17$TailColor = function (a) {
+	return {$: 'TailColor', a: a};
+};
+var $author$project$Format$Version17$TailStyle = function (a) {
+	return {$: 'TailStyle', a: a};
+};
+var $author$project$Format$Version17$Unrecognized = {$: 'Unrecognized'};
+var $author$project$Format$Version17$Wavy = {$: 'Wavy'};
 var $author$project$Geometry$Centre = {$: 'Centre'};
 var $author$project$Geometry$Left = {$: 'Left'};
 var $author$project$Geometry$Over = {$: 'Over'};
 var $author$project$Geometry$Right = {$: 'Right'};
-var $author$project$Codec$buildVariant = function (_v0) {
-	var c = _v0.a;
-	return $author$project$Codec$Codec(
-		{
-			decoder: function (r) {
-				var _v1 = A2(
-					$elm$core$Dict$get,
-					c.getTag(r),
-					c.decoder);
-				if (_v1.$ === 'Nothing') {
-					return c.defaultDecoder(r);
-				} else {
-					var f = _v1.a;
-					return f(r);
-				}
-			},
-			encoder: c.encoder
-		});
-};
+var $author$project$Codec$buildVariant = F2(
+	function (_default, _v0) {
+		var c = _v0.a;
+		return $author$project$Codec$Codec(
+			{
+				decoder: function (r) {
+					var _v1 = c.decoder(r);
+					if (_v1.$ === 'Nothing') {
+						return _default(r);
+					} else {
+						var f = _v1.a;
+						return f;
+					}
+				},
+				encoder: c.encoder
+			});
+	});
 var $author$project$Codec$CustomCodec = function (a) {
 	return {$: 'CustomCodec', a: a};
 };
 var $author$project$Codec$custom = F4(
 	function (a, common, getTag, setTag) {
 		return $author$project$Codec$CustomCodec(
-			{decoder: $elm$core$Dict$empty, defaultCommon: common, defaultDecoder: $elm$core$Basics$identity, encoder: a, getTag: getTag, setTag: setTag});
+			{
+				decoder: $elm$core$Basics$always($elm$core$Maybe$Nothing),
+				defaultCommon: common,
+				encoder: a,
+				getTag: getTag,
+				setTag: setTag
+			});
 	});
 var $author$project$Codec$customEnum = function (a) {
 	return A4(
@@ -6590,9 +6630,13 @@ var $author$project$Codec$variant1 = F6(
 		};
 		return $author$project$Codec$CustomCodec(
 			{
-				decoder: A3($elm$core$Dict$insert, tag, dec, c.decoder),
+				decoder: function (r) {
+					return _Utils_eq(
+						c.getTag(r),
+						tag) ? $elm$core$Maybe$Just(
+						dec(r)) : c.decoder(r);
+				},
 				defaultCommon: c.defaultCommon,
-				defaultDecoder: dec,
 				encoder: c.encoder(
 					function (arg) {
 						return A2(
@@ -6610,7 +6654,6 @@ var $author$project$Codec$variant0 = F3(
 		var cc2 = {
 			decoder: c.decoder,
 			defaultCommon: c.defaultCommon,
-			defaultDecoder: c.defaultDecoder,
 			encoder: function (f) {
 				return c.encoder(
 					f(_Utils_Tuple0));
@@ -6647,7 +6690,9 @@ var $author$project$ArrowStyle$alignmentCodec = function () {
 					return right;
 			}
 		});
-	return $author$project$Codec$buildVariant(
+	return A2(
+		$author$project$Codec$buildVariant,
+		$elm$core$Basics$always($author$project$Geometry$Right),
 		A3(
 			$author$project$Codec$variant0,
 			'right',
@@ -6696,7 +6741,9 @@ var $author$project$Drawing$Color$codec = function () {
 					return cblack;
 			}
 		});
-	return $author$project$Codec$buildVariant(
+	return A2(
+		$author$project$Codec$buildVariant,
+		$elm$core$Basics$always($author$project$Drawing$Color$Black),
 		A3(
 			$author$project$Codec$variant0,
 			'black',
@@ -6731,6 +6778,50 @@ var $author$project$Drawing$Color$codec = function () {
 										$author$project$Drawing$Color$Red,
 										$author$project$Codec$customEnum(split))))))))));
 }();
+var $author$project$Format$Version17$maxDecimalDigits = 4;
+var $elm$core$String$fromFloat = _String_fromNumber;
+var $author$project$Format$Version17$stringFromFloat = F2(
+	function (n, f) {
+		var s = $elm$core$String$fromFloat(f);
+		var _v0 = A2($elm$core$String$split, '.', s);
+		if ((_v0.b && _v0.b.b) && (!_v0.b.b.b)) {
+			var s1 = _v0.a;
+			var _v1 = _v0.b;
+			var s2 = _v1.a;
+			return s1 + ('.' + A2($elm$core$String$left, n, s2));
+		} else {
+			return s;
+		}
+	});
+var $author$project$Format$Version17$myStringFromFloat = $author$project$Format$Version17$stringFromFloat($author$project$Format$Version17$maxDecimalDigits);
+var $elm$core$Basics$pow = _Basics_pow;
+var $elm$core$String$toFloat = _String_toFloat;
+var $author$project$Format$Version17$myStringToFloat = function () {
+	var epsilon = 2 * A2($elm$core$Basics$pow, 10, 1 - $author$project$Format$Version17$maxDecimalDigits);
+	return A2(
+		$elm$core$Basics$composeR,
+		$elm$core$String$toFloat,
+		$elm$core$Maybe$map(
+			function (d) {
+				return ((_Utils_cmp(epsilon, d) < 0) && (_Utils_cmp(d, epsilon) < 0)) ? 0 : d;
+			}));
+}();
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$Format$Version17$floatCodec = A2(
+	$author$project$Codec$build,
+	$author$project$Format$Version17$myStringFromFloat,
+	A2(
+		$elm$core$Basics$composeR,
+		$author$project$Format$Version17$myStringToFloat,
+		$elm$core$Maybe$withDefault(0)));
 var $author$project$ArrowStyle$DefaultHead = {$: 'DefaultHead'};
 var $author$project$ArrowStyle$NoHead = {$: 'NoHead'};
 var $author$project$ArrowStyle$TwoHeads = {$: 'TwoHeads'};
@@ -6746,7 +6837,9 @@ var $author$project$ArrowStyle$headCodec = function () {
 					return _default;
 			}
 		});
-	return $author$project$Codec$buildVariant(
+	return A2(
+		$author$project$Codec$buildVariant,
+		$elm$core$Basics$always($author$project$ArrowStyle$DefaultHead),
 		A3(
 			$author$project$Codec$variant0,
 			'default',
@@ -6776,7 +6869,9 @@ var $author$project$ArrowStyle$kindCodec = function () {
 					return normal;
 			}
 		});
-	return $author$project$Codec$buildVariant(
+	return A2(
+		$author$project$Codec$buildVariant,
+		$elm$core$Basics$always($author$project$ArrowStyle$NormalArrow),
 		A3(
 			$author$project$Codec$variant0,
 			'normal',
@@ -6791,10 +6886,66 @@ var $author$project$ArrowStyle$kindCodec = function () {
 					$author$project$ArrowStyle$NoneArrow,
 					$author$project$Codec$customEnum(split)))));
 }();
-var $author$project$ArrowStyle$markerCodec = $author$project$Codec$identity;
-var $elm$core$Basics$min = F2(
-	function (x, y) {
-		return (_Utils_cmp(x, y) < 0) ? x : y;
+var $elm$core$Basics$not = _Basics_not;
+var $author$project$Codec$prefixVariant0 = F4(
+	function (prefixStr, constr, codec, _v0) {
+		var c = _v0.a;
+		return $author$project$Codec$CustomCodec(
+			{
+				decoder: function (r) {
+					var tag = c.getTag(r);
+					return (!A2($elm$core$String$startsWith, prefixStr, tag)) ? c.decoder(r) : $elm$core$Maybe$Just(
+						constr(
+							A2(
+								$author$project$Codec$decoder,
+								codec,
+								A2(
+									$elm$core$String$dropLeft,
+									$elm$core$String$length(prefixStr),
+									tag))));
+				},
+				defaultCommon: c.defaultCommon,
+				encoder: c.encoder(
+					function (arg) {
+						return A2(
+							c.setTag,
+							_Utils_ap(
+								prefixStr,
+								A2($author$project$Codec$encoder, codec, arg)),
+							c.defaultCommon);
+					}),
+				getTag: c.getTag,
+				setTag: c.setTag
+			});
+	});
+var $author$project$Format$Version17$prefixes = {adjunction: 'adjunction', alignment: 'alignment ', bend: 'bend ', color: 'color ', dashed: 'dashed', head: 'head ', headColor: 'headColor ', kind: 'kind ', marker: 'marker ', position: 'position ', pullshout: 'pullshout ', tail: 'tail ', tailColor: 'tailColor ', unrecognized: 'unrecognized', wavy: 'wavy'};
+var $author$project$Format$Version17$pullshoutOffsetCodec = A2(
+	$author$project$Codec$build,
+	function (_v0) {
+		var offset1 = _v0.offset1;
+		var offset2 = _v0.offset2;
+		return $author$project$Format$Version17$myStringFromFloat(offset1) + (' ' + $author$project$Format$Version17$myStringFromFloat(offset2));
+	},
+	function (s) {
+		var _default = {offset1: 0, offset2: 0};
+		var _v1 = A2($elm$core$String$split, ' ', s);
+		if ((_v1.b && _v1.b.b) && (!_v1.b.b.b)) {
+			var s1 = _v1.a;
+			var _v2 = _v1.b;
+			var s2 = _v2.a;
+			var _v3 = _Utils_Tuple2(
+				$author$project$Format$Version17$myStringToFloat(s1),
+				$author$project$Format$Version17$myStringToFloat(s2));
+			if ((_v3.a.$ === 'Just') && (_v3.b.$ === 'Just')) {
+				var f1 = _v3.a.a;
+				var f2 = _v3.b.a;
+				return {offset1: f1, offset2: f2};
+			} else {
+				return _default;
+			}
+		} else {
+			return _default;
+		}
 	});
 var $author$project$ArrowStyle$DefaultTail = {$: 'DefaultTail'};
 var $author$project$ArrowStyle$Hook = {$: 'Hook'};
@@ -6814,7 +6965,9 @@ var $author$project$ArrowStyle$tailCodec = function () {
 					return _default;
 			}
 		});
-	return $author$project$Codec$buildVariant(
+	return A2(
+		$author$project$Codec$buildVariant,
+		$elm$core$Basics$always($author$project$ArrowStyle$DefaultTail),
 		A3(
 			$author$project$Codec$variant0,
 			'none',
@@ -6833,139 +6986,482 @@ var $author$project$ArrowStyle$tailCodec = function () {
 						$author$project$ArrowStyle$Hook,
 						$author$project$Codec$customEnum(split))))));
 }();
-var $author$project$Format$Version16$arrowStyleCodec = $author$project$Codec$buildObject(
-	A4(
-		$author$project$Codec$fields,
-		function ($) {
-			return $.wavy;
-		},
-		function ($) {
-			return $.wavy;
-		},
-		$author$project$Codec$identity,
-		A4(
-			$author$project$Codec$fields,
-			function ($) {
-				return $.marker;
-			},
-			function ($) {
-				return $.marker;
-			},
-			$author$project$ArrowStyle$markerCodec,
+var $author$project$Format$Version17$edgeFlagCodec = function () {
+	var split = function (dashed) {
+		return function (marker) {
+			return function (pullshout) {
+				return function (bend) {
+					return function (position) {
+						return function (adjunction) {
+							return function (wavy) {
+								return function (kind) {
+									return function (headstyle) {
+										return function (tailstyle) {
+											return function (alignment) {
+												return function (color) {
+													return function (headcolor) {
+														return function (tailcolor) {
+															return function (unrecognized) {
+																return function (v) {
+																	switch (v.$) {
+																		case 'Dashed':
+																			return dashed;
+																		case 'Marker':
+																			var s = v.a;
+																			return marker(s);
+																		case 'Pullshout':
+																			var r = v.a;
+																			return pullshout(r);
+																		case 'Bend':
+																			var f = v.a;
+																			return bend(f);
+																		case 'Position':
+																			var f = v.a;
+																			return position(f);
+																		case 'Adjunction':
+																			return adjunction;
+																		case 'Wavy':
+																			return wavy;
+																		case 'Kind':
+																			var k = v.a;
+																			return kind(k);
+																		case 'HeadStyle':
+																			var s = v.a;
+																			return headstyle(s);
+																		case 'TailStyle':
+																			var s = v.a;
+																			return tailstyle(s);
+																		case 'Alignment':
+																			var s = v.a;
+																			return alignment(s);
+																		case 'Unrecognized':
+																			return unrecognized;
+																		case 'Color':
+																			var c = v.a;
+																			return color(c);
+																		case 'HeadColor':
+																			var c = v.a;
+																			return headcolor(c);
+																		default:
+																			var c = v.a;
+																			return tailcolor(c);
+																	}
+																};
+															};
+														};
+													};
+												};
+											};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+	return A2(
+		$author$project$Codec$buildVariant,
+		$elm$core$Basics$always($author$project$Format$Version17$Unrecognized),
+		A3(
+			$author$project$Codec$variant0,
+			$author$project$Format$Version17$prefixes.unrecognized,
+			$author$project$Format$Version17$Unrecognized,
 			A4(
-				$author$project$Codec$fields,
-				function ($) {
-					return $.tailColor;
-				},
-				function ($) {
-					return $.tailColor;
-				},
+				$author$project$Codec$prefixVariant0,
+				$author$project$Format$Version17$prefixes.tailColor,
+				$author$project$Format$Version17$TailColor,
 				$author$project$Drawing$Color$codec,
 				A4(
-					$author$project$Codec$fields,
-					function ($) {
-						return $.headColor;
-					},
-					function ($) {
-						return $.headColor;
-					},
+					$author$project$Codec$prefixVariant0,
+					$author$project$Format$Version17$prefixes.headColor,
+					$author$project$Format$Version17$HeadColor,
 					$author$project$Drawing$Color$codec,
 					A4(
-						$author$project$Codec$fields,
-						function ($) {
-							return $.color;
-						},
-						function ($) {
-							return $.color;
-						},
+						$author$project$Codec$prefixVariant0,
+						$author$project$Format$Version17$prefixes.color,
+						$author$project$Format$Version17$Color,
 						$author$project$Drawing$Color$codec,
 						A4(
-							$author$project$Codec$fields,
-							function ($) {
-								return $.labelPosition;
-							},
-							A2(
-								$elm$core$Basics$composeR,
-								function ($) {
-									return $.position;
-								},
-								A2(
-									$elm$core$Basics$composeR,
-									$elm$core$Basics$min(0.9),
-									$elm$core$Basics$max(0.1))),
-							$author$project$Codec$identity,
+							$author$project$Codec$prefixVariant0,
+							$author$project$Format$Version17$prefixes.alignment,
+							$author$project$Format$Version17$Alignment,
+							$author$project$ArrowStyle$alignmentCodec,
 							A4(
-								$author$project$Codec$fields,
-								function ($) {
-									return $.labelAlignment;
-								},
-								function ($) {
-									return $.alignment;
-								},
-								$author$project$ArrowStyle$alignmentCodec,
+								$author$project$Codec$prefixVariant0,
+								$author$project$Format$Version17$prefixes.tail,
+								$author$project$Format$Version17$TailStyle,
+								$author$project$ArrowStyle$tailCodec,
 								A4(
-									$author$project$Codec$fields,
-									function ($) {
-										return $.bend;
-									},
-									function ($) {
-										return $.bend;
-									},
-									$author$project$Codec$identity,
+									$author$project$Codec$prefixVariant0,
+									$author$project$Format$Version17$prefixes.head,
+									$author$project$Format$Version17$HeadStyle,
+									$author$project$ArrowStyle$headCodec,
 									A4(
-										$author$project$Codec$fields,
-										function ($) {
-											return $.dashed;
-										},
-										function ($) {
-											return $.dashed;
-										},
-										$author$project$Codec$identity,
-										A4(
-											$author$project$Codec$fields,
-											function ($) {
-												return $.kind;
-											},
-											function ($) {
-												return $.kind;
-											},
-											$author$project$ArrowStyle$kindCodec,
-											A4(
-												$author$project$Codec$fields,
-												function ($) {
-													return $.head;
-												},
-												function ($) {
-													return $.head;
-												},
-												$author$project$ArrowStyle$headCodec,
+										$author$project$Codec$prefixVariant0,
+										$author$project$Format$Version17$prefixes.kind,
+										$author$project$Format$Version17$Kind,
+										$author$project$ArrowStyle$kindCodec,
+										A3(
+											$author$project$Codec$variant0,
+											$author$project$Format$Version17$prefixes.wavy,
+											$author$project$Format$Version17$Wavy,
+											A3(
+												$author$project$Codec$variant0,
+												$author$project$Format$Version17$prefixes.adjunction,
+												$author$project$Format$Version17$Adjunction,
 												A4(
-													$author$project$Codec$fields,
-													function ($) {
-														return $.tail;
-													},
-													function ($) {
-														return $.tail;
-													},
-													$author$project$ArrowStyle$tailCodec,
-													A2(
-														$author$project$Codec$object,
-														function (tail) {
-															return function (head) {
-																return function (kind) {
-																	return function (dashed) {
-																		return function (bend) {
-																			return function (alignment) {
-																				return function (position) {
-																					return function (color) {
-																						return function (headColor) {
-																							return function (tailColor) {
-																								return function (marker) {
-																									return function (wavy) {
-																										return {bend: bend, color: color, dashed: dashed, head: head, headColor: headColor, kind: kind, labelAlignment: alignment, labelPosition: position, marker: marker, tail: tail, tailColor: tailColor, wavy: wavy};
-																									};
-																								};
-																							};
+													$author$project$Codec$prefixVariant0,
+													$author$project$Format$Version17$prefixes.position,
+													$author$project$Format$Version17$Position,
+													$author$project$Format$Version17$floatCodec,
+													A4(
+														$author$project$Codec$prefixVariant0,
+														$author$project$Format$Version17$prefixes.bend,
+														$author$project$Format$Version17$Bend,
+														$author$project$Format$Version17$floatCodec,
+														A4(
+															$author$project$Codec$prefixVariant0,
+															$author$project$Format$Version17$prefixes.pullshout,
+															$author$project$Format$Version17$Pullshout,
+															$author$project$Format$Version17$pullshoutOffsetCodec,
+															A4(
+																$author$project$Codec$prefixVariant0,
+																$author$project$Format$Version17$prefixes.marker,
+																$author$project$Format$Version17$Marker,
+																$author$project$Codec$identity,
+																A3(
+																	$author$project$Codec$variant0,
+																	$author$project$Format$Version17$prefixes.dashed,
+																	$author$project$Format$Version17$Dashed,
+																	$author$project$Codec$customEnum(split)))))))))))))))));
+}();
+var $author$project$Format$Version17$addFlag = F2(
+	function (flag, l) {
+		return A2(
+			$elm$core$List$cons,
+			A2($author$project$Codec$encoder, $author$project$Format$Version17$edgeFlagCodec, flag),
+			l);
+	});
+var $author$project$Format$Version17$edgeFlagsCodec = $author$project$Codec$compose(
+	$author$project$Codec$list($author$project$Format$Version17$edgeFlagCodec));
+var $elm_community$list_extra$List$Extra$findMap = F2(
+	function (f, list) {
+		findMap:
+		while (true) {
+			if (!list.b) {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var a = list.a;
+				var tail = list.b;
+				var _v1 = f(a);
+				if (_v1.$ === 'Just') {
+					var b = _v1.a;
+					return $elm$core$Maybe$Just(b);
+				} else {
+					var $temp$f = f,
+						$temp$list = tail;
+					f = $temp$f;
+					list = $temp$list;
+					continue findMap;
+				}
+			}
+		}
+	});
+var $author$project$Codec$maybeList = F3(
+	function (defaultA, enc, dec) {
+		return A2(
+			$author$project$Codec$build,
+			function (a) {
+				return _Utils_eq(a, defaultA) ? _List_Nil : _List_fromArray(
+					[
+						enc(a)
+					]);
+			},
+			function (bs) {
+				return A2(
+					$elm$core$Maybe$withDefault,
+					defaultA,
+					A2($elm_community$list_extra$List$Extra$findMap, dec, bs));
+			});
+	});
+var $author$project$Format$Version17$edgeMaybeFlagCodec = F3(
+	function (_default, constr, destr) {
+		return $author$project$Format$Version17$edgeFlagsCodec(
+			A3($author$project$Codec$maybeList, _default, constr, destr));
+	});
+var $author$project$Format$Version17$alignmentFlag = A3(
+	$author$project$Format$Version17$edgeMaybeFlagCodec,
+	$author$project$Geometry$Left,
+	$author$project$Format$Version17$Alignment,
+	function (flag) {
+		if (flag.$ === 'Alignment') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Version17$bendFlag = A3(
+	$author$project$Format$Version17$edgeMaybeFlagCodec,
+	0.0,
+	$author$project$Format$Version17$Bend,
+	function (flag) {
+		if (flag.$ === 'Bend') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Drawing$Color$black = $author$project$Drawing$Color$Black;
+var $author$project$Format$Version17$colorsFlag = $author$project$Format$Version17$edgeFlagsCodec(
+	A2(
+		$author$project$Codec$build,
+		function (_v0) {
+			var main = _v0.main;
+			var head = _v0.head;
+			var tail = _v0.tail;
+			return _Utils_ap(
+				_Utils_eq(main, $author$project$Drawing$Color$black) ? _List_Nil : _List_fromArray(
+					[
+						$author$project$Format$Version17$Color(main)
+					]),
+				_Utils_ap(
+					_Utils_eq(head, main) ? _List_Nil : _List_fromArray(
+						[
+							$author$project$Format$Version17$HeadColor(head)
+						]),
+					_Utils_eq(tail, main) ? _List_Nil : _List_fromArray(
+						[
+							$author$project$Format$Version17$TailColor(tail)
+						])));
+		},
+		function (l) {
+			var _v1 = _Utils_Tuple3(
+				A2(
+					$elm_community$list_extra$List$Extra$findMap,
+					function (v) {
+						if (v.$ === 'Color') {
+							var c = v.a;
+							return $elm$core$Maybe$Just(c);
+						} else {
+							return $elm$core$Maybe$Nothing;
+						}
+					},
+					l),
+				A2(
+					$elm_community$list_extra$List$Extra$findMap,
+					function (v) {
+						if (v.$ === 'HeadColor') {
+							var c = v.a;
+							return $elm$core$Maybe$Just(c);
+						} else {
+							return $elm$core$Maybe$Nothing;
+						}
+					},
+					l),
+				A2(
+					$elm_community$list_extra$List$Extra$findMap,
+					function (v) {
+						if (v.$ === 'TailColor') {
+							var c = v.a;
+							return $elm$core$Maybe$Just(c);
+						} else {
+							return $elm$core$Maybe$Nothing;
+						}
+					},
+					l));
+			var mc = _v1.a;
+			var hc = _v1.b;
+			var tc = _v1.c;
+			var c = A2($elm$core$Maybe$withDefault, $author$project$Drawing$Color$black, mc);
+			return {
+				head: A2($elm$core$Maybe$withDefault, c, hc),
+				main: c,
+				tail: A2($elm$core$Maybe$withDefault, c, tc)
+			};
+		}));
+var $author$project$Codec$boolList = function (b) {
+	return A3(
+		$author$project$Codec$maybeList,
+		false,
+		$elm$core$Basics$always(b),
+		function (b2) {
+			return _Utils_eq(b, b2) ? $elm$core$Maybe$Just(true) : $elm$core$Maybe$Nothing;
+		});
+};
+var $author$project$Format$Version17$edgeMaybeFlagCodecFalse = function (flag) {
+	return $author$project$Format$Version17$edgeFlagsCodec(
+		$author$project$Codec$boolList(flag));
+};
+var $author$project$Format$Version17$dashedFlag = $author$project$Format$Version17$edgeMaybeFlagCodecFalse($author$project$Format$Version17$Dashed);
+var $author$project$Format$Version17$headFlag = A3(
+	$author$project$Format$Version17$edgeMaybeFlagCodec,
+	$author$project$ArrowStyle$DefaultHead,
+	$author$project$Format$Version17$HeadStyle,
+	function (flag) {
+		if (flag.$ === 'HeadStyle') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Version17$kindFlag = function () {
+	var dec = function (flag) {
+		if (flag.$ === 'Kind') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	};
+	return $author$project$Format$Version17$edgeFlagsCodec(
+		A2(
+			$author$project$Codec$build,
+			function (a) {
+				return _Utils_eq(a, $author$project$ArrowStyle$NormalArrow) ? _List_Nil : _List_fromArray(
+					[
+						$author$project$Format$Version17$Kind(a)
+					]);
+			},
+			function (bs) {
+				return A2(
+					$elm$core$Maybe$withDefault,
+					$author$project$ArrowStyle$NormalArrow,
+					A2($elm_community$list_extra$List$Extra$findMap, dec, bs));
+			}));
+}();
+var $author$project$Format$Version17$markerFlag = A3(
+	$author$project$Format$Version17$edgeMaybeFlagCodec,
+	'',
+	$author$project$Format$Version17$Marker,
+	function (flag) {
+		if (flag.$ === 'Marker') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$Basics$min = F2(
+	function (x, y) {
+		return (_Utils_cmp(x, y) < 0) ? x : y;
+	});
+var $author$project$Format$Version17$positionFlag = A3(
+	$author$project$Format$Version17$edgeMaybeFlagCodec,
+	0.5,
+	$author$project$Format$Version17$Position,
+	function (flag) {
+		if (flag.$ === 'Position') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(
+				A2(
+					$elm$core$Basics$max,
+					0.1,
+					A2($elm$core$Basics$min, 0.9, a)));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Version17$tailFlag = A3(
+	$author$project$Format$Version17$edgeMaybeFlagCodec,
+	$author$project$ArrowStyle$DefaultTail,
+	$author$project$Format$Version17$TailStyle,
+	function (flag) {
+		if (flag.$ === 'TailStyle') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Version17$wavyFlag = $author$project$Format$Version17$edgeMaybeFlagCodecFalse($author$project$Format$Version17$Wavy);
+var $author$project$Format$Version17$arrowStyleCodec = function () {
+	var flagField = F2(
+		function (f1, codec) {
+			return A3($author$project$Codec$fields, f1, $elm$core$Basics$identity, codec);
+		});
+	return $author$project$Codec$buildObject(
+		A3(
+			flagField,
+			function ($) {
+				return $.wavy;
+			},
+			$author$project$Format$Version17$wavyFlag,
+			A3(
+				flagField,
+				function ($) {
+					return $.marker;
+				},
+				$author$project$Format$Version17$markerFlag,
+				A3(
+					flagField,
+					function (_v0) {
+						var color = _v0.color;
+						var headColor = _v0.headColor;
+						var tailColor = _v0.tailColor;
+						return {head: headColor, main: color, tail: tailColor};
+					},
+					$author$project$Format$Version17$colorsFlag,
+					A3(
+						flagField,
+						function ($) {
+							return $.labelPosition;
+						},
+						$author$project$Format$Version17$positionFlag,
+						A3(
+							flagField,
+							function ($) {
+								return $.labelAlignment;
+							},
+							$author$project$Format$Version17$alignmentFlag,
+							A3(
+								flagField,
+								function ($) {
+									return $.bend;
+								},
+								$author$project$Format$Version17$bendFlag,
+								A3(
+									flagField,
+									function ($) {
+										return $.dashed;
+									},
+									$author$project$Format$Version17$dashedFlag,
+									A3(
+										flagField,
+										function ($) {
+											return $.kind;
+										},
+										$author$project$Format$Version17$kindFlag,
+										A3(
+											flagField,
+											function ($) {
+												return $.head;
+											},
+											$author$project$Format$Version17$headFlag,
+											A3(
+												flagField,
+												function ($) {
+													return $.tail;
+												},
+												$author$project$Format$Version17$tailFlag,
+												A2(
+													$author$project$Codec$object,
+													function (tail) {
+														return function (head) {
+															return function (kind) {
+																return function (dashed) {
+																	return function (bend) {
+																		return function (alignment) {
+																			return function (position) {
+																				return function (colors) {
+																					return function (marker) {
+																						return function (wavy) {
+																							return {bend: bend, color: colors.main, dashed: dashed, head: head, headColor: colors.head, kind: kind, labelAlignment: alignment, labelPosition: position, marker: marker, tail: tail, tailColor: colors.tail, wavy: wavy};
 																						};
 																					};
 																				};
@@ -6974,23 +7470,35 @@ var $author$project$Format$Version16$arrowStyleCodec = $author$project$Codec$bui
 																	};
 																};
 															};
-														},
-														function (tail) {
-															return function (head) {
-																return function (kind) {
-																	return function (dashed) {
-																		return function (bend) {
-																			return function (alignment) {
-																				return function (position) {
-																					return function (color) {
-																						return function (headColor) {
-																							return function (tailColor) {
-																								return function (marker) {
-																									return function (wavy) {
-																										return {alignment: alignment, bend: bend, color: color, dashed: dashed, head: head, headColor: headColor, kind: kind, marker: marker, position: position, tail: tail, tailColor: tailColor, wavy: wavy};
-																									};
-																								};
-																							};
+														};
+													},
+													function (tail) {
+														return function (head) {
+															return function (kind) {
+																return function (dashed) {
+																	return function (bend) {
+																		return function (alignment) {
+																			return function (position) {
+																				return function (colors) {
+																					return function (marker) {
+																						return function (wavy) {
+																							return _Utils_ap(
+																								position,
+																								_Utils_ap(
+																									bend,
+																									_Utils_ap(
+																										marker,
+																										_Utils_ap(
+																											colors,
+																											_Utils_ap(
+																												dashed,
+																												_Utils_ap(
+																													alignment,
+																													_Utils_ap(
+																														tail,
+																														_Utils_ap(
+																															head,
+																															_Utils_ap(kind, wavy)))))))));
 																						};
 																					};
 																				};
@@ -6999,7 +7507,9 @@ var $author$project$Format$Version16$arrowStyleCodec = $author$project$Codec$bui
 																	};
 																};
 															};
-														}))))))))))))));
+														};
+													}))))))))))));
+}();
 var $author$project$ArrowStyle$getStyle = function (_v0) {
 	var style = _v0.style;
 	var isAdjunction = _v0.isAdjunction;
@@ -7007,54 +7517,50 @@ var $author$project$ArrowStyle$getStyle = function (_v0) {
 		style,
 		{head: $author$project$ArrowStyle$NoHead, kind: $author$project$ArrowStyle$NoneArrow, labelAlignment: $author$project$Geometry$Over, tail: $author$project$ArrowStyle$DefaultTail}) : style;
 };
-var $author$project$Format$Keys$normalKey = 'normal';
-var $author$project$Format$Version16$Edge = F4(
-	function (label, style, kind, zindex) {
-		return {kind: kind, label: label, style: style, zindex: zindex};
+var $author$project$Format$Version17$Edge = F3(
+	function (label, style, zindex) {
+		return {label: label, style: style, zindex: zindex};
 	});
-var $author$project$Format$Keys$pullshoutKey = 'pullshout';
-var $author$project$Format$Version16$pullshoutStyle = function (_v0) {
+var $author$project$Format$Version17$pullshoutStyle = function (_v0) {
 	var color = _v0.color;
 	var offset1 = _v0.offset1;
 	var offset2 = _v0.offset2;
-	return {
-		alignment: '',
-		bend: offset1,
-		color: A2($author$project$Codec$encoder, $author$project$Drawing$Color$codec, color),
-		dashed: false,
-		head: '',
-		headColor: '',
-		kind: 'normal',
-		marker: '',
-		position: offset2,
-		tail: '',
-		tailColor: '',
-		wavy: false
-	};
+	return A2(
+		$elm$core$List$cons,
+		A2(
+			$author$project$Codec$encoder,
+			$author$project$Format$Version17$edgeFlagCodec,
+			$author$project$Format$Version17$Pullshout(
+				{offset1: offset1, offset2: offset2})),
+		A2(
+			$author$project$Codec$encoder,
+			$author$project$Format$Version17$colorsFlag,
+			{head: color, main: color, tail: color}));
 };
-var $author$project$Format$Version16$pullshoutEdge = F2(
+var $author$project$Format$Version17$pullshoutEdge = F2(
 	function (z, label) {
-		return A4(
-			$author$project$Format$Version16$Edge,
+		return A3(
+			$author$project$Format$Version17$Edge,
 			'',
-			$author$project$Format$Version16$pullshoutStyle(label),
-			$author$project$Format$Keys$pullshoutKey,
+			$author$project$Format$Version17$pullshoutStyle(label),
 			z);
 	});
-var $author$project$Format$Version16$fromEdgeLabel = function (e) {
+var $author$project$Format$Version17$fromEdgeLabel = function (e) {
 	var _v0 = e.details;
 	if (_v0.$ === 'PullshoutEdge') {
 		var l = _v0.a;
-		return A2($author$project$Format$Version16$pullshoutEdge, e.zindex, l);
+		return A2($author$project$Format$Version17$pullshoutEdge, e.zindex, l);
 	} else {
 		var l = _v0.a;
 		var label = l.label;
 		var isAdjunction = l.isAdjunction;
 		var style = $author$project$ArrowStyle$getStyle(l);
 		return {
-			kind: isAdjunction ? $author$project$Format$Keys$adjunctionKey : $author$project$Format$Keys$normalKey,
 			label: label,
-			style: A2($author$project$Codec$encoder, $author$project$Format$Version16$arrowStyleCodec, style),
+			style: function () {
+				var convertedStyle = A2($author$project$Codec$encoder, $author$project$Format$Version17$arrowStyleCodec, style);
+				return isAdjunction ? A2($author$project$Format$Version17$addFlag, $author$project$Format$Version17$Adjunction, convertedStyle) : convertedStyle;
+			}(),
 			zindex: e.zindex
 		};
 	}
@@ -7065,30 +7571,94 @@ var $author$project$GraphDefs$NormalEdge = function (a) {
 var $author$project$GraphDefs$PullshoutEdge = function (a) {
 	return {$: 'PullshoutEdge', a: a};
 };
-var $author$project$Format$Version16$toEdgeLabel = function (_v0) {
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			$elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
+	});
+var $author$project$Format$Version17$getFlag = F2(
+	function (flag, l) {
+		return A2(
+			$elm$core$List$member,
+			A2($author$project$Codec$encoder, $author$project$Format$Version17$edgeFlagCodec, flag),
+			l);
+	});
+var $author$project$Format$Version17$pullshoutFlag = A3(
+	$author$project$Format$Version17$edgeMaybeFlagCodec,
+	$elm$core$Maybe$Nothing,
+	A2(
+		$elm$core$Basics$composeR,
+		$elm$core$Maybe$map($author$project$Format$Version17$Pullshout),
+		$elm$core$Maybe$withDefault($author$project$Format$Version17$Unrecognized)),
+	function (flag) {
+		if (flag.$ === 'Pullshout') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(
+				$elm$core$Maybe$Just(a));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Version17$toEdgeLabel = function (_v0) {
 	var label = _v0.label;
 	var style = _v0.style;
-	var kind = _v0.kind;
 	var zindex = _v0.zindex;
+	var dec = function (codec) {
+		return A2($author$project$Codec$decoder, codec, style);
+	};
 	return {
-		details: _Utils_eq(kind, $author$project$Format$Keys$pullshoutKey) ? $author$project$GraphDefs$PullshoutEdge(
-			{
-				color: A2($author$project$Codec$decoder, $author$project$Drawing$Color$codec, style.color),
-				offset1: style.bend,
-				offset2: style.position
-			}) : $author$project$GraphDefs$NormalEdge(
-			{
-				dims: $elm$core$Maybe$Nothing,
-				isAdjunction: _Utils_eq(kind, $author$project$Format$Keys$adjunctionKey),
-				label: label,
-				style: A2($author$project$Codec$decoder, $author$project$Format$Version16$arrowStyleCodec, style)
-			}),
+		details: function () {
+			var _v1 = dec($author$project$Format$Version17$pullshoutFlag);
+			if (_v1.$ === 'Just') {
+				var offset1 = _v1.a.offset1;
+				var offset2 = _v1.a.offset2;
+				return $author$project$GraphDefs$PullshoutEdge(
+					{
+						color: dec($author$project$Format$Version17$colorsFlag).main,
+						offset1: offset1,
+						offset2: offset2
+					});
+			} else {
+				return $author$project$GraphDefs$NormalEdge(
+					{
+						dims: $elm$core$Maybe$Nothing,
+						isAdjunction: A2($author$project$Format$Version17$getFlag, $author$project$Format$Version17$Adjunction, style),
+						label: label,
+						style: A2($author$project$Codec$decoder, $author$project$Format$Version17$arrowStyleCodec, style)
+					});
+			}
+		}(),
 		selected: false,
 		weaklySelected: false,
 		zindex: zindex
 	};
 };
-var $author$project$Format$Version16$edgeCodec = A2($author$project$Codec$build, $author$project$Format$Version16$fromEdgeLabel, $author$project$Format$Version16$toEdgeLabel);
+var $author$project$Format$Version17$edgeCodec = A2($author$project$Codec$build, $author$project$Format$Version17$fromEdgeLabel, $author$project$Format$Version17$toEdgeLabel);
 var $elm_community$intdict$IntDict$map = F2(
 	function (f, dict) {
 		switch (dict.$) {
@@ -7172,16 +7742,54 @@ var $author$project$Polygraph$mapCodec = F2(
 				$elm$core$Basics$always(
 					$author$project$Codec$decoder(c2))));
 	});
-var $author$project$Format$Version16$nodeCodec = $author$project$Codec$buildObject(
+var $author$project$Format$Version17$CoqValidated = {$: 'CoqValidated'};
+var $author$project$Format$Version17$Text = {$: 'Text'};
+var $author$project$Format$Version17$UnrecognizedNodeFlag = {$: 'UnrecognizedNodeFlag'};
+var $author$project$Format$Version17$nodeFlagCodec = A2(
+	$author$project$Codec$buildVariant,
+	$elm$core$Basics$always($author$project$Format$Version17$UnrecognizedNodeFlag),
+	A3(
+		$author$project$Codec$variant0,
+		'',
+		$author$project$Format$Version17$UnrecognizedNodeFlag,
+		A3(
+			$author$project$Codec$variant0,
+			'text',
+			$author$project$Format$Version17$Text,
+			A3(
+				$author$project$Codec$variant0,
+				'coqValidated',
+				$author$project$Format$Version17$CoqValidated,
+				$author$project$Codec$customEnum(
+					F4(
+						function (coq, text, unrecognized, v) {
+							switch (v.$) {
+								case 'CoqValidated':
+									return coq;
+								case 'Text':
+									return text;
+								default:
+									return unrecognized;
+							}
+						}))))));
+var $author$project$Format$Version17$nodeFlagsCodec = $author$project$Codec$compose(
+	$author$project$Codec$list($author$project$Format$Version17$nodeFlagCodec));
+var $author$project$Format$Version17$nodeMaybeFlagCodecFalse = function (flag) {
+	return $author$project$Format$Version17$nodeFlagsCodec(
+		$author$project$Codec$boolList(flag));
+};
+var $author$project$Format$Version17$coqValidatedFlag = $author$project$Format$Version17$nodeMaybeFlagCodecFalse($author$project$Format$Version17$CoqValidated);
+var $author$project$Format$Version17$textFlag = $author$project$Format$Version17$nodeMaybeFlagCodecFalse($author$project$Format$Version17$Text);
+var $author$project$Format$Version17$nodeCodec = $author$project$Codec$buildObject(
 	A4(
 		$author$project$Codec$fields,
 		function ($) {
 			return $.isCoqValidated;
 		},
 		function ($) {
-			return $.isCoqValidated;
+			return $.flags;
 		},
-		$author$project$Codec$identity,
+		$author$project$Format$Version17$coqValidatedFlag,
 		A4(
 			$author$project$Codec$fields,
 			function ($) {
@@ -7193,13 +7801,16 @@ var $author$project$Format$Version16$nodeCodec = $author$project$Codec$buildObje
 			$author$project$Codec$identity,
 			A4(
 				$author$project$Codec$fields,
+				A2(
+					$elm$core$Basics$composeR,
+					function ($) {
+						return $.isMath;
+					},
+					$elm$core$Basics$not),
 				function ($) {
-					return $.isMath;
+					return $.flags;
 				},
-				function ($) {
-					return $.isMath;
-				},
-				$author$project$Codec$identity,
+				$author$project$Format$Version17$textFlag,
 				A4(
 					$author$project$Codec$fields,
 					function ($) {
@@ -7221,14 +7832,19 @@ var $author$project$Format$Version16$nodeCodec = $author$project$Codec$buildObje
 						A2(
 							$author$project$Codec$object,
 							F5(
-								function (pos, label, isMath, zindex, isCoqValidated) {
-									return {dims: $elm$core$Maybe$Nothing, isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, selected: false, weaklySelected: false, zindex: zindex};
+								function (pos, label, isText, zindex, isCoqValidated) {
+									return {dims: $elm$core$Maybe$Nothing, isCoqValidated: isCoqValidated, isMath: !isText, label: label, pos: pos, selected: false, weaklySelected: false, zindex: zindex};
 								}),
 							F5(
-								function (pos, label, isMath, zindex, isCoqValidated) {
-									return {isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex};
+								function (pos, label, isText, zindex, isCoqValidated) {
+									return {
+										flags: _Utils_ap(isText, isCoqValidated),
+										label: label,
+										pos: pos,
+										zindex: zindex
+									};
 								}))))))));
-var $author$project$Format$Version16$tabCodec = $author$project$Codec$buildObject(
+var $author$project$Format$Version17$tabCodec = $author$project$Codec$buildObject(
 	A4(
 		$author$project$Codec$fields,
 		function ($) {
@@ -7267,7 +7883,7 @@ var $author$project$Format$Version16$tabCodec = $author$project$Codec$buildObjec
 					A2(
 						$author$project$Codec$compose,
 						$author$project$Polygraph$codec,
-						A2($author$project$Polygraph$mapCodec, $author$project$Format$Version16$nodeCodec, $author$project$Format$Version16$edgeCodec)),
+						A2($author$project$Polygraph$mapCodec, $author$project$Format$Version17$nodeCodec, $author$project$Format$Version17$edgeCodec)),
 					A2(
 						$author$project$Codec$object,
 						F4(
@@ -7278,7 +7894,7 @@ var $author$project$Format$Version16$tabCodec = $author$project$Codec$buildObjec
 							function (graph, title, sizeGrid, tabId) {
 								return {edges: graph.edges, id: tabId, nextGraphId: graph.nextId, nodes: graph.nodes, sizeGrid: sizeGrid, title: title};
 							})))))));
-var $author$project$Format$Version16$graphInfoCodec = $author$project$Codec$buildObject(
+var $author$project$Format$Version17$graphInfoCodec = $author$project$Codec$buildObject(
 	A4(
 		$author$project$Codec$fields,
 		function ($) {
@@ -7314,7 +7930,7 @@ var $author$project$Format$Version16$graphInfoCodec = $author$project$Codec$buil
 					function ($) {
 						return $.tabs;
 					},
-					$author$project$Codec$list($author$project$Format$Version16$tabCodec),
+					$author$project$Codec$list($author$project$Format$Version17$tabCodec),
 					A2(
 						$author$project$Codec$object,
 						F4(
@@ -7325,7 +7941,7 @@ var $author$project$Format$Version16$graphInfoCodec = $author$project$Codec$buil
 							function (tabs, nextTabId, latexPreamble, activeTabId) {
 								return {activeTabId: activeTabId, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs};
 							})))))));
-var $author$project$Format$Version16$fromJSGraph = $author$project$Codec$decoder($author$project$Format$Version16$graphInfoCodec);
+var $author$project$Format$Version17$fromJSGraph = $author$project$Codec$decoder($author$project$Format$Version17$graphInfoCodec);
 var $author$project$Polygraph$edgeMap = F2(
 	function (f, _v0) {
 		var id = _v0.id;
@@ -7339,6 +7955,161 @@ var $author$project$Polygraph$edgeMap = F2(
 			to: to
 		};
 	});
+var $author$project$Polygraph$nodeMap = F2(
+	function (f, _v0) {
+		var id = _v0.id;
+		var label = _v0.label;
+		return {
+			id: id,
+			label: f(label)
+		};
+	});
+var $author$project$Format$Version16$keys = {adjunction: 'adjunction', normal: 'normal', pullshout: 'pullshout'};
+var $author$project$Format$Version16$toNextStyle = function (_v0) {
+	var tail = _v0.tail;
+	var head = _v0.head;
+	var kind = _v0.kind;
+	var dashed = _v0.dashed;
+	var wavy = _v0.wavy;
+	var bend = _v0.bend;
+	var alignment = _v0.alignment;
+	var position = _v0.position;
+	var color = _v0.color;
+	var headColor = _v0.headColor;
+	var tailColor = _v0.tailColor;
+	var marker = _v0.marker;
+	var enc2 = function (c) {
+		return $author$project$Codec$encoder(c);
+	};
+	var prefix = F2(
+		function (field, s) {
+			return _Utils_ap(
+				field($author$project$Format$Version17$prefixes),
+				s);
+		});
+	return _Utils_ap(
+		A2(enc2, $author$project$Format$Version17$dashedFlag, dashed),
+		_Utils_ap(
+			A2(enc2, $author$project$Format$Version17$wavyFlag, wavy),
+			_Utils_ap(
+				A2(enc2, $author$project$Format$Version17$bendFlag, bend),
+				_Utils_ap(
+					A2(enc2, $author$project$Format$Version17$positionFlag, position),
+					_List_fromArray(
+						[
+							color,
+							A2(
+							prefix,
+							function ($) {
+								return $.headColor;
+							},
+							headColor),
+							A2(
+							prefix,
+							function ($) {
+								return $.tailColor;
+							},
+							tailColor),
+							A2(
+							prefix,
+							function ($) {
+								return $.tail;
+							},
+							tail),
+							A2(
+							prefix,
+							function ($) {
+								return $.head;
+							},
+							head),
+							A2(
+							prefix,
+							function ($) {
+								return $.kind;
+							},
+							kind),
+							A2(
+							prefix,
+							function ($) {
+								return $.alignment;
+							},
+							alignment),
+							A2(
+							prefix,
+							function ($) {
+								return $.marker;
+							},
+							marker)
+						])))));
+};
+var $author$project$Format$Version16$toNextEdge = function (_v0) {
+	var label = _v0.label;
+	var style = _v0.style;
+	var kind = _v0.kind;
+	var zindex = _v0.zindex;
+	var style2 = $author$project$Format$Version16$toNextStyle(style);
+	var style3 = _Utils_eq(kind, $author$project$Format$Version16$keys.pullshout) ? A2(
+		$author$project$Format$Version17$addFlag,
+		$author$project$Format$Version17$Pullshout(
+			{offset1: style.position, offset2: style.bend}),
+		style2) : style2;
+	var style4 = _Utils_eq(kind, $author$project$Format$Version16$keys.adjunction) ? A2($author$project$Format$Version17$addFlag, $author$project$Format$Version17$Adjunction, style3) : style3;
+	return {label: label, style: style4, zindex: zindex};
+};
+var $author$project$Format$Version16$toNextNode = function (_v0) {
+	var pos = _v0.pos;
+	var label = _v0.label;
+	var isMath = _v0.isMath;
+	var zindex = _v0.zindex;
+	var isCoqValidated = _v0.isCoqValidated;
+	var enc = $author$project$Codec$encoder;
+	return {
+		flags: _Utils_ap(
+			A2(enc, $author$project$Format$Version17$textFlag, !isMath),
+			A2(enc, $author$project$Format$Version17$coqValidatedFlag, isCoqValidated)),
+		label: label,
+		pos: pos,
+		zindex: zindex
+	};
+};
+var $author$project$Format$Version16$toNextTab = function (_v0) {
+	var id = _v0.id;
+	var title = _v0.title;
+	var sizeGrid = _v0.sizeGrid;
+	var nodes = _v0.nodes;
+	var edges = _v0.edges;
+	var nextGraphId = _v0.nextGraphId;
+	return {
+		edges: A2(
+			$elm$core$List$map,
+			$author$project$Polygraph$edgeMap($author$project$Format$Version16$toNextEdge),
+			edges),
+		id: id,
+		nextGraphId: nextGraphId,
+		nodes: A2(
+			$elm$core$List$map,
+			$author$project$Polygraph$nodeMap($author$project$Format$Version16$toNextNode),
+			nodes),
+		sizeGrid: sizeGrid,
+		title: title
+	};
+};
+var $author$project$Format$Version16$toNextVersion = function (_v0) {
+	var tabs = _v0.tabs;
+	var nextTabId = _v0.nextTabId;
+	var activeTabId = _v0.activeTabId;
+	var latexPreamble = _v0.latexPreamble;
+	return {
+		activeTabId: activeTabId,
+		latexPreamble: latexPreamble,
+		nextTabId: nextTabId,
+		tabs: A2($elm$core$List$map, $author$project$Format$Version16$toNextTab, tabs)
+	};
+};
+var $author$project$Format$Version16$fromJSGraph = function (g) {
+	return $author$project$Format$Version17$fromJSGraph(
+		$author$project$Format$Version16$toNextVersion(g));
+};
 var $author$project$Format$Version15$toNextStyle = function (_v0) {
 	var tail = _v0.tail;
 	var head = _v0.head;
@@ -7420,7 +8191,7 @@ var $author$project$Format$Version14$toNextEdge = function (_v0) {
 		label: label,
 		style: function () {
 			var newStyle = $author$project$Format$Version14$toNextStyle(style);
-			return (!_Utils_eq(kind, $author$project$Format$Keys$pullshoutKey)) ? newStyle : _Utils_update(
+			return (!_Utils_eq(kind, $author$project$Format$Version16$keys.pullshout)) ? newStyle : _Utils_update(
 				newStyle,
 				{bend: $author$project$GraphDefs$defaultPullshoutShift, position: $author$project$GraphDefs$defaultPullshoutShift});
 		}(),
@@ -7462,15 +8233,6 @@ var $author$project$Format$Version14$fromJSGraph = function (g) {
 	return $author$project$Format$Version15$fromJSGraph(
 		$author$project$Format$Version14$toNextVersion(g));
 };
-var $author$project$Polygraph$nodeMap = F2(
-	function (f, _v0) {
-		var id = _v0.id;
-		var label = _v0.label;
-		return {
-			id: id,
-			label: f(label)
-		};
-	});
 var $author$project$Format$Version13$toNextNode = function (_v0) {
 	var pos = _v0.pos;
 	var label = _v0.label;
@@ -7561,15 +8323,6 @@ var $author$project$Format$Version12$toNextNode = function (_v0) {
 	var zindex = _v0.zindex;
 	return {isMath: isMath, label: label, pos: pos, zindex: zindex};
 };
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var $author$project$Format$Version12$toNextTab = F2(
 	function (id, _v0) {
 		var title = _v0.title;
@@ -7653,7 +8406,7 @@ var $author$project$Format$Version11$toNextStyle = function (_v0) {
 };
 var $author$project$Format$Version11$toNextEdge = function (e) {
 	return {
-		kind: e.isPullshout ? $author$project$Format$Keys$pullshoutKey : $author$project$Format$Keys$normalKey,
+		kind: e.isPullshout ? $author$project$Format$Version16$keys.pullshout : $author$project$Format$Version16$keys.normal,
 		label: e.label,
 		style: $author$project$Format$Version11$toNextStyle(e.style),
 		zindex: e.zindex
@@ -9898,6 +10651,192 @@ var $author$project$Main$loadedGraph16 = _Platform_incomingPort(
 				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
 		},
 		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
+var $author$project$Main$loadedGraph17 = _Platform_incomingPort(
+	'loadedGraph17',
+	A2(
+		$elm$json$Json$Decode$andThen,
+		function (setFirstTab) {
+			return A2(
+				$elm$json$Json$Decode$andThen,
+				function (scenario) {
+					return A2(
+						$elm$json$Json$Decode$andThen,
+						function (graph) {
+							return A2(
+								$elm$json$Json$Decode$andThen,
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
+								},
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (tabs) {
+									return A2(
+										$elm$json$Json$Decode$andThen,
+										function (nextTabId) {
+											return A2(
+												$elm$json$Json$Decode$andThen,
+												function (latexPreamble) {
+													return A2(
+														$elm$json$Json$Decode$andThen,
+														function (activeTabId) {
+															return $elm$json$Json$Decode$succeed(
+																{activeTabId: activeTabId, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs});
+														},
+														A2($elm$json$Json$Decode$field, 'activeTabId', $elm$json$Json$Decode$int));
+												},
+												A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
+										},
+										A2($elm$json$Json$Decode$field, 'nextTabId', $elm$json$Json$Decode$int));
+								},
+								A2(
+									$elm$json$Json$Decode$field,
+									'tabs',
+									$elm$json$Json$Decode$list(
+										A2(
+											$elm$json$Json$Decode$andThen,
+											function (title) {
+												return A2(
+													$elm$json$Json$Decode$andThen,
+													function (sizeGrid) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (nodes) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (nextGraphId) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (id) {
+																				return A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (edges) {
+																						return $elm$json$Json$Decode$succeed(
+																							{edges: edges, id: id, nextGraphId: nextGraphId, nodes: nodes, sizeGrid: sizeGrid, title: title});
+																					},
+																					A2(
+																						$elm$json$Json$Decode$field,
+																						'edges',
+																						$elm$json$Json$Decode$list(
+																							A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (to) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (label) {
+																											return A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (id) {
+																													return A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (from) {
+																															return $elm$json$Json$Decode$succeed(
+																																{from: from, id: id, label: label, to: to});
+																														},
+																														A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																												},
+																												A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																										},
+																										A2(
+																											$elm$json$Json$Decode$field,
+																											'label',
+																											A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (zindex) {
+																													return A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (style) {
+																															return A2(
+																																$elm$json$Json$Decode$andThen,
+																																function (label) {
+																																	return $elm$json$Json$Decode$succeed(
+																																		{label: label, style: style, zindex: zindex});
+																																},
+																																A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																														},
+																														A2(
+																															$elm$json$Json$Decode$field,
+																															'style',
+																															$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																												},
+																												A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
+																								},
+																								A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+																			},
+																			A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																	},
+																	A2($elm$json$Json$Decode$field, 'nextGraphId', $elm$json$Json$Decode$int));
+															},
+															A2(
+																$elm$json$Json$Decode$field,
+																'nodes',
+																$elm$json$Json$Decode$list(
+																	A2(
+																		$elm$json$Json$Decode$andThen,
+																		function (label) {
+																			return A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (id) {
+																					return $elm$json$Json$Decode$succeed(
+																						{id: id, label: label});
+																				},
+																				A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																		},
+																		A2(
+																			$elm$json$Json$Decode$field,
+																			'label',
+																			A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (zindex) {
+																					return A2(
+																						$elm$json$Json$Decode$andThen,
+																						function (pos) {
+																							return A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (label) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (flags) {
+																											return $elm$json$Json$Decode$succeed(
+																												{flags: flags, label: label, pos: pos, zindex: zindex});
+																										},
+																										A2(
+																											$elm$json$Json$Decode$field,
+																											'flags',
+																											$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																								},
+																								A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																						},
+																						A2(
+																							$elm$json$Json$Decode$field,
+																							'pos',
+																							A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (_v0) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (_v1) {
+																											return $elm$json$Json$Decode$succeed(
+																												_Utils_Tuple2(_v0, _v1));
+																										},
+																										A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																								},
+																								A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))));
+																				},
+																				A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int)))))));
+													},
+													A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int));
+											},
+											A2($elm$json$Json$Decode$field, 'title', $elm$json$Json$Decode$string)))))));
+				},
+				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
+		},
+		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
 var $author$project$Main$loadedGraph2 = _Platform_incomingPort(
 	'loadedGraph2',
 	A2(
@@ -11318,7 +12257,6 @@ var $author$project$Msg$mapLoadGraphInfo = F2(
 		};
 	});
 var $author$project$Msg$noOp = $author$project$Msg$Do($elm$core$Platform$Cmd$none);
-var $elm$core$Basics$not = _Basics_not;
 var $elm$browser$Browser$Events$Document = {$: 'Document'};
 var $elm$browser$Browser$Events$MySub = F3(
 	function (a, b, c) {
@@ -11579,7 +12517,7 @@ var $author$project$Format$GraphInfo$TabSizeGrid = F2(
 var $author$project$Format$GraphInfo$TabUnremove = function (a) {
 	return {$: 'TabUnremove', a: a};
 };
-var $author$project$Format$LastVersion$edgeCodec = $author$project$Format$Version16$edgeCodec;
+var $author$project$Format$LastVersion$edgeCodec = $author$project$Format$Version17$edgeCodec;
 var $author$project$Polygraph$Modif = function (a) {
 	return {$: 'Modif', a: a};
 };
@@ -11753,7 +12691,7 @@ var $author$project$Polygraph$modifCodec = A2(
 			return m;
 		},
 		$author$project$Polygraph$Modif));
-var $author$project$Format$LastVersion$nodeCodec = $author$project$Format$Version16$nodeCodec;
+var $author$project$Format$LastVersion$nodeCodec = $author$project$Format$Version17$nodeCodec;
 var $author$project$Format$GraphInfoCodec$codecGraphModif = A2(
 	$author$project$Codec$compose,
 	$author$project$Polygraph$modifCodec,
@@ -11886,7 +12824,7 @@ var $author$project$Format$GraphInfoCodec$defaultGraphModifJS = A2(
 var $author$project$Format$GraphInfo$emptyTab = function (id) {
 	return {graph: $author$project$Polygraph$empty, id: id, sizeGrid: 200, title: '1'};
 };
-var $author$project$Format$LastVersion$tabCodec = $author$project$Format$Version16$tabCodec;
+var $author$project$Format$LastVersion$tabCodec = $author$project$Format$Version17$tabCodec;
 var $author$project$Format$GraphInfoCodec$defaultModifJS = {
 	graphModif: $author$project$Format$GraphInfoCodec$defaultGraphModifJS,
 	size: 0,
@@ -11904,7 +12842,6 @@ var $author$project$Codec$variant2 = F6(
 		var cc2 = {
 			decoder: c.decoder,
 			defaultCommon: c.defaultCommon,
-			defaultDecoder: c.defaultDecoder,
 			encoder: function (f) {
 				return c.encoder(
 					F2(
@@ -11944,7 +12881,9 @@ var $author$project$Format$GraphInfoCodec$codecModif = function () {
 				r,
 				{tabId: id});
 		});
-	return $author$project$Codec$buildVariant(
+	return A2(
+		$author$project$Codec$buildVariant,
+		$elm$core$Basics$always($author$project$Format$GraphInfo$Noop),
 		A3(
 			$author$project$Codec$variant0,
 			'noop',
@@ -12159,7 +13098,7 @@ var $author$project$Format$GraphInfoCodec$codecModif = function () {
 var $author$project$Msg$Noop = {$: 'Noop'};
 var $author$project$CommandCodec$defaultProtocolMsg = $author$project$Msg$ModifProtocol(
 	{command: $author$project$Msg$Noop, id: $author$project$Msg$defaultModifId, modif: $author$project$Format$GraphInfo$Noop, selIds: $elm_community$intdict$IntDict$empty});
-var $author$project$Format$LastVersion$graphInfoCodec = $author$project$Format$Version16$graphInfoCodec;
+var $author$project$Format$LastVersion$graphInfoCodec = $author$project$Format$Version17$graphInfoCodec;
 var $author$project$Codec$maybeBuildVariant = F2(
 	function (defaultV, _v0) {
 		var c = _v0.a;
@@ -12252,7 +13191,9 @@ var $author$project$Codec$maybeVariant0 = F3(
 var $author$project$Msg$FreeMove = {$: 'FreeMove'};
 var $author$project$Msg$PressMove = {$: 'PressMove'};
 var $author$project$Msg$UndefinedMove = {$: 'UndefinedMove'};
-var $author$project$CommandCodec$moveModeCodec = $author$project$Codec$buildVariant(
+var $author$project$CommandCodec$moveModeCodec = A2(
+	$author$project$Codec$buildVariant,
+	$elm$core$Basics$always($author$project$Msg$FreeMove),
 	A3(
 		$author$project$Codec$variant0,
 		'free',
@@ -12387,7 +13328,9 @@ var $author$project$CommandCodec$protocolModifCodec = $author$project$Codec$buil
 							})))))));
 var $author$project$Msg$CoqLsp = {$: 'CoqLsp'};
 var $author$project$Msg$Exercise1 = {$: 'Exercise1'};
-var $author$project$CommandCodec$scenarioCodec = $author$project$Codec$buildVariant(
+var $author$project$CommandCodec$scenarioCodec = A2(
+	$author$project$Codec$buildVariant,
+	$elm$core$Basics$always($author$project$Msg$Standard),
 	A3(
 		$author$project$Codec$variant0,
 		'standard',
@@ -12771,81 +13714,15 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																											return A2(
 																																												$elm$json$Json$Decode$andThen,
 																																												function (label) {
-																																													return A2(
-																																														$elm$json$Json$Decode$andThen,
-																																														function (kind) {
-																																															return $elm$json$Json$Decode$succeed(
-																																																{kind: kind, label: label, style: style, zindex: zindex});
-																																														},
-																																														A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
+																																													return $elm$json$Json$Decode$succeed(
+																																														{label: label, style: style, zindex: zindex});
 																																												},
 																																												A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																										},
 																																										A2(
 																																											$elm$json$Json$Decode$field,
 																																											'style',
-																																											A2(
-																																												$elm$json$Json$Decode$andThen,
-																																												function (wavy) {
-																																													return A2(
-																																														$elm$json$Json$Decode$andThen,
-																																														function (tailColor) {
-																																															return A2(
-																																																$elm$json$Json$Decode$andThen,
-																																																function (tail) {
-																																																	return A2(
-																																																		$elm$json$Json$Decode$andThen,
-																																																		function (position) {
-																																																			return A2(
-																																																				$elm$json$Json$Decode$andThen,
-																																																				function (marker) {
-																																																					return A2(
-																																																						$elm$json$Json$Decode$andThen,
-																																																						function (kind) {
-																																																							return A2(
-																																																								$elm$json$Json$Decode$andThen,
-																																																								function (headColor) {
-																																																									return A2(
-																																																										$elm$json$Json$Decode$andThen,
-																																																										function (head) {
-																																																											return A2(
-																																																												$elm$json$Json$Decode$andThen,
-																																																												function (dashed) {
-																																																													return A2(
-																																																														$elm$json$Json$Decode$andThen,
-																																																														function (color) {
-																																																															return A2(
-																																																																$elm$json$Json$Decode$andThen,
-																																																																function (bend) {
-																																																																	return A2(
-																																																																		$elm$json$Json$Decode$andThen,
-																																																																		function (alignment) {
-																																																																			return $elm$json$Json$Decode$succeed(
-																																																																				{alignment: alignment, bend: bend, color: color, dashed: dashed, head: head, headColor: headColor, kind: kind, marker: marker, position: position, tail: tail, tailColor: tailColor, wavy: wavy});
-																																																																		},
-																																																																		A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
-																																																																},
-																																																																A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
-																																																														},
-																																																														A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string));
-																																																												},
-																																																												A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
-																																																										},
-																																																										A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
-																																																								},
-																																																								A2($elm$json$Json$Decode$field, 'headColor', $elm$json$Json$Decode$string));
-																																																						},
-																																																						A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
-																																																				},
-																																																				A2($elm$json$Json$Decode$field, 'marker', $elm$json$Json$Decode$string));
-																																																		},
-																																																		A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
-																																																},
-																																																A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string));
-																																														},
-																																														A2($elm$json$Json$Decode$field, 'tailColor', $elm$json$Json$Decode$string));
-																																												},
-																																												A2($elm$json$Json$Decode$field, 'wavy', $elm$json$Json$Decode$bool))));
+																																											$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 																																								},
 																																								A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
 																																				},
@@ -12884,16 +13761,14 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																				function (label) {
 																																					return A2(
 																																						$elm$json$Json$Decode$andThen,
-																																						function (isMath) {
-																																							return A2(
-																																								$elm$json$Json$Decode$andThen,
-																																								function (isCoqValidated) {
-																																									return $elm$json$Json$Decode$succeed(
-																																										{isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
-																																								},
-																																								A2($elm$json$Json$Decode$field, 'isCoqValidated', $elm$json$Json$Decode$bool));
+																																						function (flags) {
+																																							return $elm$json$Json$Decode$succeed(
+																																								{flags: flags, label: label, pos: pos, zindex: zindex});
 																																						},
-																																						A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																																						A2(
+																																							$elm$json$Json$Decode$field,
+																																							'flags',
+																																							$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 																																				},
 																																				A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																		},
@@ -13102,81 +13977,15 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																																		return A2(
 																																																			$elm$json$Json$Decode$andThen,
 																																																			function (label) {
-																																																				return A2(
-																																																					$elm$json$Json$Decode$andThen,
-																																																					function (kind) {
-																																																						return $elm$json$Json$Decode$succeed(
-																																																							{kind: kind, label: label, style: style, zindex: zindex});
-																																																					},
-																																																					A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
+																																																				return $elm$json$Json$Decode$succeed(
+																																																					{label: label, style: style, zindex: zindex});
 																																																			},
 																																																			A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																																	},
 																																																	A2(
 																																																		$elm$json$Json$Decode$field,
 																																																		'style',
-																																																		A2(
-																																																			$elm$json$Json$Decode$andThen,
-																																																			function (wavy) {
-																																																				return A2(
-																																																					$elm$json$Json$Decode$andThen,
-																																																					function (tailColor) {
-																																																						return A2(
-																																																							$elm$json$Json$Decode$andThen,
-																																																							function (tail) {
-																																																								return A2(
-																																																									$elm$json$Json$Decode$andThen,
-																																																									function (position) {
-																																																										return A2(
-																																																											$elm$json$Json$Decode$andThen,
-																																																											function (marker) {
-																																																												return A2(
-																																																													$elm$json$Json$Decode$andThen,
-																																																													function (kind) {
-																																																														return A2(
-																																																															$elm$json$Json$Decode$andThen,
-																																																															function (headColor) {
-																																																																return A2(
-																																																																	$elm$json$Json$Decode$andThen,
-																																																																	function (head) {
-																																																																		return A2(
-																																																																			$elm$json$Json$Decode$andThen,
-																																																																			function (dashed) {
-																																																																				return A2(
-																																																																					$elm$json$Json$Decode$andThen,
-																																																																					function (color) {
-																																																																						return A2(
-																																																																							$elm$json$Json$Decode$andThen,
-																																																																							function (bend) {
-																																																																								return A2(
-																																																																									$elm$json$Json$Decode$andThen,
-																																																																									function (alignment) {
-																																																																										return $elm$json$Json$Decode$succeed(
-																																																																											{alignment: alignment, bend: bend, color: color, dashed: dashed, head: head, headColor: headColor, kind: kind, marker: marker, position: position, tail: tail, tailColor: tailColor, wavy: wavy});
-																																																																									},
-																																																																									A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
-																																																																							},
-																																																																							A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
-																																																																					},
-																																																																					A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string));
-																																																																			},
-																																																																			A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
-																																																																	},
-																																																																	A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
-																																																															},
-																																																															A2($elm$json$Json$Decode$field, 'headColor', $elm$json$Json$Decode$string));
-																																																													},
-																																																													A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
-																																																											},
-																																																											A2($elm$json$Json$Decode$field, 'marker', $elm$json$Json$Decode$string));
-																																																									},
-																																																									A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
-																																																							},
-																																																							A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string));
-																																																					},
-																																																					A2($elm$json$Json$Decode$field, 'tailColor', $elm$json$Json$Decode$string));
-																																																			},
-																																																			A2($elm$json$Json$Decode$field, 'wavy', $elm$json$Json$Decode$bool))));
+																																																		$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 																																															},
 																																															A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
 																																											},
@@ -13211,16 +14020,14 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																															function (label) {
 																																																return A2(
 																																																	$elm$json$Json$Decode$andThen,
-																																																	function (isMath) {
-																																																		return A2(
-																																																			$elm$json$Json$Decode$andThen,
-																																																			function (isCoqValidated) {
-																																																				return $elm$json$Json$Decode$succeed(
-																																																					{isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
-																																																			},
-																																																			A2($elm$json$Json$Decode$field, 'isCoqValidated', $elm$json$Json$Decode$bool));
+																																																	function (flags) {
+																																																		return $elm$json$Json$Decode$succeed(
+																																																			{flags: flags, label: label, pos: pos, zindex: zindex});
 																																																	},
-																																																	A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																																																	A2(
+																																																		$elm$json$Json$Decode$field,
+																																																		'flags',
+																																																		$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 																																															},
 																																															A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																													},
@@ -13277,81 +14084,15 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																														return A2(
 																																															$elm$json$Json$Decode$andThen,
 																																															function (label) {
-																																																return A2(
-																																																	$elm$json$Json$Decode$andThen,
-																																																	function (kind) {
-																																																		return $elm$json$Json$Decode$succeed(
-																																																			{kind: kind, label: label, style: style, zindex: zindex});
-																																																	},
-																																																	A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
+																																																return $elm$json$Json$Decode$succeed(
+																																																	{label: label, style: style, zindex: zindex});
 																																															},
 																																															A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																													},
 																																													A2(
 																																														$elm$json$Json$Decode$field,
 																																														'style',
-																																														A2(
-																																															$elm$json$Json$Decode$andThen,
-																																															function (wavy) {
-																																																return A2(
-																																																	$elm$json$Json$Decode$andThen,
-																																																	function (tailColor) {
-																																																		return A2(
-																																																			$elm$json$Json$Decode$andThen,
-																																																			function (tail) {
-																																																				return A2(
-																																																					$elm$json$Json$Decode$andThen,
-																																																					function (position) {
-																																																						return A2(
-																																																							$elm$json$Json$Decode$andThen,
-																																																							function (marker) {
-																																																								return A2(
-																																																									$elm$json$Json$Decode$andThen,
-																																																									function (kind) {
-																																																										return A2(
-																																																											$elm$json$Json$Decode$andThen,
-																																																											function (headColor) {
-																																																												return A2(
-																																																													$elm$json$Json$Decode$andThen,
-																																																													function (head) {
-																																																														return A2(
-																																																															$elm$json$Json$Decode$andThen,
-																																																															function (dashed) {
-																																																																return A2(
-																																																																	$elm$json$Json$Decode$andThen,
-																																																																	function (color) {
-																																																																		return A2(
-																																																																			$elm$json$Json$Decode$andThen,
-																																																																			function (bend) {
-																																																																				return A2(
-																																																																					$elm$json$Json$Decode$andThen,
-																																																																					function (alignment) {
-																																																																						return $elm$json$Json$Decode$succeed(
-																																																																							{alignment: alignment, bend: bend, color: color, dashed: dashed, head: head, headColor: headColor, kind: kind, marker: marker, position: position, tail: tail, tailColor: tailColor, wavy: wavy});
-																																																																					},
-																																																																					A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
-																																																																			},
-																																																																			A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
-																																																																	},
-																																																																	A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string));
-																																																															},
-																																																															A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
-																																																													},
-																																																													A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
-																																																											},
-																																																											A2($elm$json$Json$Decode$field, 'headColor', $elm$json$Json$Decode$string));
-																																																									},
-																																																									A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
-																																																							},
-																																																							A2($elm$json$Json$Decode$field, 'marker', $elm$json$Json$Decode$string));
-																																																					},
-																																																					A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
-																																																			},
-																																																			A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string));
-																																																	},
-																																																	A2($elm$json$Json$Decode$field, 'tailColor', $elm$json$Json$Decode$string));
-																																															},
-																																															A2($elm$json$Json$Decode$field, 'wavy', $elm$json$Json$Decode$bool))));
+																																														$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 																																											},
 																																											A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
 																																							},
@@ -13386,16 +14127,14 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																											function (label) {
 																																												return A2(
 																																													$elm$json$Json$Decode$andThen,
-																																													function (isMath) {
-																																														return A2(
-																																															$elm$json$Json$Decode$andThen,
-																																															function (isCoqValidated) {
-																																																return $elm$json$Json$Decode$succeed(
-																																																	{isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
-																																															},
-																																															A2($elm$json$Json$Decode$field, 'isCoqValidated', $elm$json$Json$Decode$bool));
+																																													function (flags) {
+																																														return $elm$json$Json$Decode$succeed(
+																																															{flags: flags, label: label, pos: pos, zindex: zindex});
 																																													},
-																																													A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																																													A2(
+																																														$elm$json$Json$Decode$field,
+																																														'flags',
+																																														$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 																																											},
 																																											A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																									},
@@ -13487,81 +14226,15 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																												return A2(
 																																													$elm$json$Json$Decode$andThen,
 																																													function (label) {
-																																														return A2(
-																																															$elm$json$Json$Decode$andThen,
-																																															function (kind) {
-																																																return $elm$json$Json$Decode$succeed(
-																																																	{kind: kind, label: label, style: style, zindex: zindex});
-																																															},
-																																															A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
+																																														return $elm$json$Json$Decode$succeed(
+																																															{label: label, style: style, zindex: zindex});
 																																													},
 																																													A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																											},
 																																											A2(
 																																												$elm$json$Json$Decode$field,
 																																												'style',
-																																												A2(
-																																													$elm$json$Json$Decode$andThen,
-																																													function (wavy) {
-																																														return A2(
-																																															$elm$json$Json$Decode$andThen,
-																																															function (tailColor) {
-																																																return A2(
-																																																	$elm$json$Json$Decode$andThen,
-																																																	function (tail) {
-																																																		return A2(
-																																																			$elm$json$Json$Decode$andThen,
-																																																			function (position) {
-																																																				return A2(
-																																																					$elm$json$Json$Decode$andThen,
-																																																					function (marker) {
-																																																						return A2(
-																																																							$elm$json$Json$Decode$andThen,
-																																																							function (kind) {
-																																																								return A2(
-																																																									$elm$json$Json$Decode$andThen,
-																																																									function (headColor) {
-																																																										return A2(
-																																																											$elm$json$Json$Decode$andThen,
-																																																											function (head) {
-																																																												return A2(
-																																																													$elm$json$Json$Decode$andThen,
-																																																													function (dashed) {
-																																																														return A2(
-																																																															$elm$json$Json$Decode$andThen,
-																																																															function (color) {
-																																																																return A2(
-																																																																	$elm$json$Json$Decode$andThen,
-																																																																	function (bend) {
-																																																																		return A2(
-																																																																			$elm$json$Json$Decode$andThen,
-																																																																			function (alignment) {
-																																																																				return $elm$json$Json$Decode$succeed(
-																																																																					{alignment: alignment, bend: bend, color: color, dashed: dashed, head: head, headColor: headColor, kind: kind, marker: marker, position: position, tail: tail, tailColor: tailColor, wavy: wavy});
-																																																																			},
-																																																																			A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
-																																																																	},
-																																																																	A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
-																																																															},
-																																																															A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string));
-																																																													},
-																																																													A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
-																																																											},
-																																																											A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
-																																																									},
-																																																									A2($elm$json$Json$Decode$field, 'headColor', $elm$json$Json$Decode$string));
-																																																							},
-																																																							A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
-																																																					},
-																																																					A2($elm$json$Json$Decode$field, 'marker', $elm$json$Json$Decode$string));
-																																																			},
-																																																			A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
-																																																	},
-																																																	A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string));
-																																															},
-																																															A2($elm$json$Json$Decode$field, 'tailColor', $elm$json$Json$Decode$string));
-																																													},
-																																													A2($elm$json$Json$Decode$field, 'wavy', $elm$json$Json$Decode$bool))));
+																																												$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 																																									},
 																																									A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
 																																					},
@@ -13600,16 +14273,14 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																					function (label) {
 																																						return A2(
 																																							$elm$json$Json$Decode$andThen,
-																																							function (isMath) {
-																																								return A2(
-																																									$elm$json$Json$Decode$andThen,
-																																									function (isCoqValidated) {
-																																										return $elm$json$Json$Decode$succeed(
-																																											{isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
-																																									},
-																																									A2($elm$json$Json$Decode$field, 'isCoqValidated', $elm$json$Json$Decode$bool));
+																																							function (flags) {
+																																								return $elm$json$Json$Decode$succeed(
+																																									{flags: flags, label: label, pos: pos, zindex: zindex});
 																																							},
-																																							A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																																							A2(
+																																								$elm$json$Json$Decode$field,
+																																								'flags',
+																																								$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 																																					},
 																																					A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																			},
@@ -13751,81 +14422,15 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																			return A2(
 																																				$elm$json$Json$Decode$andThen,
 																																				function (label) {
-																																					return A2(
-																																						$elm$json$Json$Decode$andThen,
-																																						function (kind) {
-																																							return $elm$json$Json$Decode$succeed(
-																																								{kind: kind, label: label, style: style, zindex: zindex});
-																																						},
-																																						A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
+																																					return $elm$json$Json$Decode$succeed(
+																																						{label: label, style: style, zindex: zindex});
 																																				},
 																																				A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																		},
 																																		A2(
 																																			$elm$json$Json$Decode$field,
 																																			'style',
-																																			A2(
-																																				$elm$json$Json$Decode$andThen,
-																																				function (wavy) {
-																																					return A2(
-																																						$elm$json$Json$Decode$andThen,
-																																						function (tailColor) {
-																																							return A2(
-																																								$elm$json$Json$Decode$andThen,
-																																								function (tail) {
-																																									return A2(
-																																										$elm$json$Json$Decode$andThen,
-																																										function (position) {
-																																											return A2(
-																																												$elm$json$Json$Decode$andThen,
-																																												function (marker) {
-																																													return A2(
-																																														$elm$json$Json$Decode$andThen,
-																																														function (kind) {
-																																															return A2(
-																																																$elm$json$Json$Decode$andThen,
-																																																function (headColor) {
-																																																	return A2(
-																																																		$elm$json$Json$Decode$andThen,
-																																																		function (head) {
-																																																			return A2(
-																																																				$elm$json$Json$Decode$andThen,
-																																																				function (dashed) {
-																																																					return A2(
-																																																						$elm$json$Json$Decode$andThen,
-																																																						function (color) {
-																																																							return A2(
-																																																								$elm$json$Json$Decode$andThen,
-																																																								function (bend) {
-																																																									return A2(
-																																																										$elm$json$Json$Decode$andThen,
-																																																										function (alignment) {
-																																																											return $elm$json$Json$Decode$succeed(
-																																																												{alignment: alignment, bend: bend, color: color, dashed: dashed, head: head, headColor: headColor, kind: kind, marker: marker, position: position, tail: tail, tailColor: tailColor, wavy: wavy});
-																																																										},
-																																																										A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
-																																																								},
-																																																								A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
-																																																						},
-																																																						A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string));
-																																																				},
-																																																				A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
-																																																		},
-																																																		A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
-																																																},
-																																																A2($elm$json$Json$Decode$field, 'headColor', $elm$json$Json$Decode$string));
-																																														},
-																																														A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
-																																												},
-																																												A2($elm$json$Json$Decode$field, 'marker', $elm$json$Json$Decode$string));
-																																										},
-																																										A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
-																																								},
-																																								A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string));
-																																						},
-																																						A2($elm$json$Json$Decode$field, 'tailColor', $elm$json$Json$Decode$string));
-																																				},
-																																				A2($elm$json$Json$Decode$field, 'wavy', $elm$json$Json$Decode$bool))));
+																																			$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 																																},
 																																A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
 																												},
@@ -13864,16 +14469,14 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																												function (label) {
 																													return A2(
 																														$elm$json$Json$Decode$andThen,
-																														function (isMath) {
-																															return A2(
-																																$elm$json$Json$Decode$andThen,
-																																function (isCoqValidated) {
-																																	return $elm$json$Json$Decode$succeed(
-																																		{isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
-																																},
-																																A2($elm$json$Json$Decode$field, 'isCoqValidated', $elm$json$Json$Decode$bool));
+																														function (flags) {
+																															return $elm$json$Json$Decode$succeed(
+																																{flags: flags, label: label, pos: pos, zindex: zindex});
 																														},
-																														A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																														A2(
+																															$elm$json$Json$Decode$field,
+																															'flags',
+																															$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 																												},
 																												A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																										},
@@ -13996,81 +14599,15 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																											return A2(
 																																												$elm$json$Json$Decode$andThen,
 																																												function (label) {
-																																													return A2(
-																																														$elm$json$Json$Decode$andThen,
-																																														function (kind) {
-																																															return $elm$json$Json$Decode$succeed(
-																																																{kind: kind, label: label, style: style, zindex: zindex});
-																																														},
-																																														A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
+																																													return $elm$json$Json$Decode$succeed(
+																																														{label: label, style: style, zindex: zindex});
 																																												},
 																																												A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																										},
 																																										A2(
 																																											$elm$json$Json$Decode$field,
 																																											'style',
-																																											A2(
-																																												$elm$json$Json$Decode$andThen,
-																																												function (wavy) {
-																																													return A2(
-																																														$elm$json$Json$Decode$andThen,
-																																														function (tailColor) {
-																																															return A2(
-																																																$elm$json$Json$Decode$andThen,
-																																																function (tail) {
-																																																	return A2(
-																																																		$elm$json$Json$Decode$andThen,
-																																																		function (position) {
-																																																			return A2(
-																																																				$elm$json$Json$Decode$andThen,
-																																																				function (marker) {
-																																																					return A2(
-																																																						$elm$json$Json$Decode$andThen,
-																																																						function (kind) {
-																																																							return A2(
-																																																								$elm$json$Json$Decode$andThen,
-																																																								function (headColor) {
-																																																									return A2(
-																																																										$elm$json$Json$Decode$andThen,
-																																																										function (head) {
-																																																											return A2(
-																																																												$elm$json$Json$Decode$andThen,
-																																																												function (dashed) {
-																																																													return A2(
-																																																														$elm$json$Json$Decode$andThen,
-																																																														function (color) {
-																																																															return A2(
-																																																																$elm$json$Json$Decode$andThen,
-																																																																function (bend) {
-																																																																	return A2(
-																																																																		$elm$json$Json$Decode$andThen,
-																																																																		function (alignment) {
-																																																																			return $elm$json$Json$Decode$succeed(
-																																																																				{alignment: alignment, bend: bend, color: color, dashed: dashed, head: head, headColor: headColor, kind: kind, marker: marker, position: position, tail: tail, tailColor: tailColor, wavy: wavy});
-																																																																		},
-																																																																		A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
-																																																																},
-																																																																A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
-																																																														},
-																																																														A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string));
-																																																												},
-																																																												A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
-																																																										},
-																																																										A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
-																																																								},
-																																																								A2($elm$json$Json$Decode$field, 'headColor', $elm$json$Json$Decode$string));
-																																																						},
-																																																						A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
-																																																				},
-																																																				A2($elm$json$Json$Decode$field, 'marker', $elm$json$Json$Decode$string));
-																																																		},
-																																																		A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
-																																																},
-																																																A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string));
-																																														},
-																																														A2($elm$json$Json$Decode$field, 'tailColor', $elm$json$Json$Decode$string));
-																																												},
-																																												A2($elm$json$Json$Decode$field, 'wavy', $elm$json$Json$Decode$bool))));
+																																											$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 																																								},
 																																								A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
 																																				},
@@ -14105,16 +14642,14 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																								function (label) {
 																																									return A2(
 																																										$elm$json$Json$Decode$andThen,
-																																										function (isMath) {
-																																											return A2(
-																																												$elm$json$Json$Decode$andThen,
-																																												function (isCoqValidated) {
-																																													return $elm$json$Json$Decode$succeed(
-																																														{isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
-																																												},
-																																												A2($elm$json$Json$Decode$field, 'isCoqValidated', $elm$json$Json$Decode$bool));
+																																										function (flags) {
+																																											return $elm$json$Json$Decode$succeed(
+																																												{flags: flags, label: label, pos: pos, zindex: zindex});
 																																										},
-																																										A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																																										A2(
+																																											$elm$json$Json$Decode$field,
+																																											'flags',
+																																											$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 																																								},
 																																								A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																						},
@@ -14171,81 +14706,15 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																							return A2(
 																																								$elm$json$Json$Decode$andThen,
 																																								function (label) {
-																																									return A2(
-																																										$elm$json$Json$Decode$andThen,
-																																										function (kind) {
-																																											return $elm$json$Json$Decode$succeed(
-																																												{kind: kind, label: label, style: style, zindex: zindex});
-																																										},
-																																										A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
+																																									return $elm$json$Json$Decode$succeed(
+																																										{label: label, style: style, zindex: zindex});
 																																								},
 																																								A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																						},
 																																						A2(
 																																							$elm$json$Json$Decode$field,
 																																							'style',
-																																							A2(
-																																								$elm$json$Json$Decode$andThen,
-																																								function (wavy) {
-																																									return A2(
-																																										$elm$json$Json$Decode$andThen,
-																																										function (tailColor) {
-																																											return A2(
-																																												$elm$json$Json$Decode$andThen,
-																																												function (tail) {
-																																													return A2(
-																																														$elm$json$Json$Decode$andThen,
-																																														function (position) {
-																																															return A2(
-																																																$elm$json$Json$Decode$andThen,
-																																																function (marker) {
-																																																	return A2(
-																																																		$elm$json$Json$Decode$andThen,
-																																																		function (kind) {
-																																																			return A2(
-																																																				$elm$json$Json$Decode$andThen,
-																																																				function (headColor) {
-																																																					return A2(
-																																																						$elm$json$Json$Decode$andThen,
-																																																						function (head) {
-																																																							return A2(
-																																																								$elm$json$Json$Decode$andThen,
-																																																								function (dashed) {
-																																																									return A2(
-																																																										$elm$json$Json$Decode$andThen,
-																																																										function (color) {
-																																																											return A2(
-																																																												$elm$json$Json$Decode$andThen,
-																																																												function (bend) {
-																																																													return A2(
-																																																														$elm$json$Json$Decode$andThen,
-																																																														function (alignment) {
-																																																															return $elm$json$Json$Decode$succeed(
-																																																																{alignment: alignment, bend: bend, color: color, dashed: dashed, head: head, headColor: headColor, kind: kind, marker: marker, position: position, tail: tail, tailColor: tailColor, wavy: wavy});
-																																																														},
-																																																														A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
-																																																												},
-																																																												A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
-																																																										},
-																																																										A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string));
-																																																								},
-																																																								A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
-																																																						},
-																																																						A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
-																																																				},
-																																																				A2($elm$json$Json$Decode$field, 'headColor', $elm$json$Json$Decode$string));
-																																																		},
-																																																		A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
-																																																},
-																																																A2($elm$json$Json$Decode$field, 'marker', $elm$json$Json$Decode$string));
-																																														},
-																																														A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
-																																												},
-																																												A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string));
-																																										},
-																																										A2($elm$json$Json$Decode$field, 'tailColor', $elm$json$Json$Decode$string));
-																																								},
-																																								A2($elm$json$Json$Decode$field, 'wavy', $elm$json$Json$Decode$bool))));
+																																							$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 																																				},
 																																				A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
 																																},
@@ -14280,16 +14749,14 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																				function (label) {
 																																					return A2(
 																																						$elm$json$Json$Decode$andThen,
-																																						function (isMath) {
-																																							return A2(
-																																								$elm$json$Json$Decode$andThen,
-																																								function (isCoqValidated) {
-																																									return $elm$json$Json$Decode$succeed(
-																																										{isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
-																																								},
-																																								A2($elm$json$Json$Decode$field, 'isCoqValidated', $elm$json$Json$Decode$bool));
+																																						function (flags) {
+																																							return $elm$json$Json$Decode$succeed(
+																																								{flags: flags, label: label, pos: pos, zindex: zindex});
 																																						},
-																																						A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																																						A2(
+																																							$elm$json$Json$Decode$field,
+																																							'flags',
+																																							$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 																																				},
 																																				A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																		},
@@ -14381,81 +14848,15 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																					return A2(
 																																						$elm$json$Json$Decode$andThen,
 																																						function (label) {
-																																							return A2(
-																																								$elm$json$Json$Decode$andThen,
-																																								function (kind) {
-																																									return $elm$json$Json$Decode$succeed(
-																																										{kind: kind, label: label, style: style, zindex: zindex});
-																																								},
-																																								A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
+																																							return $elm$json$Json$Decode$succeed(
+																																								{label: label, style: style, zindex: zindex});
 																																						},
 																																						A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																				},
 																																				A2(
 																																					$elm$json$Json$Decode$field,
 																																					'style',
-																																					A2(
-																																						$elm$json$Json$Decode$andThen,
-																																						function (wavy) {
-																																							return A2(
-																																								$elm$json$Json$Decode$andThen,
-																																								function (tailColor) {
-																																									return A2(
-																																										$elm$json$Json$Decode$andThen,
-																																										function (tail) {
-																																											return A2(
-																																												$elm$json$Json$Decode$andThen,
-																																												function (position) {
-																																													return A2(
-																																														$elm$json$Json$Decode$andThen,
-																																														function (marker) {
-																																															return A2(
-																																																$elm$json$Json$Decode$andThen,
-																																																function (kind) {
-																																																	return A2(
-																																																		$elm$json$Json$Decode$andThen,
-																																																		function (headColor) {
-																																																			return A2(
-																																																				$elm$json$Json$Decode$andThen,
-																																																				function (head) {
-																																																					return A2(
-																																																						$elm$json$Json$Decode$andThen,
-																																																						function (dashed) {
-																																																							return A2(
-																																																								$elm$json$Json$Decode$andThen,
-																																																								function (color) {
-																																																									return A2(
-																																																										$elm$json$Json$Decode$andThen,
-																																																										function (bend) {
-																																																											return A2(
-																																																												$elm$json$Json$Decode$andThen,
-																																																												function (alignment) {
-																																																													return $elm$json$Json$Decode$succeed(
-																																																														{alignment: alignment, bend: bend, color: color, dashed: dashed, head: head, headColor: headColor, kind: kind, marker: marker, position: position, tail: tail, tailColor: tailColor, wavy: wavy});
-																																																												},
-																																																												A2($elm$json$Json$Decode$field, 'alignment', $elm$json$Json$Decode$string));
-																																																										},
-																																																										A2($elm$json$Json$Decode$field, 'bend', $elm$json$Json$Decode$float));
-																																																								},
-																																																								A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string));
-																																																						},
-																																																						A2($elm$json$Json$Decode$field, 'dashed', $elm$json$Json$Decode$bool));
-																																																				},
-																																																				A2($elm$json$Json$Decode$field, 'head', $elm$json$Json$Decode$string));
-																																																		},
-																																																		A2($elm$json$Json$Decode$field, 'headColor', $elm$json$Json$Decode$string));
-																																																},
-																																																A2($elm$json$Json$Decode$field, 'kind', $elm$json$Json$Decode$string));
-																																														},
-																																														A2($elm$json$Json$Decode$field, 'marker', $elm$json$Json$Decode$string));
-																																												},
-																																												A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$float));
-																																										},
-																																										A2($elm$json$Json$Decode$field, 'tail', $elm$json$Json$Decode$string));
-																																								},
-																																								A2($elm$json$Json$Decode$field, 'tailColor', $elm$json$Json$Decode$string));
-																																						},
-																																						A2($elm$json$Json$Decode$field, 'wavy', $elm$json$Json$Decode$bool))));
+																																					$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 																																		},
 																																		A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
 																														},
@@ -14494,16 +14895,14 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																														function (label) {
 																															return A2(
 																																$elm$json$Json$Decode$andThen,
-																																function (isMath) {
-																																	return A2(
-																																		$elm$json$Json$Decode$andThen,
-																																		function (isCoqValidated) {
-																																			return $elm$json$Json$Decode$succeed(
-																																				{isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
-																																		},
-																																		A2($elm$json$Json$Decode$field, 'isCoqValidated', $elm$json$Json$Decode$bool));
+																																function (flags) {
+																																	return $elm$json$Json$Decode$succeed(
+																																		{flags: flags, label: label, pos: pos, zindex: zindex});
 																																},
-																																A2($elm$json$Json$Decode$field, 'isMath', $elm$json$Json$Decode$bool));
+																																A2(
+																																	$elm$json$Json$Decode$field,
+																																	'flags',
+																																	$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 																														},
 																														A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																												},
@@ -14672,6 +15071,11 @@ var $author$project$Main$subscriptions = function (m) {
 					A2(
 						$elm$core$Basics$composeR,
 						$author$project$Msg$mapLoadGraphInfo($author$project$Format$Version16$fromJSGraph),
+						$author$project$Msg$loadGraphInfoToMsg)),
+					$author$project$Main$loadedGraph17(
+					A2(
+						$elm$core$Basics$composeR,
+						$author$project$Msg$mapLoadGraphInfo($author$project$Format$Version17$fromJSGraph),
 						$author$project$Msg$loadGraphInfoToMsg)),
 					$author$project$Main$setFirstTabEquation($author$project$Msg$SetFirstTabEquation),
 					$elm$browser$Browser$Events$onClick(
@@ -16813,27 +17217,6 @@ var $author$project$Modes$Pullshout$fixModel = F2(
 		}
 	});
 var $author$project$Modes$Rename$fixModel = $author$project$Modes$Rename$initialise;
-var $elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
-	});
 var $elm$core$List$all = F2(
 	function (isOkay, list) {
 		return !A2(
@@ -17333,55 +17716,11 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																															_List_fromArray(
 																																[
 																																	_Utils_Tuple2(
-																																	'kind',
-																																	$elm$json$Json$Encode$string($.kind)),
-																																	_Utils_Tuple2(
 																																	'label',
 																																	$elm$json$Json$Encode$string($.label)),
 																																	_Utils_Tuple2(
 																																	'style',
-																																	function ($) {
-																																		return $elm$json$Json$Encode$object(
-																																			_List_fromArray(
-																																				[
-																																					_Utils_Tuple2(
-																																					'alignment',
-																																					$elm$json$Json$Encode$string($.alignment)),
-																																					_Utils_Tuple2(
-																																					'bend',
-																																					$elm$json$Json$Encode$float($.bend)),
-																																					_Utils_Tuple2(
-																																					'color',
-																																					$elm$json$Json$Encode$string($.color)),
-																																					_Utils_Tuple2(
-																																					'dashed',
-																																					$elm$json$Json$Encode$bool($.dashed)),
-																																					_Utils_Tuple2(
-																																					'head',
-																																					$elm$json$Json$Encode$string($.head)),
-																																					_Utils_Tuple2(
-																																					'headColor',
-																																					$elm$json$Json$Encode$string($.headColor)),
-																																					_Utils_Tuple2(
-																																					'kind',
-																																					$elm$json$Json$Encode$string($.kind)),
-																																					_Utils_Tuple2(
-																																					'marker',
-																																					$elm$json$Json$Encode$string($.marker)),
-																																					_Utils_Tuple2(
-																																					'position',
-																																					$elm$json$Json$Encode$float($.position)),
-																																					_Utils_Tuple2(
-																																					'tail',
-																																					$elm$json$Json$Encode$string($.tail)),
-																																					_Utils_Tuple2(
-																																					'tailColor',
-																																					$elm$json$Json$Encode$string($.tailColor)),
-																																					_Utils_Tuple2(
-																																					'wavy',
-																																					$elm$json$Json$Encode$bool($.wavy))
-																																				]));
-																																	}($.style)),
+																																	$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
 																																	_Utils_Tuple2(
 																																	'zindex',
 																																	$elm$json$Json$Encode$int($.zindex))
@@ -17415,11 +17754,8 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																															_List_fromArray(
 																																[
 																																	_Utils_Tuple2(
-																																	'isCoqValidated',
-																																	$elm$json$Json$Encode$bool($.isCoqValidated)),
-																																	_Utils_Tuple2(
-																																	'isMath',
-																																	$elm$json$Json$Encode$bool($.isMath)),
+																																	'flags',
+																																	$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
 																																	_Utils_Tuple2(
 																																	'label',
 																																	$elm$json$Json$Encode$string($.label)),
@@ -17551,55 +17887,11 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																														_List_fromArray(
 																															[
 																																_Utils_Tuple2(
-																																'kind',
-																																$elm$json$Json$Encode$string($.kind)),
-																																_Utils_Tuple2(
 																																'label',
 																																$elm$json$Json$Encode$string($.label)),
 																																_Utils_Tuple2(
 																																'style',
-																																function ($) {
-																																	return $elm$json$Json$Encode$object(
-																																		_List_fromArray(
-																																			[
-																																				_Utils_Tuple2(
-																																				'alignment',
-																																				$elm$json$Json$Encode$string($.alignment)),
-																																				_Utils_Tuple2(
-																																				'bend',
-																																				$elm$json$Json$Encode$float($.bend)),
-																																				_Utils_Tuple2(
-																																				'color',
-																																				$elm$json$Json$Encode$string($.color)),
-																																				_Utils_Tuple2(
-																																				'dashed',
-																																				$elm$json$Json$Encode$bool($.dashed)),
-																																				_Utils_Tuple2(
-																																				'head',
-																																				$elm$json$Json$Encode$string($.head)),
-																																				_Utils_Tuple2(
-																																				'headColor',
-																																				$elm$json$Json$Encode$string($.headColor)),
-																																				_Utils_Tuple2(
-																																				'kind',
-																																				$elm$json$Json$Encode$string($.kind)),
-																																				_Utils_Tuple2(
-																																				'marker',
-																																				$elm$json$Json$Encode$string($.marker)),
-																																				_Utils_Tuple2(
-																																				'position',
-																																				$elm$json$Json$Encode$float($.position)),
-																																				_Utils_Tuple2(
-																																				'tail',
-																																				$elm$json$Json$Encode$string($.tail)),
-																																				_Utils_Tuple2(
-																																				'tailColor',
-																																				$elm$json$Json$Encode$string($.tailColor)),
-																																				_Utils_Tuple2(
-																																				'wavy',
-																																				$elm$json$Json$Encode$bool($.wavy))
-																																			]));
-																																}($.style)),
+																																$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
 																																_Utils_Tuple2(
 																																'zindex',
 																																$elm$json$Json$Encode$int($.zindex))
@@ -17627,11 +17919,8 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																														_List_fromArray(
 																															[
 																																_Utils_Tuple2(
-																																'isCoqValidated',
-																																$elm$json$Json$Encode$bool($.isCoqValidated)),
-																																_Utils_Tuple2(
-																																'isMath',
-																																$elm$json$Json$Encode$bool($.isMath)),
+																																'flags',
+																																$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
 																																_Utils_Tuple2(
 																																'label',
 																																$elm$json$Json$Encode$string($.label)),
@@ -17676,55 +17965,11 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																														_List_fromArray(
 																															[
 																																_Utils_Tuple2(
-																																'kind',
-																																$elm$json$Json$Encode$string($.kind)),
-																																_Utils_Tuple2(
 																																'label',
 																																$elm$json$Json$Encode$string($.label)),
 																																_Utils_Tuple2(
 																																'style',
-																																function ($) {
-																																	return $elm$json$Json$Encode$object(
-																																		_List_fromArray(
-																																			[
-																																				_Utils_Tuple2(
-																																				'alignment',
-																																				$elm$json$Json$Encode$string($.alignment)),
-																																				_Utils_Tuple2(
-																																				'bend',
-																																				$elm$json$Json$Encode$float($.bend)),
-																																				_Utils_Tuple2(
-																																				'color',
-																																				$elm$json$Json$Encode$string($.color)),
-																																				_Utils_Tuple2(
-																																				'dashed',
-																																				$elm$json$Json$Encode$bool($.dashed)),
-																																				_Utils_Tuple2(
-																																				'head',
-																																				$elm$json$Json$Encode$string($.head)),
-																																				_Utils_Tuple2(
-																																				'headColor',
-																																				$elm$json$Json$Encode$string($.headColor)),
-																																				_Utils_Tuple2(
-																																				'kind',
-																																				$elm$json$Json$Encode$string($.kind)),
-																																				_Utils_Tuple2(
-																																				'marker',
-																																				$elm$json$Json$Encode$string($.marker)),
-																																				_Utils_Tuple2(
-																																				'position',
-																																				$elm$json$Json$Encode$float($.position)),
-																																				_Utils_Tuple2(
-																																				'tail',
-																																				$elm$json$Json$Encode$string($.tail)),
-																																				_Utils_Tuple2(
-																																				'tailColor',
-																																				$elm$json$Json$Encode$string($.tailColor)),
-																																				_Utils_Tuple2(
-																																				'wavy',
-																																				$elm$json$Json$Encode$bool($.wavy))
-																																			]));
-																																}($.style)),
+																																$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
 																																_Utils_Tuple2(
 																																'zindex',
 																																$elm$json$Json$Encode$int($.zindex))
@@ -17752,11 +17997,8 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																														_List_fromArray(
 																															[
 																																_Utils_Tuple2(
-																																'isCoqValidated',
-																																$elm$json$Json$Encode$bool($.isCoqValidated)),
-																																_Utils_Tuple2(
-																																'isMath',
-																																$elm$json$Json$Encode$bool($.isMath)),
+																																'flags',
+																																$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
 																																_Utils_Tuple2(
 																																'label',
 																																$elm$json$Json$Encode$string($.label)),
@@ -17821,55 +18063,11 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																														_List_fromArray(
 																															[
 																																_Utils_Tuple2(
-																																'kind',
-																																$elm$json$Json$Encode$string($.kind)),
-																																_Utils_Tuple2(
 																																'label',
 																																$elm$json$Json$Encode$string($.label)),
 																																_Utils_Tuple2(
 																																'style',
-																																function ($) {
-																																	return $elm$json$Json$Encode$object(
-																																		_List_fromArray(
-																																			[
-																																				_Utils_Tuple2(
-																																				'alignment',
-																																				$elm$json$Json$Encode$string($.alignment)),
-																																				_Utils_Tuple2(
-																																				'bend',
-																																				$elm$json$Json$Encode$float($.bend)),
-																																				_Utils_Tuple2(
-																																				'color',
-																																				$elm$json$Json$Encode$string($.color)),
-																																				_Utils_Tuple2(
-																																				'dashed',
-																																				$elm$json$Json$Encode$bool($.dashed)),
-																																				_Utils_Tuple2(
-																																				'head',
-																																				$elm$json$Json$Encode$string($.head)),
-																																				_Utils_Tuple2(
-																																				'headColor',
-																																				$elm$json$Json$Encode$string($.headColor)),
-																																				_Utils_Tuple2(
-																																				'kind',
-																																				$elm$json$Json$Encode$string($.kind)),
-																																				_Utils_Tuple2(
-																																				'marker',
-																																				$elm$json$Json$Encode$string($.marker)),
-																																				_Utils_Tuple2(
-																																				'position',
-																																				$elm$json$Json$Encode$float($.position)),
-																																				_Utils_Tuple2(
-																																				'tail',
-																																				$elm$json$Json$Encode$string($.tail)),
-																																				_Utils_Tuple2(
-																																				'tailColor',
-																																				$elm$json$Json$Encode$string($.tailColor)),
-																																				_Utils_Tuple2(
-																																				'wavy',
-																																				$elm$json$Json$Encode$bool($.wavy))
-																																			]));
-																																}($.style)),
+																																$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
 																																_Utils_Tuple2(
 																																'zindex',
 																																$elm$json$Json$Encode$int($.zindex))
@@ -17903,11 +18101,8 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																														_List_fromArray(
 																															[
 																																_Utils_Tuple2(
-																																'isCoqValidated',
-																																$elm$json$Json$Encode$bool($.isCoqValidated)),
-																																_Utils_Tuple2(
-																																'isMath',
-																																$elm$json$Json$Encode$bool($.isMath)),
+																																'flags',
+																																$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
 																																_Utils_Tuple2(
 																																'label',
 																																$elm$json$Json$Encode$string($.label)),
@@ -18013,55 +18208,11 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																											_List_fromArray(
 																												[
 																													_Utils_Tuple2(
-																													'kind',
-																													$elm$json$Json$Encode$string($.kind)),
-																													_Utils_Tuple2(
 																													'label',
 																													$elm$json$Json$Encode$string($.label)),
 																													_Utils_Tuple2(
 																													'style',
-																													function ($) {
-																														return $elm$json$Json$Encode$object(
-																															_List_fromArray(
-																																[
-																																	_Utils_Tuple2(
-																																	'alignment',
-																																	$elm$json$Json$Encode$string($.alignment)),
-																																	_Utils_Tuple2(
-																																	'bend',
-																																	$elm$json$Json$Encode$float($.bend)),
-																																	_Utils_Tuple2(
-																																	'color',
-																																	$elm$json$Json$Encode$string($.color)),
-																																	_Utils_Tuple2(
-																																	'dashed',
-																																	$elm$json$Json$Encode$bool($.dashed)),
-																																	_Utils_Tuple2(
-																																	'head',
-																																	$elm$json$Json$Encode$string($.head)),
-																																	_Utils_Tuple2(
-																																	'headColor',
-																																	$elm$json$Json$Encode$string($.headColor)),
-																																	_Utils_Tuple2(
-																																	'kind',
-																																	$elm$json$Json$Encode$string($.kind)),
-																																	_Utils_Tuple2(
-																																	'marker',
-																																	$elm$json$Json$Encode$string($.marker)),
-																																	_Utils_Tuple2(
-																																	'position',
-																																	$elm$json$Json$Encode$float($.position)),
-																																	_Utils_Tuple2(
-																																	'tail',
-																																	$elm$json$Json$Encode$string($.tail)),
-																																	_Utils_Tuple2(
-																																	'tailColor',
-																																	$elm$json$Json$Encode$string($.tailColor)),
-																																	_Utils_Tuple2(
-																																	'wavy',
-																																	$elm$json$Json$Encode$bool($.wavy))
-																																]));
-																													}($.style)),
+																													$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
 																													_Utils_Tuple2(
 																													'zindex',
 																													$elm$json$Json$Encode$int($.zindex))
@@ -18095,11 +18246,8 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																											_List_fromArray(
 																												[
 																													_Utils_Tuple2(
-																													'isCoqValidated',
-																													$elm$json$Json$Encode$bool($.isCoqValidated)),
-																													_Utils_Tuple2(
-																													'isMath',
-																													$elm$json$Json$Encode$bool($.isMath)),
+																													'flags',
+																													$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
 																													_Utils_Tuple2(
 																													'label',
 																													$elm$json$Json$Encode$string($.label)),
@@ -18176,55 +18324,11 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																											_List_fromArray(
 																												[
 																													_Utils_Tuple2(
-																													'kind',
-																													$elm$json$Json$Encode$string($.kind)),
-																													_Utils_Tuple2(
 																													'label',
 																													$elm$json$Json$Encode$string($.label)),
 																													_Utils_Tuple2(
 																													'style',
-																													function ($) {
-																														return $elm$json$Json$Encode$object(
-																															_List_fromArray(
-																																[
-																																	_Utils_Tuple2(
-																																	'alignment',
-																																	$elm$json$Json$Encode$string($.alignment)),
-																																	_Utils_Tuple2(
-																																	'bend',
-																																	$elm$json$Json$Encode$float($.bend)),
-																																	_Utils_Tuple2(
-																																	'color',
-																																	$elm$json$Json$Encode$string($.color)),
-																																	_Utils_Tuple2(
-																																	'dashed',
-																																	$elm$json$Json$Encode$bool($.dashed)),
-																																	_Utils_Tuple2(
-																																	'head',
-																																	$elm$json$Json$Encode$string($.head)),
-																																	_Utils_Tuple2(
-																																	'headColor',
-																																	$elm$json$Json$Encode$string($.headColor)),
-																																	_Utils_Tuple2(
-																																	'kind',
-																																	$elm$json$Json$Encode$string($.kind)),
-																																	_Utils_Tuple2(
-																																	'marker',
-																																	$elm$json$Json$Encode$string($.marker)),
-																																	_Utils_Tuple2(
-																																	'position',
-																																	$elm$json$Json$Encode$float($.position)),
-																																	_Utils_Tuple2(
-																																	'tail',
-																																	$elm$json$Json$Encode$string($.tail)),
-																																	_Utils_Tuple2(
-																																	'tailColor',
-																																	$elm$json$Json$Encode$string($.tailColor)),
-																																	_Utils_Tuple2(
-																																	'wavy',
-																																	$elm$json$Json$Encode$bool($.wavy))
-																																]));
-																													}($.style)),
+																													$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
 																													_Utils_Tuple2(
 																													'zindex',
 																													$elm$json$Json$Encode$int($.zindex))
@@ -18252,11 +18356,8 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																											_List_fromArray(
 																												[
 																													_Utils_Tuple2(
-																													'isCoqValidated',
-																													$elm$json$Json$Encode$bool($.isCoqValidated)),
-																													_Utils_Tuple2(
-																													'isMath',
-																													$elm$json$Json$Encode$bool($.isMath)),
+																													'flags',
+																													$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
 																													_Utils_Tuple2(
 																													'label',
 																													$elm$json$Json$Encode$string($.label)),
@@ -18301,55 +18402,11 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																											_List_fromArray(
 																												[
 																													_Utils_Tuple2(
-																													'kind',
-																													$elm$json$Json$Encode$string($.kind)),
-																													_Utils_Tuple2(
 																													'label',
 																													$elm$json$Json$Encode$string($.label)),
 																													_Utils_Tuple2(
 																													'style',
-																													function ($) {
-																														return $elm$json$Json$Encode$object(
-																															_List_fromArray(
-																																[
-																																	_Utils_Tuple2(
-																																	'alignment',
-																																	$elm$json$Json$Encode$string($.alignment)),
-																																	_Utils_Tuple2(
-																																	'bend',
-																																	$elm$json$Json$Encode$float($.bend)),
-																																	_Utils_Tuple2(
-																																	'color',
-																																	$elm$json$Json$Encode$string($.color)),
-																																	_Utils_Tuple2(
-																																	'dashed',
-																																	$elm$json$Json$Encode$bool($.dashed)),
-																																	_Utils_Tuple2(
-																																	'head',
-																																	$elm$json$Json$Encode$string($.head)),
-																																	_Utils_Tuple2(
-																																	'headColor',
-																																	$elm$json$Json$Encode$string($.headColor)),
-																																	_Utils_Tuple2(
-																																	'kind',
-																																	$elm$json$Json$Encode$string($.kind)),
-																																	_Utils_Tuple2(
-																																	'marker',
-																																	$elm$json$Json$Encode$string($.marker)),
-																																	_Utils_Tuple2(
-																																	'position',
-																																	$elm$json$Json$Encode$float($.position)),
-																																	_Utils_Tuple2(
-																																	'tail',
-																																	$elm$json$Json$Encode$string($.tail)),
-																																	_Utils_Tuple2(
-																																	'tailColor',
-																																	$elm$json$Json$Encode$string($.tailColor)),
-																																	_Utils_Tuple2(
-																																	'wavy',
-																																	$elm$json$Json$Encode$bool($.wavy))
-																																]));
-																													}($.style)),
+																													$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
 																													_Utils_Tuple2(
 																													'zindex',
 																													$elm$json$Json$Encode$int($.zindex))
@@ -18377,11 +18434,8 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																											_List_fromArray(
 																												[
 																													_Utils_Tuple2(
-																													'isCoqValidated',
-																													$elm$json$Json$Encode$bool($.isCoqValidated)),
-																													_Utils_Tuple2(
-																													'isMath',
-																													$elm$json$Json$Encode$bool($.isMath)),
+																													'flags',
+																													$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
 																													_Utils_Tuple2(
 																													'label',
 																													$elm$json$Json$Encode$string($.label)),
@@ -18446,55 +18500,11 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																											_List_fromArray(
 																												[
 																													_Utils_Tuple2(
-																													'kind',
-																													$elm$json$Json$Encode$string($.kind)),
-																													_Utils_Tuple2(
 																													'label',
 																													$elm$json$Json$Encode$string($.label)),
 																													_Utils_Tuple2(
 																													'style',
-																													function ($) {
-																														return $elm$json$Json$Encode$object(
-																															_List_fromArray(
-																																[
-																																	_Utils_Tuple2(
-																																	'alignment',
-																																	$elm$json$Json$Encode$string($.alignment)),
-																																	_Utils_Tuple2(
-																																	'bend',
-																																	$elm$json$Json$Encode$float($.bend)),
-																																	_Utils_Tuple2(
-																																	'color',
-																																	$elm$json$Json$Encode$string($.color)),
-																																	_Utils_Tuple2(
-																																	'dashed',
-																																	$elm$json$Json$Encode$bool($.dashed)),
-																																	_Utils_Tuple2(
-																																	'head',
-																																	$elm$json$Json$Encode$string($.head)),
-																																	_Utils_Tuple2(
-																																	'headColor',
-																																	$elm$json$Json$Encode$string($.headColor)),
-																																	_Utils_Tuple2(
-																																	'kind',
-																																	$elm$json$Json$Encode$string($.kind)),
-																																	_Utils_Tuple2(
-																																	'marker',
-																																	$elm$json$Json$Encode$string($.marker)),
-																																	_Utils_Tuple2(
-																																	'position',
-																																	$elm$json$Json$Encode$float($.position)),
-																																	_Utils_Tuple2(
-																																	'tail',
-																																	$elm$json$Json$Encode$string($.tail)),
-																																	_Utils_Tuple2(
-																																	'tailColor',
-																																	$elm$json$Json$Encode$string($.tailColor)),
-																																	_Utils_Tuple2(
-																																	'wavy',
-																																	$elm$json$Json$Encode$bool($.wavy))
-																																]));
-																													}($.style)),
+																													$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
 																													_Utils_Tuple2(
 																													'zindex',
 																													$elm$json$Json$Encode$int($.zindex))
@@ -18528,11 +18538,8 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																											_List_fromArray(
 																												[
 																													_Utils_Tuple2(
-																													'isCoqValidated',
-																													$elm$json$Json$Encode$bool($.isCoqValidated)),
-																													_Utils_Tuple2(
-																													'isMath',
-																													$elm$json$Json$Encode$bool($.isMath)),
+																													'flags',
+																													$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
 																													_Utils_Tuple2(
 																													'label',
 																													$elm$json$Json$Encode$string($.label)),
@@ -18865,29 +18872,6 @@ var $author$project$GraphProof$applyDiag = F2(
 						tail),
 					startOffset: 0
 				});
-		}
-	});
-var $elm_community$list_extra$List$Extra$findMap = F2(
-	function (f, list) {
-		findMap:
-		while (true) {
-			if (!list.b) {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var a = list.a;
-				var tail = list.b;
-				var _v1 = f(a);
-				if (_v1.$ === 'Just') {
-					var b = _v1.a;
-					return $elm$core$Maybe$Just(b);
-				} else {
-					var $temp$f = f,
-						$temp$list = tail;
-					f = $temp$f;
-					list = $temp$list;
-					continue findMap;
-				}
-			}
 		}
 	});
 var $elm_community$list_extra$List$Extra$reverseAppend = F2(
@@ -20405,7 +20389,6 @@ var $elm$core$String$concat = function (strings) {
 	return A2($elm$core$String$join, '', strings);
 };
 var $author$project$GraphDefs$edgeScaleFactor = 0.7;
-var $elm$core$String$fromFloat = _String_fromNumber;
 var $author$project$ArrowStyle$headTikzStyle = function (hd) {
 	switch (hd.$) {
 		case 'DefaultHead':
@@ -21450,7 +21433,6 @@ var $author$project$Geometry$Point$NamedPoint = F2(
 	function (x, y) {
 		return {x: x, y: y};
 	});
-var $elm$core$Basics$pow = _Basics_pow;
 var $author$project$Geometry$Epsilon$epsilon = A2($elm$core$Basics$pow, 10, -10);
 var $elm$core$Basics$ge = _Utils_ge;
 var $author$project$Geometry$Epsilon$inv_epsilon = 1 / $author$project$Geometry$Epsilon$epsilon;
@@ -23858,55 +23840,11 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 																									_List_fromArray(
 																										[
 																											_Utils_Tuple2(
-																											'kind',
-																											$elm$json$Json$Encode$string($.kind)),
-																											_Utils_Tuple2(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
 																											_Utils_Tuple2(
 																											'style',
-																											function ($) {
-																												return $elm$json$Json$Encode$object(
-																													_List_fromArray(
-																														[
-																															_Utils_Tuple2(
-																															'alignment',
-																															$elm$json$Json$Encode$string($.alignment)),
-																															_Utils_Tuple2(
-																															'bend',
-																															$elm$json$Json$Encode$float($.bend)),
-																															_Utils_Tuple2(
-																															'color',
-																															$elm$json$Json$Encode$string($.color)),
-																															_Utils_Tuple2(
-																															'dashed',
-																															$elm$json$Json$Encode$bool($.dashed)),
-																															_Utils_Tuple2(
-																															'head',
-																															$elm$json$Json$Encode$string($.head)),
-																															_Utils_Tuple2(
-																															'headColor',
-																															$elm$json$Json$Encode$string($.headColor)),
-																															_Utils_Tuple2(
-																															'kind',
-																															$elm$json$Json$Encode$string($.kind)),
-																															_Utils_Tuple2(
-																															'marker',
-																															$elm$json$Json$Encode$string($.marker)),
-																															_Utils_Tuple2(
-																															'position',
-																															$elm$json$Json$Encode$float($.position)),
-																															_Utils_Tuple2(
-																															'tail',
-																															$elm$json$Json$Encode$string($.tail)),
-																															_Utils_Tuple2(
-																															'tailColor',
-																															$elm$json$Json$Encode$string($.tailColor)),
-																															_Utils_Tuple2(
-																															'wavy',
-																															$elm$json$Json$Encode$bool($.wavy))
-																														]));
-																											}($.style)),
+																											$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
 																											_Utils_Tuple2(
 																											'zindex',
 																											$elm$json$Json$Encode$int($.zindex))
@@ -23940,11 +23878,8 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 																									_List_fromArray(
 																										[
 																											_Utils_Tuple2(
-																											'isCoqValidated',
-																											$elm$json$Json$Encode$bool($.isCoqValidated)),
-																											_Utils_Tuple2(
-																											'isMath',
-																											$elm$json$Json$Encode$bool($.isMath)),
+																											'flags',
+																											$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
 																											_Utils_Tuple2(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
@@ -24015,10 +23950,12 @@ var $author$project$Format$GraphInfo$normalise = function (gi) {
 var $author$project$Model$toGraphInfo = function (m) {
 	return m.graphInfo;
 };
-var $author$project$Format$Version16$toJSGraph = $author$project$Codec$encoder($author$project$Format$Version16$graphInfoCodec);
-var $author$project$Format$LastVersion$toJSGraph = $author$project$Format$Version16$toJSGraph;
-var $author$project$Format$Version16$version = 16;
-var $author$project$Format$LastVersion$version = $author$project$Format$Version16$version;
+var $author$project$Format$Version17$toJSGraph = function (g) {
+	return A2($author$project$Codec$encoder, $author$project$Format$Version17$graphInfoCodec, g);
+};
+var $author$project$Format$LastVersion$toJSGraph = $author$project$Format$Version17$toJSGraph;
+var $author$project$Format$Version17$version = 17;
+var $author$project$Format$LastVersion$version = $author$project$Format$Version17$version;
 var $author$project$Main$toJsGraphInfo = function (model) {
 	return {
 		graph: $author$project$Format$LastVersion$toJSGraph(
@@ -24459,55 +24396,11 @@ var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
 																									_List_fromArray(
 																										[
 																											_Utils_Tuple2(
-																											'kind',
-																											$elm$json$Json$Encode$string($.kind)),
-																											_Utils_Tuple2(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
 																											_Utils_Tuple2(
 																											'style',
-																											function ($) {
-																												return $elm$json$Json$Encode$object(
-																													_List_fromArray(
-																														[
-																															_Utils_Tuple2(
-																															'alignment',
-																															$elm$json$Json$Encode$string($.alignment)),
-																															_Utils_Tuple2(
-																															'bend',
-																															$elm$json$Json$Encode$float($.bend)),
-																															_Utils_Tuple2(
-																															'color',
-																															$elm$json$Json$Encode$string($.color)),
-																															_Utils_Tuple2(
-																															'dashed',
-																															$elm$json$Json$Encode$bool($.dashed)),
-																															_Utils_Tuple2(
-																															'head',
-																															$elm$json$Json$Encode$string($.head)),
-																															_Utils_Tuple2(
-																															'headColor',
-																															$elm$json$Json$Encode$string($.headColor)),
-																															_Utils_Tuple2(
-																															'kind',
-																															$elm$json$Json$Encode$string($.kind)),
-																															_Utils_Tuple2(
-																															'marker',
-																															$elm$json$Json$Encode$string($.marker)),
-																															_Utils_Tuple2(
-																															'position',
-																															$elm$json$Json$Encode$float($.position)),
-																															_Utils_Tuple2(
-																															'tail',
-																															$elm$json$Json$Encode$string($.tail)),
-																															_Utils_Tuple2(
-																															'tailColor',
-																															$elm$json$Json$Encode$string($.tailColor)),
-																															_Utils_Tuple2(
-																															'wavy',
-																															$elm$json$Json$Encode$bool($.wavy))
-																														]));
-																											}($.style)),
+																											$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
 																											_Utils_Tuple2(
 																											'zindex',
 																											$elm$json$Json$Encode$int($.zindex))
@@ -24541,11 +24434,8 @@ var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
 																									_List_fromArray(
 																										[
 																											_Utils_Tuple2(
-																											'isCoqValidated',
-																											$elm$json$Json$Encode$bool($.isCoqValidated)),
-																											_Utils_Tuple2(
-																											'isMath',
-																											$elm$json$Json$Encode$bool($.isMath)),
+																											'flags',
+																											$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
 																											_Utils_Tuple2(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
@@ -24856,15 +24746,6 @@ var $elm$parser$Parser$symbol = function (str) {
 			str,
 			$elm$parser$Parser$ExpectingSymbol(str)));
 };
-var $elm$core$List$member = F2(
-	function (x, xs) {
-		return A2(
-			$elm$core$List$any,
-			function (a) {
-				return _Utils_eq(a, x);
-			},
-			xs);
-	});
 var $author$project$QuickInput$correctLabelChar = F2(
 	function (fb, c) {
 		return !A2($elm$core$List$member, c, fb);
@@ -25041,7 +24922,6 @@ var $author$project$QuickInput$equalityParser = A2(
 				$elm$parser$Parser$symbol('=')),
 			$elm$parser$Parser$spaces)),
 	$author$project$QuickInput$handSideParser);
-var $author$project$Drawing$Color$black = $author$project$Drawing$Color$Black;
 var $author$project$ArrowStyle$noMarker = '';
 var $author$project$ArrowStyle$empty = {bend: 0, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$DefaultHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, marker: $author$project$ArrowStyle$noMarker, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
 var $author$project$Polygraph$md_graph = function (_v0) {
@@ -29360,55 +29240,11 @@ var $author$project$Main$clipboardWriteGraph = _Platform_outgoingPort(
 																					_List_fromArray(
 																						[
 																							_Utils_Tuple2(
-																							'kind',
-																							$elm$json$Json$Encode$string($.kind)),
-																							_Utils_Tuple2(
 																							'label',
 																							$elm$json$Json$Encode$string($.label)),
 																							_Utils_Tuple2(
 																							'style',
-																							function ($) {
-																								return $elm$json$Json$Encode$object(
-																									_List_fromArray(
-																										[
-																											_Utils_Tuple2(
-																											'alignment',
-																											$elm$json$Json$Encode$string($.alignment)),
-																											_Utils_Tuple2(
-																											'bend',
-																											$elm$json$Json$Encode$float($.bend)),
-																											_Utils_Tuple2(
-																											'color',
-																											$elm$json$Json$Encode$string($.color)),
-																											_Utils_Tuple2(
-																											'dashed',
-																											$elm$json$Json$Encode$bool($.dashed)),
-																											_Utils_Tuple2(
-																											'head',
-																											$elm$json$Json$Encode$string($.head)),
-																											_Utils_Tuple2(
-																											'headColor',
-																											$elm$json$Json$Encode$string($.headColor)),
-																											_Utils_Tuple2(
-																											'kind',
-																											$elm$json$Json$Encode$string($.kind)),
-																											_Utils_Tuple2(
-																											'marker',
-																											$elm$json$Json$Encode$string($.marker)),
-																											_Utils_Tuple2(
-																											'position',
-																											$elm$json$Json$Encode$float($.position)),
-																											_Utils_Tuple2(
-																											'tail',
-																											$elm$json$Json$Encode$string($.tail)),
-																											_Utils_Tuple2(
-																											'tailColor',
-																											$elm$json$Json$Encode$string($.tailColor)),
-																											_Utils_Tuple2(
-																											'wavy',
-																											$elm$json$Json$Encode$bool($.wavy))
-																										]));
-																							}($.style)),
+																							$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
 																							_Utils_Tuple2(
 																							'zindex',
 																							$elm$json$Json$Encode$int($.zindex))
@@ -29442,11 +29278,8 @@ var $author$project$Main$clipboardWriteGraph = _Platform_outgoingPort(
 																					_List_fromArray(
 																						[
 																							_Utils_Tuple2(
-																							'isCoqValidated',
-																							$elm$json$Json$Encode$bool($.isCoqValidated)),
-																							_Utils_Tuple2(
-																							'isMath',
-																							$elm$json$Json$Encode$bool($.isMath)),
+																							'flags',
+																							$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
 																							_Utils_Tuple2(
 																							'label',
 																							$elm$json$Json$Encode$string($.label)),
@@ -29540,55 +29373,11 @@ var $author$project$Main$clipboardWriteLatex = _Platform_outgoingPort(
 																									_List_fromArray(
 																										[
 																											_Utils_Tuple2(
-																											'kind',
-																											$elm$json$Json$Encode$string($.kind)),
-																											_Utils_Tuple2(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
 																											_Utils_Tuple2(
 																											'style',
-																											function ($) {
-																												return $elm$json$Json$Encode$object(
-																													_List_fromArray(
-																														[
-																															_Utils_Tuple2(
-																															'alignment',
-																															$elm$json$Json$Encode$string($.alignment)),
-																															_Utils_Tuple2(
-																															'bend',
-																															$elm$json$Json$Encode$float($.bend)),
-																															_Utils_Tuple2(
-																															'color',
-																															$elm$json$Json$Encode$string($.color)),
-																															_Utils_Tuple2(
-																															'dashed',
-																															$elm$json$Json$Encode$bool($.dashed)),
-																															_Utils_Tuple2(
-																															'head',
-																															$elm$json$Json$Encode$string($.head)),
-																															_Utils_Tuple2(
-																															'headColor',
-																															$elm$json$Json$Encode$string($.headColor)),
-																															_Utils_Tuple2(
-																															'kind',
-																															$elm$json$Json$Encode$string($.kind)),
-																															_Utils_Tuple2(
-																															'marker',
-																															$elm$json$Json$Encode$string($.marker)),
-																															_Utils_Tuple2(
-																															'position',
-																															$elm$json$Json$Encode$float($.position)),
-																															_Utils_Tuple2(
-																															'tail',
-																															$elm$json$Json$Encode$string($.tail)),
-																															_Utils_Tuple2(
-																															'tailColor',
-																															$elm$json$Json$Encode$string($.tailColor)),
-																															_Utils_Tuple2(
-																															'wavy',
-																															$elm$json$Json$Encode$bool($.wavy))
-																														]));
-																											}($.style)),
+																											$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
 																											_Utils_Tuple2(
 																											'zindex',
 																											$elm$json$Json$Encode$int($.zindex))
@@ -29622,11 +29411,8 @@ var $author$project$Main$clipboardWriteLatex = _Platform_outgoingPort(
 																									_List_fromArray(
 																										[
 																											_Utils_Tuple2(
-																											'isCoqValidated',
-																											$elm$json$Json$Encode$bool($.isCoqValidated)),
-																											_Utils_Tuple2(
-																											'isMath',
-																											$elm$json$Json$Encode$bool($.isMath)),
+																											'flags',
+																											$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
 																											_Utils_Tuple2(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
@@ -29851,55 +29637,11 @@ var $author$project$Main$generateProofJs = _Platform_outgoingPort(
 																									_List_fromArray(
 																										[
 																											_Utils_Tuple2(
-																											'kind',
-																											$elm$json$Json$Encode$string($.kind)),
-																											_Utils_Tuple2(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
 																											_Utils_Tuple2(
 																											'style',
-																											function ($) {
-																												return $elm$json$Json$Encode$object(
-																													_List_fromArray(
-																														[
-																															_Utils_Tuple2(
-																															'alignment',
-																															$elm$json$Json$Encode$string($.alignment)),
-																															_Utils_Tuple2(
-																															'bend',
-																															$elm$json$Json$Encode$float($.bend)),
-																															_Utils_Tuple2(
-																															'color',
-																															$elm$json$Json$Encode$string($.color)),
-																															_Utils_Tuple2(
-																															'dashed',
-																															$elm$json$Json$Encode$bool($.dashed)),
-																															_Utils_Tuple2(
-																															'head',
-																															$elm$json$Json$Encode$string($.head)),
-																															_Utils_Tuple2(
-																															'headColor',
-																															$elm$json$Json$Encode$string($.headColor)),
-																															_Utils_Tuple2(
-																															'kind',
-																															$elm$json$Json$Encode$string($.kind)),
-																															_Utils_Tuple2(
-																															'marker',
-																															$elm$json$Json$Encode$string($.marker)),
-																															_Utils_Tuple2(
-																															'position',
-																															$elm$json$Json$Encode$float($.position)),
-																															_Utils_Tuple2(
-																															'tail',
-																															$elm$json$Json$Encode$string($.tail)),
-																															_Utils_Tuple2(
-																															'tailColor',
-																															$elm$json$Json$Encode$string($.tailColor)),
-																															_Utils_Tuple2(
-																															'wavy',
-																															$elm$json$Json$Encode$bool($.wavy))
-																														]));
-																											}($.style)),
+																											$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
 																											_Utils_Tuple2(
 																											'zindex',
 																											$elm$json$Json$Encode$int($.zindex))
@@ -29933,11 +29675,8 @@ var $author$project$Main$generateProofJs = _Platform_outgoingPort(
 																									_List_fromArray(
 																										[
 																											_Utils_Tuple2(
-																											'isCoqValidated',
-																											$elm$json$Json$Encode$bool($.isCoqValidated)),
-																											_Utils_Tuple2(
-																											'isMath',
-																											$elm$json$Json$Encode$bool($.isMath)),
+																											'flags',
+																											$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
 																											_Utils_Tuple2(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
@@ -36356,7 +36095,6 @@ var $elm$parser$Parser$Advanced$finalizeInt = F5(
 				A2($elm$parser$Parser$Advanced$bumpOffset, endOffset, s));
 		}
 	});
-var $elm$core$String$toFloat = _String_toFloat;
 var $elm$parser$Parser$Advanced$finalizeFloat = F6(
 	function (invalid, expecting, intSettings, floatSettings, intPair, s) {
 		var intOffset = intPair.a;
@@ -36800,7 +36538,7 @@ var $author$project$HtmlDefs$textHtml = function (t) {
 		return _List_Nil;
 	}
 };
-var $author$project$HtmlDefs$introHtml = $author$project$HtmlDefs$textHtml('\n   <p>\n            A vi-inspired diagram editor, with              \n            (latex) labelled nodes and edges, tested with Firefox, written in <a href="https://elm-lang.org/">Elm</a> (see the code on \n        <a href="https://github.com/amblafont/graph-editor-web">github</a>).\n            Multiple collaboration is supported (check the <a href="https://github.com/amblafont/graph-editor-web/blob/master/README.md">README</a>).\n	    For a short description, see <a href="https://hal.science/hal-04407118v1">here</a>.\n        For a video demonstrating the mechanisation features, see <a href="https://github.com/amblafont/vscode-yade-example/releases/download/v0.1/demo-yade-example.mp4">here</a>.\n	    </p>\n	    <p>\n	    For LaTeX export, press (capital) \'X\' after selection. The output code relies on\n      a custom <a href="https://raw.githubusercontent.com/amblafont/graph-editor-web/master/tools/yade.sty">latex package</a>.\n	    </p>\n	    <p>\n            Read the tutorial first, and then try some <a href="?scenario=exercise1">exercise</a>.\n        </p>');
+var $author$project$HtmlDefs$introHtml = $author$project$HtmlDefs$textHtml('\n   <p>\n            A vi-inspired diagram editor, with              \n            (latex) labelled nodes and edges, tested with Chrome (doesn\'t work properly in Safari), written in <a href="https://elm-lang.org/">Elm</a> (see the code on \n        <a href="https://github.com/amblafont/graph-editor-web">github</a>).\n            Multiple collaboration is supported (check the <a href="https://github.com/amblafont/graph-editor-web/blob/master/README.md">README</a>).\n	    For a short description, see <a href="https://hal.science/hal-04407118v1">here</a>.\n        For a video demonstrating the mechanisation features, see <a href="https://github.com/amblafont/vscode-yade-example/releases/download/v0.1/demo-yade-example.mp4">here</a>.\n	    </p>\n	    <p>\n	    For LaTeX export, press (capital) \'X\' after selection. The output code relies on\n      a custom <a href="https://raw.githubusercontent.com/amblafont/graph-editor-web/master/tools/yade.sty">latex package</a>.\n	    </p>\n	    <p>\n            Read the tutorial first, and then try some <a href="?scenario=exercise1">exercise</a>.\n        </p>');
 var $author$project$Modes$isResizeMode = function (m) {
 	if (m.$ === 'ResizeMode') {
 		return true;
