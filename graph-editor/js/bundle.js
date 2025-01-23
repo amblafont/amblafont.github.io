@@ -141,7 +141,7 @@ var Bundle = (() => {
       return void 0;
     }
   }
-  function parsePrefix(line, remainder_arg) {
+  function parsePrefix(prefix, line, remainder_arg) {
     let remainder = [...remainder_arg];
     if (remainder.length == 0) {
       return [];
@@ -152,9 +152,9 @@ var Bundle = (() => {
     }
     let head = remainder.shift().trim();
     if (head === "") {
-      parsePrefix(linestrip, remainder);
+      parsePrefix(prefix, linestrip, remainder);
     }
-    if (linestrip === head) {
+    if (linestrip === head || linestrip === (prefix + head).trim()) {
       return remainder;
     } else {
       return null;
@@ -274,25 +274,26 @@ var Bundle = (() => {
     let remainder = [];
     let index = 0;
     let line = "";
-    let content = void 0;
+    let magicInfo = void 0;
     let lineNum = 0;
     let magicLineNumber = 0;
     while (line !== false && remainder !== null && remainder.length == 0) {
       index++;
-      content = void 0;
-      while (content === void 0) {
+      magicInfo = void 0;
+      while (magicInfo === void 0) {
         line = readLine(file_lines);
         lineNum++;
         if (line === false)
           break;
-        content = parseMagic(config.magic, line)?.content;
+        magicInfo = parseMagic(config.magic, line);
       }
       magicLineNumber = lineNum;
-      if (line === false)
+      if (line === false || magicInfo === void 0)
         break;
+      let content2 = magicInfo.content;
       console.log("Graph found");
-      if (content !== void 0 && config.externalOutput && contentIsFile(content)) {
-        let diagFile2 = content;
+      if (config.externalOutput && contentIsFile(content2)) {
+        let diagFile2 = content2;
         let outputFile = outputFileName(config, diagFile2);
         let checkExist = await checkFileExistsFromPath(d, outputFile);
         let rfile = contentToFileName(config, diagFile2);
@@ -318,12 +319,13 @@ var Bundle = (() => {
         if (line === false)
           break;
         lineNum++;
-        remainder = parsePrefix(line, remainder);
+        remainder = parsePrefix(magicInfo.prefix, line, remainder);
       }
     }
-    if (!((remainder === null || remainder.length > 0) && content !== void 0)) {
+    if (!((remainder === null || remainder.length > 0) && magicInfo !== void 0)) {
       return false;
     }
+    let content = magicInfo.content;
     console.log("do something with " + content);
     let diagFile = null;
     if (contentIsFile(content)) {
