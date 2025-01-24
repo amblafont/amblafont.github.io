@@ -7997,7 +7997,12 @@ var $author$project$Format$Version16$toNextStyle = function (_v0) {
 					A2(enc2, $author$project$Format$Version17$positionFlag, position),
 					_List_fromArray(
 						[
-							color,
+							A2(
+							prefix,
+							function ($) {
+								return $.color;
+							},
+							color),
 							A2(
 							prefix,
 							function ($) {
