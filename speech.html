@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcription Live</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+        }
+        #transcription {
+            border: 1px solid #ccc;
+            padding: 15px;
+            min-height: 100px;
+            background: #f9f9f9;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+            border: none;
+            background: #007BFF;
+            color: white;
+            border-radius: 5px;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>Transcription live pour vieux</h1>
+    <button id="increase-font">Augmenter la taille de la police</button>
+    <button id="decrease-font">Diminuer la taille de la police</button>
+    <div id="transcription">La transcription s'affichera ici...</div>
+   
+
+    <script>
+        const increaseFontBtn = document.getElementById("increase-font");
+        const decreaseFontBtn = document.getElementById("decrease-font");
+
+        increaseFontBtn.addEventListener("click", () => {
+            const currentSize = window.getComputedStyle(transcriptionDiv).fontSize;
+            const newSize = parseFloat(currentSize) + 2;
+            transcriptionDiv.style.fontSize = newSize + "px";
+        });
+
+        decreaseFontBtn.addEventListener("click", () => {
+            const currentSize = window.getComputedStyle(transcriptionDiv).fontSize;
+            const newSize = parseFloat(currentSize) - 2;
+            transcriptionDiv.style.fontSize = newSize + "px";
+        });
+        const startBtn = document.getElementById("start");
+        const stopBtn = document.getElementById("stop");
+        const transcriptionDiv = document.getElementById("transcription");
+
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = "fr-FR";
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        recognition.onresult = (event) => {
+            let transcript = "";
+            for (let i = 0; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript + " ";
+            }
+            transcriptionDiv.innerText = transcript.trim();
+            window.scrollTo(0, document.body.scrollHeight);
+        };
+
+        recognition.onerror = (event) => {
+            console.error("Erreur de reconnaissance vocale:", event.error);
+        };
+
+        recognition.start();
+
+    </script>
+</body>
+</html>
