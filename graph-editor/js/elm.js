@@ -5066,7 +5066,6 @@ var $author$project$Model$createModel = function (_v0) {
 	var saveLoadButtons = _v0.saveLoadButtons;
 	var g = $author$project$Polygraph$empty;
 	return {
-		alternativeLatex: true,
 		autoSave: true,
 		defaultGridSize: defaultGridSize,
 		graphInfo: {
@@ -6562,6 +6561,12 @@ var $author$project$Format$Version17$Position = function (a) {
 var $author$project$Format$Version17$Pullshout = function (a) {
 	return {$: 'Pullshout', a: a};
 };
+var $author$project$Format$Version17$ShiftSource = function (a) {
+	return {$: 'ShiftSource', a: a};
+};
+var $author$project$Format$Version17$ShiftTarget = function (a) {
+	return {$: 'ShiftTarget', a: a};
+};
 var $author$project$Format$Version17$TailColor = function (a) {
 	return {$: 'TailColor', a: a};
 };
@@ -6854,6 +6859,13 @@ var $author$project$ArrowStyle$headCodec = function () {
 					$author$project$ArrowStyle$TwoHeads,
 					$author$project$Codec$customEnum(split)))));
 }();
+var $author$project$Format$Version17$intCodec = A2(
+	$author$project$Codec$build,
+	$elm$core$String$fromInt,
+	A2(
+		$elm$core$Basics$composeR,
+		$elm$core$String$toInt,
+		$elm$core$Maybe$withDefault(0)));
 var $author$project$ArrowStyle$DoubleArrow = {$: 'DoubleArrow'};
 var $author$project$ArrowStyle$NoneArrow = {$: 'NoneArrow'};
 var $author$project$ArrowStyle$NormalArrow = {$: 'NormalArrow'};
@@ -6918,7 +6930,7 @@ var $author$project$Codec$prefixVariant0 = F4(
 				setTag: c.setTag
 			});
 	});
-var $author$project$Format$Version17$prefixes = {adjunction: 'adjunction', alignment: 'alignment ', bend: 'bend ', color: 'color ', dashed: 'dashed', head: 'head ', headColor: 'headColor ', kind: 'kind ', marker: 'marker ', position: 'position ', pullshout: 'pullshout ', tail: 'tail ', tailColor: 'tailColor ', unrecognized: 'unrecognized', wavy: 'wavy'};
+var $author$project$Format$Version17$prefixes = {adjunction: 'adjunction', alignment: 'alignment ', bend: 'bend ', color: 'color ', dashed: 'dashed', head: 'head ', headColor: 'headColor ', kind: 'kind ', marker: 'marker ', position: 'position ', pullshout: 'pullshout ', shiftSource: 'shiftSource ', shiftTarget: 'shiftTarget ', tail: 'tail ', tailColor: 'tailColor ', unrecognized: 'unrecognized', wavy: 'wavy'};
 var $author$project$Format$Version17$pullshoutOffsetCodec = A2(
 	$author$project$Codec$build,
 	function (_v0) {
@@ -7001,51 +7013,61 @@ var $author$project$Format$Version17$edgeFlagCodec = function () {
 												return function (color) {
 													return function (headcolor) {
 														return function (tailcolor) {
-															return function (unrecognized) {
-																return function (v) {
-																	switch (v.$) {
-																		case 'Dashed':
-																			return dashed;
-																		case 'Marker':
-																			var s = v.a;
-																			return marker(s);
-																		case 'Pullshout':
-																			var r = v.a;
-																			return pullshout(r);
-																		case 'Bend':
-																			var f = v.a;
-																			return bend(f);
-																		case 'Position':
-																			var f = v.a;
-																			return position(f);
-																		case 'Adjunction':
-																			return adjunction;
-																		case 'Wavy':
-																			return wavy;
-																		case 'Kind':
-																			var k = v.a;
-																			return kind(k);
-																		case 'HeadStyle':
-																			var s = v.a;
-																			return headstyle(s);
-																		case 'TailStyle':
-																			var s = v.a;
-																			return tailstyle(s);
-																		case 'Alignment':
-																			var s = v.a;
-																			return alignment(s);
-																		case 'Unrecognized':
-																			return unrecognized;
-																		case 'Color':
-																			var c = v.a;
-																			return color(c);
-																		case 'HeadColor':
-																			var c = v.a;
-																			return headcolor(c);
-																		default:
-																			var c = v.a;
-																			return tailcolor(c);
-																	}
+															return function (shiftSource) {
+																return function (shiftTarget) {
+																	return function (unrecognized) {
+																		return function (v) {
+																			switch (v.$) {
+																				case 'Dashed':
+																					return dashed;
+																				case 'Marker':
+																					var s = v.a;
+																					return marker(s);
+																				case 'Pullshout':
+																					var r = v.a;
+																					return pullshout(r);
+																				case 'Bend':
+																					var f = v.a;
+																					return bend(f);
+																				case 'Position':
+																					var f = v.a;
+																					return position(f);
+																				case 'Adjunction':
+																					return adjunction;
+																				case 'Wavy':
+																					return wavy;
+																				case 'Kind':
+																					var k = v.a;
+																					return kind(k);
+																				case 'HeadStyle':
+																					var s = v.a;
+																					return headstyle(s);
+																				case 'TailStyle':
+																					var s = v.a;
+																					return tailstyle(s);
+																				case 'Alignment':
+																					var s = v.a;
+																					return alignment(s);
+																				case 'Unrecognized':
+																					return unrecognized;
+																				case 'Color':
+																					var c = v.a;
+																					return color(c);
+																				case 'HeadColor':
+																					var c = v.a;
+																					return headcolor(c);
+																				case 'TailColor':
+																					var c = v.a;
+																					return tailcolor(c);
+																				case 'ShiftSource':
+																					var c = v.a;
+																					return shiftSource(c);
+																				default:
+																					var c = v.a;
+																					return shiftTarget(c);
+																			}
+																		};
+																	};
 																};
 															};
 														};
@@ -7071,72 +7093,82 @@ var $author$project$Format$Version17$edgeFlagCodec = function () {
 			$author$project$Format$Version17$Unrecognized,
 			A4(
 				$author$project$Codec$prefixVariant0,
-				$author$project$Format$Version17$prefixes.tailColor,
-				$author$project$Format$Version17$TailColor,
-				$author$project$Drawing$Color$codec,
+				$author$project$Format$Version17$prefixes.shiftTarget,
+				$author$project$Format$Version17$ShiftTarget,
+				$author$project$Format$Version17$intCodec,
 				A4(
 					$author$project$Codec$prefixVariant0,
-					$author$project$Format$Version17$prefixes.headColor,
-					$author$project$Format$Version17$HeadColor,
-					$author$project$Drawing$Color$codec,
+					$author$project$Format$Version17$prefixes.shiftSource,
+					$author$project$Format$Version17$ShiftSource,
+					$author$project$Format$Version17$intCodec,
 					A4(
 						$author$project$Codec$prefixVariant0,
-						$author$project$Format$Version17$prefixes.color,
-						$author$project$Format$Version17$Color,
+						$author$project$Format$Version17$prefixes.tailColor,
+						$author$project$Format$Version17$TailColor,
 						$author$project$Drawing$Color$codec,
 						A4(
 							$author$project$Codec$prefixVariant0,
-							$author$project$Format$Version17$prefixes.alignment,
-							$author$project$Format$Version17$Alignment,
-							$author$project$ArrowStyle$alignmentCodec,
+							$author$project$Format$Version17$prefixes.headColor,
+							$author$project$Format$Version17$HeadColor,
+							$author$project$Drawing$Color$codec,
 							A4(
 								$author$project$Codec$prefixVariant0,
-								$author$project$Format$Version17$prefixes.tail,
-								$author$project$Format$Version17$TailStyle,
-								$author$project$ArrowStyle$tailCodec,
+								$author$project$Format$Version17$prefixes.color,
+								$author$project$Format$Version17$Color,
+								$author$project$Drawing$Color$codec,
 								A4(
 									$author$project$Codec$prefixVariant0,
-									$author$project$Format$Version17$prefixes.head,
-									$author$project$Format$Version17$HeadStyle,
-									$author$project$ArrowStyle$headCodec,
+									$author$project$Format$Version17$prefixes.alignment,
+									$author$project$Format$Version17$Alignment,
+									$author$project$ArrowStyle$alignmentCodec,
 									A4(
 										$author$project$Codec$prefixVariant0,
-										$author$project$Format$Version17$prefixes.kind,
-										$author$project$Format$Version17$Kind,
-										$author$project$ArrowStyle$kindCodec,
-										A3(
-											$author$project$Codec$variant0,
-											$author$project$Format$Version17$prefixes.wavy,
-											$author$project$Format$Version17$Wavy,
-											A3(
-												$author$project$Codec$variant0,
-												$author$project$Format$Version17$prefixes.adjunction,
-												$author$project$Format$Version17$Adjunction,
-												A4(
-													$author$project$Codec$prefixVariant0,
-													$author$project$Format$Version17$prefixes.position,
-													$author$project$Format$Version17$Position,
-													$author$project$Format$Version17$floatCodec,
-													A4(
-														$author$project$Codec$prefixVariant0,
-														$author$project$Format$Version17$prefixes.bend,
-														$author$project$Format$Version17$Bend,
-														$author$project$Format$Version17$floatCodec,
+										$author$project$Format$Version17$prefixes.tail,
+										$author$project$Format$Version17$TailStyle,
+										$author$project$ArrowStyle$tailCodec,
+										A4(
+											$author$project$Codec$prefixVariant0,
+											$author$project$Format$Version17$prefixes.head,
+											$author$project$Format$Version17$HeadStyle,
+											$author$project$ArrowStyle$headCodec,
+											A4(
+												$author$project$Codec$prefixVariant0,
+												$author$project$Format$Version17$prefixes.kind,
+												$author$project$Format$Version17$Kind,
+												$author$project$ArrowStyle$kindCodec,
+												A3(
+													$author$project$Codec$variant0,
+													$author$project$Format$Version17$prefixes.wavy,
+													$author$project$Format$Version17$Wavy,
+													A3(
+														$author$project$Codec$variant0,
+														$author$project$Format$Version17$prefixes.adjunction,
+														$author$project$Format$Version17$Adjunction,
 														A4(
 															$author$project$Codec$prefixVariant0,
-															$author$project$Format$Version17$prefixes.pullshout,
-															$author$project$Format$Version17$Pullshout,
-															$author$project$Format$Version17$pullshoutOffsetCodec,
+															$author$project$Format$Version17$prefixes.position,
+															$author$project$Format$Version17$Position,
+															$author$project$Format$Version17$floatCodec,
 															A4(
 																$author$project$Codec$prefixVariant0,
-																$author$project$Format$Version17$prefixes.marker,
-																$author$project$Format$Version17$Marker,
-																$author$project$Codec$identity,
-																A3(
-																	$author$project$Codec$variant0,
-																	$author$project$Format$Version17$prefixes.dashed,
-																	$author$project$Format$Version17$Dashed,
-																	$author$project$Codec$customEnum(split)))))))))))))))));
+																$author$project$Format$Version17$prefixes.bend,
+																$author$project$Format$Version17$Bend,
+																$author$project$Format$Version17$floatCodec,
+																A4(
+																	$author$project$Codec$prefixVariant0,
+																	$author$project$Format$Version17$prefixes.pullshout,
+																	$author$project$Format$Version17$Pullshout,
+																	$author$project$Format$Version17$pullshoutOffsetCodec,
+																	A4(
+																		$author$project$Codec$prefixVariant0,
+																		$author$project$Format$Version17$prefixes.marker,
+																		$author$project$Format$Version17$Marker,
+																		$author$project$Codec$identity,
+																		A3(
+																			$author$project$Codec$variant0,
+																			$author$project$Format$Version17$prefixes.dashed,
+																			$author$project$Format$Version17$Dashed,
+																			$author$project$Codec$customEnum(split)))))))))))))))))));
 }();
 var $author$project$Format$Version17$addFlag = F2(
 	function (flag, l) {
@@ -7367,6 +7399,30 @@ var $author$project$Format$Version17$positionFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
+var $author$project$Format$Version17$shiftSourceFlag = A3(
+	$author$project$Format$Version17$edgeMaybeFlagCodec,
+	0,
+	$author$project$Format$Version17$ShiftSource,
+	function (flag) {
+		if (flag.$ === 'ShiftSource') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Version17$shiftTargetFlag = A3(
+	$author$project$Format$Version17$edgeMaybeFlagCodec,
+	0,
+	$author$project$Format$Version17$ShiftTarget,
+	function (flag) {
+		if (flag.$ === 'ShiftTarget') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
 var $author$project$Format$Version17$tailFlag = A3(
 	$author$project$Format$Version17$edgeMaybeFlagCodec,
 	$author$project$ArrowStyle$DefaultTail,
@@ -7410,95 +7466,76 @@ var $author$project$Format$Version17$arrowStyleCodec = function () {
 					A3(
 						flagField,
 						function ($) {
-							return $.labelPosition;
+							return $.shiftTarget;
 						},
-						$author$project$Format$Version17$positionFlag,
+						$author$project$Format$Version17$shiftTargetFlag,
 						A3(
 							flagField,
 							function ($) {
-								return $.labelAlignment;
+								return $.shiftSource;
 							},
-							$author$project$Format$Version17$alignmentFlag,
+							$author$project$Format$Version17$shiftSourceFlag,
 							A3(
 								flagField,
 								function ($) {
-									return $.bend;
+									return $.labelPosition;
 								},
-								$author$project$Format$Version17$bendFlag,
+								$author$project$Format$Version17$positionFlag,
 								A3(
 									flagField,
 									function ($) {
-										return $.dashed;
+										return $.labelAlignment;
 									},
-									$author$project$Format$Version17$dashedFlag,
+									$author$project$Format$Version17$alignmentFlag,
 									A3(
 										flagField,
 										function ($) {
-											return $.kind;
+											return $.bend;
 										},
-										$author$project$Format$Version17$kindFlag,
+										$author$project$Format$Version17$bendFlag,
 										A3(
 											flagField,
 											function ($) {
-												return $.head;
+												return $.dashed;
 											},
-											$author$project$Format$Version17$headFlag,
+											$author$project$Format$Version17$dashedFlag,
 											A3(
 												flagField,
 												function ($) {
-													return $.tail;
+													return $.kind;
 												},
-												$author$project$Format$Version17$tailFlag,
-												A2(
-													$author$project$Codec$object,
-													function (tail) {
-														return function (head) {
-															return function (kind) {
-																return function (dashed) {
-																	return function (bend) {
-																		return function (alignment) {
-																			return function (position) {
-																				return function (colors) {
-																					return function (marker) {
-																						return function (wavy) {
-																							return {bend: bend, color: colors.main, dashed: dashed, head: head, headColor: colors.head, kind: kind, labelAlignment: alignment, labelPosition: position, marker: marker, tail: tail, tailColor: colors.tail, wavy: wavy};
-																						};
-																					};
-																				};
-																			};
-																		};
-																	};
-																};
-															};
-														};
+												$author$project$Format$Version17$kindFlag,
+												A3(
+													flagField,
+													function ($) {
+														return $.head;
 													},
-													function (tail) {
-														return function (head) {
-															return function (kind) {
-																return function (dashed) {
-																	return function (bend) {
-																		return function (alignment) {
-																			return function (position) {
-																				return function (colors) {
-																					return function (marker) {
-																						return function (wavy) {
-																							return _Utils_ap(
-																								position,
-																								_Utils_ap(
-																									bend,
-																									_Utils_ap(
-																										marker,
-																										_Utils_ap(
-																											colors,
-																											_Utils_ap(
-																												dashed,
-																												_Utils_ap(
-																													alignment,
-																													_Utils_ap(
-																														tail,
-																														_Utils_ap(
-																															head,
-																															_Utils_ap(kind, wavy)))))))));
+													$author$project$Format$Version17$headFlag,
+													A3(
+														flagField,
+														function ($) {
+															return $.tail;
+														},
+														$author$project$Format$Version17$tailFlag,
+														A2(
+															$author$project$Codec$object,
+															function (tail) {
+																return function (head) {
+																	return function (kind) {
+																		return function (dashed) {
+																			return function (bend) {
+																				return function (alignment) {
+																					return function (position) {
+																						return function (shiftSource) {
+																							return function (shiftTarget) {
+																								return function (colors) {
+																									return function (marker) {
+																										return function (wavy) {
+																											return {bend: bend, color: colors.main, dashed: dashed, head: head, headColor: colors.head, kind: kind, labelAlignment: alignment, labelPosition: position, marker: marker, shiftSource: shiftSource, shiftTarget: shiftTarget, tail: tail, tailColor: colors.tail, wavy: wavy};
+																										};
+																									};
+																								};
+																							};
 																						};
 																					};
 																				};
@@ -7506,9 +7543,52 @@ var $author$project$Format$Version17$arrowStyleCodec = function () {
 																		};
 																	};
 																};
-															};
-														};
-													}))))))))))));
+															},
+															function (tail) {
+																return function (head) {
+																	return function (kind) {
+																		return function (dashed) {
+																			return function (bend) {
+																				return function (alignment) {
+																					return function (position) {
+																						return function (shiftSource) {
+																							return function (shiftTarget) {
+																								return function (colors) {
+																									return function (marker) {
+																										return function (wavy) {
+																											return _Utils_ap(
+																												shiftSource,
+																												_Utils_ap(
+																													shiftTarget,
+																													_Utils_ap(
+																														position,
+																														_Utils_ap(
+																															bend,
+																															_Utils_ap(
+																																marker,
+																																_Utils_ap(
+																																	colors,
+																																	_Utils_ap(
+																																		dashed,
+																																		_Utils_ap(
+																																			alignment,
+																																			_Utils_ap(
+																																				tail,
+																																				_Utils_ap(
+																																					head,
+																																					_Utils_ap(kind, wavy)))))))))));
+																										};
+																									};
+																								};
+																							};
+																						};
+																					};
+																				};
+																			};
+																		};
+																	};
+																};
+															}))))))))))))));
 }();
 var $author$project$ArrowStyle$getStyle = function (_v0) {
 	var style = _v0.style;
@@ -17032,8 +17112,8 @@ var $author$project$Model$activateFirstTab = function (m) {
 					},
 					$elm$core$List$head(m.graphInfo.tabs)))));
 };
-var $author$project$Modes$ColorMode = function (a) {
-	return {$: 'ColorMode', a: a};
+var $author$project$Modes$CustomizeMode = function (a) {
+	return {$: 'CustomizeMode', a: a};
 };
 var $author$project$ArrowStyle$MainEdgePart = {$: 'MainEdgePart'};
 var $author$project$GraphDefs$isTrueSelection = function (g) {
@@ -17065,7 +17145,7 @@ var $author$project$GraphDefs$selectedEdges = function (g) {
 			$author$project$GraphDefs$fieldSelect(g)),
 		$author$project$Polygraph$edges(g));
 };
-var $author$project$Modes$Color$initialise = function (model) {
+var $author$project$Modes$Customize$initialise = function (model) {
 	var modelGraph = $author$project$Model$getActiveGraph(model);
 	var edges = $author$project$GraphDefs$selectedEdges(modelGraph);
 	return _Utils_eq(edges, _List_Nil) ? _Utils_update(
@@ -17073,11 +17153,11 @@ var $author$project$Modes$Color$initialise = function (model) {
 		{mode: $author$project$Modes$DefaultMode}) : _Utils_update(
 		model,
 		{
-			mode: $author$project$Modes$ColorMode(
+			mode: $author$project$Modes$CustomizeMode(
 				{edges: edges, mode: $author$project$ArrowStyle$MainEdgePart})
 		});
 };
-var $author$project$Modes$Color$fixModel = $author$project$Modes$Color$initialise;
+var $author$project$Modes$Customize$fixModel = $author$project$Modes$Customize$initialise;
 var $author$project$Modes$CutHead = function (a) {
 	return {$: 'CutHead', a: a};
 };
@@ -17310,11 +17390,11 @@ var $author$project$Command$fixModel = function (modeli) {
 				function (_v3) {
 					return A2($author$project$Modes$Rename$fixModel, model, state);
 				});
-		case 'ColorMode':
+		case 'CustomizeMode':
 			var ids = _v1.a;
 			return ifTabChanged(
 				function (_v4) {
-					return $author$project$Modes$Color$fixModel(model);
+					return $author$project$Modes$Customize$fixModel(model);
 				});
 		case 'CutHead':
 			var state = _v1.a;
@@ -19868,6 +19948,8 @@ var $author$project$EdgeShape$Bezier = function (a) {
 var $author$project$EdgeShape$HatShape = function (a) {
 	return {$: 'HatShape', a: a};
 };
+var $author$project$ArrowStyle$HeadPart = {$: 'HeadPart'};
+var $author$project$ArrowStyle$TailPart = {$: 'TailPart'};
 var $author$project$GraphDefs$defaultDims = function (s) {
 	var height = 16;
 	var size = 1;
@@ -19917,6 +19999,25 @@ var $author$project$Geometry$pad = F2(
 				_Utils_Tuple2(n2, n2)),
 			pos: pos
 		};
+	});
+var $author$project$Geometry$Point$lerp = F3(
+	function (_this, other, t) {
+		return A2(
+			$author$project$Geometry$Point$add,
+			_this,
+			A2(
+				$author$project$Geometry$Point$resize,
+				t,
+				A2($author$project$Geometry$Point$subtract, other, _this)));
+	});
+var $author$project$Geometry$QuadraticBezier$point = F2(
+	function (_v0, t) {
+		var from = _v0.from;
+		var to = _v0.to;
+		var controlPoint = _v0.controlPoint;
+		var p0 = A3($author$project$Geometry$Point$lerp, from, controlPoint, t);
+		var p1 = A3($author$project$Geometry$Point$lerp, controlPoint, to, t);
+		return A3($author$project$Geometry$Point$lerp, p0, p1, t);
 	});
 var $author$project$Geometry$Point$diamondPave = F3(
 	function (p1, p2, p3) {
@@ -20199,14 +20300,30 @@ var $author$project$Geometry$segmentRectBent = F3(
 		var bent_bis = _v0.c;
 		return A3($author$project$Geometry$segmentRectBent_aux, r1_bis, r2_bis, bent_bis);
 	});
+var $author$project$ArrowStyle$maxShift = 5;
+var $author$project$ArrowStyle$shiftRatio = function (s) {
+	return 0.5 + (s / (2 * $author$project$ArrowStyle$maxShift));
+};
+var $author$project$ArrowStyle$shiftRatioFromPart = F2(
+	function (s, part) {
+		switch (part.$) {
+			case 'HeadPart':
+				return $author$project$ArrowStyle$shiftRatio(s.shiftTarget);
+			case 'TailPart':
+				return $author$project$ArrowStyle$shiftRatio(s.shiftSource);
+			default:
+				return 0.5;
+		}
+	});
 var $author$project$GraphDefs$posGraph = function (g) {
 	var padding = 5;
+	var dummyBez = {
+		controlPoint: _Utils_Tuple2(1, 1),
+		from: _Utils_Tuple2(0, 0),
+		to: _Utils_Tuple2(2, 2)
+	};
 	var dummyExtrem = {
-		bez: {
-			controlPoint: _Utils_Tuple2(1, 1),
-			from: _Utils_Tuple2(0, 0),
-			to: _Utils_Tuple2(2, 2)
-		},
+		bez: dummyBez,
 		fromId: 0,
 		fromPos: _Utils_Tuple2(0, 0),
 		toPos: _Utils_Tuple2(2, 2)
@@ -20216,6 +20333,7 @@ var $author$project$GraphDefs$posGraph = function (g) {
 			return {
 				extrems: dummyExtrem,
 				id: id,
+				isArrow: false,
 				posDims: {
 					dims: _Utils_Tuple2(0, 0),
 					pos: pos
@@ -20236,11 +20354,34 @@ var $author$project$GraphDefs$posGraph = function (g) {
 				};
 			} else {
 				var l = _v4.a;
-				var q = A3($author$project$Geometry$segmentRectBent, n1.posDims, n2.posDims, l.style.bend);
+				var computePosDims = function (isSource) {
+					var _v5 = isSource ? _Utils_Tuple2(n1, $author$project$ArrowStyle$TailPart) : _Utils_Tuple2(n2, $author$project$ArrowStyle$HeadPart);
+					var n = _v5.a;
+					var part = _v5.b;
+					if (!n.isArrow) {
+						return n.posDims;
+					} else {
+						var oldPosDims = n.posDims;
+						return _Utils_update(
+							oldPosDims,
+							{
+								pos: A2(
+									$author$project$Geometry$QuadraticBezier$point,
+									n.extrems.bez,
+									A2($author$project$ArrowStyle$shiftRatioFromPart, l.style, part))
+							});
+					}
+				};
+				var q = A3(
+					$author$project$Geometry$segmentRectBent,
+					computePosDims(true),
+					computePosDims(false),
+					l.style.bend);
 				return {
 					acc: {
 						extrems: {bez: q, fromId: n1.id, fromPos: n1.posDims.pos, toPos: n2.posDims.pos},
 						id: id,
+						isArrow: true,
 						posDims: {
 							dims: A2(
 								$author$project$Geometry$Point$resize,
@@ -20282,6 +20423,7 @@ var $author$project$GraphDefs$posGraph = function (g) {
 						acc: {
 							extrems: dummyExtrem,
 							id: id,
+							isArrow: false,
 							posDims: A2(
 								$author$project$Geometry$pad,
 								padding,
@@ -20390,10 +20532,58 @@ var $author$project$Main$coqExport = F2(
 		var s = A2($author$project$Main$generateProofString, false, graph);
 		return (s === '') ? '(* No diagram found *)' : s;
 	});
-var $elm$core$String$concat = function (strings) {
-	return A2($elm$core$String$join, '', strings);
+var $author$project$Main$textNodesToLatex = function (nodes) {
+	return A2(
+		$elm$core$String$join,
+		'\n\n',
+		A2(
+			$elm$core$List$map,
+			function ($) {
+				return $.label;
+			},
+			A2(
+				$elm$core$List$sortBy,
+				function (_v0) {
+					var pos = _v0.pos;
+					return pos.b;
+				},
+				nodes)));
 };
-var $author$project$GraphDefs$edgeScaleFactor = 0.7;
+var $elm_community$maybe_extra$Maybe$Extra$isNothing = function (m) {
+	if (m.$ === 'Nothing') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $author$project$Drawing$keyPartition = function (_v0) {
+	var l = _v0.a;
+	var _v1 = A2(
+		$elm$core$List$partition,
+		A2(
+			$elm$core$Basics$composeR,
+			function ($) {
+				return $.key;
+			},
+			$elm_community$maybe_extra$Maybe$Extra$isNothing),
+		A2(
+			$elm$core$List$sortBy,
+			function ($) {
+				return $.zindex;
+			},
+			l));
+	var unkeyedList = _v1.a;
+	var keyedList = _v1.b;
+	return _Utils_Tuple2(unkeyedList, keyedList);
+};
+var $author$project$Drawing$dimToTikz = function (d) {
+	return $elm$core$String$fromFloat(d / (16 * 1.2)) + 'em';
+};
+var $author$project$Drawing$pointToTikz = function (_v0) {
+	var x = _v0.a;
+	var y = _v0.b;
+	return '(' + ($author$project$Drawing$dimToTikz(x) + (',' + ($author$project$Drawing$dimToTikz(0 - y) + ')')));
+};
 var $author$project$ArrowStyle$headTikzStyle = function (hd) {
 	switch (hd.$) {
 		case 'DefaultHead':
@@ -20441,271 +20631,6 @@ var $author$project$ArrowStyle$tikzStyle = function (stl) {
 				return 'linto, ';
 		}
 	}())))));
-};
-var $author$project$Tikz$encodeLabel = function (e) {
-	var _v0 = e.label.details;
-	if (_v0.$ === 'PullshoutEdge') {
-		return '';
-	} else {
-		var l = _v0.a;
-		var style = $author$project$ArrowStyle$getStyle(l);
-		var lbl = '${ ' + (l.label + '}$');
-		return function () {
-			var _v1 = style.labelAlignment;
-			switch (_v1.$) {
-				case 'Over':
-					return 'sloped, allow upside down, \"' + (lbl + '\" centered, ');
-				case 'Centre':
-					return 'labelonat={' + (l.label + ('}{' + ($elm$core$String$fromFloat(style.labelPosition) + '}, ')));
-				case 'Left':
-					return '\"' + (lbl + '\" auto=left, ');
-				default:
-					return '\"' + (lbl + '\" auto=right, ');
-			}
-		}() + ('pos=' + ($elm$core$String$fromFloat(style.labelPosition) + (', ' + $author$project$ArrowStyle$tikzStyle(style))));
-	}
-};
-var $author$project$Tikz$encodeEdgeTikZ = function (e) {
-	return '(' + ($elm$core$String$fromInt(e.from) + (') edge[' + ($author$project$Tikz$encodeLabel(e) + ('] (' + ($elm$core$String$fromInt(e.to) + ') \n')))));
-};
-var $author$project$Tikz$encodeFakeLabel = function (e) {
-	var _v0 = e.label.details;
-	if (_v0.$ === 'PullshoutEdge') {
-		return '';
-	} else {
-		var l = _v0.a;
-		return 'fore,' + $author$project$ArrowStyle$tikzStyle(l.style);
-	}
-};
-var $author$project$Tikz$encodeFakeEdgeTikZ = function (e) {
-	return '(' + ($elm$core$String$fromInt(e.from) + (') to[' + ($author$project$Tikz$encodeFakeLabel(e) + ('] node[coordinate](' + ($elm$core$String$fromInt(e.id) + ('){} (' + ($elm$core$String$fromInt(e.to) + ') \n')))))));
-};
-var $author$project$Tikz$dimToTikz = function (d) {
-	return d / (16 * 1.2);
-};
-var $author$project$Tikz$encodeNodeTikZ = F2(
-	function (sizeGrid, n) {
-		var _v0 = $author$project$GraphDefs$getNodePos(n.label);
-		var x = _v0.a;
-		var y = _v0.b;
-		var coord = function (u) {
-			return $author$project$Tikz$dimToTikz(u);
-		};
-		var label = (n.label.label === '') ? '\\bullet' : n.label.label;
-		return '\\node[inner sep=5pt] (' + ($elm$core$String$fromInt(n.id) + (') at (' + ($elm$core$String$fromFloat(
-			coord(x)) + ('em, ' + ($elm$core$String$fromFloat(
-			0 - coord(y)) + ('em) {' + ((n.label.isMath ? ('$' + (label + '$')) : label) + '} ; \n')))))));
-	});
-var $author$project$GraphDefs$getEdgeColor = function (e) {
-	var _v0 = e.details;
-	if (_v0.$ === 'PullshoutEdge') {
-		var color = _v0.a.color;
-		return color;
-	} else {
-		var l = _v0.a;
-		return l.style.color;
-	}
-};
-var $author$project$Tikz$encodePullshoutTikZ = F2(
-	function (g, e) {
-		var color = $author$project$GraphDefs$getEdgeColor(e.label);
-		var _v0 = _Utils_Tuple2(
-			A2($author$project$Polygraph$getEdge, e.from, g),
-			A2($author$project$Polygraph$getEdge, e.to, g));
-		if ((_v0.a.$ === 'Just') && (_v0.b.$ === 'Just')) {
-			var s = _v0.a.a;
-			var t = _v0.b.a;
-			var _v1 = _Utils_eq(s.to, t.to) ? _Utils_Tuple3(
-				$elm$core$String$fromInt(s.from),
-				$elm$core$String$fromInt(s.to),
-				$elm$core$String$fromInt(t.from)) : _Utils_Tuple3(
-				$elm$core$String$fromInt(s.to),
-				$elm$core$String$fromInt(s.from),
-				$elm$core$String$fromInt(t.to));
-			var a = _v1.a;
-			var b = _v1.b;
-			var c = _v1.c;
-			return '\\pullbackk{' + (a + ('}{' + (b + ('}{' + (c + ('}{draw,' + ($author$project$Drawing$Color$toString(color) + '} % \n')))))));
-		} else {
-			return 'raté!';
-		}
-	});
-var $author$project$Polygraph$computeDimensions = A4(
-	$author$project$Polygraph$mapRecAll,
-	$elm$core$Basics$always(0),
-	$elm$core$Tuple$second,
-	$elm$core$Basics$always($elm$core$Basics$identity),
-	F4(
-		function (_v0, n1, n2, e) {
-			return _Utils_Tuple2(
-				e,
-				1 + A2($elm$core$Basics$max, n1, n2));
-		}));
-var $author$project$Polygraph$normalise = function (g) {
-	var getDim = function (_v7) {
-		var o = _v7.b;
-		if (o.$ === 'NodeObj') {
-			return 0;
-		} else {
-			var _v6 = o.c;
-			var dim = _v6.b;
-			return dim;
-		}
-	};
-	var gWithDims = A2(
-		$elm$core$List$sortBy,
-		getDim,
-		$elm_community$intdict$IntDict$toList(
-			$author$project$Polygraph$graphRep(
-				$author$project$Polygraph$computeDimensions(g))));
-	var idDict = A3(
-		$elm$core$List$foldl,
-		F2(
-			function (_v4, d) {
-				var id = _v4.a;
-				return A3(
-					$elm_community$intdict$IntDict$insert,
-					id,
-					$elm_community$intdict$IntDict$size(d),
-					d);
-			}),
-		$elm_community$intdict$IntDict$empty,
-		gWithDims);
-	var getId = function (id) {
-		var _v3 = A2($elm_community$intdict$IntDict$get, id, idDict);
-		if (_v3.$ === 'Nothing') {
-			return id;
-		} else {
-			var i = _v3.a;
-			return i;
-		}
-	};
-	var updateId = function (o) {
-		if (o.$ === 'NodeObj') {
-			var l = o.a;
-			return $author$project$Polygraph$NodeObj(l);
-		} else {
-			var i1 = o.a;
-			var i2 = o.b;
-			var _v2 = o.c;
-			var e = _v2.a;
-			var dim = _v2.b;
-			return A3(
-				$author$project$Polygraph$EdgeObj,
-				getId(i1),
-				getId(i2),
-				e);
-		}
-	};
-	var newGraph = $elm_community$intdict$IntDict$fromList(
-		A2(
-			$elm$core$List$map,
-			function (_v0) {
-				var id = _v0.a;
-				var o = _v0.b;
-				return _Utils_Tuple2(
-					getId(id),
-					updateId(o));
-			},
-			gWithDims));
-	return $author$project$Polygraph$Graph(
-		{
-			graph: newGraph,
-			nextId: $elm_community$intdict$IntDict$size(idDict)
-		});
-};
-var $author$project$Tikz$graphToTikz = F2(
-	function (sizeGrid, g) {
-		var gnorm = $author$project$Polygraph$normalise(g);
-		var nodes = $author$project$Polygraph$nodes(gnorm);
-		var all_edges = $author$project$Polygraph$edges(gnorm);
-		var _v0 = A2(
-			$elm$core$List$partition,
-			A2($elm$core$Basics$composeR, $author$project$GraphDefs$filterEdgeNormal, $elm_community$maybe_extra$Maybe$Extra$isJust),
-			all_edges);
-		var edges = _v0.a;
-		var pullshouts = _v0.b;
-		var tikzNodes = $elm$core$String$concat(
-			A2(
-				$elm$core$List$map,
-				$author$project$Tikz$encodeNodeTikZ(sizeGrid),
-				nodes));
-		var tikzFakeEdges = '\\path \n' + ($elm$core$String$concat(
-			A2($elm$core$List$map, $author$project$Tikz$encodeFakeEdgeTikZ, edges)) + '; \n');
-		var tikzEdges = '\\path[->, transform shape, every edge quotes/.style={}, ' + ('scale=' + ($elm$core$String$fromFloat($author$project$GraphDefs$edgeScaleFactor) + ('] \n' + ($elm$core$String$concat(
-			A2(
-				$elm$core$List$map,
-				$author$project$Tikz$encodeEdgeTikZ,
-				A2(
-					$elm$core$List$sortBy,
-					A2(
-						$elm$core$Basics$composeR,
-						function ($) {
-							return $.label;
-						},
-						function ($) {
-							return $.zindex;
-						}),
-					edges))) + '; \n'))));
-		var tikzPullshouts = $elm$core$String$concat(
-			A2(
-				$elm$core$List$map,
-				$author$project$Tikz$encodePullshoutTikZ(gnorm),
-				pullshouts));
-		return '\\begin{tikzpicture}[every node/.style={outer sep=0pt,anchor=base,text height=1.2ex, text depth=0.25ex}] \n' + (tikzNodes + (tikzFakeEdges + (tikzEdges + (tikzPullshouts + '\\end{tikzpicture}'))));
-	});
-var $author$project$Main$textNodesToLatex = function (nodes) {
-	return A2(
-		$elm$core$String$join,
-		'\n\n',
-		A2(
-			$elm$core$List$map,
-			function ($) {
-				return $.label;
-			},
-			A2(
-				$elm$core$List$sortBy,
-				function (_v0) {
-					var pos = _v0.pos;
-					return pos.b;
-				},
-				nodes)));
-};
-var $elm_community$maybe_extra$Maybe$Extra$isNothing = function (m) {
-	if (m.$ === 'Nothing') {
-		return true;
-	} else {
-		return false;
-	}
-};
-var $author$project$Drawing$keyPartition = function (_v0) {
-	var l = _v0.a;
-	var _v1 = A2(
-		$elm$core$List$partition,
-		A2(
-			$elm$core$Basics$composeR,
-			function ($) {
-				return $.key;
-			},
-			$elm_community$maybe_extra$Maybe$Extra$isNothing),
-		A2(
-			$elm$core$List$sortBy,
-			function ($) {
-				return $.zindex;
-			},
-			l));
-	var unkeyedList = _v1.a;
-	var keyedList = _v1.b;
-	return _Utils_Tuple2(unkeyedList, keyedList);
-};
-var $author$project$Drawing$dimToTikz = function (d) {
-	return $elm$core$String$fromFloat(
-		$author$project$Tikz$dimToTikz(d)) + 'em';
-};
-var $author$project$Drawing$pointToTikz = function (_v0) {
-	var x = _v0.a;
-	var y = _v0.b;
-	return '(' + ($author$project$Drawing$dimToTikz(x) + (',' + ($author$project$Drawing$dimToTikz(0 - y) + ')')));
 };
 var $author$project$Geometry$Point$scale = F3(
 	function (sx, sy, _v0) {
@@ -21398,6 +21323,7 @@ var $author$project$Drawing$arrow = F2(
 					makeShape(normalArg)
 				]));
 	});
+var $author$project$GraphDefs$edgeScaleFactor = 0.7;
 var $author$project$GraphDrawing$drawStringMarker = F3(
 	function (color, marker, q) {
 		var pos = $author$project$Geometry$QuadraticBezier$middle(q);
@@ -21833,16 +21759,6 @@ var $author$project$Geometry$Bezier$new = F4(
 			w: w
 		};
 	});
-var $author$project$Geometry$Point$lerp = F3(
-	function (_this, other, t) {
-		return A2(
-			$author$project$Geometry$Point$add,
-			_this,
-			A2(
-				$author$project$Geometry$Point$resize,
-				t,
-				A2($author$project$Geometry$Point$subtract, other, _this)));
-	});
 var $author$project$Geometry$Bezier$point = F2(
 	function (_this, t) {
 		return A3(
@@ -22251,15 +22167,11 @@ var $author$project$Main$graphToTikz = F2(
 			_List_Nil)) {
 			return $author$project$Main$textNodesToLatex(nodes);
 		} else {
-			if (model.alternativeLatex) {
-				var d = A2(
-					$author$project$Main$toDrawing,
-					model,
-					$author$project$GraphDrawing$toDrawingGraph(graph));
-				return $author$project$Drawing$tikz(d);
-			} else {
-				return A2($author$project$Tikz$graphToTikz, model.defaultGridSize, graph);
-			}
+			var d = A2(
+				$author$project$Main$toDrawing,
+				model,
+				$author$project$GraphDrawing$toDrawingGraph(graph));
+			return $author$project$Drawing$tikz(d);
 		}
 	});
 var $author$project$GraphDefs$clearWeakSelection = function (g) {
@@ -22921,15 +22833,6 @@ var $author$project$Geometry$QuadraticBezier$orthoVectPx = F2(
 			from: A2($author$project$Geometry$Point$add, deltaFrom, from),
 			to: A2($author$project$Geometry$Point$add, deltaTo, to)
 		};
-	});
-var $author$project$Geometry$QuadraticBezier$point = F2(
-	function (_v0, t) {
-		var from = _v0.from;
-		var to = _v0.to;
-		var controlPoint = _v0.controlPoint;
-		var p0 = A3($author$project$Geometry$Point$lerp, from, controlPoint, t);
-		var p1 = A3($author$project$Geometry$Point$lerp, controlPoint, to, t);
-		return A3($author$project$Geometry$Point$lerp, p0, p1, t);
 	});
 var $author$project$Drawing$generateWavyPath = function (b) {
 	var from = b.from;
@@ -23926,6 +23829,90 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 					}($.info))
 				]));
 	});
+var $author$project$Polygraph$computeDimensions = A4(
+	$author$project$Polygraph$mapRecAll,
+	$elm$core$Basics$always(0),
+	$elm$core$Tuple$second,
+	$elm$core$Basics$always($elm$core$Basics$identity),
+	F4(
+		function (_v0, n1, n2, e) {
+			return _Utils_Tuple2(
+				e,
+				1 + A2($elm$core$Basics$max, n1, n2));
+		}));
+var $author$project$Polygraph$normalise = function (g) {
+	var getDim = function (_v7) {
+		var o = _v7.b;
+		if (o.$ === 'NodeObj') {
+			return 0;
+		} else {
+			var _v6 = o.c;
+			var dim = _v6.b;
+			return dim;
+		}
+	};
+	var gWithDims = A2(
+		$elm$core$List$sortBy,
+		getDim,
+		$elm_community$intdict$IntDict$toList(
+			$author$project$Polygraph$graphRep(
+				$author$project$Polygraph$computeDimensions(g))));
+	var idDict = A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v4, d) {
+				var id = _v4.a;
+				return A3(
+					$elm_community$intdict$IntDict$insert,
+					id,
+					$elm_community$intdict$IntDict$size(d),
+					d);
+			}),
+		$elm_community$intdict$IntDict$empty,
+		gWithDims);
+	var getId = function (id) {
+		var _v3 = A2($elm_community$intdict$IntDict$get, id, idDict);
+		if (_v3.$ === 'Nothing') {
+			return id;
+		} else {
+			var i = _v3.a;
+			return i;
+		}
+	};
+	var updateId = function (o) {
+		if (o.$ === 'NodeObj') {
+			var l = o.a;
+			return $author$project$Polygraph$NodeObj(l);
+		} else {
+			var i1 = o.a;
+			var i2 = o.b;
+			var _v2 = o.c;
+			var e = _v2.a;
+			var dim = _v2.b;
+			return A3(
+				$author$project$Polygraph$EdgeObj,
+				getId(i1),
+				getId(i2),
+				e);
+		}
+	};
+	var newGraph = $elm_community$intdict$IntDict$fromList(
+		A2(
+			$elm$core$List$map,
+			function (_v0) {
+				var id = _v0.a;
+				var o = _v0.b;
+				return _Utils_Tuple2(
+					getId(id),
+					updateId(o));
+			},
+			gWithDims));
+	return $author$project$Polygraph$Graph(
+		{
+			graph: newGraph,
+			nextId: $elm_community$intdict$IntDict$size(idDict)
+		});
+};
 var $author$project$Format$GraphInfo$normalise = function (gi) {
 	var idx = A2(
 		$elm$core$Maybe$withDefault,
@@ -24034,206 +24021,6 @@ var $author$project$GraphDefs$clearDims = function (g) {
 		},
 		g);
 };
-var $author$project$GraphDefs$keepNormalEdges = A2($author$project$Polygraph$filterMap, $elm$core$Maybe$Just, $author$project$GraphDefs$filterLabelNormal);
-var $author$project$ArrowStyle$quiverStyle = function (st) {
-	var _v0 = st;
-	var tail = _v0.tail;
-	var head = _v0.head;
-	var kind = _v0.kind;
-	var dashed = _v0.dashed;
-	var makeIf = F2(
-		function (b, x) {
-			return b ? _List_fromArray(
-				[x]) : _List_Nil;
-		});
-	var _double = $author$project$ArrowStyle$isDouble(st);
-	var headStyle = function () {
-		switch (head.$) {
-			case 'DefaultHead':
-				return _List_Nil;
-			case 'TwoHeads':
-				return _List_fromArray(
-					[
-						_Utils_Tuple2(
-						'head',
-						_List_fromArray(
-							[
-								_Utils_Tuple2('name', 'epi')
-							]))
-					]);
-			default:
-				return _List_fromArray(
-					[
-						_Utils_Tuple2(
-						'head',
-						_List_fromArray(
-							[
-								_Utils_Tuple2('name', 'none')
-							]))
-					]);
-		}
-	}();
-	var tailStyle = function () {
-		switch (tail.$) {
-			case 'DefaultTail':
-				return _List_Nil;
-			case 'Mapsto':
-				return _List_fromArray(
-					[
-						_Utils_Tuple2(
-						'tail',
-						_List_fromArray(
-							[
-								_Utils_Tuple2('name', 'maps to')
-							]))
-					]);
-			case 'Hook':
-				return _List_fromArray(
-					[
-						_Utils_Tuple2(
-						'tail',
-						_List_fromArray(
-							[
-								_Utils_Tuple2('name', 'hook'),
-								_Utils_Tuple2('side', 'top')
-							]))
-					]);
-			default:
-				return _List_fromArray(
-					[
-						_Utils_Tuple2(
-						'tail',
-						_List_fromArray(
-							[
-								_Utils_Tuple2('name', 'hook'),
-								_Utils_Tuple2('side', 'bottom')
-							]))
-					]);
-		}
-	}();
-	var style = A2(
-		$elm$core$List$map,
-		function (_v1) {
-			var x = _v1.a;
-			var y = _v1.b;
-			return _Utils_Tuple2(
-				x,
-				$elm$json$Json$Encode$object(
-					A2(
-						$elm$core$List$map,
-						function (_v2) {
-							var s = _v2.a;
-							var l = _v2.b;
-							return _Utils_Tuple2(
-								s,
-								$elm$json$Json$Encode$string(l));
-						},
-						y)));
-		},
-		_Utils_ap(
-			headStyle,
-			_Utils_ap(
-				tailStyle,
-				A2(
-					makeIf,
-					dashed,
-					_Utils_Tuple2(
-						'body',
-						_List_fromArray(
-							[
-								_Utils_Tuple2('name', 'dashed')
-							]))))));
-	return _Utils_ap(
-		A2(
-			makeIf,
-			_double,
-			_Utils_Tuple2(
-				'level',
-				$elm$json$Json$Encode$int(2))),
-		_Utils_ap(
-			_List_fromArray(
-				[
-					_Utils_Tuple2(
-					'style',
-					$elm$json$Json$Encode$object(style))
-				]),
-			_Utils_ap(
-				A2(
-					makeIf,
-					!(!st.bend),
-					_Utils_Tuple2(
-						'curve',
-						$elm$json$Json$Encode$int(
-							$elm$core$Basics$floor(st.bend * 10)))),
-				A2(
-					makeIf,
-					st.labelPosition !== 0.5,
-					_Utils_Tuple2(
-						'label_position',
-						$elm$json$Json$Encode$int(
-							$elm$core$Basics$floor(st.labelPosition * 100)))))));
-};
-var $author$project$GraphDefs$exportQuiver = F2(
-	function (sizeGrid, g) {
-		var gnorm = $author$project$Polygraph$normalise(
-			$author$project$GraphDefs$keepNormalEdges(g));
-		var nodes = $author$project$Polygraph$nodes(gnorm);
-		var edges = $author$project$Polygraph$edges(gnorm);
-		var coordInt = function (x) {
-			return $elm$json$Json$Encode$int(
-				$elm$core$Basics$floor(x / sizeGrid));
-		};
-		var encodePos = function (_v0) {
-			var x = _v0.a;
-			var y = _v0.b;
-			return _List_fromArray(
-				[
-					coordInt(x),
-					coordInt(y)
-				]);
-		};
-		var encodeNode = function (n) {
-			return A2(
-				$elm$json$Json$Encode$list,
-				$elm$core$Basics$identity,
-				_Utils_ap(
-					encodePos(n.label.pos),
-					_List_fromArray(
-						[
-							$elm$json$Json$Encode$string(
-							(n.label.label === '') ? '\\bullet' : n.label.label)
-						])));
-		};
-		var encodeEdge = function (e) {
-			return A2(
-				$elm$json$Json$Encode$list,
-				$elm$core$Basics$identity,
-				_List_fromArray(
-					[
-						$elm$json$Json$Encode$int(e.from),
-						$elm$json$Json$Encode$int(e.to),
-						$elm$json$Json$Encode$string(e.label.details.label),
-						$elm$json$Json$Encode$int(
-						_Utils_eq(e.label.details.style.labelAlignment, $author$project$Geometry$Right) ? 2 : 0),
-						$elm$json$Json$Encode$object(
-						$author$project$ArrowStyle$quiverStyle(e.label.details.style))
-					]));
-		};
-		var jnodes = A2($elm$core$List$map, encodeNode, nodes);
-		var jedges = A2($elm$core$List$map, encodeEdge, edges);
-		return A2(
-			$elm$json$Json$Encode$list,
-			$elm$core$Basics$identity,
-			_Utils_ap(
-				_List_fromArray(
-					[
-						$elm$json$Json$Encode$int(0),
-						$elm$json$Json$Encode$int(
-						$elm$core$List$length(nodes))
-					]),
-				_Utils_ap(jnodes, jedges)));
-	});
-var $author$project$Main$exportQuiver = _Platform_outgoingPort('exportQuiver', $elm$core$Basics$identity);
 var $author$project$GraphDefs$mapMaybeNormalEdge = F2(
 	function (f, e) {
 		var _v0 = e.details;
@@ -24928,7 +24715,7 @@ var $author$project$QuickInput$equalityParser = A2(
 			$elm$parser$Parser$spaces)),
 	$author$project$QuickInput$handSideParser);
 var $author$project$ArrowStyle$noMarker = '';
-var $author$project$ArrowStyle$empty = {bend: 0, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$DefaultHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, marker: $author$project$ArrowStyle$noMarker, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
+var $author$project$ArrowStyle$empty = {bend: 0, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$DefaultHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0, shiftTarget: 0, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
 var $author$project$Polygraph$md_graph = function (_v0) {
 	var graph = _v0.a.graph;
 	return graph;
@@ -25304,28 +25091,6 @@ var $author$project$Main$setFirstTabEquationPerform = F2(
 				$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
 		}
 	});
-var $author$project$ArrowStyle$HeadPart = {$: 'HeadPart'};
-var $author$project$ArrowStyle$TailPart = {$: 'TailPart'};
-var $author$project$Drawing$Color$fromChar = function (s) {
-	switch (s.valueOf()) {
-		case 'r':
-			return $elm$core$Maybe$Just($author$project$Drawing$Color$Red);
-		case 'u':
-			return $elm$core$Maybe$Just($author$project$Drawing$Color$Blue);
-		case 'v':
-			return $elm$core$Maybe$Just($author$project$Drawing$Color$Purple);
-		case 'g':
-			return $elm$core$Maybe$Just($author$project$Drawing$Color$Green);
-		case 'y':
-			return $elm$core$Maybe$Just($author$project$Drawing$Color$Yellow);
-		case 'o':
-			return $elm$core$Maybe$Just($author$project$Drawing$Color$Orange);
-		case 'c':
-			return $elm$core$Maybe$Just($author$project$Drawing$Color$Black);
-		default:
-			return $elm$core$Maybe$Nothing;
-	}
-};
 var $author$project$Polygraph$md_graphMap = F2(
 	function (f, _v0) {
 		var m = _v0.a;
@@ -25352,101 +25117,33 @@ var $author$project$Polygraph$md_updateEdge = F2(
 					};
 				}));
 	});
-var $author$project$Polygraph$md_updateEdgesId = F3(
-	function (l, f, g) {
+var $author$project$Polygraph$md_updateEdges = F2(
+	function (es, graph) {
+		var compare = F2(
+			function (edge, modif) {
+				var _v0 = A2($author$project$Polygraph$getEdge, edge.id, graph);
+				if (_v0.$ === 'Nothing') {
+					return modif;
+				} else {
+					var edgeOriginal = _v0.a;
+					return _Utils_eq(edge, edgeOriginal) ? modif : A3(
+						$author$project$Polygraph$md_updateEdge,
+						edge.id,
+						$elm$core$Basics$always(edge.label),
+						modif);
+				}
+			});
 		return A3(
 			$elm$core$List$foldl,
-			F2(
-				function (id, g2) {
-					return A3($author$project$Polygraph$md_updateEdge, id, f, g2);
-				}),
-			g,
-			l);
+			compare,
+			$author$project$Polygraph$newModif(graph),
+			es);
 	});
-var $author$project$ArrowStyle$updateEdgeColor = F3(
-	function (part, c, s) {
-		switch (part.$) {
-			case 'HeadPart':
-				return _Utils_update(
-					s,
-					{headColor: c});
-			case 'TailPart':
-				return _Utils_update(
-					s,
-					{tailColor: c});
-			default:
-				return _Utils_update(
-					s,
-					{
-						color: c,
-						headColor: _Utils_eq(s.headColor, s.color) ? c : s.headColor,
-						tailColor: _Utils_eq(s.tailColor, s.color) ? c : s.tailColor
-					});
-		}
+var $author$project$Modes$Customize$finaliseModif = F2(
+	function (model, edges) {
+		var modelGraph = $author$project$Model$getActiveGraph(model);
+		return A2($author$project$Polygraph$md_updateEdges, edges, modelGraph);
 	});
-var $author$project$GraphDefs$setColorEdgesId = F4(
-	function (color, part, edges, graph) {
-		var updateColor = function (e) {
-			var _v0 = e.details;
-			if (_v0.$ === 'NormalEdge') {
-				var l = _v0.a;
-				var oldStyle = l.style;
-				var newStyle = A3($author$project$ArrowStyle$updateEdgeColor, part, color, oldStyle);
-				return _Utils_update(
-					e,
-					{
-						details: $author$project$GraphDefs$NormalEdge(
-							_Utils_update(
-								l,
-								{style: newStyle}))
-					});
-			} else {
-				var x = _v0.a;
-				return _Utils_update(
-					e,
-					{
-						details: $author$project$GraphDefs$PullshoutEdge(
-							_Utils_update(
-								x,
-								{color: color}))
-					});
-			}
-		};
-		var modif = $author$project$Polygraph$newModif(graph);
-		return A3($author$project$Polygraph$md_updateEdgesId, edges, updateColor, modif);
-	});
-var $author$project$Model$returnSetColor = F4(
-	function (colorOption, model, part, edges) {
-		if (colorOption.$ === 'Nothing') {
-			return $author$project$Polygraph$newModif(
-				$author$project$Model$getActiveGraph(model));
-		} else {
-			var color = colorOption.a;
-			var modifHelper = A4(
-				$author$project$GraphDefs$setColorEdgesId,
-				color,
-				part,
-				A2(
-					$elm$core$List$map,
-					function ($) {
-						return $.id;
-					},
-					edges),
-				$author$project$Model$getActiveGraph(model));
-			return modifHelper;
-		}
-	});
-var $author$project$Model$switch_Default = function (m) {
-	return $author$project$Model$noCmd(
-		_Utils_update(
-			m,
-			{mode: $author$project$Modes$DefaultMode}));
-};
-var $author$project$Model$toggleHelpOverlay = function (model) {
-	return _Utils_update(
-		model,
-		{showOverlayHelp: !model.showOverlayHelp});
-};
 var $author$project$CommandCodec$protocolSend = function (c) {
 	return $author$project$CommandCodec$protocolSendMsg(
 		$author$project$Msg$ModifProtocol(c));
@@ -25476,33 +25173,219 @@ var $author$project$CommandCodec$updateModifHelper = F2(
 	function (model, modif) {
 		return A3($author$project$CommandCodec$updateModifHelperWithId, model, $author$project$Msg$defaultModifId, modif);
 	});
-var $author$project$Modes$Color$updateState = F2(
+var $author$project$Modes$Customize$finalise = F2(
+	function (model, edges) {
+		return A2(
+			$author$project$CommandCodec$updateModifHelper,
+			_Utils_update(
+				model,
+				{mode: $author$project$Modes$DefaultMode}),
+			A2($author$project$Modes$Customize$finaliseModif, model, edges));
+	});
+var $author$project$Drawing$Color$fromChar = function (s) {
+	switch (s.valueOf()) {
+		case 'r':
+			return $elm$core$Maybe$Just($author$project$Drawing$Color$Red);
+		case 'u':
+			return $elm$core$Maybe$Just($author$project$Drawing$Color$Blue);
+		case 'v':
+			return $elm$core$Maybe$Just($author$project$Drawing$Color$Purple);
+		case 'g':
+			return $elm$core$Maybe$Just($author$project$Drawing$Color$Green);
+		case 'y':
+			return $elm$core$Maybe$Just($author$project$Drawing$Color$Yellow);
+		case 'o':
+			return $elm$core$Maybe$Just($author$project$Drawing$Color$Orange);
+		case 'c':
+			return $elm$core$Maybe$Just($author$project$Drawing$Color$Black);
+		default:
+			return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Model$switch_Default = function (m) {
+	return $author$project$Model$noCmd(
+		_Utils_update(
+			m,
+			{mode: $author$project$Modes$DefaultMode}));
+};
+var $author$project$Model$toggleHelpOverlay = function (model) {
+	return _Utils_update(
+		model,
+		{showOverlayHelp: !model.showOverlayHelp});
+};
+var $author$project$ArrowStyle$updateEdgeColor = F3(
+	function (part, c, s) {
+		switch (part.$) {
+			case 'HeadPart':
+				return _Utils_update(
+					s,
+					{headColor: c});
+			case 'TailPart':
+				return _Utils_update(
+					s,
+					{tailColor: c});
+			default:
+				return _Utils_update(
+					s,
+					{
+						color: c,
+						headColor: _Utils_eq(s.headColor, s.color) ? c : s.headColor,
+						tailColor: _Utils_eq(s.tailColor, s.color) ? c : s.tailColor
+					});
+		}
+	});
+var $author$project$GraphDefs$setColor = F3(
+	function (color, part, e) {
+		var _v0 = e.details;
+		if (_v0.$ === 'NormalEdge') {
+			var l = _v0.a;
+			var oldStyle = l.style;
+			var newStyle = A3($author$project$ArrowStyle$updateEdgeColor, part, color, oldStyle);
+			return _Utils_update(
+				e,
+				{
+					details: $author$project$GraphDefs$NormalEdge(
+						_Utils_update(
+							l,
+							{style: newStyle}))
+				});
+		} else {
+			var x = _v0.a;
+			return _Utils_update(
+				e,
+				{
+					details: $author$project$GraphDefs$PullshoutEdge(
+						_Utils_update(
+							x,
+							{color: color}))
+				});
+		}
+	});
+var $author$project$Modes$Customize$updateEdgeColor = F3(
+	function (edges, part, color) {
+		return A2(
+			$elm$core$List$map,
+			$author$project$Polygraph$edgeMap(
+				A2($author$project$GraphDefs$setColor, color, part)),
+			edges);
+	});
+var $author$project$ArrowStyle$decreaseBend = function (b) {
+	return b - 0.1;
+};
+var $author$project$ArrowStyle$increaseBend = function (b) {
+	return b + 0.1;
+};
+var $author$project$Geometry$Epsilon$norm0 = function (x) {
+	return (_Utils_cmp(
+		$elm$core$Basics$abs(x),
+		$author$project$Geometry$Epsilon$epsilon) < 1) ? 0 : x;
+};
+var $author$project$ArrowStyle$keyUpdateShiftBend = F2(
+	function (k, s) {
+		var updatePart = F2(
+			function (isHead, amount) {
+				var updateInRange = function (old) {
+					return A2(
+						$elm$core$Basics$max,
+						0 - $author$project$ArrowStyle$maxShift,
+						A2($elm$core$Basics$min, $author$project$ArrowStyle$maxShift, old + amount));
+				};
+				return $elm$core$Maybe$Just(
+					isHead ? _Utils_update(
+						s,
+						{
+							shiftTarget: updateInRange(s.shiftTarget)
+						}) : _Utils_update(
+						s,
+						{
+							shiftSource: updateInRange(s.shiftSource)
+						}));
+			});
+		_v0$6:
+		while (true) {
+			if (k.$ === 'Character') {
+				switch (k.a.valueOf()) {
+					case 'E':
+						return A2(updatePart, true, 1);
+					case 'e':
+						return A2(updatePart, true, -1);
+					case 'S':
+						return A2(updatePart, false, 1);
+					case 's':
+						return A2(updatePart, false, -1);
+					case 'b':
+						return $elm$core$Maybe$Just(
+							_Utils_update(
+								s,
+								{
+									bend: $author$project$Geometry$Epsilon$norm0(
+										$author$project$ArrowStyle$decreaseBend(s.bend))
+								}));
+					case 'B':
+						return $elm$core$Maybe$Just(
+							_Utils_update(
+								s,
+								{
+									bend: $author$project$Geometry$Epsilon$norm0(
+										$author$project$ArrowStyle$increaseBend(s.bend))
+								}));
+					default:
+						break _v0$6;
+				}
+			} else {
+				break _v0$6;
+			}
+		}
+		return $elm$core$Maybe$Nothing;
+	});
+var $author$project$Modes$Customize$updateEdgeShiftBend = F2(
+	function (edges, c) {
+		var applyStyle = function (label) {
+			return _Utils_update(
+				label,
+				{
+					style: A2(
+						$elm$core$Maybe$withDefault,
+						label.style,
+						A2(
+							$author$project$ArrowStyle$keyUpdateShiftBend,
+							$author$project$HtmlDefs$Character(c),
+							label.style))
+				});
+		};
+		return A2(
+			$elm$core$List$map,
+			$author$project$Polygraph$edgeMap(
+				$author$project$GraphDefs$mapNormalEdge(applyStyle)),
+			edges);
+	});
+var $author$project$Modes$Customize$updateState = F2(
 	function (m, state) {
 		return _Utils_update(
 			m,
 			{
-				mode: $author$project$Modes$ColorMode(state)
+				mode: $author$project$Modes$CustomizeMode(state)
 			});
 	});
-var $author$project$Modes$Color$update = F3(
+var $author$project$Modes$Customize$update = F3(
 	function (state, msg, model) {
 		var checkColorable = function (part) {
 			return $author$project$Model$noCmd(
 				A2(
-					$author$project$Modes$Color$updateState,
+					$author$project$Modes$Customize$updateState,
 					model,
 					_Utils_update(
 						state,
 						{mode: part})));
 		};
-		_v0$5:
+		_v0$6:
 		while (true) {
 			if ((msg.$ === 'KeyChanged') && (!msg.a)) {
 				if (msg.c.$ === 'Control') {
 					if (msg.c.a === 'Escape') {
 						return $author$project$Model$switch_Default(model);
 					} else {
-						break _v0$5;
+						break _v0$6;
 					}
 				} else {
 					switch (msg.c.a.valueOf()) {
@@ -25513,25 +25396,31 @@ var $author$project$Modes$Color$update = F3(
 							return checkColorable($author$project$ArrowStyle$HeadPart);
 						case 'T':
 							return checkColorable($author$project$ArrowStyle$TailPart);
+						case ' ':
+							return A2($author$project$Modes$Customize$finalise, model, state.edges);
 						default:
 							var c = msg.c.a;
-							var modelGraph = $author$project$Model$getActiveGraph(model);
-							var modifHelper = A4(
-								$author$project$Model$returnSetColor,
-								$author$project$Drawing$Color$fromChar(c),
-								model,
-								state.mode,
-								state.edges);
-							return A2(
-								$author$project$CommandCodec$updateModifHelper,
-								_Utils_update(
+							var _v1 = $author$project$Drawing$Color$fromChar(c);
+							if (_v1.$ === 'Just') {
+								var color = _v1.a;
+								return A2(
+									$author$project$Modes$Customize$finalise,
 									model,
-									{mode: $author$project$Modes$DefaultMode}),
-								modifHelper);
+									A3($author$project$Modes$Customize$updateEdgeColor, state.edges, state.mode, color));
+							} else {
+								var newEdges = A2($author$project$Modes$Customize$updateEdgeShiftBend, state.edges, c);
+								return $author$project$Model$noCmd(
+									A2(
+										$author$project$Modes$Customize$updateState,
+										model,
+										_Utils_update(
+											state,
+											{edges: newEdges})));
+							}
 					}
 				}
 			} else {
-				break _v0$5;
+				break _v0$6;
 			}
 		}
 		return $author$project$Model$noCmd(model);
@@ -26673,19 +26562,8 @@ var $author$project$ArrowStyle$isPartColorable = F2(
 				return true;
 		}
 	});
-var $author$project$ArrowStyle$decreaseBend = function (b) {
-	return b - 0.1;
-};
-var $author$project$ArrowStyle$increaseBend = function (b) {
-	return b + 0.1;
-};
 var $author$project$ArrowStyle$maxLabelPosition = 0.9;
 var $author$project$ArrowStyle$minLabelPosition = 0.1;
-var $author$project$Geometry$Epsilon$norm0 = function (x) {
-	return (_Utils_cmp(
-		$elm$core$Basics$abs(x),
-		$author$project$Geometry$Epsilon$epsilon) < 1) ? 0 : x;
-};
 var $author$project$ArrowStyle$toggleDashed = function (s) {
 	return _Utils_update(
 		s,
@@ -27071,12 +26949,12 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 						state,
 						{mode: m}))) : $author$project$Model$noCmd(model);
 		};
-		_v0$18:
+		_v0$19:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseClick':
 					return next(
-						{finish: false, merge: false});
+						{finish: false, merge: state.merge});
 				case 'Marker':
 					var s = msg.a;
 					var style = state.style;
@@ -27097,7 +26975,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 							return next(
 								{finish: false, merge: true});
 						} else {
-							break _v0$18;
+							break _v0$19;
 						}
 					} else {
 						if (msg.c.$ === 'Control') {
@@ -27106,12 +26984,12 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 									return $author$project$Model$switch_Default(model);
 								case 'Enter':
 									return next(
-										{finish: true, merge: state.isAdjunction});
+										{finish: true, merge: state.merge || state.isAdjunction});
 								case 'Tab':
 									return next(
-										{finish: false, merge: state.isAdjunction});
+										{finish: false, merge: state.merge || state.isAdjunction});
 								default:
-									break _v0$18;
+									break _v0$19;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -27120,7 +26998,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 										$author$project$Model$toggleHelpOverlay(model));
 								case ' ':
 									return next(
-										{finish: true, merge: state.isAdjunction});
+										{finish: true, merge: state.merge || state.isAdjunction});
 								case '.':
 									return _Utils_Tuple2(
 										model,
@@ -27158,6 +27036,14 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 									return pullshoutMode($author$project$Modes$Pullback);
 								case 'P':
 									return pullshoutMode($author$project$Modes$Pushout);
+								case 'm':
+									return $author$project$Model$noCmd(
+										A2(
+											$author$project$Modes$NewArrow$updateState,
+											model,
+											_Utils_update(
+												state,
+												{merge: !state.merge})));
 								case 'H':
 									return changeMode($author$project$ArrowStyle$HeadPart);
 								case 'T':
@@ -27175,12 +27061,12 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 												state,
 												{kind: kind})));
 								default:
-									break _v0$18;
+									break _v0$19;
 							}
 						}
 					}
 				default:
-					break _v0$18;
+					break _v0$19;
 			}
 		}
 		var newStyle = function () {
@@ -27190,7 +27076,10 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 					$elm$core$Maybe$withDefault,
 					A2(
 						$elm$core$Maybe$withDefault,
-						state.style,
+						A2(
+							$elm$core$Maybe$withDefault,
+							state.style,
+							A2($author$project$ArrowStyle$keyUpdateShiftBend, k, state.style)),
 						A3($author$project$ArrowStyle$keyMaybeUpdateColor, k, $author$project$ArrowStyle$MainEdgePart, state.style)),
 					A2($author$project$ArrowStyle$keyMaybeUpdateStyle, k, state.style));
 			} else {
@@ -27265,7 +27154,7 @@ var $author$project$Modes$NewLine = function (a) {
 	return {$: 'NewLine', a: a};
 };
 var $author$project$ArrowStyle$simpleLineStyle = function (bend) {
-	return {bend: bend, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$NoHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, marker: $author$project$ArrowStyle$noMarker, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
+	return {bend: bend, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$NoHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0, shiftTarget: 0, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
 };
 var $author$project$Modes$NewLine$makeGraph = F2(
 	function (m, s) {
@@ -30234,7 +30123,7 @@ var $author$project$Modes$NewArrow$initialise = function (m) {
 	return A2(
 		$author$project$Modes$NewArrow$reinitialise,
 		m,
-		{chosen: $author$project$Polygraph$empty, inverted: false, isAdjunction: false, kind: kind, mode: $author$project$ArrowStyle$MainEdgePart, pos: $author$project$InputPosition$InputPosMouse, style: $author$project$ArrowStyle$empty});
+		{chosen: $author$project$Polygraph$empty, inverted: false, isAdjunction: false, kind: kind, merge: false, mode: $author$project$ArrowStyle$MainEdgePart, pos: $author$project$InputPosition$InputPosMouse, style: $author$project$ArrowStyle$empty});
 };
 var $author$project$Modes$NewLine$initialise = function (m) {
 	return $author$project$Model$noCmd(
@@ -30384,6 +30273,17 @@ var $author$project$Polygraph$md_invertEdge = F2(
 							}),
 						m.graph)
 				}));
+	});
+var $author$project$Polygraph$md_updateEdgesId = F3(
+	function (l, f, g) {
+		return A3(
+			$elm$core$List$foldl,
+			F2(
+				function (id, g2) {
+					return A3($author$project$Polygraph$md_updateEdge, id, f, g2);
+				}),
+			g,
+			l);
 	});
 var $author$project$GraphDefs$invertEdges = F2(
 	function (g, ids) {
@@ -31457,7 +31357,7 @@ var $author$project$Main$update_DefaultMode = F2(
 									case 'c':
 										var k = msg.b;
 										return k.ctrl ? $author$project$Model$noCmd(model) : $author$project$Model$noCmd(
-											$author$project$Modes$Color$initialise(model));
+											$author$project$Modes$Customize$initialise(model));
 									case 'n':
 										return $author$project$Modes$NewLine$initialise(model);
 									case 'v':
@@ -32278,24 +32178,11 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{rulerShow: !model.rulerShow}));
-			case 'ToggleAlternativeLatex':
-				return $author$project$Model$noCmd(
-					_Utils_update(
-						model,
-						{alternativeLatex: !model.alternativeLatex}));
 			case 'ToggleAutosave':
 				return $author$project$Model$noCmd(
 					_Utils_update(
 						model,
 						{autoSave: !model.autoSave}));
-			case 'ExportQuiver':
-				return _Utils_Tuple2(
-					model,
-					$author$project$Main$exportQuiver(
-						A2(
-							$author$project$GraphDefs$exportQuiver,
-							sizeGrid,
-							$author$project$GraphDefs$selectedGraph(modelGraph))));
 			case 'MouseMoveRaw':
 				var v = msg.a;
 				return _Utils_Tuple2(
@@ -32428,9 +32315,9 @@ var $author$project$Main$update = F2(
 					case 'ResizeMode':
 						var s = _v6.a;
 						return A3($author$project$Main$update_Resize, s, msg, model);
-					case 'ColorMode':
+					case 'CustomizeMode':
 						var ids = _v6.a;
-						return A3($author$project$Modes$Color$update, ids, msg, model);
+						return A3($author$project$Modes$Customize$update, ids, msg, model);
 					default:
 						var s = _v6.a;
 						return A3($author$project$Main$update_LatexPreamble, s, msg, model);
@@ -32465,7 +32352,6 @@ var $author$project$Main$updateIntercept = F2(
 		}
 	});
 var $elm$html$Html$div = _VirtualDom_node('div');
-var $author$project$Msg$ExportQuiver = {$: 'ExportQuiver'};
 var $author$project$Msg$LatexPreambleEdit = function (a) {
 	return {$: 'LatexPreambleEdit', a: a};
 };
@@ -32488,7 +32374,6 @@ var $author$project$Msg$SaveRulerGridSize = {$: 'SaveRulerGridSize'};
 var $author$project$Msg$SizeGrid = function (a) {
 	return {$: 'SizeGrid', a: a};
 };
-var $author$project$Msg$ToggleAlternativeLatex = {$: 'ToggleAlternativeLatex'};
 var $author$project$Msg$ToggleAutosave = {$: 'ToggleAutosave'};
 var $author$project$Msg$ToggleHideGrid = {$: 'ToggleHideGrid'};
 var $author$project$Msg$ToggleHideRuler = {$: 'ToggleHideRuler'};
@@ -32702,6 +32587,14 @@ var $author$project$Main$enlargeGraph = F2(
 		return $author$project$Polygraph$applyModifHelper(
 			A2($author$project$Main$enlargeModif, m, state));
 	});
+var $author$project$Modes$Customize$graphDrawing = F2(
+	function (m, s) {
+		var modif = A2($author$project$Modes$Customize$finaliseModif, m, s.edges);
+		return A2(
+			$author$project$Model$collageGraphFromGraph,
+			m,
+			$author$project$Polygraph$applyModifHelper(modif));
+	});
 var $author$project$Modes$Move$computeGraph = function (_v0) {
 	var weaklySelection = _v0.weaklySelection;
 	var graph = _v0.graph;
@@ -32732,7 +32625,7 @@ var $author$project$Modes$Move$graphDrawing = F2(
 	});
 var $author$project$Modes$NewArrow$graphDrawing = F2(
 	function (m, s) {
-		var info = A4($author$project$Modes$NewArrow$moveNodeInfo, s.isAdjunction, false, m, s);
+		var info = A4($author$project$Modes$NewArrow$moveNodeInfo, s.merge || s.isAdjunction, false, m, s);
 		return A2(
 			$author$project$Model$collageGraphFromGraph,
 			m,
@@ -32860,8 +32753,9 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 	switch (_v0.$) {
 		case 'MakeSaveMode':
 			return A2($author$project$Model$collageGraphFromGraph, m, modelGraph);
-		case 'ColorMode':
-			return A2($author$project$Model$collageGraphFromGraph, m, modelGraph);
+		case 'CustomizeMode':
+			var s = _v0.a;
+			return A2($author$project$Modes$Customize$graphDrawing, m, s);
 		case 'DefaultMode':
 			return A2($author$project$Model$collageGraphFromGraph, m, modelGraph);
 		case 'RectSelect':
@@ -32983,8 +32877,9 @@ var $author$project$Main$Plain = {$: 'Plain'};
 var $author$project$ArrowStyle$controlChars = '|>(=-~bBA][';
 var $author$project$Drawing$Color$helpMsg = 'bla[c]k, bl[u]e, [g]reen, [o]range, [r]ed, [v]iolet, [y]ellow';
 var $author$project$HtmlDefs$overlayHelpMsg = '[?] to toggle help overlay';
-var $author$project$Modes$Color$help = function (state) {
-	return 'Mode color' + (function () {
+var $author$project$ArrowStyle$shiftHelpMsg = 'shift [Ss]ource/targ[Ee]t';
+var $author$project$Modes$Customize$help = function (state) {
+	return 'Mode customise' + (function () {
 		var _v0 = state.mode;
 		switch (_v0.$) {
 			case 'MainEdgePart':
@@ -32994,7 +32889,7 @@ var $author$project$Modes$Color$help = function (state) {
 			default:
 				return ' tail.';
 		}
-	}() + (' Color [H]ead/[T]ail. ' + ($author$project$HtmlDefs$overlayHelpMsg + ('\n[ESC] or colorise selected edges: ' + $author$project$Drawing$Color$helpMsg))));
+	}() + (' Color [H]ead/[T]ail. ' + ($author$project$ArrowStyle$shiftHelpMsg + ('. ' + ($author$project$HtmlDefs$overlayHelpMsg + ('\n[ESC] or [SPC] or colorise selected edges: ' + $author$project$Drawing$Color$helpMsg))))));
 };
 var $author$project$Modes$CutHead$help = $author$project$HtmlDefs$overlayHelpMsg + (', [RET] or [click] to confirm, [ctrl] to merge. [ESC] to cancel. ' + ('[c] to switch between head/tail' + ', [d] to duplicate (or not) the arrow.'));
 var $author$project$Modes$Move$help = function (s) {
@@ -33023,7 +32918,7 @@ var $author$project$Modes$Move$help = function (s) {
 var $author$project$Modes$NewArrow$help = function (s) {
 	var _v0 = s.mode;
 	if (_v0.$ === 'MainEdgePart') {
-		return $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard ' + ('([f] to move by a multiple of the grid size), ' + ('[ctrl] merge, [a] merge without renaming, ' + ('[RET] or space to terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[.] customise the marker' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + ($author$project$Drawing$Color$helpMsg + ', color [H]ead/[T]ail'))))))))))))))));
+		return $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard ' + ('([f] to move by a multiple of the grid size), ' + ('[ctrl] merge, [a] merge without renaming, toggle [m]erge preview, ' + ('[RET] or space to terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ($author$project$ArrowStyle$shiftHelpMsg + (', ' + ('[.] customise the marker' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + ($author$project$Drawing$Color$helpMsg + ', color [H]ead/[T]ail'))))))))))))))))));
 	} else {
 		return 'Submode color ' + ((_Utils_eq(s.mode, $author$project$ArrowStyle$HeadPart) ? 'head' : 'tail') + (' of the arrow: [ESC] to cancel, ' + ($author$project$Drawing$Color$helpMsg + (', ' + $author$project$HtmlDefs$overlayHelpMsg))));
 	}
@@ -33225,7 +33120,7 @@ var $author$project$Modes$toString = function (m) {
 			return 'Resize';
 		case 'PullshoutMode':
 			return 'Pullshout';
-		case 'ColorMode':
+		case 'CustomizeMode':
 			return 'Color';
 		default:
 			return 'MakeSave';
@@ -33260,7 +33155,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = model.mode;
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-x] cut selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint ([m] to create a point snapped to grid)' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]olor arrow' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[.] customise arrow marker, ' + ('[\"bB][\"] to customize the pullback/pushout sign, ' + ('[i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + (', export selection to LaTe[X]/s[V]g' + ', [#] make the other user focus on the mouse position and share selection')))))))))))))))))))))))))))))))))))))))))))))))))))));
+			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-x] cut selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint ([m] to create a point snapped to grid)' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]ustomise arrow (color, shift)' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[.] customise arrow marker, ' + ('[\"bB][\"] to customize the pullback/pushout sign, ' + ('[i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + (', export selection to LaTe[X]/s[V]g' + ', [#] make the other user focus on the mouse position and share selection')))))))))))))))))))))))))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return $elm$html$Html$text('Debug Mode. [ESC] to cancel and come back to the default mode. ' + '');
 		case 'NewArrow':
@@ -33273,10 +33168,10 @@ var $author$project$Main$helpMsg = function (model) {
 			return msg('Mode NewLine. ' + $author$project$Modes$NewLine$help);
 		case 'PullshoutMode':
 			return msg('Mode Pullback/Pullshout. ' + $author$project$Modes$Pullshout$help);
-		case 'ColorMode':
+		case 'CustomizeMode':
 			var s = _v0.a;
 			return msg(
-				$author$project$Modes$Color$help(s));
+				$author$project$Modes$Customize$help(s));
 		case 'SquareMode':
 			return msg('Mode Commutative square. ' + $author$project$Modes$Square$help);
 		case 'SplitArrow':
@@ -36985,18 +36880,7 @@ var $author$project$Main$viewGraph = function (model) {
 						])),
 					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleHideGrid, 'Show grid', '', !model.hideGrid),
 					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleHideRuler, 'Show ruler', '', model.rulerShow),
-					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleAlternativeLatex, 'Legacy latex generation', 'The legacy latex generation relies on Tikz to compute the exact position of edges', !model.alternativeLatex),
 					A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleAutosave, 'Autosave', 'Quicksave every minute', model.autoSave),
-					A2(
-					$elm$html$Html$button,
-					_List_fromArray(
-						[
-							$elm$html$Html$Events$onClick($author$project$Msg$ExportQuiver)
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('Export selection to quiver')
-						])),
 					A2(
 					$elm$html$Html$button,
 					_List_fromArray(

@@ -41,7 +41,8 @@ var Bundle = (() => {
     prefixes: [],
     suffixes: [],
     includeCmd: "\\input{@}",
-    preambleFile: ""
+    preambleFile: "",
+    additionalPreamble: ""
   };
   var defaultsExt = {
     "tex": {
