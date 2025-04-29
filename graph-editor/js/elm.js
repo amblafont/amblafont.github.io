@@ -5466,8 +5466,13 @@ var $author$project$Main$appliedProof = _Platform_incomingPort(
 			return A2(
 				$elm$json$Json$Decode$andThen,
 				function (script) {
-					return $elm$json$Json$Decode$succeed(
-						{script: script, statement: statement});
+					return A2(
+						$elm$json$Json$Decode$andThen,
+						function (isVerbatim) {
+							return $elm$json$Json$Decode$succeed(
+								{isVerbatim: isVerbatim, script: script, statement: statement});
+						},
+						A2($elm$json$Json$Decode$field, 'isVerbatim', $elm$json$Json$Decode$bool));
 				},
 				A2($elm$json$Json$Decode$field, 'script', $elm$json$Json$Decode$string));
 		},
@@ -15037,7 +15042,20 @@ var $author$project$CommandCodec$protocolRequestSnapshot = _Platform_incomingPor
 	$elm$json$Json$Decode$null(_Utils_Tuple0));
 var $author$project$Modes$NewArrow$returnMarker = _Platform_incomingPort('returnMarker', $elm$json$Json$Decode$string);
 var $author$project$CommandCodec$scenarioOfString = $author$project$Codec$decoder($author$project$CommandCodec$scenarioCodec);
-var $author$project$Main$setFirstTabEquation = _Platform_incomingPort('setFirstTabEquation', $elm$json$Json$Decode$string);
+var $author$project$Main$setFirstTabEquation = _Platform_incomingPort(
+	'setFirstTabEquation',
+	A2(
+		$elm$json$Json$Decode$andThen,
+		function (statement) {
+			return A2(
+				$elm$json$Json$Decode$andThen,
+				function (isVerbatim) {
+					return $elm$json$Json$Decode$succeed(
+						{isVerbatim: isVerbatim, statement: statement});
+				},
+				A2($elm$json$Json$Decode$field, 'isVerbatim', $elm$json$Json$Decode$bool));
+		},
+		A2($elm$json$Json$Decode$field, 'statement', $elm$json$Json$Decode$string)));
 var $author$project$Main$simpleMsg = _Platform_incomingPort('simpleMsg', $elm$json$Json$Decode$string);
 var $elm$core$Result$withDefault = F2(
 	function (def, result) {
@@ -19666,43 +19684,27 @@ var $author$project$GraphProof$nodesOfDiag = function (d) {
 			},
 			d.rhs));
 };
-var $author$project$GraphProof$repeat = F2(
-	function (n, s) {
-		switch (n) {
-			case 0:
-				return _List_Nil;
-			case 1:
-				return _List_fromArray(
-					['  ' + s]);
-			default:
-				return _List_fromArray(
-					[
-						'  do ' + ($elm$core$String$fromInt(n) + (' ' + s))
-					]);
-		}
-	});
-var $author$project$GraphProof$write0 = F2(
-	function (n, s) {
-		return (!n) ? _List_Nil : s;
-	});
 var $author$project$GraphProof$getToThePoint = F2(
 	function (startOffset, backOffset) {
-		return A2(
-			$elm$core$String$join,
-			'\n',
-			_Utils_ap(
-				A2($author$project$GraphProof$repeat, backOffset, 'apply cancel_postcomposition.'),
-				A2(
-					$author$project$GraphProof$write0,
-					startOffset,
-					_Utils_ap(
-						_List_fromArray(
-							['  repeat rewrite assoc\'.']),
-						_Utils_ap(
-							A2($author$project$GraphProof$repeat, startOffset, 'apply cancel_precomposition.'),
-							_List_fromArray(
-								['  repeat rewrite assoc.']))))));
+		return 'yade_strip ' + ($elm$core$String$fromInt(startOffset) + (' ' + ($elm$core$String$fromInt(backOffset) + '.')));
 	});
+var $elm$core$String$endsWith = _String_endsWith;
+var $author$project$Verbatim$verbatimCmd = '\\coqverb';
+var $author$project$Verbatim$extractVerbatim = function (s) {
+	var prefix = $author$project$Verbatim$verbatimCmd + '{';
+	return (A2($elm$core$String$startsWith, prefix, s) && A2($elm$core$String$endsWith, '}', s)) ? $elm$core$Maybe$Just(
+		A3(
+			$elm$core$String$slice,
+			$elm$core$String$length(prefix),
+			-1,
+			s)) : $elm$core$Maybe$Nothing;
+};
+var $author$project$Verbatim$removeVerbatim = function (s) {
+	return A2(
+		$elm$core$Maybe$withDefault,
+		s,
+		$author$project$Verbatim$extractVerbatim(s));
+};
 var $author$project$GraphProof$statementToString = function (d) {
 	var expand = function (s) {
 		return (s === '') ? '{_}' : s;
@@ -19720,38 +19722,15 @@ var $author$project$GraphProof$statementToString = function (d) {
 					function ($) {
 						return $.label;
 					},
-					expand))),
+					A2($elm$core$Basics$composeR, expand, $author$project$Verbatim$removeVerbatim)))),
 		$elm$core$String$join(' · '));
-	return '{ ' + (edgeToString(d.lhs) + (' = ' + (edgeToString(d.rhs) + ' }')));
+	return '<YADE> ' + (edgeToString(d.lhs) + (' = ' + (edgeToString(d.rhs) + ' </YADE>')));
 };
 var $author$project$GraphProof$proofStepToString = function (_v0) {
 	var startOffset = _v0.startOffset;
 	var backOffset = _v0.backOffset;
 	var diag = _v0.diag;
-	return A2(
-		$elm$core$String$join,
-		'\n',
-		_Utils_ap(
-			_List_fromArray(
-				[
-					'assert(eq : ' + ($author$project$GraphProof$statementToString(diag) + ').'),
-					'{',
-					'  ' + A2($elm$core$Maybe$withDefault, 'admit.', diag.proof),
-					'}',
-					'etrans.',
-					'{',
-					A2($author$project$GraphProof$getToThePoint, startOffset, backOffset),
-					'  apply eq.',
-					'}'
-				]),
-			_Utils_ap(
-				A2(
-					$author$project$GraphProof$write0,
-					startOffset,
-					_List_fromArray(
-						['repeat rewrite assoc.'])),
-				_List_fromArray(
-					['clear eq.']))));
+	return 'eapply yade.transitivity.\n' + (A2($author$project$GraphProof$getToThePoint, startOffset, backOffset) + ('\n' + ('refine (_ :> ' + ($author$project$GraphProof$statementToString(diag) + (').\n' + ('{\n' + ('  ' + (A2($elm$core$Maybe$withDefault, 'admit.', diag.proof) + '\n}\nrepeat rewrite -> yade.assoc\'\'.\n'))))))));
 };
 var $author$project$GraphProof$renameDebugDiag = function (diag) {
 	var renameEdge = function (e) {
@@ -19842,13 +19821,13 @@ var $author$project$GraphProof$proofStatementToDebugString = function (st) {
 		A2(
 			$elm$core$List$map,
 			A2($elm$core$Basics$composeR, $author$project$GraphProof$renameDebugProofStep, $author$project$GraphProof$proofStepToString),
-			st.proof)) + '\n apply idpath.'))))))));
+			st.proof)) + '\n reflexivity.'))))))));
 };
 var $author$project$GraphProof$proofStatementToString = function (st) {
-	return '(* Goal ' + ($author$project$GraphProof$statementToString(st.statement) + ('. *)\n\n' + (A2(
+	return 'change (' + ($author$project$GraphProof$statementToString(st.statement) + (').\n\n' + (A2(
 		$elm$core$String$join,
 		'\n',
-		A2($elm$core$List$map, $author$project$GraphProof$proofStepToString, st.proof)) + ('\n apply idpath.' + '\nQed.'))));
+		A2($elm$core$List$map, $author$project$GraphProof$proofStepToString, st.proof)) + ('\n reflexivity.' + '\nQed.'))));
 };
 var $author$project$Polygraph$invalidEdges = function (fullGraph) {
 	var g = $author$project$Polygraph$graphRep(fullGraph);
@@ -21002,6 +20981,45 @@ var $author$project$Drawing$makeLatex = F2(
 				$author$project$Drawing$Node(
 					{angle: arg.angle, dims: arg.dims, label: arg.label, pos: arg.pos, preamble: arg.preamble, scale: arg.scale})));
 	});
+var $elm$core$String$cons = _String_cons;
+var $elm$core$String$fromChar = function (_char) {
+	return A2($elm$core$String$cons, _char, '');
+};
+var $author$project$Drawing$makeVerbatimString = function (s) {
+	var verbatimDelimiters = _List_fromArray(
+		[
+			_Utils_chr('|'),
+			_Utils_chr('@'),
+			_Utils_chr('\''),
+			_Utils_chr('\"'),
+			_Utils_chr('#'),
+			_Utils_chr('/'),
+			_Utils_chr('!'),
+			_Utils_chr('*'),
+			_Utils_chr('+'),
+			_Utils_chr('-')
+		]);
+	var _v0 = A2(
+		$elm_community$list_extra$List$Extra$find,
+		function (d) {
+			return !A2($elm$core$String$contains, d, s);
+		},
+		A2($elm$core$List$map, $elm$core$String$fromChar, verbatimDelimiters));
+	if (_v0.$ === 'Nothing') {
+		return '\\text{Err: unable to find a verbatim delimiter}';
+	} else {
+		var d = _v0.a;
+		return '\\verb' + (d + (s + d));
+	}
+};
+var $author$project$Drawing$makeVerbatim = F2(
+	function (arg, attrs) {
+		var label = $author$project$Drawing$makeVerbatimString(arg.label);
+		return A2(
+			$author$project$Drawing$makeLatex,
+			{angle: arg.angle, dims: arg.dims, key: arg.key, label: label, pos: arg.pos, preamble: '', scale: arg.scale, zindex: arg.zindex},
+			attrs);
+	});
 var $author$project$Msg$RenderedTextInput = {$: 'RenderedTextInput'};
 var $elm$html$Html$Attributes$boolProperty = F2(
 	function (key, bool) {
@@ -21249,43 +21267,61 @@ var $author$project$GraphDrawing$nodeDrawing = F2(
 				n.label,
 				$author$project$Msg$NodeLabelEdit(id));
 		} else {
-			var label = _Utils_ap(
-				n.isValidated ? '\\color{green}' : '',
-				(n.label === '') ? '\\bullet' : (n.isMath ? n.label : ('\\text{' + (n.label + '}'))));
-			return A2(
-				$author$project$Drawing$makeLatex,
-				{
-					angle: 0,
-					dims: n.dims,
-					key: $author$project$GraphDrawing$idToKey(id),
-					label: label,
-					pos: n.pos,
-					preamble: cfg.latexPreamble,
-					scale: 1,
-					zindex: n.zindex
-				},
+			var attrs = _Utils_ap(
+				_List_fromArray(
+					[
+						$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onClick(
+						$author$project$Msg$NodeClick(id)),
+						$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDoubleClick(
+						$author$project$Msg$EltDoubleClick(id))
+					]),
 				_Utils_ap(
 					_List_fromArray(
 						[
-							$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onClick(
-							$author$project$Msg$NodeClick(id)),
-							$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDoubleClick(
-							$author$project$Msg$EltDoubleClick(id))
+							$author$project$GraphDrawing$class(
+							A2(
+								$elm$core$List$cons,
+								$author$project$HtmlDefs$renderedClass,
+								$author$project$GraphDrawing$activityToClasses(n.isActive)))
 						]),
-					_Utils_ap(
-						_List_fromArray(
-							[
-								$author$project$GraphDrawing$class(
-								A2(
-									$elm$core$List$cons,
-									$author$project$HtmlDefs$renderedClass,
-									$author$project$GraphDrawing$activityToClasses(n.isActive)))
-							]),
-						_List_fromArray(
-							[
-								$author$project$HtmlDefs$onRendered(
-								$author$project$Msg$NodeRendered(id))
-							]))));
+					_List_fromArray(
+						[
+							$author$project$HtmlDefs$onRendered(
+							$author$project$Msg$NodeRendered(id))
+						])));
+			var _v0 = $author$project$Verbatim$extractVerbatim(n.label);
+			if (_v0.$ === 'Just') {
+				var vLabel = _v0.a;
+				return A2(
+					$author$project$Drawing$makeVerbatim,
+					{
+						angle: 0,
+						dims: n.dims,
+						key: $author$project$GraphDrawing$idToKey(id),
+						label: vLabel,
+						pos: n.pos,
+						scale: 1,
+						zindex: n.zindex
+					},
+					attrs);
+			} else {
+				var label = _Utils_ap(
+					n.isValidated ? '\\color{green}' : '',
+					(n.label === '') ? '\\bullet' : (n.isMath ? n.label : ('\\text{' + (n.label + '}'))));
+				return A2(
+					$author$project$Drawing$makeLatex,
+					{
+						angle: 0,
+						dims: n.dims,
+						key: $author$project$GraphDrawing$idToKey(id),
+						label: label,
+						pos: n.pos,
+						preamble: cfg.latexPreamble,
+						scale: 1,
+						zindex: n.zindex
+					},
+					attrs);
+			}
 		}
 	});
 var $author$project$Msg$MouseOn = function (a) {
@@ -21903,43 +21939,53 @@ var $author$project$GraphDrawing$segmentLabel = F7(
 				var finalLabel = label.label;
 				var angle = _Utils_eq(label.style.labelAlignment, $author$project$Geometry$Over) ? $author$project$Geometry$Point$pointToAngle(
 					A2($author$project$Geometry$Point$subtract, q.to, q.from)) : 0;
-				return A2(
-					$author$project$Drawing$makeLatex,
-					{
-						angle: angle,
-						dims: label.dims,
-						key: $author$project$GraphDrawing$idToKey(edgeId),
-						label: finalLabel,
-						pos: labelpos,
-						preamble: cfg.latexPreamble,
-						scale: $author$project$GraphDefs$edgeScaleFactor,
-						zindex: $author$project$Zindex$foregroundZ
-					},
-					_Utils_ap(
-						_List_fromArray(
-							[
-								$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onClick(
-								$author$project$Msg$EdgeClick(edgeId)),
-								$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDoubleClick(
-								$author$project$Msg$EltDoubleClick(edgeId)),
-								$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onMove(
-								$elm$core$Basics$always(
-									$author$project$Msg$MouseOn(edgeId)))
-							]),
-						_Utils_ap(
-							_List_fromArray(
-								[
-									$author$project$GraphDrawing$class(
-									A2(
-										$elm$core$List$cons,
-										$author$project$HtmlDefs$renderedClass,
-										$author$project$GraphDrawing$activityToClasses(activity)))
-								]),
-							_List_fromArray(
-								[
-									$author$project$HtmlDefs$onRendered(
-									$author$project$Msg$EdgeRendered(edgeId))
-								]))));
+				var attrs = _List_fromArray(
+					[
+						$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onClick(
+						$author$project$Msg$EdgeClick(edgeId)),
+						$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDoubleClick(
+						$author$project$Msg$EltDoubleClick(edgeId)),
+						$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onMove(
+						$elm$core$Basics$always(
+							$author$project$Msg$MouseOn(edgeId))),
+						$author$project$GraphDrawing$class(
+						A2(
+							$elm$core$List$cons,
+							$author$project$HtmlDefs$renderedClass,
+							$author$project$GraphDrawing$activityToClasses(activity))),
+						$author$project$HtmlDefs$onRendered(
+						$author$project$Msg$EdgeRendered(edgeId))
+					]);
+				var _v0 = $author$project$Verbatim$extractVerbatim(finalLabel);
+				if (_v0.$ === 'Just') {
+					var vLabel = _v0.a;
+					return A2(
+						$author$project$Drawing$makeVerbatim,
+						{
+							angle: angle,
+							dims: label.dims,
+							key: $author$project$GraphDrawing$idToKey(edgeId),
+							label: vLabel,
+							pos: labelpos,
+							scale: $author$project$GraphDefs$edgeScaleFactor,
+							zindex: $author$project$Zindex$foregroundZ
+						},
+						attrs);
+				} else {
+					return A2(
+						$author$project$Drawing$makeLatex,
+						{
+							angle: angle,
+							dims: label.dims,
+							key: $author$project$GraphDrawing$idToKey(edgeId),
+							label: finalLabel,
+							pos: labelpos,
+							preamble: cfg.latexPreamble,
+							scale: $author$project$GraphDefs$edgeScaleFactor,
+							zindex: $author$project$Zindex$foregroundZ
+						},
+						attrs);
+				}
 			}
 		}
 	});
@@ -23290,10 +23336,6 @@ var $zwilias$elm_html_string$Html$Types$escapeHtmlText = A2(
 		A2($elm$core$String$replace, '<', '&lt;'),
 		A2($elm$core$String$replace, '>', '&gt;')));
 var $elm$core$String$foldl = _String_foldl;
-var $elm$core$String$cons = _String_cons;
-var $elm$core$String$fromChar = function (_char) {
-	return A2($elm$core$String$cons, _char, '');
-};
 var $zwilias$elm_html_string$Html$Types$escape = A2(
 	$elm$core$String$foldl,
 	F2(
@@ -24716,6 +24758,10 @@ var $author$project$QuickInput$equalityParser = A2(
 	$author$project$QuickInput$handSideParser);
 var $author$project$ArrowStyle$noMarker = '';
 var $author$project$ArrowStyle$empty = {bend: 0, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$DefaultHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0, shiftTarget: 0, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
+var $author$project$Verbatim$makeVerbatimLabel = F2(
+	function (isVerbatim, s) {
+		return isVerbatim ? ($author$project$Verbatim$verbatimCmd + ('{' + (s + '}'))) : s;
+	});
 var $author$project$Polygraph$md_graph = function (_v0) {
 	var graph = _v0.a.graph;
 	return graph;
@@ -24778,9 +24824,14 @@ var $author$project$GraphDefs$newNodeLabel = F4(
 	function (p, s, isMath, zindex) {
 		return {dims: $elm$core$Maybe$Nothing, isCoqValidated: false, isMath: isMath, label: s, pos: p, selected: false, weaklySelected: false, zindex: zindex};
 	});
-var $author$project$GraphDefs$md_createNodeLabel = F3(
-	function (g, s, p) {
-		var label = A4($author$project$GraphDefs$newNodeLabel, p, s, true, $author$project$Zindex$defaultZ);
+var $author$project$GraphDefs$md_createNodeLabelVerbatim = F4(
+	function (isVerbatim, g, s, p) {
+		var label = A4(
+			$author$project$GraphDefs$newNodeLabel,
+			p,
+			A2($author$project$Verbatim$makeVerbatimLabel, isVerbatim, s),
+			true,
+			$author$project$Zindex$defaultZ);
 		var _v0 = A2($author$project$Polygraph$md_newNode, g, label);
 		var g2 = _v0.a;
 		var id = _v0.b;
@@ -24810,18 +24861,19 @@ var $author$project$Polygraph$md_newEdge = F4(
 var $author$project$GraphDefs$newGenericLabel = function (d) {
 	return {details: d, selected: false, weaklySelected: false, zindex: $author$project$Zindex$defaultZ};
 };
-var $author$project$GraphDefs$newEdgeLabelAdj = F3(
-	function (s, style, isAdjunction) {
+var $author$project$GraphDefs$newEdgeLabelVerbatimAdj = F4(
+	function (isVerbatim, isAdjunction, s, style) {
 		return $author$project$GraphDefs$newGenericLabel(
 			$author$project$GraphDefs$NormalEdge(
-				{dims: $elm$core$Maybe$Nothing, isAdjunction: isAdjunction, label: s, style: style}));
+				{
+					dims: $elm$core$Maybe$Nothing,
+					isAdjunction: isAdjunction,
+					label: A2($author$project$Verbatim$makeVerbatimLabel, isVerbatim, s),
+					style: style
+				}));
 	});
-var $author$project$GraphDefs$newEdgeLabel = F2(
-	function (s, style) {
-		return A3($author$project$GraphDefs$newEdgeLabelAdj, s, style, false);
-	});
-var $author$project$QuickInput$buildGraphEdges = F7(
-	function (g, offset, alignment, pos, from, to, ch) {
+var $author$project$QuickInput$buildGraphEdges = F8(
+	function (isVerbatim, g, offset, alignment, pos, from, to, ch) {
 		buildGraphEdges:
 		while (true) {
 			var style = function () {
@@ -24840,12 +24892,12 @@ var $author$project$QuickInput$buildGraphEdges = F7(
 						g,
 						from,
 						to,
-						A2($author$project$GraphDefs$newEdgeLabel, e.edge, style)).a;
+						A4($author$project$GraphDefs$newEdgeLabelVerbatimAdj, isVerbatim, false, e.edge, style)).a;
 				} else {
 					var e = ch.a;
 					var tail = ch.b;
 					var posf = A2($author$project$Geometry$Point$add, offset, pos);
-					var _v1 = A3($author$project$GraphDefs$md_createNodeLabel, g, e.to, posf);
+					var _v1 = A4($author$project$GraphDefs$md_createNodeLabelVerbatim, isVerbatim, g, e.to, posf);
 					var g2 = _v1.a;
 					var idto = _v1.b;
 					var _v2 = A4(
@@ -24853,15 +24905,17 @@ var $author$project$QuickInput$buildGraphEdges = F7(
 						g2,
 						from,
 						idto,
-						A2($author$project$GraphDefs$newEdgeLabel, e.edge, style));
+						A4($author$project$GraphDefs$newEdgeLabelVerbatimAdj, isVerbatim, false, e.edge, style));
 					var g3 = _v2.a;
-					var $temp$g = g3,
+					var $temp$isVerbatim = isVerbatim,
+						$temp$g = g3,
 						$temp$offset = offset,
 						$temp$alignment = alignment,
 						$temp$pos = posf,
 						$temp$from = idto,
 						$temp$to = to,
 						$temp$ch = tail;
+					isVerbatim = $temp$isVerbatim;
 					g = $temp$g;
 					offset = $temp$offset;
 					alignment = $temp$alignment;
@@ -24874,14 +24928,15 @@ var $author$project$QuickInput$buildGraphEdges = F7(
 			}
 		}
 	});
-var $author$project$QuickInput$buildGraphSegment = F2(
-	function (s, g) {
+var $author$project$QuickInput$buildGraphSegment = F3(
+	function (isVerbatim, s, g) {
 		var offset = A2(
 			$author$project$Geometry$Point$resize,
 			1 / $elm$core$List$length(s.edges),
 			A2($author$project$Geometry$Point$subtract, s.to, s.from));
-		return A7(
+		return A8(
 			$author$project$QuickInput$buildGraphEdges,
+			isVerbatim,
 			g,
 			offset,
 			s.alignLeft ? $author$project$Geometry$Left : $author$project$Geometry$Right,
@@ -24896,8 +24951,8 @@ var $elm_community$list_extra$List$Extra$splitAt = F2(
 			A2($elm$core$List$take, n, xs),
 			A2($elm$core$List$drop, n, xs));
 	});
-var $author$project$QuickInput$orientEquation = F4(
-	function (iniP, _v0, offset, origG) {
+var $author$project$QuickInput$orientEquation = F5(
+	function (isVerbatim, iniP, _v0, offset, origG) {
 		var source = _v0.a;
 		var but = _v0.b;
 		var g = $author$project$Polygraph$newModif(origG);
@@ -24946,16 +25001,16 @@ var $author$project$QuickInput$orientEquation = F4(
 		var topRightLabel = lastLabel(source1);
 		var endLabel = lastLabel(source);
 		var bottomLeftLabel = lastLabel(but1);
-		var _v4 = A3($author$project$GraphDefs$md_createNodeLabel, g, startLabel, topLeftPos);
+		var _v4 = A4($author$project$GraphDefs$md_createNodeLabelVerbatim, isVerbatim, g, startLabel, topLeftPos);
 		var g2 = _v4.a;
 		var topLeftId = _v4.b;
-		var _v5 = A3($author$project$GraphDefs$md_createNodeLabel, g2, endLabel, bottomRightPos);
+		var _v5 = A4($author$project$GraphDefs$md_createNodeLabelVerbatim, isVerbatim, g2, endLabel, bottomRightPos);
 		var g3 = _v5.a;
 		var bottomRightId = _v5.b;
-		var _v6 = _Utils_eq(source2, _List_Nil) ? _Utils_Tuple3(g3, bottomRightId, iniP) : A3($author$project$GraphDefs$md_createNodeLabel, g3, topRightLabel, topRightPos);
+		var _v6 = _Utils_eq(source2, _List_Nil) ? _Utils_Tuple3(g3, bottomRightId, iniP) : A4($author$project$GraphDefs$md_createNodeLabelVerbatim, isVerbatim, g3, topRightLabel, topRightPos);
 		var g4 = _v6.a;
 		var topRightId = _v6.b;
-		var _v7 = _Utils_eq(but2, _List_Nil) ? _Utils_Tuple3(g4, bottomRightId, iniP) : A3($author$project$GraphDefs$md_createNodeLabel, g4, bottomLeftLabel, bottomLeftPos);
+		var _v7 = _Utils_eq(but2, _List_Nil) ? _Utils_Tuple3(g4, bottomRightId, iniP) : A4($author$project$GraphDefs$md_createNodeLabelVerbatim, isVerbatim, g4, bottomLeftLabel, bottomLeftPos);
 		var g5 = _v7.a;
 		var bottomLeftId = _v7.b;
 		return _Utils_Tuple2(
@@ -24968,18 +25023,22 @@ var $author$project$QuickInput$orientEquation = F4(
 					{alignLeft: false, edges: but2, from: bottomLeftPos, fromId: bottomLeftId, to: bottomRightPos, toId: bottomRightId}
 				]));
 	});
-var $author$project$QuickInput$graphEquation = F4(
-	function (pos, offset, eq, gi) {
-		var _v0 = A4($author$project$QuickInput$orientEquation, pos, eq, offset, gi);
+var $author$project$QuickInput$graphEquation = F5(
+	function (pos, offset, isVerbatim, eq, gi) {
+		var _v0 = A5($author$project$QuickInput$orientEquation, isVerbatim, pos, eq, offset, gi);
 		var gf = _v0.a;
 		var l = _v0.b;
-		return A3($elm$core$List$foldl, $author$project$QuickInput$buildGraphSegment, gf, l);
+		return A3(
+			$elm$core$List$foldl,
+			$author$project$QuickInput$buildGraphSegment(isVerbatim),
+			gf,
+			l);
 	});
-var $author$project$Main$graphDrawingChain = F3(
-	function (offset, g, eq) {
+var $author$project$Main$graphDrawingChain = F4(
+	function (offset, isVerbatim, g, eq) {
 		var mid = offset / 2;
 		var iniP = _Utils_Tuple2(mid, mid);
-		return A4($author$project$QuickInput$graphEquation, iniP, offset, eq, g);
+		return A5($author$project$QuickInput$graphEquation, iniP, offset, isVerbatim, eq, g);
 	});
 var $elm$parser$Parser$DeadEnd = F3(
 	function (row, col, problem) {
@@ -25068,7 +25127,7 @@ var $author$project$Model$updateFirstTab = F2(
 	});
 var $author$project$Main$setFirstTabEquationPerform = F2(
 	function (m, s) {
-		var _v0 = A2($elm$parser$Parser$run, $author$project$QuickInput$equalityParser, s);
+		var _v0 = A2($elm$parser$Parser$run, $author$project$QuickInput$equalityParser, s.statement);
 		if (_v0.$ === 'Err') {
 			return $author$project$Model$noCmd(m);
 		} else {
@@ -25081,7 +25140,7 @@ var $author$project$Main$setFirstTabEquationPerform = F2(
 						t,
 						{
 							graph: $author$project$Polygraph$applyModifHelper(
-								A3($author$project$Main$graphDrawingChain, t.sizeGrid, $author$project$Polygraph$empty, chain))
+								A4($author$project$Main$graphDrawingChain, t.sizeGrid, s.isVerbatim, $author$project$Polygraph$empty, chain))
 						});
 				});
 			return _Utils_Tuple2(
@@ -26793,6 +26852,10 @@ var $author$project$Polygraph$md_makeCylinder = F4(
 				{edit: $author$project$Polygraph$New, label: label},
 				inverted));
 	});
+var $author$project$GraphDefs$newEdgeLabelAdj = F3(
+	function (s, style, isAdjunction) {
+		return A4($author$project$GraphDefs$newEdgeLabelVerbatimAdj, false, isAdjunction, s, style);
+	});
 var $author$project$Modes$NewArrow$moveNodeInfo = F4(
 	function (merge, emptyLabel, model, state) {
 		var modelGraph = $author$project$Model$getActiveGraph(model);
@@ -27153,6 +27216,10 @@ var $author$project$Modes$NewArrow$update = F3(
 var $author$project$Modes$NewLine = function (a) {
 	return {$: 'NewLine', a: a};
 };
+var $author$project$GraphDefs$newEdgeLabel = F2(
+	function (s, style) {
+		return A3($author$project$GraphDefs$newEdgeLabelAdj, s, style, false);
+	});
 var $author$project$ArrowStyle$simpleLineStyle = function (bend) {
 	return {bend: bend, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$NoHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0, shiftTarget: 0, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
 };
@@ -29930,8 +29997,8 @@ var $author$project$Polygraph$md_removeEdge = F2(
 					removeIds: A2($elm$core$List$cons, id, m.removeIds)
 				}));
 	});
-var $author$project$QuickInput$splitWithChain = F4(
-	function (g, modifiedGraph, ch, id) {
+var $author$project$QuickInput$splitWithChain = F5(
+	function (isVerbatim, g, modifiedGraph, ch, id) {
 		return A2(
 			$elm$core$Maybe$withDefault,
 			modifiedGraph,
@@ -29944,8 +30011,9 @@ var $author$project$QuickInput$splitWithChain = F4(
 					if ((_v0.a.$ === 'Just') && (_v0.b.$ === 'Just')) {
 						var n1 = _v0.a.a;
 						var n2 = _v0.b.a;
-						return A2(
+						return A3(
 							$author$project$QuickInput$buildGraphSegment,
+							isVerbatim,
 							{alignLeft: true, edges: ch, from: n1.pos, fromId: edge.from, to: n2.pos, toId: edge.to},
 							A2($author$project$Polygraph$md_removeEdge, edge.id, modifiedGraph));
 					} else {
@@ -29958,20 +30026,23 @@ var $author$project$Main$graphQuickInput = F2(
 	function (model, _v0) {
 		var eq1 = _v0.a;
 		var eq2 = _v0.b;
+		var isVerbatim = false;
 		var modelGraph = $author$project$Model$getActiveGraph(model);
 		var sizeGrid = $author$project$Model$getActiveSizeGrid(model);
 		var od = $author$project$GraphDefs$selectedIncompleteDiagram(modelGraph);
-		var _default = A3(
+		var _default = A4(
 			$author$project$Main$graphDrawingChain,
 			sizeGrid,
+			isVerbatim,
 			modelGraph,
 			_Utils_Tuple2(eq1, eq2));
 		var split = F2(
 			function (l, edges) {
 				return A2(
 					$elm$core$Maybe$map,
-					A3(
+					A4(
 						$author$project$QuickInput$splitWithChain,
+						isVerbatim,
 						modelGraph,
 						$author$project$Polygraph$newModif(modelGraph),
 						edges),
@@ -30851,8 +30922,8 @@ var $author$project$Unification$unify = F3(
 			return (_Utils_cmp(length2, length1) < 0) ? $elm$core$Result$Err('The solved handside cannot be smaller') : A4($author$project$Unification$unifyAux, cfg, (1 + length2) - length1, l1, l2);
 		}
 	});
-var $author$project$Unification$unifyDiagram = F3(
-	function (_v0, d, graph) {
+var $author$project$Unification$unifyDiagram = F4(
+	function (isVerbatim, _v0, d, graph) {
 		var eq1 = _v0.a;
 		var eq2 = _v0.b;
 		var mayUnify = F2(
@@ -30892,8 +30963,9 @@ var $author$project$Unification$unifyDiagram = F3(
 					function (_v2, g) {
 						var a = _v2.a;
 						var edges = _v2.b;
-						return A4(
+						return A5(
 							$author$project$QuickInput$splitWithChain,
+							isVerbatim,
 							$author$project$Polygraph$applyModifHelper(graph),
 							g,
 							edges,
@@ -31138,6 +31210,7 @@ var $author$project$Main$update_DefaultMode = F2(
 					case 'AppliedProof':
 						var statement = msg.a.statement;
 						var script = msg.a.script;
+						var isVerbatim = msg.a.isVerbatim;
 						var failWith = function (s) {
 							return _Utils_Tuple2(
 								model,
@@ -31150,7 +31223,7 @@ var $author$project$Main$update_DefaultMode = F2(
 									return failWith('fail to parse ' + statement);
 								} else {
 									var eqs = _v12.a;
-									var _v13 = A3($author$project$Unification$unifyDiagram, eqs, diagram, graph);
+									var _v13 = A4($author$project$Unification$unifyDiagram, isVerbatim, eqs, diagram, graph);
 									if (_v13.$ === 'Err') {
 										var s = _v13.a;
 										return failWith(s);
@@ -32246,16 +32319,20 @@ var $author$project$Main$update = F2(
 			case 'SetFirstTab':
 				var g = msg.a;
 				var tab = $author$project$Format$GraphInfo$getActiveTab(g);
-				return _Utils_Tuple2(
-					A2(
-						$author$project$Model$updateFirstTab,
-						model,
-						function (t) {
-							return _Utils_update(
-								tab,
-								{title: t.title});
-						}),
-					$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
+				var newModel = A2(
+					$author$project$Model$updateFirstTab,
+					model,
+					function (t) {
+						return _Utils_update(
+							tab,
+							{title: t.title});
+					});
+				return _Utils_eq(model.graphInfo.latexPreamble, g.latexPreamble) ? _Utils_Tuple2(
+					newModel,
+					$author$project$HtmlDefs$computeLayout(_Utils_Tuple0)) : A2(
+					$author$project$CommandCodec$updateModif,
+					newModel,
+					$author$project$Format$GraphInfo$LatexPreamble(g.latexPreamble));
 			case 'Loaded':
 				var scenario = msg.a.scenario;
 				var graph = msg.a.graph;
@@ -36438,7 +36515,7 @@ var $author$project$HtmlDefs$textHtml = function (t) {
 		return _List_Nil;
 	}
 };
-var $author$project$HtmlDefs$introHtml = $author$project$HtmlDefs$textHtml('\n   <p>\n            A vi-inspired diagram editor, with              \n            (latex) labelled nodes and edges, tested with Chrome (doesn\'t work properly in Safari), written in <a href="https://elm-lang.org/">Elm</a> (see the code on \n        <a href="https://github.com/amblafont/graph-editor-web">github</a>).\n            Multiple collaboration is supported (check the <a href="https://github.com/amblafont/graph-editor-web/blob/master/README.md">README</a>).\n	    For a short description, see <a href="https://hal.science/hal-04407118v1">here</a>.\n        For a video demonstrating the mechanisation features, see <a href="https://github.com/amblafont/vscode-yade-example/releases/download/v0.1/demo-yade-example.mp4">here</a>.\n	    </p>\n	    <p>\n	    For LaTeX export, press (capital) \'X\' after selection. The output code relies on\n      a custom <a href="https://raw.githubusercontent.com/amblafont/graph-editor-web/master/tools/yade.sty">latex package</a>.\n	    </p>\n	    <p>\n            Read the tutorial first, and then try some <a href="?scenario=exercise1">exercise</a>.\n        </p>');
+var $author$project$HtmlDefs$introHtml = $author$project$HtmlDefs$textHtml('\n   <p>\n            A vi-inspired diagram editor, with              \n            (latex) labelled nodes and edges, tested with Chrome (doesn\'t work properly in Safari), written in <a href="https://elm-lang.org/">Elm</a> (see the code on \n        <a href="https://github.com/amblafont/graph-editor-web">github</a>).\n            Collaborative editing is supported (check the <a href="https://github.com/amblafont/graph-editor-web/blob/master/README.md">README</a>).\n	    For a short description, see <a href="https://hal.science/hal-04407118v1">here</a>.\n        For a video demonstrating the mechanisation features, see <a href="https://github.com/amblafont/vscode-yade-example/releases/download/v0.1/demo-yade-example.mp4">here</a>.\n	    </p>\n	    <p>\n	    For LaTeX export, press (capital) \'X\' after selection. The output code relies on\n      a custom <a href="https://raw.githubusercontent.com/amblafont/graph-editor-web/master/tools/yade.sty">latex package</a>.\n	    </p>\n	    <p>\n            Read the tutorial first, and then try some <a href="?scenario=exercise1">exercise</a>.\n        </p>');
 var $author$project$Modes$isResizeMode = function (m) {
 	if (m.$ === 'ResizeMode') {
 		return true;
