@@ -15481,77 +15481,98 @@ var $elm_community$intdict$IntDict$get = F2(
 	});
 var $author$project$Polygraph$mapRecAux = F6(
 	function (cn, ce, fn, fe, dict, ids) {
-		var getA = function (o) {
-			if (o.$ === 'NodeObj') {
-				var n = o.a;
-				return cn(n);
+		mapRecAux:
+		while (true) {
+			var getA = function (o) {
+				if (o.$ === 'NodeObj') {
+					var n = o.a;
+					return cn(n);
+				} else {
+					var e = o.c;
+					return ce(e);
+				}
+			};
+			var ins = F2(
+				function (id, o) {
+					return A3($elm_community$intdict$IntDict$insert, id, o, dict);
+				});
+			if (!ids.b) {
+				return dict;
 			} else {
-				var e = o.c;
-				return ce(e);
-			}
-		};
-		var rec = A4($author$project$Polygraph$mapRecAux, cn, ce, fn, fe);
-		var ins = F2(
-			function (id, o) {
-				return A3($elm_community$intdict$IntDict$insert, id, o, dict);
-			});
-		if (!ids.b) {
-			return dict;
-		} else {
-			var id = ids.a;
-			var tailIds = ids.b;
-			var _v1 = A2($elm_community$intdict$IntDict$get, id, dict);
-			_v1$3:
-			while (true) {
-				if (_v1.$ === 'Just') {
-					switch (_v1.a.$) {
-						case 'Input':
-							if (_v1.a.a.$ === 'NodeObj') {
-								var n = _v1.a.a.a;
-								return A2(
-									rec,
-									A2(
+				var id = ids.a;
+				var tailIds = ids.b;
+				var _v1 = A2($elm_community$intdict$IntDict$get, id, dict);
+				_v1$3:
+				while (true) {
+					if (_v1.$ === 'Just') {
+						switch (_v1.a.$) {
+							case 'Input':
+								if (_v1.a.a.$ === 'NodeObj') {
+									var n = _v1.a.a.a;
+									var $temp$cn = cn,
+										$temp$ce = ce,
+										$temp$fn = fn,
+										$temp$fe = fe,
+										$temp$dict = A2(
 										ins,
 										id,
 										$author$project$Polygraph$Output(
 											$author$project$Polygraph$NodeObj(
 												A2(fn, id, n)))),
-									tailIds);
-							} else {
-								var _v2 = _v1.a.a;
-								var i1 = _v2.a;
-								var i2 = _v2.b;
-								var e = _v2.c;
-								return A2(
-									rec,
-									A2(
+										$temp$ids = tailIds;
+									cn = $temp$cn;
+									ce = $temp$ce;
+									fn = $temp$fn;
+									fe = $temp$fe;
+									dict = $temp$dict;
+									ids = $temp$ids;
+									continue mapRecAux;
+								} else {
+									var _v2 = _v1.a.a;
+									var i1 = _v2.a;
+									var i2 = _v2.b;
+									var e = _v2.c;
+									var $temp$cn = cn,
+										$temp$ce = ce,
+										$temp$fn = fn,
+										$temp$fe = fe,
+										$temp$dict = A2(
 										ins,
 										id,
 										A3($author$project$Polygraph$Waiting, i1, i2, e)),
-									A2(
+										$temp$ids = A2(
 										$elm$core$List$cons,
 										i1,
 										A2(
 											$elm$core$List$cons,
 											i2,
-											A2($elm$core$List$cons, id, tailIds))));
-							}
-						case 'Waiting':
-							var _v3 = _v1.a;
-							var i1 = _v3.a;
-							var i2 = _v3.b;
-							var e = _v3.c;
-							var _v4 = _Utils_Tuple2(
-								A2($elm_community$intdict$IntDict$get, i1, dict),
-								A2($elm_community$intdict$IntDict$get, i2, dict));
-							if ((((_v4.a.$ === 'Just') && (_v4.a.a.$ === 'Output')) && (_v4.b.$ === 'Just')) && (_v4.b.a.$ === 'Output')) {
-								var o1 = _v4.a.a.a;
-								var o2 = _v4.b.a.a;
-								var a2 = getA(o2);
-								var a1 = getA(o1);
-								return A2(
-									rec,
-									A2(
+											A2($elm$core$List$cons, id, tailIds)));
+									cn = $temp$cn;
+									ce = $temp$ce;
+									fn = $temp$fn;
+									fe = $temp$fe;
+									dict = $temp$dict;
+									ids = $temp$ids;
+									continue mapRecAux;
+								}
+							case 'Waiting':
+								var _v3 = _v1.a;
+								var i1 = _v3.a;
+								var i2 = _v3.b;
+								var e = _v3.c;
+								var _v4 = _Utils_Tuple2(
+									A2($elm_community$intdict$IntDict$get, i1, dict),
+									A2($elm_community$intdict$IntDict$get, i2, dict));
+								if ((((_v4.a.$ === 'Just') && (_v4.a.a.$ === 'Output')) && (_v4.b.$ === 'Just')) && (_v4.b.a.$ === 'Output')) {
+									var o1 = _v4.a.a.a;
+									var o2 = _v4.b.a.a;
+									var a2 = getA(o2);
+									var a1 = getA(o1);
+									var $temp$cn = cn,
+										$temp$ce = ce,
+										$temp$fn = fn,
+										$temp$fe = fe,
+										$temp$dict = A2(
 										ins,
 										id,
 										$author$project$Polygraph$Output(
@@ -15560,18 +15581,50 @@ var $author$project$Polygraph$mapRecAux = F6(
 												i1,
 												i2,
 												A4(fe, id, a1, a2, e)))),
-									tailIds);
-							} else {
-								return A2(rec, dict, tailIds);
-							}
-						default:
-							break _v1$3;
+										$temp$ids = tailIds;
+									cn = $temp$cn;
+									ce = $temp$ce;
+									fn = $temp$fn;
+									fe = $temp$fe;
+									dict = $temp$dict;
+									ids = $temp$ids;
+									continue mapRecAux;
+								} else {
+									var $temp$cn = cn,
+										$temp$ce = ce,
+										$temp$fn = fn,
+										$temp$fe = fe,
+										$temp$dict = dict,
+										$temp$ids = tailIds;
+									cn = $temp$cn;
+									ce = $temp$ce;
+									fn = $temp$fn;
+									fe = $temp$fe;
+									dict = $temp$dict;
+									ids = $temp$ids;
+									continue mapRecAux;
+								}
+							default:
+								break _v1$3;
+						}
+					} else {
+						break _v1$3;
 					}
-				} else {
-					break _v1$3;
 				}
+				var $temp$cn = cn,
+					$temp$ce = ce,
+					$temp$fn = fn,
+					$temp$fe = fe,
+					$temp$dict = dict,
+					$temp$ids = tailIds;
+				cn = $temp$cn;
+				ce = $temp$ce;
+				fn = $temp$fn;
+				fe = $temp$fe;
+				dict = $temp$dict;
+				ids = $temp$ids;
+				continue mapRecAux;
 			}
-			return A2(rec, dict, tailIds);
 		}
 	});
 var $author$project$Polygraph$mapRecRep = F6(
@@ -17669,7 +17722,6 @@ var $elm_community$maybe_extra$Maybe$Extra$or = F2(
 			return ma;
 		}
 	});
-var $elm$core$Debug$log = _Debug_log;
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$core$Maybe$destruct = F3(
 	function (_default, func, maybe) {
@@ -18693,10 +18745,7 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 				]));
 	});
 var $author$project$CommandCodec$protocolSendMsg = function (c) {
-	var msg = A2(
-		$author$project$Codec$encoder,
-		$author$project$CommandCodec$protocolMsgCodec,
-		A2($elm$core$Debug$log, 'sending msg', c));
+	var msg = A2($author$project$Codec$encoder, $author$project$CommandCodec$protocolMsgCodec, c);
 	return $author$project$CommandCodec$protocolSendJS(
 		function () {
 			switch (c.$) {
