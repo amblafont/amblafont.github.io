@@ -21014,6 +21014,21 @@ var $author$project$GraphDrawing$activityToClasses = function (a) {
 			return _List_Nil;
 	}
 };
+var $author$project$HtmlDefs$dimsAttribute = function (_v0) {
+	var width = _v0.a;
+	var height = _v0.b;
+	return _List_fromArray(
+		[
+			A2(
+			$elm$html$Html$Attributes$attribute,
+			'data-width',
+			$elm$core$String$fromFloat(width)),
+			A2(
+			$elm$html$Html$Attributes$attribute,
+			'data-height',
+			$elm$core$String$fromFloat(height))
+		]);
+};
 var $author$project$GraphDrawing$idToKey = A2($elm$core$Basics$composeR, $elm$core$String$fromInt, $elm$core$Maybe$Just);
 var $author$project$Drawing$Node = function (a) {
 	return {$: 'Node', a: a};
@@ -21333,11 +21348,13 @@ var $author$project$GraphDrawing$nodeDrawing = F2(
 								$author$project$HtmlDefs$renderedClass,
 								$author$project$GraphDrawing$activityToClasses(n.isActive)))
 						]),
-					_List_fromArray(
-						[
-							$author$project$HtmlDefs$onRendered(
-							$author$project$Msg$NodeRendered(id))
-						])));
+					_Utils_ap(
+						$author$project$HtmlDefs$dimsAttribute(n.dims),
+						_List_fromArray(
+							[
+								$author$project$HtmlDefs$onRendered(
+								$author$project$Msg$NodeRendered(id))
+							]))));
 			var _v0 = $author$project$Verbatim$extractVerbatim(n.label);
 			if (_v0.$ === 'Just') {
 				var vLabel = _v0.a;
@@ -21988,23 +22005,26 @@ var $author$project$GraphDrawing$segmentLabel = F7(
 				var finalLabel = label.label;
 				var angle = _Utils_eq(label.style.labelAlignment, $author$project$Geometry$Over) ? $author$project$Geometry$Point$pointToAngle(
 					A2($author$project$Geometry$Point$subtract, q.to, q.from)) : 0;
-				var attrs = _List_fromArray(
-					[
-						$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onClick(
-						$author$project$Msg$EdgeClick(edgeId)),
-						$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDoubleClick(
-						$author$project$Msg$EltDoubleClick(edgeId)),
-						$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onMove(
-						$elm$core$Basics$always(
-							$author$project$Msg$MouseOn(edgeId))),
-						$author$project$GraphDrawing$class(
-						A2(
-							$elm$core$List$cons,
-							$author$project$HtmlDefs$renderedClass,
-							$author$project$GraphDrawing$activityToClasses(activity))),
-						$author$project$HtmlDefs$onRendered(
-						$author$project$Msg$EdgeRendered(edgeId))
-					]);
+				var attrs = _Utils_ap(
+					_List_fromArray(
+						[
+							$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onClick(
+							$author$project$Msg$EdgeClick(edgeId)),
+							$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDoubleClick(
+							$author$project$Msg$EltDoubleClick(edgeId)),
+							$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onMove(
+							$elm$core$Basics$always(
+								$author$project$Msg$MouseOn(edgeId))),
+							$author$project$GraphDrawing$class(
+							A2(
+								$elm$core$List$cons,
+								$author$project$HtmlDefs$renderedClass,
+								$author$project$GraphDrawing$activityToClasses(activity))),
+							$author$project$HtmlDefs$onRendered(
+							$author$project$Msg$EdgeRendered(edgeId))
+						]),
+					$author$project$HtmlDefs$dimsAttribute(
+						A2($author$project$Geometry$Point$resize, 1 / $author$project$GraphDefs$edgeScaleFactor, label.dims)));
 				var _v0 = $author$project$Verbatim$extractVerbatim(finalLabel);
 				if (_v0.$ === 'Just') {
 					var vLabel = _v0.a;
