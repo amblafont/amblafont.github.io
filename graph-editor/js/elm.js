@@ -17722,6 +17722,7 @@ var $elm_community$maybe_extra$Maybe$Extra$or = F2(
 			return ma;
 		}
 	});
+var $elm$core$Debug$log = _Debug_log;
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$core$Maybe$destruct = F3(
 	function (_default, func, maybe) {
@@ -18745,7 +18746,10 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 				]));
 	});
 var $author$project$CommandCodec$protocolSendMsg = function (c) {
-	var msg = A2($author$project$Codec$encoder, $author$project$CommandCodec$protocolMsgCodec, c);
+	var msg = A2(
+		$author$project$Codec$encoder,
+		$author$project$CommandCodec$protocolMsgCodec,
+		A2($elm$core$Debug$log, 'sending msg', c));
 	return $author$project$CommandCodec$protocolSendJS(
 		function () {
 			switch (c.$) {
