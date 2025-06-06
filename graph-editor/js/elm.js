@@ -17547,7 +17547,7 @@ var $author$project$Command$applyCommand = F2(
 		var isSender = _v0.isSender;
 		var msg = _v0.msg;
 		var returnComputeLayout = function (m) {
-			return {computeLayout: true, focus: $elm$core$Maybe$Nothing, model: m, undo: $author$project$Command$NoUndo};
+			return {focus: $elm$core$Maybe$Nothing, model: m, undo: $author$project$Command$NoUndo};
 		};
 		switch (msg.$) {
 			case 'Snapshot':
@@ -17566,7 +17566,6 @@ var $author$project$Command$applyCommand = F2(
 				if (_v2.$ === 'Just') {
 					var r = _v2.a;
 					return {
-						computeLayout: true,
 						focus: $elm$core$Maybe$Nothing,
 						model: _Utils_update(
 							model,
@@ -17575,7 +17574,6 @@ var $author$project$Command$applyCommand = F2(
 					};
 				} else {
 					return {
-						computeLayout: false,
 						focus: $elm$core$Maybe$Nothing,
 						model: model,
 						undo: isSender ? $author$project$Command$FailedUndo : $author$project$Command$NoUndo
@@ -17637,18 +17635,11 @@ var $author$project$Command$applyCommand = F2(
 			default:
 				var arg = msg.a;
 				return {
-					computeLayout: false,
 					focus: $elm$core$Maybe$Just(arg),
 					model: model,
 					undo: $author$project$Command$NoUndo
 				};
 		}
-	});
-var $elm$json$Json$Encode$null = _Json_encodeNull;
-var $author$project$HtmlDefs$computeLayout = _Platform_outgoingPort(
-	'computeLayout',
-	function ($) {
-		return $elm$json$Json$Encode$null;
 	});
 var $elm$json$Json$Encode$float = _Json_wrap;
 var $elm$json$Json$Encode$list = F2(
@@ -17734,6 +17725,7 @@ var $elm$core$Maybe$destruct = F3(
 		}
 	});
 var $elm$json$Json$Encode$int = _Json_wrap;
+var $elm$json$Json$Encode$null = _Json_encodeNull;
 var $elm$json$Json$Encode$object = function (pairs) {
 	return _Json_wrap(
 		A3(
@@ -18829,7 +18821,6 @@ var $author$project$Command$applyCommands = F2(
 			function (msg, status) {
 				var ret = A2($author$project$Command$applyCommand, msg, status.model);
 				return {
-					computeLayout: ret.computeLayout || status.computeLayout,
 					focus: A2($elm_community$maybe_extra$Maybe$Extra$or, ret.focus, status.focus),
 					model: ret.model,
 					undo: A2($author$project$Command$mergeUndoStatus, ret.undo, status.undo)
@@ -18838,7 +18829,7 @@ var $author$project$Command$applyCommands = F2(
 		var ret = A3(
 			$elm$core$List$foldl,
 			aux,
-			{computeLayout: false, focus: $elm$core$Maybe$Nothing, model: model, undo: $author$project$Command$NoUndo},
+			{focus: $elm$core$Maybe$Nothing, model: model, undo: $author$project$Command$NoUndo},
 			arg);
 		var _v0 = _Utils_eq(ret.undo, $author$project$Command$FailedUndo) ? $author$project$Command$undo(ret.model) : $author$project$Model$noCmd(ret.model);
 		var finalModel = _v0.a;
@@ -18877,16 +18868,8 @@ var $author$project$Command$applyCommands = F2(
 		return _Utils_Tuple2(
 			finalModel2,
 			$elm$core$Platform$Cmd$batch(
-				A2(
-					$elm$core$List$cons,
-					cmd,
-					A2(
-						$elm$core$List$cons,
-						cmd2,
-						ret.computeLayout ? _List_fromArray(
-							[
-								$author$project$HtmlDefs$computeLayout(_Utils_Tuple0)
-							]) : _List_Nil))));
+				_List_fromArray(
+					[cmd, cmd2])));
 	});
 var $author$project$GraphDefs$mapDetails = F2(
 	function (f, e) {
@@ -25216,11 +25199,10 @@ var $author$project$Main$setFirstTabEquationPerform = F2(
 								A4($author$project$Main$graphDrawingChain, t.sizeGrid, s.isVerbatim, $author$project$Polygraph$empty, chain))
 						});
 				});
-			return _Utils_Tuple2(
+			return $author$project$Model$noCmd(
 				_Utils_update(
 					mUpdated,
-					{mode: $author$project$Modes$DefaultMode}),
-				$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
+					{mode: $author$project$Modes$DefaultMode}));
 		}
 	});
 var $author$project$Polygraph$md_graphMap = F2(
@@ -32285,11 +32267,10 @@ var $author$project$Main$update = F2(
 				return A2($author$project$Main$setFirstTabEquationPerform, modeli, s);
 			case 'MakeSave':
 				var newModel = A2($author$project$Model$updateActiveGraph, model, $author$project$GraphDefs$clearDims);
-				return _Utils_Tuple2(
+				return $author$project$Model$noCmd(
 					_Utils_update(
 						newModel,
-						{mode: $author$project$Modes$MakeSaveMode}),
-					$author$project$HtmlDefs$computeLayout(_Utils_Tuple0));
+						{mode: $author$project$Modes$MakeSaveMode}));
 			case 'Save':
 				return $author$project$Main$save(model);
 			case 'RulerMargin':
@@ -32400,9 +32381,7 @@ var $author$project$Main$update = F2(
 							tab,
 							{title: t.title});
 					});
-				return _Utils_eq(model.graphInfo.latexPreamble, g.latexPreamble) ? _Utils_Tuple2(
-					newModel,
-					$author$project$HtmlDefs$computeLayout(_Utils_Tuple0)) : A2(
+				return _Utils_eq(model.graphInfo.latexPreamble, g.latexPreamble) ? $author$project$Model$noCmd(newModel) : A2(
 					$author$project$CommandCodec$updateModif,
 					newModel,
 					$author$project$Format$GraphInfo$LatexPreamble(g.latexPreamble));
