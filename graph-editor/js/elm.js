@@ -6723,6 +6723,7 @@ var $author$project$ArrowStyle$alignmentCodec = function () {
 }();
 var $author$project$Drawing$Color$Black = {$: 'Black'};
 var $author$project$Drawing$Color$Blue = {$: 'Blue'};
+var $author$project$Drawing$Color$Gray = {$: 'Gray'};
 var $author$project$Drawing$Color$Green = {$: 'Green'};
 var $author$project$Drawing$Color$Orange = {$: 'Orange'};
 var $author$project$Drawing$Color$Purple = {$: 'Purple'};
@@ -6730,27 +6731,46 @@ var $author$project$Drawing$Color$Red = {$: 'Red'};
 var $author$project$Drawing$Color$White = {$: 'White'};
 var $author$project$Drawing$Color$Yellow = {$: 'Yellow'};
 var $author$project$Drawing$Color$codec = function () {
-	var split = F9(
-		function (cred, cblue, cwhite, cpurple, cgreen, cyellow, corange, cblack, v) {
-			switch (v.$) {
-				case 'Red':
-					return cred;
-				case 'Blue':
-					return cblue;
-				case 'White':
-					return cwhite;
-				case 'Purple':
-					return cpurple;
-				case 'Green':
-					return cgreen;
-				case 'Yellow':
-					return cyellow;
-				case 'Orange':
-					return corange;
-				default:
-					return cblack;
-			}
-		});
+	var split = function (cgray) {
+		return function (cred) {
+			return function (cblue) {
+				return function (cwhite) {
+					return function (cpurple) {
+						return function (cgreen) {
+							return function (cyellow) {
+								return function (corange) {
+									return function (cblack) {
+										return function (v) {
+											switch (v.$) {
+												case 'Gray':
+													return cgray;
+												case 'Red':
+													return cred;
+												case 'Blue':
+													return cblue;
+												case 'White':
+													return cwhite;
+												case 'Purple':
+													return cpurple;
+												case 'Green':
+													return cgreen;
+												case 'Yellow':
+													return cyellow;
+												case 'Orange':
+													return corange;
+												default:
+													return cblack;
+											}
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
 	return A2(
 		$author$project$Codec$buildVariant,
 		$elm$core$Basics$always($author$project$Drawing$Color$Black),
@@ -6786,7 +6806,11 @@ var $author$project$Drawing$Color$codec = function () {
 										$author$project$Codec$variant0,
 										'red',
 										$author$project$Drawing$Color$Red,
-										$author$project$Codec$customEnum(split))))))))));
+										A3(
+											$author$project$Codec$variant0,
+											'gray',
+											$author$project$Drawing$Color$Gray,
+											$author$project$Codec$customEnum(split)))))))))));
 }();
 var $author$project$Format$Version17$maxDecimalDigits = 4;
 var $elm$core$String$fromFloat = _String_fromNumber;
@@ -25302,12 +25326,14 @@ var $author$project$Drawing$Color$fromChar = function (s) {
 			return $elm$core$Maybe$Just($author$project$Drawing$Color$Red);
 		case 'u':
 			return $elm$core$Maybe$Just($author$project$Drawing$Color$Blue);
+		case 'w':
+			return $elm$core$Maybe$Just($author$project$Drawing$Color$Yellow);
 		case 'v':
 			return $elm$core$Maybe$Just($author$project$Drawing$Color$Purple);
 		case 'g':
 			return $elm$core$Maybe$Just($author$project$Drawing$Color$Green);
 		case 'y':
-			return $elm$core$Maybe$Just($author$project$Drawing$Color$Yellow);
+			return $elm$core$Maybe$Just($author$project$Drawing$Color$Gray);
 		case 'o':
 			return $elm$core$Maybe$Just($author$project$Drawing$Color$Orange);
 		case 'c':
@@ -33004,7 +33030,7 @@ var $author$project$Drawing$grid = function (n) {
 };
 var $author$project$Main$Plain = {$: 'Plain'};
 var $author$project$ArrowStyle$controlChars = '|>(=-~bBA][';
-var $author$project$Drawing$Color$helpMsg = 'bla[c]k, bl[u]e, [g]reen, [o]range, [r]ed, [v]iolet, [y]ellow';
+var $author$project$Drawing$Color$helpMsg = 'bla[c]k, bl[u]e, [g]reen, [o]range, [r]ed, [v]iolet, yello[w], gra[y]';
 var $author$project$HtmlDefs$overlayHelpMsg = '[?] to toggle help overlay';
 var $author$project$ArrowStyle$shiftHelpMsg = 'shift [Ss]ource/targ[Ee]t';
 var $author$project$Modes$Customize$help = function (state) {

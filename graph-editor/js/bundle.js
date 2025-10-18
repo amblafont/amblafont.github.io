@@ -175,7 +175,7 @@ var Bundle = (() => {
   }
   function writeLine(fd, line) {
     if (line !== false)
-      fd.push(line + "\n");
+      fd.push(line);
   }
   function writeLines(fd, lines, indent) {
     for (let line of lines) {
@@ -222,7 +222,7 @@ var Bundle = (() => {
       }
       writeLine(fd, line);
     }
-    return fsWriteFile(d, watchedFile, fd.join(""));
+    return fsWriteFile(d, watchedFile, fd.join("\n"));
   }
   async function watchSaveDiagram(handleConfig, d, newcontent_json, exports) {
     let config = handleConfig.config;
