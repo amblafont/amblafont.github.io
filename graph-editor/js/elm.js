@@ -5502,6 +5502,43 @@ var $elm$core$Basics$composeR = F3(
 		return g(
 			f(x));
 	});
+var $author$project$Modes$Bend$computeFlags = function (_v0) {
+	return {pointerLock: true};
+};
+var $author$project$Modes$Customize$computeFlags = function (s) {
+	var _v0 = s.mode;
+	if (_v0.$ === 'CustomizeModePart') {
+		return {pointerLock: false};
+	} else {
+		return {pointerLock: true};
+	}
+};
+var $author$project$Modes$NewArrow$computeFlags = function (state) {
+	var _v0 = state.mode;
+	switch (_v0.$) {
+		case 'NewArrowBend':
+			return {pointerLock: true};
+		case 'NewArrowShift':
+			return {pointerLock: true};
+		default:
+			return {pointerLock: false};
+	}
+};
+var $author$project$Main$computeFlags = function (mode) {
+	switch (mode.$) {
+		case 'BendMode':
+			var state = mode.a;
+			return $author$project$Modes$Bend$computeFlags(state);
+		case 'NewArrow':
+			var state = mode.a;
+			return $author$project$Modes$NewArrow$computeFlags(state);
+		case 'CustomizeMode':
+			var state = mode.a;
+			return $author$project$Modes$Customize$computeFlags(state);
+		default:
+			return {pointerLock: false};
+	}
+};
 var $author$project$Model$currentMode = function (m) {
 	return m.mode;
 };
@@ -15251,7 +15288,7 @@ var $author$project$Main$subscriptions = function (m) {
 						if (_v1.$ === 'ResizeMode') {
 							return false;
 						} else {
-							return !m.mouseOnCanvas;
+							return (!m.mouseOnCanvas) && (!$author$project$Main$computeFlags(m.mode).pointerLock);
 						}
 					}() ? _List_Nil : _Utils_ap(
 						_Utils_eq(m.scenario, $author$project$Msg$Watch) ? _List_Nil : _List_fromArray(
@@ -15343,43 +15380,6 @@ var $author$project$Main$compareFlagsToCmd = F2(
 	function (oldFlags, newFlags) {
 		return _Utils_eq(oldFlags.pointerLock, newFlags.pointerLock) ? $elm$core$Platform$Cmd$none : (newFlags.pointerLock ? $author$project$Main$pointerLock(_Utils_Tuple0) : $author$project$Main$pointerUnlock(_Utils_Tuple0));
 	});
-var $author$project$Modes$Bend$computeFlags = function (_v0) {
-	return {pointerLock: true};
-};
-var $author$project$Modes$Customize$computeFlags = function (s) {
-	var _v0 = s.mode;
-	if (_v0.$ === 'CustomizeModePart') {
-		return {pointerLock: false};
-	} else {
-		return {pointerLock: true};
-	}
-};
-var $author$project$Modes$NewArrow$computeFlags = function (state) {
-	var _v0 = state.mode;
-	switch (_v0.$) {
-		case 'NewArrowBend':
-			return {pointerLock: true};
-		case 'NewArrowShift':
-			return {pointerLock: true};
-		default:
-			return {pointerLock: false};
-	}
-};
-var $author$project$Main$computeFlags = function (mode) {
-	switch (mode.$) {
-		case 'BendMode':
-			var state = mode.a;
-			return $author$project$Modes$Bend$computeFlags(state);
-		case 'NewArrow':
-			var state = mode.a;
-			return $author$project$Modes$NewArrow$computeFlags(state);
-		case 'CustomizeMode':
-			var state = mode.a;
-			return $author$project$Modes$Customize$computeFlags(state);
-		default:
-			return {pointerLock: false};
-	}
-};
 var $author$project$Model$noCmd = function (m) {
 	return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
 };
@@ -17439,21 +17439,14 @@ var $author$project$Model$activateFirstTab = function (m) {
 var $author$project$Modes$BendMode = function (a) {
 	return {$: 'BendMode', a: a};
 };
-var $elm$core$Basics$round = _Basics_round;
-var $author$project$Modes$Bend$componentGetBend = function (state) {
-	var delta = state.captureState.value;
-	var newBend = state.origBend + delta;
-	var finalBend = $elm$core$Basics$round(newBend * 10) / 10;
-	return finalBend;
-};
 var $author$project$EdgeShape$Bezier = function (a) {
 	return {$: 'Bezier', a: a};
 };
 var $author$project$EdgeShape$HatShape = function (a) {
 	return {$: 'HatShape', a: a};
 };
-var $author$project$ArrowStyle$HeadPart = {$: 'HeadPart'};
-var $author$project$ArrowStyle$TailPart = {$: 'TailPart'};
+var $author$project$ArrowStyle$Head = {$: 'Head'};
+var $author$project$ArrowStyle$Tail = {$: 'Tail'};
 var $author$project$GraphDefs$defaultDims = function (s) {
 	var height = 16;
 	var size = 1;
@@ -17849,13 +17842,10 @@ var $author$project$Geometry$segmentRectBent = F3(
 	});
 var $author$project$ArrowStyle$shiftRatioFromPart = F2(
 	function (s, part) {
-		switch (part.$) {
-			case 'HeadPart':
-				return s.shiftTarget;
-			case 'TailPart':
-				return s.shiftSource;
-			default:
-				return 0.5;
+		if (part.$ === 'Head') {
+			return s.shiftTarget;
+		} else {
+			return s.shiftSource;
 		}
 	});
 var $author$project$GraphDefs$posGraph = function (g) {
@@ -17898,7 +17888,7 @@ var $author$project$GraphDefs$posGraph = function (g) {
 			} else {
 				var l = _v4.a;
 				var computePosDims = function (isSource) {
-					var _v5 = isSource ? _Utils_Tuple2(n1, $author$project$ArrowStyle$TailPart) : _Utils_Tuple2(n2, $author$project$ArrowStyle$HeadPart);
+					var _v5 = isSource ? _Utils_Tuple2(n1, $author$project$ArrowStyle$Tail) : _Utils_Tuple2(n2, $author$project$ArrowStyle$Head);
 					var n = _v5.a;
 					var part = _v5.b;
 					if (!n.isArrow) {
@@ -18014,22 +18004,16 @@ var $author$project$GraphDefs$getEdgeDirection = F2(
 			}
 		}
 	});
-var $author$project$Modes$Bend$initialiseComponent = F2(
-	function (dir0, ini) {
-		var dir = _Utils_eq(
-			dir0,
-			_Utils_Tuple2(0, 0)) ? _Utils_Tuple2(1, 0) : dir0;
+var $author$project$Modes$Bend$initialiseCapture = F2(
+	function (dir0, iniBend) {
 		return {
-			captureState: {
-				bounds: $elm$core$Maybe$Nothing,
-				direction: A3(
-					$author$project$Geometry$Point$orthoVectPx,
-					_Utils_Tuple2(0, 0),
-					dir,
-					0.01),
-				value: ini.bend
-			},
-			origBend: ini.origBend
+			bounds: $elm$core$Maybe$Nothing,
+			direction: A3(
+				$author$project$Geometry$Point$orthoVectPx,
+				_Utils_Tuple2(0, 0),
+				dir0,
+				0.01),
+			value: iniBend
 		};
 	});
 var $author$project$GraphDefs$isTrueSelection = function (g) {
@@ -18088,24 +18072,21 @@ var $author$project$Modes$Bend$initialise_with_state = F2(
 					$elm$core$Maybe$withDefault,
 					_Utils_Tuple2(1, 0),
 					A2($author$project$GraphDefs$getEdgeDirection, modelGraph, e));
-				var iniState = function () {
-					if (mayState.$ === 'Nothing') {
-						return {bend: l.style.bend, origBend: l.style.bend};
-					} else {
-						var s = mayState.a;
-						return {
-							bend: $author$project$Modes$Bend$componentGetBend(s.componentState),
-							origBend: s.componentState.origBend
-						};
-					}
-				}();
+				var iniState = A2(
+					$author$project$Modes$Bend$initialiseCapture,
+					dir,
+					function () {
+						if (mayState.$ === 'Nothing') {
+							return l.style.bend;
+						} else {
+							var s = mayState.a;
+							return s.captureState.value;
+						}
+					}());
 				return A2(
 					$author$project$Model$setMode,
 					$author$project$Modes$BendMode(
-						{
-							componentState: A2($author$project$Modes$Bend$initialiseComponent, dir, iniState),
-							edge: e
-						}),
+						{captureState: iniState, edge: e}),
 					model);
 			}
 		}
@@ -19804,6 +19785,7 @@ var $author$project$GraphProof$commuteProof = F2(
 		}
 	});
 var $elm$core$Basics$pi = _Basics_pi;
+var $elm$core$Basics$round = _Basics_round;
 var $author$project$Geometry$Point$countRoundsAngle = function (a) {
 	return $elm$core$Basics$round(a / (2 * $elm$core$Basics$pi));
 };
@@ -25392,6 +25374,11 @@ var $author$project$Main$setFirstTabEquationPerform = F2(
 				A2($author$project$Model$setMode, $author$project$Modes$DefaultMode, mUpdated));
 		}
 	});
+var $author$project$Modes$Bend$captureValue = function (state) {
+	var newBend = state.value;
+	var finalBend = $elm$core$Basics$round(newBend * 10) / 10;
+	return finalBend;
+};
 var $author$project$GraphDefs$filterEdgeNormal = function (e) {
 	return A2(
 		$elm$core$Maybe$map,
@@ -25479,7 +25466,7 @@ var $author$project$Modes$Bend$createModif = F2(
 					_Utils_update(
 						style,
 						{
-							bend: $author$project$Modes$Bend$componentGetBend(state.componentState)
+							bend: $author$project$Modes$Bend$captureValue(state.captureState)
 						}));
 			},
 			_List_fromArray(
@@ -25572,16 +25559,26 @@ var $author$project$Modes$Lib$makeApi = function (f) {
 	};
 };
 var $author$project$Modes$Bend$api = $author$project$Modes$Lib$makeApi($author$project$Modes$Bend$createModif);
+var $author$project$Model$switch_Default = function (m) {
+	return $author$project$Model$noCmd(
+		A2($author$project$Model$setMode, $author$project$Modes$DefaultMode, m));
+};
+var $author$project$Model$toggleHelpOverlay = function (model) {
+	return _Utils_update(
+		model,
+		{showOverlayHelp: !model.showOverlayHelp});
+};
 var $author$project$Modes$Capture$Cancel = {$: 'Cancel'};
-var $author$project$Modes$Capture$Finalise = {$: 'Finalise'};
-var $author$project$Modes$Capture$NewState = {$: 'NewState'};
+var $author$project$Modes$Capture$NewState = function (a) {
+	return {$: 'NewState', a: a};
+};
 var $author$project$Modes$Capture$NoChange = {$: 'NoChange'};
 var $author$project$Modes$Capture$update = F2(
 	function (state, msg) {
 		var sameState = function (v) {
-			return _Utils_Tuple2(v, state);
+			return v;
 		};
-		_v0$4:
+		_v0$3:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseLockedDelta':
@@ -25602,8 +25599,7 @@ var $author$project$Modes$Capture$update = F2(
 								A2($elm$core$Basics$min, maxV, newRawValue));
 						}
 					}();
-					return _Utils_Tuple2(
-						$author$project$Modes$Capture$NewState,
+					return $author$project$Modes$Capture$NewState(
 						_Utils_update(
 							state,
 							{value: newValue}));
@@ -25611,53 +25607,69 @@ var $author$project$Modes$Capture$update = F2(
 					if (((!msg.a) && (msg.c.$ === 'Control')) && (msg.c.a === 'Escape')) {
 						return sameState($author$project$Modes$Capture$Cancel);
 					} else {
-						break _v0$4;
+						break _v0$3;
 					}
 				case 'MouseUnlock':
 					return sameState($author$project$Modes$Capture$Cancel);
-				case 'MouseClick':
-					return sameState($author$project$Modes$Capture$Finalise);
 				default:
-					break _v0$4;
+					break _v0$3;
 			}
 		}
 		return sameState($author$project$Modes$Capture$NoChange);
 	});
-var $author$project$Modes$Bend$updateComponent = F2(
-	function (state, msg) {
-		var _v0 = A2($author$project$Modes$Capture$update, state.captureState, msg);
-		var result = _v0.a;
-		var newState = _v0.b;
-		return _Utils_Tuple2(
-			result,
-			_Utils_update(
-				state,
-				{captureState: newState}));
-	});
 var $author$project$Modes$Bend$update = F3(
 	function (state, msg, m) {
-		var _v0 = A2($author$project$Modes$Bend$updateComponent, state.componentState, msg);
-		var result = _v0.a;
-		var newCompState = _v0.b;
+		var result = A2($author$project$Modes$Capture$update, state.captureState, msg);
 		switch (result.$) {
+			case 'Cancel':
+				return $author$project$Model$switch_Default(m);
 			case 'NewState':
+				var newCompState = result.a;
 				var newState = _Utils_update(
 					state,
-					{componentState: newCompState});
+					{captureState: newCompState});
 				return $author$project$Model$noCmd(
 					A2(
 						$author$project$Model$setMode,
 						$author$project$Modes$BendMode(newState),
 						m));
-			case 'NoChange':
-				return $author$project$Model$noCmd(m);
-			case 'Finalise':
-				return A2($author$project$Modes$Bend$api.finalise, m, state);
 			default:
-				return $author$project$Model$noCmd(
-					A2($author$project$Model$setMode, $author$project$Modes$DefaultMode, m));
+				_v1$4:
+				while (true) {
+					switch (msg.$) {
+						case 'MouseClick':
+							return A2($author$project$Modes$Bend$api.finalise, m, state);
+						case 'KeyChanged':
+							if (!msg.a) {
+								if (msg.c.$ === 'Control') {
+									if (msg.c.a === 'Escape') {
+										return $author$project$Model$switch_Default(m);
+									} else {
+										break _v1$4;
+									}
+								} else {
+									switch (msg.c.a.valueOf()) {
+										case ' ':
+											return A2($author$project$Modes$Bend$api.finalise, m, state);
+										case '?':
+											return $author$project$Model$noCmd(
+												$author$project$Model$toggleHelpOverlay(m));
+										default:
+											break _v1$4;
+									}
+								}
+							} else {
+								break _v1$4;
+							}
+						default:
+							break _v1$4;
+					}
+				}
+				return $author$project$Model$noCmd(m);
 		}
 	});
+var $author$project$ArrowStyle$HeadPart = {$: 'HeadPart'};
+var $author$project$ArrowStyle$TailPart = {$: 'TailPart'};
 var $author$project$Polygraph$md_updateEdges = F2(
 	function (es, graph) {
 		var compare = F2(
@@ -25680,17 +25692,11 @@ var $author$project$Polygraph$md_updateEdges = F2(
 			$author$project$Polygraph$newModif(graph),
 			es);
 	});
-var $author$project$Modes$Customize$componentGetShift = function (state) {
-	return A2(
-		$elm$core$Basics$min,
-		1,
-		A2($elm$core$Basics$max, state.value, 0));
-};
 var $author$project$ArrowStyle$updateShift = F2(
 	function (_v0, s) {
-		var isSource = _v0.isSource;
+		var part = _v0.part;
 		var shift = _v0.shift;
-		return isSource ? _Utils_update(
+		return _Utils_eq(part, $author$project$ArrowStyle$Tail) ? _Utils_update(
 			s,
 			{shiftSource: shift}) : _Utils_update(
 			s,
@@ -25701,10 +25707,7 @@ var $author$project$Modes$Customize$updateEdgeShift = F2(
 		var applyStyle = function (label) {
 			var newStyle = A2(
 				$author$project$ArrowStyle$updateShift,
-				{
-					isSource: state.isSource,
-					shift: $author$project$Modes$Customize$componentGetShift(state.componentState)
-				},
+				{part: state.part, shift: state.componentState.value},
 				label.style);
 			return _Utils_update(
 				label,
@@ -25763,7 +25766,7 @@ var $author$project$GraphDefs$getEdgeDirectionFromId = F2(
 			A2($author$project$Polygraph$getEdge, eid, g));
 	});
 var $author$project$Modes$Customize$initialiseComponent = F3(
-	function (isSource, dir0, ini) {
+	function (part, dir0, ini) {
 		var dir = _Utils_eq(
 			dir0,
 			_Utils_Tuple2(0, 0)) ? _Utils_Tuple2(10, 0) : A2($author$project$Geometry$Point$resize, 0.0001, dir0);
@@ -25782,13 +25785,13 @@ var $author$project$Modes$Customize$updateState = F2(
 			m);
 	});
 var $author$project$Modes$Customize$initialiseShiftMode = F3(
-	function (isSource, state, model) {
+	function (part, state, model) {
 		var _v0 = state.edges;
 		if (!_v0.b) {
 			return model;
 		} else {
 			var edge = _v0.a;
-			var id = isSource ? edge.from : edge.to;
+			var id = _Utils_eq(part, $author$project$ArrowStyle$Tail) ? edge.from : edge.to;
 			var odir = A2(
 				$author$project$GraphDefs$getEdgeDirectionFromId,
 				$author$project$Model$getActiveGraph(model),
@@ -25807,24 +25810,15 @@ var $author$project$Modes$Customize$initialiseShiftMode = F3(
 								{
 									componentState: A3(
 										$author$project$Modes$Customize$initialiseComponent,
-										isSource,
+										part,
 										dir,
 										{shift: 0.5}),
-									isSource: isSource
+									part: part
 								})
 						}));
 			}
 		}
 	});
-var $author$project$Model$switch_Default = function (m) {
-	return $author$project$Model$noCmd(
-		A2($author$project$Model$setMode, $author$project$Modes$DefaultMode, m));
-};
-var $author$project$Model$toggleHelpOverlay = function (model) {
-	return _Utils_update(
-		model,
-		{showOverlayHelp: !model.showOverlayHelp});
-};
 var $author$project$ArrowStyle$updateEdgeColor = F3(
 	function (part, c, s) {
 		switch (part.$) {
@@ -25914,10 +25908,10 @@ var $author$project$Modes$Customize$mainUpdate = F4(
 							return checkColorable($author$project$ArrowStyle$TailPart);
 						case 's':
 							return $author$project$Model$noCmd(
-								A3($author$project$Modes$Customize$initialiseShiftMode, true, state, model));
+								A3($author$project$Modes$Customize$initialiseShiftMode, $author$project$ArrowStyle$Tail, state, model));
 						case 'e':
 							return $author$project$Model$noCmd(
-								A3($author$project$Modes$Customize$initialiseShiftMode, false, state, model));
+								A3($author$project$Modes$Customize$initialiseShiftMode, $author$project$ArrowStyle$Head, state, model));
 						case ' ':
 							return A2($author$project$Modes$Customize$api.finalise, model, state);
 						default:
@@ -25944,17 +25938,14 @@ var $author$project$Modes$Customize$mainUpdate = F4(
 		}
 		return $author$project$Model$noCmd(model);
 	});
-var $author$project$Modes$Customize$updateComponent = F2(
-	function (state, msg) {
-		return A2($author$project$Modes$Capture$update, state, msg);
-	});
 var $author$project$Modes$Customize$updateShift = F4(
 	function (state, shiftState, msg, model) {
-		var _v0 = A2($author$project$Modes$Customize$updateComponent, shiftState.componentState, msg);
-		var result = _v0.a;
-		var newCompState = _v0.b;
-		switch (result.$) {
+		var _v0 = A2($author$project$Modes$Capture$update, shiftState.componentState, msg);
+		switch (_v0.$) {
+			case 'Cancel':
+				return $author$project$Model$switch_Default(model);
 			case 'NewState':
+				var newCompState = _v0.a;
 				var newState = _Utils_update(
 					state,
 					{
@@ -25965,12 +25956,39 @@ var $author$project$Modes$Customize$updateShift = F4(
 					});
 				return $author$project$Model$noCmd(
 					A2($author$project$Modes$Customize$updateState, model, newState));
-			case 'NoChange':
-				return $author$project$Model$noCmd(model);
-			case 'Finalise':
-				return A2($author$project$Modes$Customize$api.finalise, model, state);
 			default:
-				return $author$project$Model$switch_Default(model);
+				_v1$4:
+				while (true) {
+					switch (msg.$) {
+						case 'MouseClick':
+							return A2($author$project$Modes$Customize$api.finalise, model, state);
+						case 'KeyChanged':
+							if (!msg.a) {
+								if (msg.c.$ === 'Control') {
+									if (msg.c.a === 'Escape') {
+										return $author$project$Model$switch_Default(model);
+									} else {
+										break _v1$4;
+									}
+								} else {
+									switch (msg.c.a.valueOf()) {
+										case ' ':
+											return A2($author$project$Modes$Customize$api.finalise, model, state);
+										case '?':
+											return $author$project$Model$noCmd(
+												$author$project$Model$toggleHelpOverlay(model));
+										default:
+											break _v1$4;
+									}
+								}
+							} else {
+								break _v1$4;
+							}
+						default:
+							break _v1$4;
+					}
+				}
+				return $author$project$Model$noCmd(model);
 		}
 	});
 var $author$project$Modes$Customize$update = F3(
@@ -26967,9 +26985,7 @@ var $author$project$Modes$Move$update = F3(
 						pos: A2($author$project$InputPosition$update, state.pos, msg)
 					})));
 	});
-var $author$project$Modes$NewArrowPart = function (a) {
-	return {$: 'NewArrowPart', a: a};
-};
+var $author$project$Modes$NewArrowMain = {$: 'NewArrowMain'};
 var $author$project$ArrowStyle$getEdgeColor = F2(
 	function (part, s) {
 		switch (part.$) {
@@ -27007,81 +27023,9 @@ var $author$project$ArrowStyle$keyMaybeUpdateColor = F3(
 				A2($author$project$ArrowStyle$getEdgeColor, p, s),
 				k));
 	});
-var $author$project$Modes$NewArrowBend = function (a) {
-	return {$: 'NewArrowBend', a: a};
+var $author$project$Modes$NewArrowPart = function (a) {
+	return {$: 'NewArrowPart', a: a};
 };
-var $author$project$Modes$NewArrow$getStyle = function (state) {
-	var style = $author$project$ArrowStyle$getStyle(state);
-	var _v0 = state.mode;
-	switch (_v0.$) {
-		case 'NewArrowBend':
-			var b = _v0.a;
-			return _Utils_update(
-				style,
-				{
-					bend: $author$project$Modes$Bend$componentGetBend(b)
-				});
-		case 'NewArrowShift':
-			var isSource = _v0.a;
-			var s = _v0.b;
-			var shift = $author$project$Modes$Customize$componentGetShift(s);
-			return A2(
-				$author$project$ArrowStyle$updateShift,
-				{isSource: isSource, shift: shift},
-				style);
-		default:
-			return style;
-	}
-};
-var $author$project$Modes$NewArrow$updateState = F2(
-	function (m, state) {
-		return A2(
-			$author$project$Model$setMode,
-			$author$project$Modes$NewArrow(state),
-			m);
-	});
-var $author$project$Modes$NewArrow$updateComponentBaseCases = F3(
-	function (state, result, model) {
-		switch (result.$) {
-			case 'NewState':
-				return $author$project$Model$noCmd(model);
-			case 'NoChange':
-				return $author$project$Model$noCmd(model);
-			case 'Finalise':
-				var newState = _Utils_update(
-					state,
-					{
-						mode: $author$project$Modes$NewArrowPart($author$project$ArrowStyle$MainEdgePart),
-						style: $author$project$Modes$NewArrow$getStyle(state)
-					});
-				return $author$project$Model$noCmd(
-					A2($author$project$Modes$NewArrow$updateState, model, newState));
-			default:
-				var newState = _Utils_update(
-					state,
-					{
-						mode: $author$project$Modes$NewArrowPart($author$project$ArrowStyle$MainEdgePart)
-					});
-				return $author$project$Model$noCmd(
-					A2($author$project$Modes$NewArrow$updateState, model, newState));
-		}
-	});
-var $author$project$Modes$NewArrow$updateBend = F4(
-	function (bendState, state, msg, model) {
-		var _v0 = A2($author$project$Modes$Bend$updateComponent, bendState, msg);
-		var result = _v0.a;
-		var newCompState = _v0.b;
-		var newState = _Utils_update(
-			state,
-			{
-				mode: $author$project$Modes$NewArrowBend(newCompState)
-			});
-		return A3(
-			$author$project$Modes$NewArrow$updateComponentBaseCases,
-			state,
-			result,
-			A2($author$project$Modes$NewArrow$updateState, model, newState));
-	});
 var $author$project$Modes$Pullback = {$: 'Pullback'};
 var $author$project$Modes$Pushout = {$: 'Pushout'};
 var $author$project$Polygraph$incomings = F2(
@@ -27180,6 +27124,9 @@ var $author$project$Modes$Pullshout$initialise = F3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
+var $author$project$Modes$NewArrowBend = function (a) {
+	return {$: 'NewArrowBend', a: a};
+};
 var $author$project$Modes$NewArrow$getRawDirection = F2(
 	function (model, state) {
 		var mayDir = function () {
@@ -27210,6 +27157,13 @@ var $author$project$Modes$NewArrow$getRawDirection = F2(
 			_Utils_Tuple2(20, 0),
 			mayDir);
 	});
+var $author$project$Modes$NewArrow$updateState = F2(
+	function (m, state) {
+		return A2(
+			$author$project$Model$setMode,
+			$author$project$Modes$NewArrow(state),
+			m);
+	});
 var $author$project$Modes$NewArrow$initialiseBendMode = F2(
 	function (state, model) {
 		var bend = $author$project$ArrowStyle$getStyle(state).bend;
@@ -27221,9 +27175,9 @@ var $author$project$Modes$NewArrow$initialiseBendMode = F2(
 				{
 					mode: $author$project$Modes$NewArrowBend(
 						A2(
-							$author$project$Modes$Bend$initialiseComponent,
+							$author$project$Modes$Bend$initialiseCapture,
 							A2($author$project$Modes$NewArrow$getRawDirection, model, state),
-							{bend: bend, origBend: bend}))
+							bend))
 				}));
 	});
 var $author$project$Modes$NewArrowShift = F2(
@@ -27231,10 +27185,10 @@ var $author$project$Modes$NewArrowShift = F2(
 		return {$: 'NewArrowShift', a: a, b: b};
 	});
 var $author$project$Modes$NewArrow$initialiseShiftMode = F3(
-	function (isSource, state, model) {
+	function (part, state, model) {
 		var modelGraph = $author$project$Model$getActiveGraph(model);
 		var odir = function () {
-			if (isSource) {
+			if (_Utils_eq(part, $author$project$ArrowStyle$Tail)) {
 				var _v1 = state.kind;
 				if (_v1.$ === 'CreateArrow') {
 					var id = _v1.a;
@@ -27258,13 +27212,13 @@ var $author$project$Modes$NewArrow$initialiseShiftMode = F3(
 				_Utils_update(
 					state,
 					{
-						merge: state.merge || (!isSource),
+						merge: state.merge || _Utils_eq(part, $author$project$ArrowStyle$Head),
 						mode: A2(
 							$author$project$Modes$NewArrowShift,
-							isSource,
+							part,
 							A3(
 								$author$project$Modes$Customize$initialiseComponent,
-								isSource,
+								part,
 								dir,
 								{shift: 0.5}))
 					}));
@@ -27272,13 +27226,10 @@ var $author$project$Modes$NewArrow$initialiseShiftMode = F3(
 	});
 var $author$project$ArrowStyle$isPartColorable = F2(
 	function (part, s) {
-		switch (part.$) {
-			case 'HeadPart':
-				return !_Utils_eq(s.head, $author$project$ArrowStyle$NoHead);
-			case 'TailPart':
-				return !_Utils_eq(s.tail, $author$project$ArrowStyle$DefaultTail);
-			default:
-				return true;
+		if (part.$ === 'Head') {
+			return !_Utils_eq(s.head, $author$project$ArrowStyle$NoHead);
+		} else {
+			return !_Utils_eq(s.tail, $author$project$ArrowStyle$DefaultTail);
 		}
 	});
 var $author$project$ArrowStyle$maxLabelPosition = 0.9;
@@ -27454,6 +27405,10 @@ var $author$project$Modes$NewArrow$nextPossibleKind = function (s) {
 				$author$project$Polygraph$edges(s.chosen)) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just($author$project$Modes$CreateCylinder);
 	}
 };
+var $author$project$Modes$NewArrow$getStyle = function (state) {
+	var style = $author$project$ArrowStyle$getStyle(state);
+	return style;
+};
 var $author$project$Polygraph$makeCylinder = F4(
 	function (g, subGraph, label, inverted) {
 		var extGraph = A2($author$project$Polygraph$disjointUnion, g, subGraph);
@@ -27607,6 +27562,81 @@ var $author$project$Modes$NewArrow$requestMarkerDefault = function (s) {
 	return $author$project$Modes$NewArrow$requestMarker(
 		(s === '') ? '\\bullet' : s);
 };
+var $author$project$Modes$NewArrow$handleCapture = F4(
+	function (model, captureState, msg, updateFunc) {
+		var result = A2($author$project$Modes$Capture$update, captureState, msg);
+		switch (result.$) {
+			case 'NoChange':
+				return $elm$core$Maybe$Nothing;
+			case 'Cancel':
+				return $elm$core$Maybe$Just(
+					$author$project$Model$switch_Default(model));
+			default:
+				var newCaptureState = result.a;
+				return $elm$core$Maybe$Just(
+					$author$project$Model$noCmd(
+						updateFunc(newCaptureState)));
+		}
+	});
+var $author$project$Modes$NewArrow$updateBendState = F3(
+	function (model, state, captureState) {
+		var newBend = $author$project$Modes$Bend$captureValue(captureState);
+		var style = state.style;
+		return A2(
+			$author$project$Modes$NewArrow$updateState,
+			model,
+			_Utils_update(
+				state,
+				{
+					mode: $author$project$Modes$NewArrowBend(captureState),
+					style: _Utils_update(
+						style,
+						{bend: newBend})
+				}));
+	});
+var $author$project$Modes$NewArrow$updateShiftState = F4(
+	function (part, model, state, componentState) {
+		var shift = componentState.value;
+		var style = state.style;
+		var newStyle = A2(
+			$author$project$ArrowStyle$updateShift,
+			{part: part, shift: shift},
+			style);
+		return A2(
+			$author$project$Modes$NewArrow$updateState,
+			model,
+			_Utils_update(
+				state,
+				{
+					mode: A2($author$project$Modes$NewArrowShift, part, componentState),
+					style: newStyle
+				}));
+	});
+var $author$project$Modes$NewArrow$updateCapture = F3(
+	function (state, msg, model) {
+		var _v0 = state.mode;
+		switch (_v0.$) {
+			case 'NewArrowBend':
+				var b = _v0.a;
+				return A4(
+					$author$project$Modes$NewArrow$handleCapture,
+					model,
+					b,
+					msg,
+					A2($author$project$Modes$NewArrow$updateBendState, model, state));
+			case 'NewArrowShift':
+				var part = _v0.a;
+				var s = _v0.b;
+				return A4(
+					$author$project$Modes$NewArrow$handleCapture,
+					model,
+					s,
+					msg,
+					A3($author$project$Modes$NewArrow$updateShiftState, part, model, state));
+			default:
+				return $elm$core$Maybe$Nothing;
+		}
+	});
 var $author$project$Modes$NewArrow$updateNormal = F3(
 	function (state, msg, model) {
 		var modelGraph = $author$project$Model$getActiveGraph(model);
@@ -27616,9 +27646,9 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 		var pullshoutMode = function (k) {
 			return $author$project$Model$noCmd(
 				function () {
-					var _v2 = state.kind;
-					if (_v2.$ === 'CreateArrow') {
-						var id = _v2.a;
+					var _v3 = state.kind;
+					if (_v3.$ === 'CreateArrow') {
+						var id = _v3.a;
 						return A2(
 							$author$project$Model$setMode,
 							A2(
@@ -27645,7 +27675,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 							mode: $author$project$Modes$NewArrowPart(m)
 						}))) : $author$project$Model$noCmd(model);
 		};
-		_v0$22:
+		_v0$23:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseClick':
@@ -27671,7 +27701,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 							return next(
 								{finish: false, merge: true});
 						} else {
-							break _v0$22;
+							break _v0$23;
 						}
 					} else {
 						if (msg.c.$ === 'Control') {
@@ -27685,13 +27715,21 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 									return next(
 										{finish: false, merge: state.merge || state.isAdjunction});
 								default:
-									break _v0$22;
+									break _v0$23;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
 								case '?':
 									return $author$project$Model$noCmd(
 										$author$project$Model$toggleHelpOverlay(model));
+								case 'g':
+									return $author$project$Model$noCmd(
+										A2(
+											$author$project$Modes$NewArrow$updateState,
+											model,
+											_Utils_update(
+												state,
+												{mode: $author$project$Modes$NewArrowMain})));
 								case ' ':
 									return next(
 										{finish: true, merge: state.merge || state.isAdjunction});
@@ -27707,10 +27745,10 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 										A2($author$project$Modes$NewArrow$initialiseBendMode, state, model));
 								case 's':
 									return $author$project$Model$noCmd(
-										A3($author$project$Modes$NewArrow$initialiseShiftMode, true, state, model));
+										A3($author$project$Modes$NewArrow$initialiseShiftMode, $author$project$ArrowStyle$Tail, state, model));
 								case 'e':
 									return $author$project$Model$noCmd(
-										A3($author$project$Modes$NewArrow$initialiseShiftMode, false, state, model));
+										A3($author$project$Modes$NewArrow$initialiseShiftMode, $author$project$ArrowStyle$Head, state, model));
 								case 'd':
 									return $author$project$Model$noCmd(
 										A2(
@@ -27750,9 +27788,9 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 												state,
 												{merge: !state.merge})));
 								case 'H':
-									return changePart($author$project$ArrowStyle$HeadPart);
+									return changePart($author$project$ArrowStyle$Head);
 								case 'T':
-									return changePart($author$project$ArrowStyle$TailPart);
+									return changePart($author$project$ArrowStyle$Tail);
 								case 'C':
 									var kind = A2(
 										$elm$core$Maybe$withDefault,
@@ -27766,59 +27804,49 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 												state,
 												{kind: kind})));
 								default:
-									break _v0$22;
+									break _v0$23;
 							}
 						}
 					}
 				default:
-					break _v0$22;
+					break _v0$23;
 			}
 		}
-		var newStyle = function () {
-			if ((msg.$ === 'KeyChanged') && (!msg.a)) {
-				var k = msg.c;
-				return A2(
-					$elm$core$Maybe$withDefault,
-					A2(
+		var _v1 = A3($author$project$Modes$NewArrow$updateCapture, state, msg, model);
+		if (_v1.$ === 'Just') {
+			var res = _v1.a;
+			return res;
+		} else {
+			var newStyle = function () {
+				if ((msg.$ === 'KeyChanged') && (!msg.a)) {
+					var k = msg.c;
+					return A2(
 						$elm$core$Maybe$withDefault,
-						state.style,
-						A3($author$project$ArrowStyle$keyMaybeUpdateColor, k, $author$project$ArrowStyle$MainEdgePart, state.style)),
-					A2($author$project$ArrowStyle$keyMaybeUpdateStyle, k, state.style));
-			} else {
-				return state.style;
-			}
-		}();
-		var st2 = _Utils_update(
-			state,
-			{style: newStyle});
-		var st3 = _Utils_update(
-			st2,
-			{
-				pos: A2($author$project$InputPosition$update, st2.pos, msg)
-			});
-		return $author$project$Model$noCmd(
-			A2($author$project$Modes$NewArrow$updateState, model, st3));
-	});
-var $author$project$Modes$NewArrow$updateShift = F5(
-	function (shiftState, isSource, state, msg, model) {
-		var _v0 = A2($author$project$Modes$Customize$updateComponent, shiftState, msg);
-		var result = _v0.a;
-		var newCompState = _v0.b;
-		var newState = _Utils_update(
-			state,
-			{
-				mode: A2($author$project$Modes$NewArrowShift, isSource, newCompState)
-			});
-		return A3(
-			$author$project$Modes$NewArrow$updateComponentBaseCases,
-			state,
-			result,
-			A2($author$project$Modes$NewArrow$updateState, model, newState));
+						A2(
+							$elm$core$Maybe$withDefault,
+							state.style,
+							A3($author$project$ArrowStyle$keyMaybeUpdateColor, k, $author$project$ArrowStyle$MainEdgePart, state.style)),
+						A2($author$project$ArrowStyle$keyMaybeUpdateStyle, k, state.style));
+				} else {
+					return state.style;
+				}
+			}();
+			var st2 = _Utils_update(
+				state,
+				{style: newStyle});
+			var st3 = _Utils_update(
+				st2,
+				{
+					pos: A2($author$project$InputPosition$update, st2.pos, msg)
+				});
+			return $author$project$Model$noCmd(
+				A2($author$project$Modes$NewArrow$updateState, model, st3));
+		}
 	});
 var $author$project$Modes$NewArrow$update = F3(
 	function (state, msg, model) {
 		var updateHeadOrTail = function (part) {
-			_v4$2:
+			_v3$2:
 			while (true) {
 				if ((msg.$ === 'KeyChanged') && (!msg.a)) {
 					if (msg.c.$ === 'Character') {
@@ -27826,7 +27854,7 @@ var $author$project$Modes$NewArrow$update = F3(
 							return $author$project$Model$noCmd(
 								$author$project$Model$toggleHelpOverlay(model));
 						} else {
-							break _v4$2;
+							break _v3$2;
 						}
 					} else {
 						if (msg.c.a === 'Escape') {
@@ -27836,11 +27864,9 @@ var $author$project$Modes$NewArrow$update = F3(
 									model,
 									_Utils_update(
 										state,
-										{
-											mode: $author$project$Modes$NewArrowPart($author$project$ArrowStyle$MainEdgePart)
-										})));
+										{mode: $author$project$Modes$NewArrowMain})));
 						} else {
-							break _v4$2;
+							break _v3$2;
 						}
 					}
 				} else {
@@ -27848,15 +27874,12 @@ var $author$project$Modes$NewArrow$update = F3(
 				}
 			}
 			var k = msg.c;
-			var _v5 = A3($author$project$ArrowStyle$keyMaybeUpdateColor, k, part, state.style);
-			if (_v5.$ === 'Just') {
-				var newStyle = _v5.a;
+			var _v4 = A3($author$project$ArrowStyle$keyMaybeUpdateColor, k, part, state.style);
+			if (_v4.$ === 'Just') {
+				var newStyle = _v4.a;
 				var st2 = _Utils_update(
 					state,
-					{
-						mode: $author$project$Modes$NewArrowPart($author$project$ArrowStyle$MainEdgePart),
-						style: newStyle
-					});
+					{mode: $author$project$Modes$NewArrowMain, style: newStyle});
 				return $author$project$Model$noCmd(
 					A2($author$project$Modes$NewArrow$updateState, model, st2));
 			} else {
@@ -27864,26 +27887,16 @@ var $author$project$Modes$NewArrow$update = F3(
 			}
 		};
 		var _v0 = state.mode;
-		switch (_v0.$) {
-			case 'NewArrowPart':
-				switch (_v0.a.$) {
-					case 'MainEdgePart':
-						var _v1 = _v0.a;
-						return A3($author$project$Modes$NewArrow$updateNormal, state, msg, model);
-					case 'HeadPart':
-						var _v2 = _v0.a;
-						return updateHeadOrTail($author$project$ArrowStyle$HeadPart);
-					default:
-						var _v3 = _v0.a;
-						return updateHeadOrTail($author$project$ArrowStyle$TailPart);
-				}
-			case 'NewArrowBend':
-				var b = _v0.a;
-				return A4($author$project$Modes$NewArrow$updateBend, b, state, msg, model);
-			default:
-				var isSource = _v0.a;
-				var s = _v0.b;
-				return A5($author$project$Modes$NewArrow$updateShift, s, isSource, state, msg, model);
+		if (_v0.$ === 'NewArrowPart') {
+			if (_v0.a.$ === 'Head') {
+				var _v1 = _v0.a;
+				return updateHeadOrTail($author$project$ArrowStyle$HeadPart);
+			} else {
+				var _v2 = _v0.a;
+				return updateHeadOrTail($author$project$ArrowStyle$TailPart);
+			}
+		} else {
+			return A3($author$project$Modes$NewArrow$updateNormal, state, msg, model);
 		}
 	});
 var $author$project$Modes$NewLine = function (a) {
@@ -30843,16 +30856,7 @@ var $author$project$Modes$NewArrow$initialise = function (m) {
 	return A2(
 		$author$project$Modes$NewArrow$reinitialise,
 		m,
-		{
-			chosen: $author$project$Polygraph$empty,
-			inverted: false,
-			isAdjunction: false,
-			kind: kind,
-			merge: false,
-			mode: $author$project$Modes$NewArrowPart($author$project$ArrowStyle$MainEdgePart),
-			pos: $author$project$InputPosition$InputPosMouse,
-			style: $author$project$ArrowStyle$empty
-		});
+		{chosen: $author$project$Polygraph$empty, inverted: false, isAdjunction: false, kind: kind, merge: false, mode: $author$project$Modes$NewArrowMain, pos: $author$project$InputPosition$InputPosMouse, style: $author$project$ArrowStyle$empty});
 };
 var $author$project$Modes$NewLine$initialise = function (m) {
 	return $author$project$Model$noCmd(
@@ -33278,9 +33282,17 @@ var $author$project$Modes$Move$graphDrawing = F2(
 			$author$project$Modes$Move$computeGraph(
 				A3($author$project$Modes$Move$mkInfo, m, false, s)));
 	});
+var $author$project$Modes$NewArrow$getMerge = function (state) {
+	return state.merge || state.isAdjunction;
+};
 var $author$project$Modes$NewArrow$graphDrawing = F2(
 	function (m, s) {
-		var info = A4($author$project$Modes$NewArrow$moveNodeInfo, s.merge || s.isAdjunction, false, m, s);
+		var info = A4(
+			$author$project$Modes$NewArrow$moveNodeInfo,
+			$author$project$Modes$NewArrow$getMerge(s),
+			false,
+			m,
+			s);
 		return A2(
 			$author$project$Model$collageGraphFromGraph,
 			m,
@@ -33533,20 +33545,19 @@ var $author$project$Drawing$grid = function (n) {
 };
 var $author$project$Main$Plain = {$: 'Plain'};
 var $author$project$ArrowStyle$controlChars = '|>(=-~A][';
-var $author$project$Modes$Capture$help = 'move the mouse. [Click] to confirm, [ESC] to cancel.';
-var $author$project$Modes$Bend$help = 'Bend mode: ' + $author$project$Modes$Capture$help;
-var $author$project$Drawing$Color$helpMsg = 'bla[c]k, bl[u]e, [g]reen, [o]range, [r]ed, [v]iolet, yello[w], gra[y]';
-var $author$project$Modes$Customize$helpShift = function (source) {
-	return 'Shift ' + ((source ? 'source' : 'target') + (' mode: ' + $author$project$Modes$Capture$help));
-};
 var $author$project$HtmlDefs$overlayHelpMsg = '[?] to toggle help overlay';
+var $author$project$Modes$Bend$help = 'Bend mode: move mouse to bend, [Click] or [SPC] to confirm, [ESC] to cancel. ' + $author$project$HtmlDefs$overlayHelpMsg;
+var $author$project$Drawing$Color$helpMsg = 'bla[c]k, bl[u]e, [g]reen, [o]range, [r]ed, [v]iolet, yello[w], gra[y]';
+var $author$project$Modes$Customize$helpShift = function (part) {
+	return 'Shift ' + ((_Utils_eq(part, $author$project$ArrowStyle$Tail) ? 'source' : 'target') + (' use mouse, [ESC] to cancel, [SPC} or [click] to confirm. ' + $author$project$HtmlDefs$overlayHelpMsg));
+};
 var $author$project$Modes$Customize$shiftHelpMsg = 'shift [s]ource/targ[e]t';
 var $author$project$Modes$Customize$help = function (state) {
 	return 'Mode customise. ' + function () {
 		var _v0 = state.mode;
 		if (_v0.$ === 'CustomizeModeShift') {
-			var isSource = _v0.a.isSource;
-			return $author$project$Modes$Customize$helpShift(isSource);
+			var part = _v0.a.part;
+			return $author$project$Modes$Customize$helpShift(part);
 		} else {
 			var part = _v0.a;
 			return function () {
@@ -33587,21 +33598,19 @@ var $author$project$Modes$Move$help = function (s) {
 	}())))))));
 };
 var $author$project$Modes$NewArrow$help = function (s) {
+	var mainMsg = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard ' + ('([f] to move by a multiple of the grid size), ' + ('[ctrl] merge, [a] merge without renaming, toggle [m]erge preview, ' + ('[RET] or space to terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('shift [s]ource/targ[e]t, ' + ('[.] customise the marker' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + ($author$project$Drawing$Color$helpMsg + ', color [H]ead/[T]ail')))))))))))))))));
 	var _v0 = s.mode;
 	switch (_v0.$) {
+		case 'NewArrowMain':
+			return mainMsg;
 		case 'NewArrowPart':
-			if (_v0.a.$ === 'MainEdgePart') {
-				var _v1 = _v0.a;
-				return $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard ' + ('([f] to move by a multiple of the grid size), ' + ('[ctrl] merge, [a] merge without renaming, toggle [m]erge preview, ' + ('[RET] or space to terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('shift [s]ource/targ[e]t, ' + ('[.] customise the marker' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + ($author$project$Drawing$Color$helpMsg + ', color [H]ead/[T]ail')))))))))))))))));
-			} else {
-				var p = _v0.a;
-				return 'Submode color ' + ((_Utils_eq(p, $author$project$ArrowStyle$HeadPart) ? 'head' : 'tail') + (' of the arrow: [ESC] to cancel, ' + ($author$project$Drawing$Color$helpMsg + (', ' + $author$project$HtmlDefs$overlayHelpMsg))));
-			}
+			var p = _v0.a;
+			return 'Submode color ' + ((_Utils_eq(p, $author$project$ArrowStyle$Head) ? 'head' : 'tail') + (' of the arrow: [ESC] to cancel, ' + ($author$project$Drawing$Color$helpMsg + (', ' + $author$project$HtmlDefs$overlayHelpMsg))));
 		case 'NewArrowBend':
-			return 'new arrow ' + $author$project$Modes$Bend$help;
+			return 'bend using mouse, [g] to validate, ' + mainMsg;
 		default:
-			var isSource = _v0.a;
-			return 'New arrow ' + $author$project$Modes$Customize$helpShift(isSource);
+			var part = _v0.a;
+			return 'shift using mouse, [g] to validate, ' + mainMsg;
 	}
 };
 var $author$project$Modes$NewLine$help = $author$project$HtmlDefs$overlayHelpMsg + ', [ESC] cancel, [click, n] to finalise, [bB] change bend';
