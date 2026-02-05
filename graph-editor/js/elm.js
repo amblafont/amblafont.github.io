@@ -27384,6 +27384,9 @@ var $author$project$ArrowStyle$keyMaybeUpdateStyle = F2(
 		}
 		return $elm$core$Maybe$Nothing;
 	});
+var $author$project$Modes$CreateArrow = function (a) {
+	return {$: 'CreateArrow', a: a};
+};
 var $author$project$Modes$CreateCone = {$: 'CreateCone'};
 var $author$project$Modes$CreateCylinder = {$: 'CreateCylinder'};
 var $elm$core$List$isEmpty = function (xs) {
@@ -27400,9 +27403,13 @@ var $author$project$Modes$NewArrow$nextPossibleKind = function (s) {
 			return $elm$core$Maybe$Nothing;
 		case 'CreateCylinder':
 			return $elm$core$Maybe$Just($author$project$Modes$CreateCone);
-		default:
+		case 'CreateArrow':
 			return $elm$core$List$isEmpty(
 				$author$project$Polygraph$edges(s.chosen)) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just($author$project$Modes$CreateCylinder);
+		default:
+			var id = _v0.a;
+			return $elm$core$Maybe$Just(
+				$author$project$Modes$CreateArrow(id));
 	}
 };
 var $author$project$Modes$NewArrow$getStyle = function (state) {
@@ -27481,7 +27488,7 @@ var $author$project$Modes$NewArrow$moveNodeInfo = F4(
 						nodeLabel,
 						edgeLabel,
 						state.inverted);
-				default:
+				case 'CreateArrow':
 					var id = _v0.a;
 					return A5(
 						$author$project$Polygraph$md_makeCone,
@@ -27491,6 +27498,17 @@ var $author$project$Modes$NewArrow$moveNodeInfo = F4(
 						nodeLabel,
 						edgeLabel,
 						state.inverted);
+				default:
+					var id = _v0.a;
+					var _v1 = A4($author$project$Polygraph$md_newEdge, modifGraph, id, id, edgeLabel);
+					var modif = _v1.a;
+					var edgeId = _v1.b;
+					return {
+						edgeIds: _List_fromArray(
+							[edgeId]),
+						extendedGraph: modif,
+						newSubGraph: $author$project$Polygraph$empty
+					};
 			}
 		}();
 		var moveInfo = A7($author$project$Modes$Move$mkGraph, model, state.pos, $author$project$Modes$Free, merge, extendedGraph.extendedGraph, modelGraph, extendedGraph.newSubGraph);
@@ -27562,6 +27580,39 @@ var $author$project$Modes$NewArrow$requestMarkerDefault = function (s) {
 	return $author$project$Modes$NewArrow$requestMarker(
 		(s === '') ? '\\bullet' : s);
 };
+var $author$project$Modes$CreateLoop = function (a) {
+	return {$: 'CreateLoop', a: a};
+};
+var $author$project$Modes$NewArrow$toggleLoop = F2(
+	function (model, state) {
+		var _v0 = state.kind;
+		switch (_v0.$) {
+			case 'CreateArrow':
+				var id = _v0.a;
+				var _v1 = A2($elm$core$Debug$log, 'Switching from Loop to Arrow', id);
+				return A2(
+					$author$project$Modes$NewArrow$updateState,
+					model,
+					_Utils_update(
+						state,
+						{
+							kind: $author$project$Modes$CreateLoop(id)
+						}));
+			case 'CreateLoop':
+				var id = _v0.a;
+				var _v2 = A2($elm$core$Debug$log, 'Switching from Arrow to Loop', id);
+				return A2(
+					$author$project$Modes$NewArrow$updateState,
+					model,
+					_Utils_update(
+						state,
+						{
+							kind: $author$project$Modes$CreateArrow(id)
+						}));
+			default:
+				return model;
+		}
+	});
 var $author$project$Modes$NewArrow$handleCapture = F4(
 	function (model, captureState, msg, updateFunc) {
 		var result = A2($author$project$Modes$Capture$update, captureState, msg);
@@ -27675,7 +27726,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 							mode: $author$project$Modes$NewArrowPart(m)
 						}))) : $author$project$Model$noCmd(model);
 		};
-		_v0$23:
+		_v0$24:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseClick':
@@ -27701,7 +27752,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 							return next(
 								{finish: false, merge: true});
 						} else {
-							break _v0$23;
+							break _v0$24;
 						}
 					} else {
 						if (msg.c.$ === 'Control') {
@@ -27715,7 +27766,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 									return next(
 										{finish: false, merge: state.merge || state.isAdjunction});
 								default:
-									break _v0$23;
+									break _v0$24;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -27775,6 +27826,12 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 											_Utils_update(
 												state,
 												{inverted: !state.inverted})));
+								case 'L':
+									return $author$project$Model$noCmd(
+										A2(
+											$author$project$Modes$NewArrow$toggleLoop,
+											model,
+											A2($elm$core$Debug$log, 'state loop', state)));
 								case 'p':
 									return pullshoutMode($author$project$Modes$Pullback);
 								case 'P':
@@ -27804,12 +27861,12 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 												state,
 												{kind: kind})));
 								default:
-									break _v0$23;
+									break _v0$24;
 							}
 						}
 					}
 				default:
-					break _v0$23;
+					break _v0$24;
 			}
 		}
 		var _v1 = A3($author$project$Modes$NewArrow$updateCapture, state, msg, model);
@@ -30799,9 +30856,6 @@ var $author$project$Modes$CutHead$initialise = function (model) {
 			model);
 	}
 };
-var $author$project$Modes$CreateArrow = function (a) {
-	return {$: 'CreateArrow', a: a};
-};
 var $author$project$GraphDefs$isNormal = A2($elm$core$Basics$composeL, $elm$core$Basics$not, $author$project$GraphDefs$isPullshout);
 var $author$project$GraphDefs$isNormalId = F2(
 	function (g, id) {
@@ -33598,7 +33652,7 @@ var $author$project$Modes$Move$help = function (s) {
 	}())))))));
 };
 var $author$project$Modes$NewArrow$help = function (s) {
-	var mainMsg = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard ' + ('([f] to move by a multiple of the grid size), ' + ('[ctrl] merge, [a] merge without renaming, toggle [m]erge preview, ' + ('[RET] or space to terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('shift [s]ource/targ[e]t, ' + ('[.] customise the marker' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + ($author$project$Drawing$Color$helpMsg + ', color [H]ead/[T]ail')))))))))))))))));
+	var mainMsg = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard ' + ('([f] to move by a multiple of the grid size), ' + ('[ctrl] merge, [a] merge without renaming, toggle [m]erge preview, ' + ('[RET] or space to terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('shift [s]ource/targ[e]t, ' + ('[.] customise the marker' + ('[i]nvert arrow, ' + ('toggle [L]oop, ' + ('create a[d]junction arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + ($author$project$Drawing$Color$helpMsg + ', color [H]ead/[T]ail'))))))))))))))))));
 	var _v0 = s.mode;
 	switch (_v0.$) {
 		case 'NewArrowMain':
