@@ -4403,6 +4403,184 @@ function _Time_getZoneName()
 }
 
 
+// BYTES
+
+function _Bytes_width(bytes)
+{
+	return bytes.byteLength;
+}
+
+var _Bytes_getHostEndianness = F2(function(le, be)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		callback(_Scheduler_succeed(new Uint8Array(new Uint32Array([1]))[0] === 1 ? le : be));
+	});
+});
+
+
+// ENCODERS
+
+function _Bytes_encode(encoder)
+{
+	var mutableBytes = new DataView(new ArrayBuffer($elm$bytes$Bytes$Encode$getWidth(encoder)));
+	$elm$bytes$Bytes$Encode$write(encoder)(mutableBytes)(0);
+	return mutableBytes;
+}
+
+
+// SIGNED INTEGERS
+
+var _Bytes_write_i8  = F3(function(mb, i, n) { mb.setInt8(i, n); return i + 1; });
+var _Bytes_write_i16 = F4(function(mb, i, n, isLE) { mb.setInt16(i, n, isLE); return i + 2; });
+var _Bytes_write_i32 = F4(function(mb, i, n, isLE) { mb.setInt32(i, n, isLE); return i + 4; });
+
+
+// UNSIGNED INTEGERS
+
+var _Bytes_write_u8  = F3(function(mb, i, n) { mb.setUint8(i, n); return i + 1 ;});
+var _Bytes_write_u16 = F4(function(mb, i, n, isLE) { mb.setUint16(i, n, isLE); return i + 2; });
+var _Bytes_write_u32 = F4(function(mb, i, n, isLE) { mb.setUint32(i, n, isLE); return i + 4; });
+
+
+// FLOATS
+
+var _Bytes_write_f32 = F4(function(mb, i, n, isLE) { mb.setFloat32(i, n, isLE); return i + 4; });
+var _Bytes_write_f64 = F4(function(mb, i, n, isLE) { mb.setFloat64(i, n, isLE); return i + 8; });
+
+
+// BYTES
+
+var _Bytes_write_bytes = F3(function(mb, offset, bytes)
+{
+	for (var i = 0, len = bytes.byteLength, limit = len - 4; i <= limit; i += 4)
+	{
+		mb.setUint32(offset + i, bytes.getUint32(i));
+	}
+	for (; i < len; i++)
+	{
+		mb.setUint8(offset + i, bytes.getUint8(i));
+	}
+	return offset + len;
+});
+
+
+// STRINGS
+
+function _Bytes_getStringWidth(string)
+{
+	for (var width = 0, i = 0; i < string.length; i++)
+	{
+		var code = string.charCodeAt(i);
+		width +=
+			(code < 0x80) ? 1 :
+			(code < 0x800) ? 2 :
+			(code < 0xD800 || 0xDBFF < code) ? 3 : (i++, 4);
+	}
+	return width;
+}
+
+var _Bytes_write_string = F3(function(mb, offset, string)
+{
+	for (var i = 0; i < string.length; i++)
+	{
+		var code = string.charCodeAt(i);
+		offset +=
+			(code < 0x80)
+				? (mb.setUint8(offset, code)
+				, 1
+				)
+				:
+			(code < 0x800)
+				? (mb.setUint16(offset, 0xC080 /* 0b1100000010000000 */
+					| (code >>> 6 & 0x1F /* 0b00011111 */) << 8
+					| code & 0x3F /* 0b00111111 */)
+				, 2
+				)
+				:
+			(code < 0xD800 || 0xDBFF < code)
+				? (mb.setUint16(offset, 0xE080 /* 0b1110000010000000 */
+					| (code >>> 12 & 0xF /* 0b00001111 */) << 8
+					| code >>> 6 & 0x3F /* 0b00111111 */)
+				, mb.setUint8(offset + 2, 0x80 /* 0b10000000 */
+					| code & 0x3F /* 0b00111111 */)
+				, 3
+				)
+				:
+			(code = (code - 0xD800) * 0x400 + string.charCodeAt(++i) - 0xDC00 + 0x10000
+			, mb.setUint32(offset, 0xF0808080 /* 0b11110000100000001000000010000000 */
+				| (code >>> 18 & 0x7 /* 0b00000111 */) << 24
+				| (code >>> 12 & 0x3F /* 0b00111111 */) << 16
+				| (code >>> 6 & 0x3F /* 0b00111111 */) << 8
+				| code & 0x3F /* 0b00111111 */)
+			, 4
+			);
+	}
+	return offset;
+});
+
+
+// DECODER
+
+var _Bytes_decode = F2(function(decoder, bytes)
+{
+	try {
+		return $elm$core$Maybe$Just(A2(decoder, bytes, 0).b);
+	} catch(e) {
+		return $elm$core$Maybe$Nothing;
+	}
+});
+
+var _Bytes_read_i8  = F2(function(      bytes, offset) { return _Utils_Tuple2(offset + 1, bytes.getInt8(offset)); });
+var _Bytes_read_i16 = F3(function(isLE, bytes, offset) { return _Utils_Tuple2(offset + 2, bytes.getInt16(offset, isLE)); });
+var _Bytes_read_i32 = F3(function(isLE, bytes, offset) { return _Utils_Tuple2(offset + 4, bytes.getInt32(offset, isLE)); });
+var _Bytes_read_u8  = F2(function(      bytes, offset) { return _Utils_Tuple2(offset + 1, bytes.getUint8(offset)); });
+var _Bytes_read_u16 = F3(function(isLE, bytes, offset) { return _Utils_Tuple2(offset + 2, bytes.getUint16(offset, isLE)); });
+var _Bytes_read_u32 = F3(function(isLE, bytes, offset) { return _Utils_Tuple2(offset + 4, bytes.getUint32(offset, isLE)); });
+var _Bytes_read_f32 = F3(function(isLE, bytes, offset) { return _Utils_Tuple2(offset + 4, bytes.getFloat32(offset, isLE)); });
+var _Bytes_read_f64 = F3(function(isLE, bytes, offset) { return _Utils_Tuple2(offset + 8, bytes.getFloat64(offset, isLE)); });
+
+var _Bytes_read_bytes = F3(function(len, bytes, offset)
+{
+	return _Utils_Tuple2(offset + len, new DataView(bytes.buffer, bytes.byteOffset + offset, len));
+});
+
+var _Bytes_read_string = F3(function(len, bytes, offset)
+{
+	var string = '';
+	var end = offset + len;
+	for (; offset < end;)
+	{
+		var byte = bytes.getUint8(offset++);
+		string +=
+			(byte < 128)
+				? String.fromCharCode(byte)
+				:
+			((byte & 0xE0 /* 0b11100000 */) === 0xC0 /* 0b11000000 */)
+				? String.fromCharCode((byte & 0x1F /* 0b00011111 */) << 6 | bytes.getUint8(offset++) & 0x3F /* 0b00111111 */)
+				:
+			((byte & 0xF0 /* 0b11110000 */) === 0xE0 /* 0b11100000 */)
+				? String.fromCharCode(
+					(byte & 0xF /* 0b00001111 */) << 12
+					| (bytes.getUint8(offset++) & 0x3F /* 0b00111111 */) << 6
+					| bytes.getUint8(offset++) & 0x3F /* 0b00111111 */
+				)
+				:
+				(byte =
+					((byte & 0x7 /* 0b00000111 */) << 18
+						| (bytes.getUint8(offset++) & 0x3F /* 0b00111111 */) << 12
+						| (bytes.getUint8(offset++) & 0x3F /* 0b00111111 */) << 6
+						| bytes.getUint8(offset++) & 0x3F /* 0b00111111 */
+					) - 0x10000
+				, String.fromCharCode(Math.floor(byte / 0x400) + 0xD800, byte % 0x400 + 0xDC00)
+				);
+	}
+	return _Utils_Tuple2(offset, string);
+});
+
+var _Bytes_decodeFailure = F2(function() { throw 0; });
+
+
 
 var _Bitwise_and = F2(function(a, b)
 {
@@ -5050,14 +5228,15 @@ var $author$project$Msg$Standard = {$: 'Standard'};
 var $author$project$GraphDefs$coqProofTexCommand = 'coqproof';
 var $author$project$Msg$DefaultModifId = {$: 'DefaultModifId'};
 var $author$project$Msg$defaultModifId = $author$project$Msg$DefaultModifId;
+var $elm_community$intdict$IntDict$Empty = {$: 'Empty'};
+var $elm_community$intdict$IntDict$empty = $elm_community$intdict$IntDict$Empty;
+var $author$project$FreeHandDrawings$empty = {freehandDrawings: $elm_community$intdict$IntDict$empty, nextFreehandId: 0};
 var $elm$core$Basics$identity = function (x) {
 	return x;
 };
 var $author$project$Polygraph$Graph = function (a) {
 	return {$: 'Graph', a: a};
 };
-var $elm_community$intdict$IntDict$Empty = {$: 'Empty'};
-var $elm_community$intdict$IntDict$empty = $elm_community$intdict$IntDict$Empty;
 var $author$project$Polygraph$empty = $author$project$Polygraph$Graph(
 	{graph: $elm_community$intdict$IntDict$empty, nextId: 0});
 var $author$project$Model$createModel = function (_v0) {
@@ -5074,7 +5253,7 @@ var $author$project$Model$createModel = function (_v0) {
 			nextTabId: 1,
 			tabs: _List_fromArray(
 				[
-					{graph: g, id: 0, sizeGrid: defaultGridSize, title: '1'}
+					{freehandDrawings: $author$project$FreeHandDrawings$empty, graph: g, id: 0, sizeGrid: defaultGridSize, title: '1'}
 				])
 		},
 		hideGrid: false,
@@ -6041,95 +6220,883 @@ var $author$project$Codec$build = F2(
 		return $author$project$Codec$Codec(
 			{decoder: decoder_, encoder: encoder_});
 	});
-var $elm$core$List$maybeCons = F3(
-	function (f, mx, xs) {
-		var _v0 = f(mx);
-		if (_v0.$ === 'Just') {
-			var x = _v0.a;
-			return A2($elm$core$List$cons, x, xs);
+var $elm$core$Char$fromCode = _Char_fromCode;
+var $elm$core$Basics$truncate = _Basics_truncate;
+var $author$project$Codec$middleChar = (1114111 / 2) | 0;
+var $author$project$Codec$charInt = A2(
+	$author$project$Codec$build,
+	function (c) {
+		return $elm$core$Char$toCode(c) - $author$project$Codec$middleChar;
+	},
+	function (n) {
+		return $elm$core$Char$fromCode(n + $author$project$Codec$middleChar);
+	});
+var $author$project$FreeHandDrawings$debug_chars = F2(
+	function (s, chars) {
+		return chars;
+	});
+var $author$project$Geometry$Point$add = F2(
+	function (_v0, _v1) {
+		var x1 = _v0.a;
+		var y1 = _v0.b;
+		var x2 = _v1.a;
+		var y2 = _v1.b;
+		return _Utils_Tuple2(x1 + x2, y1 + y2);
+	});
+var $author$project$FreeHandDrawings$offsetsToPoint = F2(
+	function (chars, points) {
+		var _v0 = _Utils_Tuple2(chars, points);
+		if ((_v0.a.b && _v0.a.b.b) && _v0.b.b) {
+			var _v1 = _v0.a;
+			var y = _v1.a;
+			var _v2 = _v1.b;
+			var x = _v2.a;
+			var tail = _v2.b;
+			var _v3 = _v0.b;
+			var current = _v3.a;
+			var offset = _Utils_Tuple2(x, y);
+			var p = A2($author$project$Geometry$Point$add, current, offset);
+			return A2(
+				$author$project$FreeHandDrawings$offsetsToPoint,
+				tail,
+				A2($elm$core$List$cons, p, points));
 		} else {
-			return xs;
+			return $elm$core$List$reverse(points);
 		}
 	});
-var $elm$core$List$filterMap = F2(
-	function (f, xs) {
-		return A3(
-			$elm$core$List$foldr,
-			$elm$core$List$maybeCons(f),
-			_List_Nil,
-			xs);
+var $elm$core$String$foldr = _String_foldr;
+var $elm$core$String$toList = function (string) {
+	return A3($elm$core$String$foldr, $elm$core$List$cons, _List_Nil, string);
+};
+var $elm$bytes$Bytes$Encode$getWidth = function (builder) {
+	switch (builder.$) {
+		case 'I8':
+			return 1;
+		case 'I16':
+			return 2;
+		case 'I32':
+			return 4;
+		case 'U8':
+			return 1;
+		case 'U16':
+			return 2;
+		case 'U32':
+			return 4;
+		case 'F32':
+			return 4;
+		case 'F64':
+			return 8;
+		case 'Seq':
+			var w = builder.a;
+			return w;
+		case 'Utf8':
+			var w = builder.a;
+			return w;
+		default:
+			var bs = builder.a;
+			return _Bytes_width(bs);
+	}
+};
+var $elm$bytes$Bytes$LE = {$: 'LE'};
+var $elm$bytes$Bytes$Encode$write = F3(
+	function (builder, mb, offset) {
+		switch (builder.$) {
+			case 'I8':
+				var n = builder.a;
+				return A3(_Bytes_write_i8, mb, offset, n);
+			case 'I16':
+				var e = builder.a;
+				var n = builder.b;
+				return A4(
+					_Bytes_write_i16,
+					mb,
+					offset,
+					n,
+					_Utils_eq(e, $elm$bytes$Bytes$LE));
+			case 'I32':
+				var e = builder.a;
+				var n = builder.b;
+				return A4(
+					_Bytes_write_i32,
+					mb,
+					offset,
+					n,
+					_Utils_eq(e, $elm$bytes$Bytes$LE));
+			case 'U8':
+				var n = builder.a;
+				return A3(_Bytes_write_u8, mb, offset, n);
+			case 'U16':
+				var e = builder.a;
+				var n = builder.b;
+				return A4(
+					_Bytes_write_u16,
+					mb,
+					offset,
+					n,
+					_Utils_eq(e, $elm$bytes$Bytes$LE));
+			case 'U32':
+				var e = builder.a;
+				var n = builder.b;
+				return A4(
+					_Bytes_write_u32,
+					mb,
+					offset,
+					n,
+					_Utils_eq(e, $elm$bytes$Bytes$LE));
+			case 'F32':
+				var e = builder.a;
+				var n = builder.b;
+				return A4(
+					_Bytes_write_f32,
+					mb,
+					offset,
+					n,
+					_Utils_eq(e, $elm$bytes$Bytes$LE));
+			case 'F64':
+				var e = builder.a;
+				var n = builder.b;
+				return A4(
+					_Bytes_write_f64,
+					mb,
+					offset,
+					n,
+					_Utils_eq(e, $elm$bytes$Bytes$LE));
+			case 'Seq':
+				var bs = builder.b;
+				return A3($elm$bytes$Bytes$Encode$writeSequence, bs, mb, offset);
+			case 'Utf8':
+				var s = builder.b;
+				return A3(_Bytes_write_string, mb, offset, s);
+			default:
+				var bs = builder.a;
+				return A3(_Bytes_write_bytes, mb, offset, bs);
+		}
 	});
-var $author$project$Polygraph$objEdge = F2(
-	function (id, o) {
-		if (o.$ === 'EdgeObj') {
-			var i1 = o.a;
-			var i2 = o.b;
-			var e = o.c;
-			return $elm$core$Maybe$Just(
-				{from: i1, id: id, label: e, to: i2});
+var $elm$bytes$Bytes$Encode$writeSequence = F3(
+	function (builders, mb, offset) {
+		writeSequence:
+		while (true) {
+			if (!builders.b) {
+				return offset;
+			} else {
+				var b = builders.a;
+				var bs = builders.b;
+				var $temp$builders = bs,
+					$temp$mb = mb,
+					$temp$offset = A3($elm$bytes$Bytes$Encode$write, b, mb, offset);
+				builders = $temp$builders;
+				mb = $temp$mb;
+				offset = $temp$offset;
+				continue writeSequence;
+			}
+		}
+	});
+var $elm$bytes$Bytes$Decode$decode = F2(
+	function (_v0, bs) {
+		var decoder = _v0.a;
+		return A2(_Bytes_decode, decoder, bs);
+	});
+var $elm$bytes$Bytes$Decode$Decoder = function (a) {
+	return {$: 'Decoder', a: a};
+};
+var $elm$bytes$Bytes$Decode$string = function (n) {
+	return $elm$bytes$Bytes$Decode$Decoder(
+		_Bytes_read_string(n));
+};
+var $elm$bytes$Bytes$Encode$encode = _Bytes_encode;
+var $elm$bytes$Bytes$BE = {$: 'BE'};
+var $danfishgold$base64_bytes$Encode$isValidChar = function (c) {
+	if ($elm$core$Char$isAlphaNum(c)) {
+		return true;
+	} else {
+		switch (c.valueOf()) {
+			case '+':
+				return true;
+			case '/':
+				return true;
+			default:
+				return false;
+		}
+	}
+};
+var $elm$core$Bitwise$or = _Bitwise_or;
+var $elm$bytes$Bytes$Encode$Seq = F2(
+	function (a, b) {
+		return {$: 'Seq', a: a, b: b};
+	});
+var $elm$bytes$Bytes$Encode$getWidths = F2(
+	function (width, builders) {
+		getWidths:
+		while (true) {
+			if (!builders.b) {
+				return width;
+			} else {
+				var b = builders.a;
+				var bs = builders.b;
+				var $temp$width = width + $elm$bytes$Bytes$Encode$getWidth(b),
+					$temp$builders = bs;
+				width = $temp$width;
+				builders = $temp$builders;
+				continue getWidths;
+			}
+		}
+	});
+var $elm$bytes$Bytes$Encode$sequence = function (builders) {
+	return A2(
+		$elm$bytes$Bytes$Encode$Seq,
+		A2($elm$bytes$Bytes$Encode$getWidths, 0, builders),
+		builders);
+};
+var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
+var $elm$core$Bitwise$shiftRightBy = _Bitwise_shiftRightBy;
+var $elm$core$Basics$ge = _Utils_ge;
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $danfishgold$base64_bytes$Encode$unsafeConvertChar = function (_char) {
+	var key = $elm$core$Char$toCode(_char);
+	if ((key >= 65) && (key <= 90)) {
+		return key - 65;
+	} else {
+		if ((key >= 97) && (key <= 122)) {
+			return (key - 97) + 26;
+		} else {
+			if ((key >= 48) && (key <= 57)) {
+				return ((key - 48) + 26) + 26;
+			} else {
+				switch (_char.valueOf()) {
+					case '+':
+						return 62;
+					case '/':
+						return 63;
+					default:
+						return -1;
+				}
+			}
+		}
+	}
+};
+var $elm$bytes$Bytes$Encode$U16 = F2(
+	function (a, b) {
+		return {$: 'U16', a: a, b: b};
+	});
+var $elm$bytes$Bytes$Encode$unsignedInt16 = $elm$bytes$Bytes$Encode$U16;
+var $elm$bytes$Bytes$Encode$U8 = function (a) {
+	return {$: 'U8', a: a};
+};
+var $elm$bytes$Bytes$Encode$unsignedInt8 = $elm$bytes$Bytes$Encode$U8;
+var $danfishgold$base64_bytes$Encode$encodeCharacters = F4(
+	function (a, b, c, d) {
+		if ($danfishgold$base64_bytes$Encode$isValidChar(a) && $danfishgold$base64_bytes$Encode$isValidChar(b)) {
+			var n2 = $danfishgold$base64_bytes$Encode$unsafeConvertChar(b);
+			var n1 = $danfishgold$base64_bytes$Encode$unsafeConvertChar(a);
+			if ('=' === d.valueOf()) {
+				if ('=' === c.valueOf()) {
+					var n = (n1 << 18) | (n2 << 12);
+					var b1 = n >> 16;
+					return $elm$core$Maybe$Just(
+						$elm$bytes$Bytes$Encode$unsignedInt8(b1));
+				} else {
+					if ($danfishgold$base64_bytes$Encode$isValidChar(c)) {
+						var n3 = $danfishgold$base64_bytes$Encode$unsafeConvertChar(c);
+						var n = ((n1 << 18) | (n2 << 12)) | (n3 << 6);
+						var combined = n >> 8;
+						return $elm$core$Maybe$Just(
+							A2($elm$bytes$Bytes$Encode$unsignedInt16, $elm$bytes$Bytes$BE, combined));
+					} else {
+						return $elm$core$Maybe$Nothing;
+					}
+				}
+			} else {
+				if ($danfishgold$base64_bytes$Encode$isValidChar(c) && $danfishgold$base64_bytes$Encode$isValidChar(d)) {
+					var n4 = $danfishgold$base64_bytes$Encode$unsafeConvertChar(d);
+					var n3 = $danfishgold$base64_bytes$Encode$unsafeConvertChar(c);
+					var n = ((n1 << 18) | (n2 << 12)) | ((n3 << 6) | n4);
+					var combined = n >> 8;
+					var b3 = n;
+					return $elm$core$Maybe$Just(
+						$elm$bytes$Bytes$Encode$sequence(
+							_List_fromArray(
+								[
+									A2($elm$bytes$Bytes$Encode$unsignedInt16, $elm$bytes$Bytes$BE, combined),
+									$elm$bytes$Bytes$Encode$unsignedInt8(b3)
+								])));
+				} else {
+					return $elm$core$Maybe$Nothing;
+				}
+			}
 		} else {
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $elm_community$intdict$IntDict$foldr = F3(
-	function (f, acc, dict) {
-		foldr:
+var $danfishgold$base64_bytes$Encode$encodeChunks = F2(
+	function (input, accum) {
+		encodeChunks:
 		while (true) {
-			switch (dict.$) {
-				case 'Empty':
-					return acc;
-				case 'Leaf':
-					var l = dict.a;
-					return A3(f, l.key, l.value, acc);
-				default:
-					var i = dict.a;
-					var $temp$f = f,
-						$temp$acc = A3($elm_community$intdict$IntDict$foldr, f, acc, i.right),
-						$temp$dict = i.left;
-					f = $temp$f;
-					acc = $temp$acc;
-					dict = $temp$dict;
-					continue foldr;
+			var _v0 = $elm$core$String$toList(
+				A2($elm$core$String$left, 4, input));
+			_v0$4:
+			while (true) {
+				if (!_v0.b) {
+					return $elm$core$Maybe$Just(accum);
+				} else {
+					if (_v0.b.b) {
+						if (_v0.b.b.b) {
+							if (_v0.b.b.b.b) {
+								if (!_v0.b.b.b.b.b) {
+									var a = _v0.a;
+									var _v1 = _v0.b;
+									var b = _v1.a;
+									var _v2 = _v1.b;
+									var c = _v2.a;
+									var _v3 = _v2.b;
+									var d = _v3.a;
+									var _v4 = A4($danfishgold$base64_bytes$Encode$encodeCharacters, a, b, c, d);
+									if (_v4.$ === 'Just') {
+										var enc = _v4.a;
+										var $temp$input = A2($elm$core$String$dropLeft, 4, input),
+											$temp$accum = A2($elm$core$List$cons, enc, accum);
+										input = $temp$input;
+										accum = $temp$accum;
+										continue encodeChunks;
+									} else {
+										return $elm$core$Maybe$Nothing;
+									}
+								} else {
+									break _v0$4;
+								}
+							} else {
+								var a = _v0.a;
+								var _v5 = _v0.b;
+								var b = _v5.a;
+								var _v6 = _v5.b;
+								var c = _v6.a;
+								var _v7 = A4(
+									$danfishgold$base64_bytes$Encode$encodeCharacters,
+									a,
+									b,
+									c,
+									_Utils_chr('='));
+								if (_v7.$ === 'Nothing') {
+									return $elm$core$Maybe$Nothing;
+								} else {
+									var enc = _v7.a;
+									return $elm$core$Maybe$Just(
+										A2($elm$core$List$cons, enc, accum));
+								}
+							}
+						} else {
+							var a = _v0.a;
+							var _v8 = _v0.b;
+							var b = _v8.a;
+							var _v9 = A4(
+								$danfishgold$base64_bytes$Encode$encodeCharacters,
+								a,
+								b,
+								_Utils_chr('='),
+								_Utils_chr('='));
+							if (_v9.$ === 'Nothing') {
+								return $elm$core$Maybe$Nothing;
+							} else {
+								var enc = _v9.a;
+								return $elm$core$Maybe$Just(
+									A2($elm$core$List$cons, enc, accum));
+							}
+						}
+					} else {
+						break _v0$4;
+					}
+				}
+			}
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $danfishgold$base64_bytes$Encode$encoder = function (string) {
+	return A2(
+		$elm$core$Maybe$map,
+		A2($elm$core$Basics$composeR, $elm$core$List$reverse, $elm$bytes$Bytes$Encode$sequence),
+		A2($danfishgold$base64_bytes$Encode$encodeChunks, string, _List_Nil));
+};
+var $danfishgold$base64_bytes$Encode$toBytes = function (string) {
+	return A2(
+		$elm$core$Maybe$map,
+		$elm$bytes$Bytes$Encode$encode,
+		$danfishgold$base64_bytes$Encode$encoder(string));
+};
+var $danfishgold$base64_bytes$Base64$toBytes = $danfishgold$base64_bytes$Encode$toBytes;
+var $elm$bytes$Bytes$width = _Bytes_width;
+var $danfishgold$base64_bytes$Base64$toString = function (b64String) {
+	var _v0 = $danfishgold$base64_bytes$Base64$toBytes(b64String);
+	if (_v0.$ === 'Nothing') {
+		return $elm$core$Maybe$Nothing;
+	} else {
+		var b64Bytes = _v0.a;
+		return A2(
+			$elm$bytes$Bytes$Decode$decode,
+			$elm$bytes$Bytes$Decode$string(
+				$elm$bytes$Bytes$width(b64Bytes)),
+			b64Bytes);
+	}
+};
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$FreeHandDrawings$drawingFromJS = function (drawing) {
+	var chars = $elm$core$String$toList(
+		A2(
+			$elm$core$Maybe$withDefault,
+			'',
+			$danfishgold$base64_bytes$Base64$toString(drawing.offsets)));
+	var _v0 = A2($author$project$FreeHandDrawings$debug_chars, 'chars fromJS', chars);
+	return A2(
+		$author$project$FreeHandDrawings$offsetsToPoint,
+		A2(
+			$elm$core$List$map,
+			$author$project$Codec$encoder($author$project$Codec$charInt),
+			chars),
+		_List_fromArray(
+			[drawing.start]));
+};
+var $elm$core$String$fromList = _String_fromList;
+var $elm$bytes$Bytes$Decode$loopHelp = F4(
+	function (state, callback, bites, offset) {
+		loopHelp:
+		while (true) {
+			var _v0 = callback(state);
+			var decoder = _v0.a;
+			var _v1 = A2(decoder, bites, offset);
+			var newOffset = _v1.a;
+			var step = _v1.b;
+			if (step.$ === 'Loop') {
+				var newState = step.a;
+				var $temp$state = newState,
+					$temp$callback = callback,
+					$temp$bites = bites,
+					$temp$offset = newOffset;
+				state = $temp$state;
+				callback = $temp$callback;
+				bites = $temp$bites;
+				offset = $temp$offset;
+				continue loopHelp;
+			} else {
+				var result = step.a;
+				return _Utils_Tuple2(newOffset, result);
 			}
 		}
 	});
-var $elm_community$intdict$IntDict$toList = function (dict) {
-	return A3(
-		$elm_community$intdict$IntDict$foldr,
-		F3(
-			function (key, value, list) {
-				return A2(
-					$elm$core$List$cons,
-					_Utils_Tuple2(key, value),
-					list);
-			}),
-		_List_Nil,
-		dict);
-};
-var $author$project$Polygraph$edgesRep = function (g) {
-	return A2(
-		$elm$core$List$filterMap,
-		function (_v0) {
-			var id = _v0.a;
-			var e = _v0.b;
-			return A2($author$project$Polygraph$objEdge, id, e);
-		},
-		$elm_community$intdict$IntDict$toList(g));
-};
-var $author$project$Polygraph$graphRep = function (_v0) {
-	var graph = _v0.a.graph;
-	return graph;
-};
-var $author$project$Polygraph$edges = function (g) {
-	return $author$project$Polygraph$edgesRep(
-		$author$project$Polygraph$graphRep(g));
-};
-var $author$project$Polygraph$EdgeObj = F3(
-	function (a, b, c) {
-		return {$: 'EdgeObj', a: a, b: b, c: c};
+var $elm$bytes$Bytes$Decode$loop = F2(
+	function (state, callback) {
+		return $elm$bytes$Bytes$Decode$Decoder(
+			A2($elm$bytes$Bytes$Decode$loopHelp, state, callback));
 	});
-var $author$project$Polygraph$NodeObj = function (a) {
-	return {$: 'NodeObj', a: a};
+var $elm$bytes$Bytes$Decode$Done = function (a) {
+	return {$: 'Done', a: a};
+};
+var $elm$bytes$Bytes$Decode$Loop = function (a) {
+	return {$: 'Loop', a: a};
+};
+var $elm$core$Bitwise$and = _Bitwise_and;
+var $elm$core$String$cons = _String_cons;
+var $elm$core$String$fromChar = function (_char) {
+	return A2($elm$core$String$cons, _char, '');
+};
+var $danfishgold$base64_bytes$Decode$lowest6BitsMask = 63;
+var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var $danfishgold$base64_bytes$Decode$unsafeToChar = function (n) {
+	if (n <= 25) {
+		return $elm$core$Char$fromCode(65 + n);
+	} else {
+		if (n <= 51) {
+			return $elm$core$Char$fromCode(97 + (n - 26));
+		} else {
+			if (n <= 61) {
+				return $elm$core$Char$fromCode(48 + (n - 52));
+			} else {
+				switch (n) {
+					case 62:
+						return _Utils_chr('+');
+					case 63:
+						return _Utils_chr('/');
+					default:
+						return _Utils_chr('\u0000');
+				}
+			}
+		}
+	}
+};
+var $danfishgold$base64_bytes$Decode$bitsToChars = F2(
+	function (bits, missing) {
+		var s = $danfishgold$base64_bytes$Decode$unsafeToChar(bits & $danfishgold$base64_bytes$Decode$lowest6BitsMask);
+		var r = $danfishgold$base64_bytes$Decode$unsafeToChar((bits >>> 6) & $danfishgold$base64_bytes$Decode$lowest6BitsMask);
+		var q = $danfishgold$base64_bytes$Decode$unsafeToChar((bits >>> 12) & $danfishgold$base64_bytes$Decode$lowest6BitsMask);
+		var p = $danfishgold$base64_bytes$Decode$unsafeToChar(bits >>> 18);
+		switch (missing) {
+			case 0:
+				return A2(
+					$elm$core$String$cons,
+					p,
+					A2(
+						$elm$core$String$cons,
+						q,
+						A2(
+							$elm$core$String$cons,
+							r,
+							$elm$core$String$fromChar(s))));
+			case 1:
+				return A2(
+					$elm$core$String$cons,
+					p,
+					A2(
+						$elm$core$String$cons,
+						q,
+						A2($elm$core$String$cons, r, '=')));
+			case 2:
+				return A2(
+					$elm$core$String$cons,
+					p,
+					A2($elm$core$String$cons, q, '=='));
+			default:
+				return '';
+		}
+	});
+var $danfishgold$base64_bytes$Decode$bitsToCharSpecialized = F4(
+	function (bits1, bits2, bits3, accum) {
+		var z = $danfishgold$base64_bytes$Decode$unsafeToChar((bits3 >>> 6) & $danfishgold$base64_bytes$Decode$lowest6BitsMask);
+		var y = $danfishgold$base64_bytes$Decode$unsafeToChar((bits3 >>> 12) & $danfishgold$base64_bytes$Decode$lowest6BitsMask);
+		var x = $danfishgold$base64_bytes$Decode$unsafeToChar(bits3 >>> 18);
+		var w = $danfishgold$base64_bytes$Decode$unsafeToChar(bits3 & $danfishgold$base64_bytes$Decode$lowest6BitsMask);
+		var s = $danfishgold$base64_bytes$Decode$unsafeToChar(bits1 & $danfishgold$base64_bytes$Decode$lowest6BitsMask);
+		var r = $danfishgold$base64_bytes$Decode$unsafeToChar((bits1 >>> 6) & $danfishgold$base64_bytes$Decode$lowest6BitsMask);
+		var q = $danfishgold$base64_bytes$Decode$unsafeToChar((bits1 >>> 12) & $danfishgold$base64_bytes$Decode$lowest6BitsMask);
+		var p = $danfishgold$base64_bytes$Decode$unsafeToChar(bits1 >>> 18);
+		var d = $danfishgold$base64_bytes$Decode$unsafeToChar(bits2 & $danfishgold$base64_bytes$Decode$lowest6BitsMask);
+		var c = $danfishgold$base64_bytes$Decode$unsafeToChar((bits2 >>> 6) & $danfishgold$base64_bytes$Decode$lowest6BitsMask);
+		var b = $danfishgold$base64_bytes$Decode$unsafeToChar((bits2 >>> 12) & $danfishgold$base64_bytes$Decode$lowest6BitsMask);
+		var a = $danfishgold$base64_bytes$Decode$unsafeToChar(bits2 >>> 18);
+		return A2(
+			$elm$core$String$cons,
+			x,
+			A2(
+				$elm$core$String$cons,
+				y,
+				A2(
+					$elm$core$String$cons,
+					z,
+					A2(
+						$elm$core$String$cons,
+						w,
+						A2(
+							$elm$core$String$cons,
+							a,
+							A2(
+								$elm$core$String$cons,
+								b,
+								A2(
+									$elm$core$String$cons,
+									c,
+									A2(
+										$elm$core$String$cons,
+										d,
+										A2(
+											$elm$core$String$cons,
+											p,
+											A2(
+												$elm$core$String$cons,
+												q,
+												A2(
+													$elm$core$String$cons,
+													r,
+													A2($elm$core$String$cons, s, accum))))))))))));
+	});
+var $danfishgold$base64_bytes$Decode$decode18Help = F5(
+	function (a, b, c, d, e) {
+		var combined6 = ((255 & d) << 16) | e;
+		var combined5 = d >>> 8;
+		var combined4 = 16777215 & c;
+		var combined3 = ((65535 & b) << 8) | (c >>> 24);
+		var combined2 = ((255 & a) << 16) | (b >>> 16);
+		var combined1 = a >>> 8;
+		return A4(
+			$danfishgold$base64_bytes$Decode$bitsToCharSpecialized,
+			combined3,
+			combined2,
+			combined1,
+			A4($danfishgold$base64_bytes$Decode$bitsToCharSpecialized, combined6, combined5, combined4, ''));
+	});
+var $elm$bytes$Bytes$Decode$map5 = F6(
+	function (func, _v0, _v1, _v2, _v3, _v4) {
+		var decodeA = _v0.a;
+		var decodeB = _v1.a;
+		var decodeC = _v2.a;
+		var decodeD = _v3.a;
+		var decodeE = _v4.a;
+		return $elm$bytes$Bytes$Decode$Decoder(
+			F2(
+				function (bites, offset) {
+					var _v5 = A2(decodeA, bites, offset);
+					var aOffset = _v5.a;
+					var a = _v5.b;
+					var _v6 = A2(decodeB, bites, aOffset);
+					var bOffset = _v6.a;
+					var b = _v6.b;
+					var _v7 = A2(decodeC, bites, bOffset);
+					var cOffset = _v7.a;
+					var c = _v7.b;
+					var _v8 = A2(decodeD, bites, cOffset);
+					var dOffset = _v8.a;
+					var d = _v8.b;
+					var _v9 = A2(decodeE, bites, dOffset);
+					var eOffset = _v9.a;
+					var e = _v9.b;
+					return _Utils_Tuple2(
+						eOffset,
+						A5(func, a, b, c, d, e));
+				}));
+	});
+var $elm$bytes$Bytes$Decode$unsignedInt16 = function (endianness) {
+	return $elm$bytes$Bytes$Decode$Decoder(
+		_Bytes_read_u16(
+			_Utils_eq(endianness, $elm$bytes$Bytes$LE)));
+};
+var $danfishgold$base64_bytes$Decode$u16BE = $elm$bytes$Bytes$Decode$unsignedInt16($elm$bytes$Bytes$BE);
+var $elm$bytes$Bytes$Decode$unsignedInt32 = function (endianness) {
+	return $elm$bytes$Bytes$Decode$Decoder(
+		_Bytes_read_u32(
+			_Utils_eq(endianness, $elm$bytes$Bytes$LE)));
+};
+var $danfishgold$base64_bytes$Decode$u32BE = $elm$bytes$Bytes$Decode$unsignedInt32($elm$bytes$Bytes$BE);
+var $danfishgold$base64_bytes$Decode$decode18Bytes = A6($elm$bytes$Bytes$Decode$map5, $danfishgold$base64_bytes$Decode$decode18Help, $danfishgold$base64_bytes$Decode$u32BE, $danfishgold$base64_bytes$Decode$u32BE, $danfishgold$base64_bytes$Decode$u32BE, $danfishgold$base64_bytes$Decode$u32BE, $danfishgold$base64_bytes$Decode$u16BE);
+var $elm$bytes$Bytes$Decode$map = F2(
+	function (func, _v0) {
+		var decodeA = _v0.a;
+		return $elm$bytes$Bytes$Decode$Decoder(
+			F2(
+				function (bites, offset) {
+					var _v1 = A2(decodeA, bites, offset);
+					var aOffset = _v1.a;
+					var a = _v1.b;
+					return _Utils_Tuple2(
+						aOffset,
+						func(a));
+				}));
+	});
+var $elm$bytes$Bytes$Decode$map2 = F3(
+	function (func, _v0, _v1) {
+		var decodeA = _v0.a;
+		var decodeB = _v1.a;
+		return $elm$bytes$Bytes$Decode$Decoder(
+			F2(
+				function (bites, offset) {
+					var _v2 = A2(decodeA, bites, offset);
+					var aOffset = _v2.a;
+					var a = _v2.b;
+					var _v3 = A2(decodeB, bites, aOffset);
+					var bOffset = _v3.a;
+					var b = _v3.b;
+					return _Utils_Tuple2(
+						bOffset,
+						A2(func, a, b));
+				}));
+	});
+var $elm$bytes$Bytes$Decode$map3 = F4(
+	function (func, _v0, _v1, _v2) {
+		var decodeA = _v0.a;
+		var decodeB = _v1.a;
+		var decodeC = _v2.a;
+		return $elm$bytes$Bytes$Decode$Decoder(
+			F2(
+				function (bites, offset) {
+					var _v3 = A2(decodeA, bites, offset);
+					var aOffset = _v3.a;
+					var a = _v3.b;
+					var _v4 = A2(decodeB, bites, aOffset);
+					var bOffset = _v4.a;
+					var b = _v4.b;
+					var _v5 = A2(decodeC, bites, bOffset);
+					var cOffset = _v5.a;
+					var c = _v5.b;
+					return _Utils_Tuple2(
+						cOffset,
+						A3(func, a, b, c));
+				}));
+	});
+var $elm$bytes$Bytes$Decode$succeed = function (a) {
+	return $elm$bytes$Bytes$Decode$Decoder(
+		F2(
+			function (_v0, offset) {
+				return _Utils_Tuple2(offset, a);
+			}));
+};
+var $elm$bytes$Bytes$Decode$unsignedInt8 = $elm$bytes$Bytes$Decode$Decoder(_Bytes_read_u8);
+var $danfishgold$base64_bytes$Decode$loopHelp = function (_v0) {
+	var remaining = _v0.remaining;
+	var string = _v0.string;
+	if (remaining >= 18) {
+		return A2(
+			$elm$bytes$Bytes$Decode$map,
+			function (result) {
+				return $elm$bytes$Bytes$Decode$Loop(
+					{
+						remaining: remaining - 18,
+						string: _Utils_ap(string, result)
+					});
+			},
+			$danfishgold$base64_bytes$Decode$decode18Bytes);
+	} else {
+		if (remaining >= 3) {
+			var helper = F3(
+				function (a, b, c) {
+					var combined = ((a << 16) | (b << 8)) | c;
+					return $elm$bytes$Bytes$Decode$Loop(
+						{
+							remaining: remaining - 3,
+							string: _Utils_ap(
+								string,
+								A2($danfishgold$base64_bytes$Decode$bitsToChars, combined, 0))
+						});
+				});
+			return A4($elm$bytes$Bytes$Decode$map3, helper, $elm$bytes$Bytes$Decode$unsignedInt8, $elm$bytes$Bytes$Decode$unsignedInt8, $elm$bytes$Bytes$Decode$unsignedInt8);
+		} else {
+			if (!remaining) {
+				return $elm$bytes$Bytes$Decode$succeed(
+					$elm$bytes$Bytes$Decode$Done(string));
+			} else {
+				if (remaining === 2) {
+					var helper = F2(
+						function (a, b) {
+							var combined = (a << 16) | (b << 8);
+							return $elm$bytes$Bytes$Decode$Done(
+								_Utils_ap(
+									string,
+									A2($danfishgold$base64_bytes$Decode$bitsToChars, combined, 1)));
+						});
+					return A3($elm$bytes$Bytes$Decode$map2, helper, $elm$bytes$Bytes$Decode$unsignedInt8, $elm$bytes$Bytes$Decode$unsignedInt8);
+				} else {
+					return A2(
+						$elm$bytes$Bytes$Decode$map,
+						function (a) {
+							return $elm$bytes$Bytes$Decode$Done(
+								_Utils_ap(
+									string,
+									A2($danfishgold$base64_bytes$Decode$bitsToChars, a << 16, 2)));
+						},
+						$elm$bytes$Bytes$Decode$unsignedInt8);
+				}
+			}
+		}
+	}
+};
+var $danfishgold$base64_bytes$Decode$decoder = function (width) {
+	return A2(
+		$elm$bytes$Bytes$Decode$loop,
+		{remaining: width, string: ''},
+		$danfishgold$base64_bytes$Decode$loopHelp);
+};
+var $danfishgold$base64_bytes$Decode$fromBytes = function (bytes) {
+	return A2(
+		$elm$bytes$Bytes$Decode$decode,
+		$danfishgold$base64_bytes$Decode$decoder(
+			$elm$bytes$Bytes$width(bytes)),
+		bytes);
+};
+var $danfishgold$base64_bytes$Base64$fromBytes = $danfishgold$base64_bytes$Decode$fromBytes;
+var $elm$bytes$Bytes$Encode$Utf8 = F2(
+	function (a, b) {
+		return {$: 'Utf8', a: a, b: b};
+	});
+var $elm$bytes$Bytes$Encode$string = function (str) {
+	return A2(
+		$elm$bytes$Bytes$Encode$Utf8,
+		_Bytes_getStringWidth(str),
+		str);
+};
+var $danfishgold$base64_bytes$Base64$fromString = function (string) {
+	return $danfishgold$base64_bytes$Base64$fromBytes(
+		$elm$bytes$Bytes$Encode$encode(
+			$elm$bytes$Bytes$Encode$string(string)));
+};
+var $author$project$Geometry$Point$subtract = F2(
+	function (_v0, _v1) {
+		var x1 = _v0.a;
+		var y1 = _v0.b;
+		var x2 = _v1.a;
+		var y2 = _v1.b;
+		return _Utils_Tuple2(x1 - x2, y1 - y2);
+	});
+var $author$project$FreeHandDrawings$pointsToOffsets = F2(
+	function (points, acc) {
+		pointsToOffsets:
+		while (true) {
+			if (!points.b) {
+				return $elm$core$List$reverse(acc.points);
+			} else {
+				var p = points.a;
+				var q = points.b;
+				var _v1 = A2($author$project$Geometry$Point$subtract, p, acc.current);
+				var offx = _v1.a;
+				var offy = _v1.b;
+				var _v2 = _Utils_Tuple2(offx | 0, offy | 0);
+				var offxn = _v2.a;
+				var offyn = _v2.b;
+				var offset = _Utils_Tuple2(offxn, offyn);
+				var $temp$points = q,
+					$temp$acc = _Utils_update(
+					acc,
+					{
+						current: A2($author$project$Geometry$Point$add, acc.current, offset),
+						points: A2(
+							$elm$core$List$cons,
+							offxn,
+							A2($elm$core$List$cons, offyn, acc.points))
+					});
+				points = $temp$points;
+				acc = $temp$acc;
+				continue pointsToOffsets;
+			}
+		}
+	});
+var $author$project$FreeHandDrawings$drawingToJS = function (allPoints) {
+	if (!allPoints.b) {
+		return {
+			offsets: '',
+			start: _Utils_Tuple2(0, 0)
+		};
+	} else {
+		var start = allPoints.a;
+		var points = allPoints.b;
+		var chars = A2(
+			$author$project$FreeHandDrawings$pointsToOffsets,
+			points,
+			{current: start, points: _List_Nil});
+		return {
+			offsets: A2(
+				$elm$core$Maybe$withDefault,
+				'',
+				$danfishgold$base64_bytes$Base64$fromString(
+					$elm$core$String$fromList(
+						A2(
+							$elm$core$List$map,
+							$author$project$Codec$decoder($author$project$Codec$charInt),
+							chars)))),
+			start: start
+		};
+	}
 };
 var $elm_community$intdict$IntDict$Inner = function (a) {
 	return {$: 'Inner', a: a};
@@ -6166,11 +7133,8 @@ var $elm_community$intdict$IntDict$inner = F3(
 			}
 		}
 	});
-var $elm$core$Bitwise$and = _Bitwise_and;
 var $elm$core$Basics$neq = _Utils_notEqual;
 var $elm$core$Bitwise$complement = _Bitwise_complement;
-var $elm$core$Bitwise$or = _Bitwise_or;
-var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
 var $elm_community$intdict$IntDict$highestBitSet = function (n) {
 	var shiftOr = F2(
 		function (i, shift) {
@@ -6182,9 +7146,6 @@ var $elm_community$intdict$IntDict$highestBitSet = function (n) {
 	var n4 = A2(shiftOr, n3, 8);
 	var n5 = A2(shiftOr, n4, 16);
 	return n5 & (~(n5 >>> 1));
-};
-var $elm$core$Basics$negate = function (n) {
-	return -n;
 };
 var $elm_community$intdict$IntDict$signBit = $elm_community$intdict$IntDict$highestBitSet(-1);
 var $elm$core$Bitwise$xor = _Bitwise_xor;
@@ -6290,6 +7251,130 @@ var $elm_community$intdict$IntDict$fromList = function (pairs) {
 		},
 		$elm_community$intdict$IntDict$empty,
 		pairs);
+};
+var $elm$core$Tuple$pair = F2(
+	function (a, b) {
+		return _Utils_Tuple2(a, b);
+	});
+var $author$project$IntDictExtra$fromBareList = function (l) {
+	return $elm_community$intdict$IntDict$fromList(
+		A2($elm$core$List$indexedMap, $elm$core$Tuple$pair, l));
+};
+var $elm_community$intdict$IntDict$foldr = F3(
+	function (f, acc, dict) {
+		foldr:
+		while (true) {
+			switch (dict.$) {
+				case 'Empty':
+					return acc;
+				case 'Leaf':
+					var l = dict.a;
+					return A3(f, l.key, l.value, acc);
+				default:
+					var i = dict.a;
+					var $temp$f = f,
+						$temp$acc = A3($elm_community$intdict$IntDict$foldr, f, acc, i.right),
+						$temp$dict = i.left;
+					f = $temp$f;
+					acc = $temp$acc;
+					dict = $temp$dict;
+					continue foldr;
+			}
+		}
+	});
+var $elm_community$intdict$IntDict$values = function (dict) {
+	return A3(
+		$elm_community$intdict$IntDict$foldr,
+		F3(
+			function (key, value, valueList) {
+				return A2($elm$core$List$cons, value, valueList);
+			}),
+		_List_Nil,
+		dict);
+};
+var $author$project$FreeHandDrawings$codec = A2(
+	$author$project$Codec$build,
+	function (_v0) {
+		var freehandDrawings = _v0.freehandDrawings;
+		return A2(
+			$elm$core$List$map,
+			$author$project$FreeHandDrawings$drawingToJS,
+			$elm_community$intdict$IntDict$values(freehandDrawings));
+	},
+	function (listDrawings) {
+		return {
+			freehandDrawings: $author$project$IntDictExtra$fromBareList(
+				A2($elm$core$List$map, $author$project$FreeHandDrawings$drawingFromJS, listDrawings)),
+			nextFreehandId: $elm$core$List$length(listDrawings)
+		};
+	});
+var $elm$core$List$maybeCons = F3(
+	function (f, mx, xs) {
+		var _v0 = f(mx);
+		if (_v0.$ === 'Just') {
+			var x = _v0.a;
+			return A2($elm$core$List$cons, x, xs);
+		} else {
+			return xs;
+		}
+	});
+var $elm$core$List$filterMap = F2(
+	function (f, xs) {
+		return A3(
+			$elm$core$List$foldr,
+			$elm$core$List$maybeCons(f),
+			_List_Nil,
+			xs);
+	});
+var $author$project$Polygraph$objEdge = F2(
+	function (id, o) {
+		if (o.$ === 'EdgeObj') {
+			var i1 = o.a;
+			var i2 = o.b;
+			var e = o.c;
+			return $elm$core$Maybe$Just(
+				{from: i1, id: id, label: e, to: i2});
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm_community$intdict$IntDict$toList = function (dict) {
+	return A3(
+		$elm_community$intdict$IntDict$foldr,
+		F3(
+			function (key, value, list) {
+				return A2(
+					$elm$core$List$cons,
+					_Utils_Tuple2(key, value),
+					list);
+			}),
+		_List_Nil,
+		dict);
+};
+var $author$project$Polygraph$edgesRep = function (g) {
+	return A2(
+		$elm$core$List$filterMap,
+		function (_v0) {
+			var id = _v0.a;
+			var e = _v0.b;
+			return A2($author$project$Polygraph$objEdge, id, e);
+		},
+		$elm_community$intdict$IntDict$toList(g));
+};
+var $author$project$Polygraph$graphRep = function (_v0) {
+	var graph = _v0.a.graph;
+	return graph;
+};
+var $author$project$Polygraph$edges = function (g) {
+	return $author$project$Polygraph$edgesRep(
+		$author$project$Polygraph$graphRep(g));
+};
+var $author$project$Polygraph$EdgeObj = F3(
+	function (a, b, c) {
+		return {$: 'EdgeObj', a: a, b: b, c: c};
+	});
+var $author$project$Polygraph$NodeObj = function (a) {
+	return {$: 'NodeObj', a: a};
 };
 var $elm_community$intdict$IntDict$Disjunct = F2(
 	function (a, b) {
@@ -6520,16 +7605,6 @@ var $author$project$Polygraph$Node = F2(
 	function (id, label) {
 		return {id: id, label: label};
 	});
-var $elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return $elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
 var $author$project$Polygraph$objNode = function (o) {
 	if (o.$ === 'NodeObj') {
 		var n = o.a;
@@ -6581,49 +7656,49 @@ var $author$project$Codec$compose = F2(
 					$author$project$Codec$encoder(dec))
 			});
 	});
-var $author$project$Format$Version17$Adjunction = {$: 'Adjunction'};
-var $author$project$Format$Version17$Alignment = function (a) {
+var $author$project$Format$Version18$Adjunction = {$: 'Adjunction'};
+var $author$project$Format$Version18$Alignment = function (a) {
 	return {$: 'Alignment', a: a};
 };
-var $author$project$Format$Version17$Bend = function (a) {
+var $author$project$Format$Version18$Bend = function (a) {
 	return {$: 'Bend', a: a};
 };
-var $author$project$Format$Version17$Color = function (a) {
+var $author$project$Format$Version18$Color = function (a) {
 	return {$: 'Color', a: a};
 };
-var $author$project$Format$Version17$Dashed = {$: 'Dashed'};
-var $author$project$Format$Version17$HeadColor = function (a) {
+var $author$project$Format$Version18$Dashed = {$: 'Dashed'};
+var $author$project$Format$Version18$HeadColor = function (a) {
 	return {$: 'HeadColor', a: a};
 };
-var $author$project$Format$Version17$HeadStyle = function (a) {
+var $author$project$Format$Version18$HeadStyle = function (a) {
 	return {$: 'HeadStyle', a: a};
 };
-var $author$project$Format$Version17$Kind = function (a) {
+var $author$project$Format$Version18$Kind = function (a) {
 	return {$: 'Kind', a: a};
 };
-var $author$project$Format$Version17$Marker = function (a) {
+var $author$project$Format$Version18$Marker = function (a) {
 	return {$: 'Marker', a: a};
 };
-var $author$project$Format$Version17$Position = function (a) {
+var $author$project$Format$Version18$Position = function (a) {
 	return {$: 'Position', a: a};
 };
-var $author$project$Format$Version17$Pullshout = function (a) {
+var $author$project$Format$Version18$Pullshout = function (a) {
 	return {$: 'Pullshout', a: a};
 };
-var $author$project$Format$Version17$ShiftSource = function (a) {
+var $author$project$Format$Version18$ShiftSource = function (a) {
 	return {$: 'ShiftSource', a: a};
 };
-var $author$project$Format$Version17$ShiftTarget = function (a) {
+var $author$project$Format$Version18$ShiftTarget = function (a) {
 	return {$: 'ShiftTarget', a: a};
 };
-var $author$project$Format$Version17$TailColor = function (a) {
+var $author$project$Format$Version18$TailColor = function (a) {
 	return {$: 'TailColor', a: a};
 };
-var $author$project$Format$Version17$TailStyle = function (a) {
+var $author$project$Format$Version18$TailStyle = function (a) {
 	return {$: 'TailStyle', a: a};
 };
-var $author$project$Format$Version17$Unrecognized = {$: 'Unrecognized'};
-var $author$project$Format$Version17$Wavy = {$: 'Wavy'};
+var $author$project$Format$Version18$Unrecognized = {$: 'Unrecognized'};
+var $author$project$Format$Version18$Wavy = {$: 'Wavy'};
 var $author$project$Geometry$Centre = {$: 'Centre'};
 var $author$project$Geometry$Left = {$: 'Left'};
 var $author$project$Geometry$Over = {$: 'Over'};
@@ -6856,9 +7931,9 @@ var $author$project$Drawing$Color$codec = function () {
 											$author$project$Drawing$Color$Gray,
 											$author$project$Codec$customEnum(split)))))))))));
 }();
-var $author$project$Format$Version17$maxDecimalDigits = 4;
+var $author$project$Format$Version18$maxDecimalDigits = 4;
 var $elm$core$String$fromFloat = _String_fromNumber;
-var $author$project$Format$Version17$stringFromFloat = F2(
+var $author$project$Format$Version18$stringFromFloat = F2(
 	function (n, f) {
 		var s = $elm$core$String$fromFloat(f);
 		var _v0 = A2($elm$core$String$split, '.', s);
@@ -6871,11 +7946,11 @@ var $author$project$Format$Version17$stringFromFloat = F2(
 			return s;
 		}
 	});
-var $author$project$Format$Version17$myStringFromFloat = $author$project$Format$Version17$stringFromFloat($author$project$Format$Version17$maxDecimalDigits);
+var $author$project$Format$Version18$myStringFromFloat = $author$project$Format$Version18$stringFromFloat($author$project$Format$Version18$maxDecimalDigits);
 var $elm$core$Basics$pow = _Basics_pow;
 var $elm$core$String$toFloat = _String_toFloat;
-var $author$project$Format$Version17$myStringToFloat = function () {
-	var epsilon = 2 * A2($elm$core$Basics$pow, 10, 1 - $author$project$Format$Version17$maxDecimalDigits);
+var $author$project$Format$Version18$myStringToFloat = function () {
+	var epsilon = 2 * A2($elm$core$Basics$pow, 10, 1 - $author$project$Format$Version18$maxDecimalDigits);
 	return A2(
 		$elm$core$Basics$composeR,
 		$elm$core$String$toFloat,
@@ -6884,21 +7959,12 @@ var $author$project$Format$Version17$myStringToFloat = function () {
 				return ((_Utils_cmp(epsilon, d) < 0) && (_Utils_cmp(d, epsilon) < 0)) ? 0 : d;
 			}));
 }();
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
-var $author$project$Format$Version17$floatCodec = A2(
+var $author$project$Format$Version18$floatCodec = A2(
 	$author$project$Codec$build,
-	$author$project$Format$Version17$myStringFromFloat,
+	$author$project$Format$Version18$myStringFromFloat,
 	A2(
 		$elm$core$Basics$composeR,
-		$author$project$Format$Version17$myStringToFloat,
+		$author$project$Format$Version18$myStringToFloat,
 		$elm$core$Maybe$withDefault(0)));
 var $author$project$ArrowStyle$DefaultHead = {$: 'DefaultHead'};
 var $author$project$ArrowStyle$NoHead = {$: 'NoHead'};
@@ -6996,13 +8062,13 @@ var $author$project$Codec$prefixVariant0 = F4(
 				setTag: c.setTag
 			});
 	});
-var $author$project$Format$Version17$prefixes = {adjunction: 'adjunction', alignment: 'alignment ', bend: 'bend ', color: 'color ', dashed: 'dashed', head: 'head ', headColor: 'headColor ', kind: 'kind ', marker: 'marker ', position: 'position ', pullshout: 'pullshout ', shiftSource: 'shiftSource ', shiftTarget: 'shiftTarget ', tail: 'tail ', tailColor: 'tailColor ', unrecognized: 'unrecognized', wavy: 'wavy'};
-var $author$project$Format$Version17$pullshoutOffsetCodec = A2(
+var $author$project$Format$Version18$prefixes = {adjunction: 'adjunction', alignment: 'alignment ', bend: 'bend ', color: 'color ', dashed: 'dashed', head: 'head ', headColor: 'headColor ', kind: 'kind ', marker: 'marker ', position: 'position ', pullshout: 'pullshout ', shiftSource: 'shiftSource ', shiftTarget: 'shiftTarget ', tail: 'tail ', tailColor: 'tailColor ', unrecognized: 'unrecognized', wavy: 'wavy'};
+var $author$project$Format$Version18$pullshoutOffsetCodec = A2(
 	$author$project$Codec$build,
 	function (_v0) {
 		var offset1 = _v0.offset1;
 		var offset2 = _v0.offset2;
-		return $author$project$Format$Version17$myStringFromFloat(offset1) + (' ' + $author$project$Format$Version17$myStringFromFloat(offset2));
+		return $author$project$Format$Version18$myStringFromFloat(offset1) + (' ' + $author$project$Format$Version18$myStringFromFloat(offset2));
 	},
 	function (s) {
 		var _default = {offset1: 0, offset2: 0};
@@ -7012,8 +8078,8 @@ var $author$project$Format$Version17$pullshoutOffsetCodec = A2(
 			var _v2 = _v1.b;
 			var s2 = _v2.a;
 			var _v3 = _Utils_Tuple2(
-				$author$project$Format$Version17$myStringToFloat(s1),
-				$author$project$Format$Version17$myStringToFloat(s2));
+				$author$project$Format$Version18$myStringToFloat(s1),
+				$author$project$Format$Version18$myStringToFloat(s2));
 			if ((_v3.a.$ === 'Just') && (_v3.b.$ === 'Just')) {
 				var f1 = _v3.a.a;
 				var f2 = _v3.b.a;
@@ -7064,7 +8130,7 @@ var $author$project$ArrowStyle$tailCodec = function () {
 						$author$project$ArrowStyle$Hook,
 						$author$project$Codec$customEnum(split))))));
 }();
-var $author$project$Format$Version17$edgeFlagCodec = function () {
+var $author$project$Format$Version18$edgeFlagCodec = function () {
 	var split = function (dashed) {
 		return function (marker) {
 			return function (pullshout) {
@@ -7152,99 +8218,99 @@ var $author$project$Format$Version17$edgeFlagCodec = function () {
 	};
 	return A2(
 		$author$project$Codec$buildVariant,
-		$elm$core$Basics$always($author$project$Format$Version17$Unrecognized),
+		$elm$core$Basics$always($author$project$Format$Version18$Unrecognized),
 		A3(
 			$author$project$Codec$variant0,
-			$author$project$Format$Version17$prefixes.unrecognized,
-			$author$project$Format$Version17$Unrecognized,
+			$author$project$Format$Version18$prefixes.unrecognized,
+			$author$project$Format$Version18$Unrecognized,
 			A4(
 				$author$project$Codec$prefixVariant0,
-				$author$project$Format$Version17$prefixes.shiftTarget,
-				$author$project$Format$Version17$ShiftTarget,
-				$author$project$Format$Version17$floatCodec,
+				$author$project$Format$Version18$prefixes.shiftTarget,
+				$author$project$Format$Version18$ShiftTarget,
+				$author$project$Format$Version18$floatCodec,
 				A4(
 					$author$project$Codec$prefixVariant0,
-					$author$project$Format$Version17$prefixes.shiftSource,
-					$author$project$Format$Version17$ShiftSource,
-					$author$project$Format$Version17$floatCodec,
+					$author$project$Format$Version18$prefixes.shiftSource,
+					$author$project$Format$Version18$ShiftSource,
+					$author$project$Format$Version18$floatCodec,
 					A4(
 						$author$project$Codec$prefixVariant0,
-						$author$project$Format$Version17$prefixes.tailColor,
-						$author$project$Format$Version17$TailColor,
+						$author$project$Format$Version18$prefixes.tailColor,
+						$author$project$Format$Version18$TailColor,
 						$author$project$Drawing$Color$codec,
 						A4(
 							$author$project$Codec$prefixVariant0,
-							$author$project$Format$Version17$prefixes.headColor,
-							$author$project$Format$Version17$HeadColor,
+							$author$project$Format$Version18$prefixes.headColor,
+							$author$project$Format$Version18$HeadColor,
 							$author$project$Drawing$Color$codec,
 							A4(
 								$author$project$Codec$prefixVariant0,
-								$author$project$Format$Version17$prefixes.color,
-								$author$project$Format$Version17$Color,
+								$author$project$Format$Version18$prefixes.color,
+								$author$project$Format$Version18$Color,
 								$author$project$Drawing$Color$codec,
 								A4(
 									$author$project$Codec$prefixVariant0,
-									$author$project$Format$Version17$prefixes.alignment,
-									$author$project$Format$Version17$Alignment,
+									$author$project$Format$Version18$prefixes.alignment,
+									$author$project$Format$Version18$Alignment,
 									$author$project$ArrowStyle$alignmentCodec,
 									A4(
 										$author$project$Codec$prefixVariant0,
-										$author$project$Format$Version17$prefixes.tail,
-										$author$project$Format$Version17$TailStyle,
+										$author$project$Format$Version18$prefixes.tail,
+										$author$project$Format$Version18$TailStyle,
 										$author$project$ArrowStyle$tailCodec,
 										A4(
 											$author$project$Codec$prefixVariant0,
-											$author$project$Format$Version17$prefixes.head,
-											$author$project$Format$Version17$HeadStyle,
+											$author$project$Format$Version18$prefixes.head,
+											$author$project$Format$Version18$HeadStyle,
 											$author$project$ArrowStyle$headCodec,
 											A4(
 												$author$project$Codec$prefixVariant0,
-												$author$project$Format$Version17$prefixes.kind,
-												$author$project$Format$Version17$Kind,
+												$author$project$Format$Version18$prefixes.kind,
+												$author$project$Format$Version18$Kind,
 												$author$project$ArrowStyle$kindCodec,
 												A3(
 													$author$project$Codec$variant0,
-													$author$project$Format$Version17$prefixes.wavy,
-													$author$project$Format$Version17$Wavy,
+													$author$project$Format$Version18$prefixes.wavy,
+													$author$project$Format$Version18$Wavy,
 													A3(
 														$author$project$Codec$variant0,
-														$author$project$Format$Version17$prefixes.adjunction,
-														$author$project$Format$Version17$Adjunction,
+														$author$project$Format$Version18$prefixes.adjunction,
+														$author$project$Format$Version18$Adjunction,
 														A4(
 															$author$project$Codec$prefixVariant0,
-															$author$project$Format$Version17$prefixes.position,
-															$author$project$Format$Version17$Position,
-															$author$project$Format$Version17$floatCodec,
+															$author$project$Format$Version18$prefixes.position,
+															$author$project$Format$Version18$Position,
+															$author$project$Format$Version18$floatCodec,
 															A4(
 																$author$project$Codec$prefixVariant0,
-																$author$project$Format$Version17$prefixes.bend,
-																$author$project$Format$Version17$Bend,
-																$author$project$Format$Version17$floatCodec,
+																$author$project$Format$Version18$prefixes.bend,
+																$author$project$Format$Version18$Bend,
+																$author$project$Format$Version18$floatCodec,
 																A4(
 																	$author$project$Codec$prefixVariant0,
-																	$author$project$Format$Version17$prefixes.pullshout,
-																	$author$project$Format$Version17$Pullshout,
-																	$author$project$Format$Version17$pullshoutOffsetCodec,
+																	$author$project$Format$Version18$prefixes.pullshout,
+																	$author$project$Format$Version18$Pullshout,
+																	$author$project$Format$Version18$pullshoutOffsetCodec,
 																	A4(
 																		$author$project$Codec$prefixVariant0,
-																		$author$project$Format$Version17$prefixes.marker,
-																		$author$project$Format$Version17$Marker,
+																		$author$project$Format$Version18$prefixes.marker,
+																		$author$project$Format$Version18$Marker,
 																		$author$project$Codec$identity,
 																		A3(
 																			$author$project$Codec$variant0,
-																			$author$project$Format$Version17$prefixes.dashed,
-																			$author$project$Format$Version17$Dashed,
+																			$author$project$Format$Version18$prefixes.dashed,
+																			$author$project$Format$Version18$Dashed,
 																			$author$project$Codec$customEnum(split)))))))))))))))))));
 }();
-var $author$project$Format$Version17$addFlag = F2(
+var $author$project$Format$Version18$addFlag = F2(
 	function (flag, l) {
 		return A2(
 			$elm$core$List$cons,
-			A2($author$project$Codec$encoder, $author$project$Format$Version17$edgeFlagCodec, flag),
+			A2($author$project$Codec$encoder, $author$project$Format$Version18$edgeFlagCodec, flag),
 			l);
 	});
-var $author$project$Format$Version17$edgeFlagsCodec = $author$project$Codec$compose(
-	$author$project$Codec$list($author$project$Format$Version17$edgeFlagCodec));
+var $author$project$Format$Version18$edgeFlagsCodec = $author$project$Codec$compose(
+	$author$project$Codec$list($author$project$Format$Version18$edgeFlagCodec));
 var $elm_community$list_extra$List$Extra$findMap = F2(
 	function (f, list) {
 		findMap:
@@ -7285,15 +8351,15 @@ var $author$project$Codec$maybeList = F3(
 					A2($elm_community$list_extra$List$Extra$findMap, dec, bs));
 			});
 	});
-var $author$project$Format$Version17$edgeMaybeFlagCodec = F3(
+var $author$project$Format$Version18$edgeMaybeFlagCodec = F3(
 	function (_default, constr, destr) {
-		return $author$project$Format$Version17$edgeFlagsCodec(
+		return $author$project$Format$Version18$edgeFlagsCodec(
 			A3($author$project$Codec$maybeList, _default, constr, destr));
 	});
-var $author$project$Format$Version17$alignmentFlag = A3(
-	$author$project$Format$Version17$edgeMaybeFlagCodec,
+var $author$project$Format$Version18$alignmentFlag = A3(
+	$author$project$Format$Version18$edgeMaybeFlagCodec,
 	$author$project$Geometry$Left,
-	$author$project$Format$Version17$Alignment,
+	$author$project$Format$Version18$Alignment,
 	function (flag) {
 		if (flag.$ === 'Alignment') {
 			var a = flag.a;
@@ -7302,10 +8368,10 @@ var $author$project$Format$Version17$alignmentFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version17$bendFlag = A3(
-	$author$project$Format$Version17$edgeMaybeFlagCodec,
+var $author$project$Format$Version18$bendFlag = A3(
+	$author$project$Format$Version18$edgeMaybeFlagCodec,
 	0.0,
-	$author$project$Format$Version17$Bend,
+	$author$project$Format$Version18$Bend,
 	function (flag) {
 		if (flag.$ === 'Bend') {
 			var a = flag.a;
@@ -7315,7 +8381,7 @@ var $author$project$Format$Version17$bendFlag = A3(
 		}
 	});
 var $author$project$Drawing$Color$black = $author$project$Drawing$Color$Black;
-var $author$project$Format$Version17$colorsFlag = $author$project$Format$Version17$edgeFlagsCodec(
+var $author$project$Format$Version18$colorsFlag = $author$project$Format$Version18$edgeFlagsCodec(
 	A2(
 		$author$project$Codec$build,
 		function (_v0) {
@@ -7325,16 +8391,16 @@ var $author$project$Format$Version17$colorsFlag = $author$project$Format$Version
 			return _Utils_ap(
 				_Utils_eq(main, $author$project$Drawing$Color$black) ? _List_Nil : _List_fromArray(
 					[
-						$author$project$Format$Version17$Color(main)
+						$author$project$Format$Version18$Color(main)
 					]),
 				_Utils_ap(
 					_Utils_eq(head, main) ? _List_Nil : _List_fromArray(
 						[
-							$author$project$Format$Version17$HeadColor(head)
+							$author$project$Format$Version18$HeadColor(head)
 						]),
 					_Utils_eq(tail, main) ? _List_Nil : _List_fromArray(
 						[
-							$author$project$Format$Version17$TailColor(tail)
+							$author$project$Format$Version18$TailColor(tail)
 						])));
 		},
 		function (l) {
@@ -7391,15 +8457,15 @@ var $author$project$Codec$boolList = function (b) {
 			return _Utils_eq(b, b2) ? $elm$core$Maybe$Just(true) : $elm$core$Maybe$Nothing;
 		});
 };
-var $author$project$Format$Version17$edgeMaybeFlagCodecFalse = function (flag) {
-	return $author$project$Format$Version17$edgeFlagsCodec(
+var $author$project$Format$Version18$edgeMaybeFlagCodecFalse = function (flag) {
+	return $author$project$Format$Version18$edgeFlagsCodec(
 		$author$project$Codec$boolList(flag));
 };
-var $author$project$Format$Version17$dashedFlag = $author$project$Format$Version17$edgeMaybeFlagCodecFalse($author$project$Format$Version17$Dashed);
-var $author$project$Format$Version17$headFlag = A3(
-	$author$project$Format$Version17$edgeMaybeFlagCodec,
+var $author$project$Format$Version18$dashedFlag = $author$project$Format$Version18$edgeMaybeFlagCodecFalse($author$project$Format$Version18$Dashed);
+var $author$project$Format$Version18$headFlag = A3(
+	$author$project$Format$Version18$edgeMaybeFlagCodec,
 	$author$project$ArrowStyle$DefaultHead,
-	$author$project$Format$Version17$HeadStyle,
+	$author$project$Format$Version18$HeadStyle,
 	function (flag) {
 		if (flag.$ === 'HeadStyle') {
 			var a = flag.a;
@@ -7408,7 +8474,7 @@ var $author$project$Format$Version17$headFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version17$kindFlag = function () {
+var $author$project$Format$Version18$kindFlag = function () {
 	var dec = function (flag) {
 		if (flag.$ === 'Kind') {
 			var a = flag.a;
@@ -7417,13 +8483,13 @@ var $author$project$Format$Version17$kindFlag = function () {
 			return $elm$core$Maybe$Nothing;
 		}
 	};
-	return $author$project$Format$Version17$edgeFlagsCodec(
+	return $author$project$Format$Version18$edgeFlagsCodec(
 		A2(
 			$author$project$Codec$build,
 			function (a) {
 				return _Utils_eq(a, $author$project$ArrowStyle$NormalArrow) ? _List_Nil : _List_fromArray(
 					[
-						$author$project$Format$Version17$Kind(a)
+						$author$project$Format$Version18$Kind(a)
 					]);
 			},
 			function (bs) {
@@ -7433,10 +8499,10 @@ var $author$project$Format$Version17$kindFlag = function () {
 					A2($elm_community$list_extra$List$Extra$findMap, dec, bs));
 			}));
 }();
-var $author$project$Format$Version17$markerFlag = A3(
-	$author$project$Format$Version17$edgeMaybeFlagCodec,
+var $author$project$Format$Version18$markerFlag = A3(
+	$author$project$Format$Version18$edgeMaybeFlagCodec,
 	'',
-	$author$project$Format$Version17$Marker,
+	$author$project$Format$Version18$Marker,
 	function (flag) {
 		if (flag.$ === 'Marker') {
 			var a = flag.a;
@@ -7449,10 +8515,10 @@ var $elm$core$Basics$min = F2(
 	function (x, y) {
 		return (_Utils_cmp(x, y) < 0) ? x : y;
 	});
-var $author$project$Format$Version17$positionFlag = A3(
-	$author$project$Format$Version17$edgeMaybeFlagCodec,
+var $author$project$Format$Version18$positionFlag = A3(
+	$author$project$Format$Version18$edgeMaybeFlagCodec,
 	0.5,
-	$author$project$Format$Version17$Position,
+	$author$project$Format$Version18$Position,
 	function (flag) {
 		if (flag.$ === 'Position') {
 			var a = flag.a;
@@ -7465,11 +8531,11 @@ var $author$project$Format$Version17$positionFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version17$shiftSourceFlag = A3(
-	$author$project$Format$Version17$edgeMaybeFlagCodec,
+var $author$project$Format$Version18$shiftSourceFlag = A3(
+	$author$project$Format$Version18$edgeMaybeFlagCodec,
 	0.5,
 	function (x) {
-		return $author$project$Format$Version17$ShiftSource((x - 0.5) * 10);
+		return $author$project$Format$Version18$ShiftSource((x - 0.5) * 10);
 	},
 	function (flag) {
 		if (flag.$ === 'ShiftSource') {
@@ -7479,11 +8545,11 @@ var $author$project$Format$Version17$shiftSourceFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version17$shiftTargetFlag = A3(
-	$author$project$Format$Version17$edgeMaybeFlagCodec,
+var $author$project$Format$Version18$shiftTargetFlag = A3(
+	$author$project$Format$Version18$edgeMaybeFlagCodec,
 	0.5,
 	function (x) {
-		return $author$project$Format$Version17$ShiftTarget((x - 0.5) * 10);
+		return $author$project$Format$Version18$ShiftTarget((x - 0.5) * 10);
 	},
 	function (flag) {
 		if (flag.$ === 'ShiftTarget') {
@@ -7493,10 +8559,10 @@ var $author$project$Format$Version17$shiftTargetFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version17$tailFlag = A3(
-	$author$project$Format$Version17$edgeMaybeFlagCodec,
+var $author$project$Format$Version18$tailFlag = A3(
+	$author$project$Format$Version18$edgeMaybeFlagCodec,
 	$author$project$ArrowStyle$DefaultTail,
-	$author$project$Format$Version17$TailStyle,
+	$author$project$Format$Version18$TailStyle,
 	function (flag) {
 		if (flag.$ === 'TailStyle') {
 			var a = flag.a;
@@ -7505,8 +8571,8 @@ var $author$project$Format$Version17$tailFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version17$wavyFlag = $author$project$Format$Version17$edgeMaybeFlagCodecFalse($author$project$Format$Version17$Wavy);
-var $author$project$Format$Version17$arrowStyleCodec = function () {
+var $author$project$Format$Version18$wavyFlag = $author$project$Format$Version18$edgeMaybeFlagCodecFalse($author$project$Format$Version18$Wavy);
+var $author$project$Format$Version18$arrowStyleCodec = function () {
 	var flagField = F2(
 		function (f1, codec) {
 			return A3($author$project$Codec$fields, f1, $elm$core$Basics$identity, codec);
@@ -7517,13 +8583,13 @@ var $author$project$Format$Version17$arrowStyleCodec = function () {
 			function ($) {
 				return $.wavy;
 			},
-			$author$project$Format$Version17$wavyFlag,
+			$author$project$Format$Version18$wavyFlag,
 			A3(
 				flagField,
 				function ($) {
 					return $.marker;
 				},
-				$author$project$Format$Version17$markerFlag,
+				$author$project$Format$Version18$markerFlag,
 				A3(
 					flagField,
 					function (_v0) {
@@ -7532,61 +8598,61 @@ var $author$project$Format$Version17$arrowStyleCodec = function () {
 						var tailColor = _v0.tailColor;
 						return {head: headColor, main: color, tail: tailColor};
 					},
-					$author$project$Format$Version17$colorsFlag,
+					$author$project$Format$Version18$colorsFlag,
 					A3(
 						flagField,
 						function ($) {
 							return $.shiftTarget;
 						},
-						$author$project$Format$Version17$shiftTargetFlag,
+						$author$project$Format$Version18$shiftTargetFlag,
 						A3(
 							flagField,
 							function ($) {
 								return $.shiftSource;
 							},
-							$author$project$Format$Version17$shiftSourceFlag,
+							$author$project$Format$Version18$shiftSourceFlag,
 							A3(
 								flagField,
 								function ($) {
 									return $.labelPosition;
 								},
-								$author$project$Format$Version17$positionFlag,
+								$author$project$Format$Version18$positionFlag,
 								A3(
 									flagField,
 									function ($) {
 										return $.labelAlignment;
 									},
-									$author$project$Format$Version17$alignmentFlag,
+									$author$project$Format$Version18$alignmentFlag,
 									A3(
 										flagField,
 										function ($) {
 											return $.bend;
 										},
-										$author$project$Format$Version17$bendFlag,
+										$author$project$Format$Version18$bendFlag,
 										A3(
 											flagField,
 											function ($) {
 												return $.dashed;
 											},
-											$author$project$Format$Version17$dashedFlag,
+											$author$project$Format$Version18$dashedFlag,
 											A3(
 												flagField,
 												function ($) {
 													return $.kind;
 												},
-												$author$project$Format$Version17$kindFlag,
+												$author$project$Format$Version18$kindFlag,
 												A3(
 													flagField,
 													function ($) {
 														return $.head;
 													},
-													$author$project$Format$Version17$headFlag,
+													$author$project$Format$Version18$headFlag,
 													A3(
 														flagField,
 														function ($) {
 															return $.tail;
 														},
-														$author$project$Format$Version17$tailFlag,
+														$author$project$Format$Version18$tailFlag,
 														A2(
 															$author$project$Codec$object,
 															function (tail) {
@@ -7667,11 +8733,11 @@ var $author$project$ArrowStyle$getStyle = function (_v0) {
 		style,
 		{head: $author$project$ArrowStyle$NoHead, kind: $author$project$ArrowStyle$NoneArrow, labelAlignment: $author$project$Geometry$Over, tail: $author$project$ArrowStyle$DefaultTail}) : style;
 };
-var $author$project$Format$Version17$Edge = F3(
+var $author$project$Format$Version18$Edge = F3(
 	function (label, style, zindex) {
 		return {label: label, style: style, zindex: zindex};
 	});
-var $author$project$Format$Version17$pullshoutStyle = function (_v0) {
+var $author$project$Format$Version18$pullshoutStyle = function (_v0) {
 	var color = _v0.color;
 	var offset1 = _v0.offset1;
 	var offset2 = _v0.offset2;
@@ -7679,27 +8745,27 @@ var $author$project$Format$Version17$pullshoutStyle = function (_v0) {
 		$elm$core$List$cons,
 		A2(
 			$author$project$Codec$encoder,
-			$author$project$Format$Version17$edgeFlagCodec,
-			$author$project$Format$Version17$Pullshout(
+			$author$project$Format$Version18$edgeFlagCodec,
+			$author$project$Format$Version18$Pullshout(
 				{offset1: offset1, offset2: offset2})),
 		A2(
 			$author$project$Codec$encoder,
-			$author$project$Format$Version17$colorsFlag,
+			$author$project$Format$Version18$colorsFlag,
 			{head: color, main: color, tail: color}));
 };
-var $author$project$Format$Version17$pullshoutEdge = F2(
+var $author$project$Format$Version18$pullshoutEdge = F2(
 	function (z, label) {
 		return A3(
-			$author$project$Format$Version17$Edge,
+			$author$project$Format$Version18$Edge,
 			'',
-			$author$project$Format$Version17$pullshoutStyle(label),
+			$author$project$Format$Version18$pullshoutStyle(label),
 			z);
 	});
-var $author$project$Format$Version17$fromEdgeLabel = function (e) {
+var $author$project$Format$Version18$fromEdgeLabel = function (e) {
 	var _v0 = e.details;
 	if (_v0.$ === 'PullshoutEdge') {
 		var l = _v0.a;
-		return A2($author$project$Format$Version17$pullshoutEdge, e.zindex, l);
+		return A2($author$project$Format$Version18$pullshoutEdge, e.zindex, l);
 	} else {
 		var l = _v0.a;
 		var label = l.label;
@@ -7708,8 +8774,8 @@ var $author$project$Format$Version17$fromEdgeLabel = function (e) {
 		return {
 			label: label,
 			style: function () {
-				var convertedStyle = A2($author$project$Codec$encoder, $author$project$Format$Version17$arrowStyleCodec, style);
-				return isAdjunction ? A2($author$project$Format$Version17$addFlag, $author$project$Format$Version17$Adjunction, convertedStyle) : convertedStyle;
+				var convertedStyle = A2($author$project$Codec$encoder, $author$project$Format$Version18$arrowStyleCodec, style);
+				return isAdjunction ? A2($author$project$Format$Version18$addFlag, $author$project$Format$Version18$Adjunction, convertedStyle) : convertedStyle;
 			}(),
 			zindex: e.zindex
 		};
@@ -7751,20 +8817,20 @@ var $elm$core$List$member = F2(
 			},
 			xs);
 	});
-var $author$project$Format$Version17$getFlag = F2(
+var $author$project$Format$Version18$getFlag = F2(
 	function (flag, l) {
 		return A2(
 			$elm$core$List$member,
-			A2($author$project$Codec$encoder, $author$project$Format$Version17$edgeFlagCodec, flag),
+			A2($author$project$Codec$encoder, $author$project$Format$Version18$edgeFlagCodec, flag),
 			l);
 	});
-var $author$project$Format$Version17$pullshoutFlag = A3(
-	$author$project$Format$Version17$edgeMaybeFlagCodec,
+var $author$project$Format$Version18$pullshoutFlag = A3(
+	$author$project$Format$Version18$edgeMaybeFlagCodec,
 	$elm$core$Maybe$Nothing,
 	A2(
 		$elm$core$Basics$composeR,
-		$elm$core$Maybe$map($author$project$Format$Version17$Pullshout),
-		$elm$core$Maybe$withDefault($author$project$Format$Version17$Unrecognized)),
+		$elm$core$Maybe$map($author$project$Format$Version18$Pullshout),
+		$elm$core$Maybe$withDefault($author$project$Format$Version18$Unrecognized)),
 	function (flag) {
 		if (flag.$ === 'Pullshout') {
 			var a = flag.a;
@@ -7774,7 +8840,7 @@ var $author$project$Format$Version17$pullshoutFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version17$toEdgeLabel = function (_v0) {
+var $author$project$Format$Version18$toEdgeLabel = function (_v0) {
 	var label = _v0.label;
 	var style = _v0.style;
 	var zindex = _v0.zindex;
@@ -7783,13 +8849,13 @@ var $author$project$Format$Version17$toEdgeLabel = function (_v0) {
 	};
 	return {
 		details: function () {
-			var _v1 = dec($author$project$Format$Version17$pullshoutFlag);
+			var _v1 = dec($author$project$Format$Version18$pullshoutFlag);
 			if (_v1.$ === 'Just') {
 				var offset1 = _v1.a.offset1;
 				var offset2 = _v1.a.offset2;
 				return $author$project$GraphDefs$PullshoutEdge(
 					{
-						color: dec($author$project$Format$Version17$colorsFlag).main,
+						color: dec($author$project$Format$Version18$colorsFlag).main,
 						offset1: offset1,
 						offset2: offset2
 					});
@@ -7797,9 +8863,9 @@ var $author$project$Format$Version17$toEdgeLabel = function (_v0) {
 				return $author$project$GraphDefs$NormalEdge(
 					{
 						dims: $elm$core$Maybe$Nothing,
-						isAdjunction: A2($author$project$Format$Version17$getFlag, $author$project$Format$Version17$Adjunction, style),
+						isAdjunction: A2($author$project$Format$Version18$getFlag, $author$project$Format$Version18$Adjunction, style),
 						label: label,
-						style: A2($author$project$Codec$decoder, $author$project$Format$Version17$arrowStyleCodec, style)
+						style: A2($author$project$Codec$decoder, $author$project$Format$Version18$arrowStyleCodec, style)
 					});
 			}
 		}(),
@@ -7808,7 +8874,7 @@ var $author$project$Format$Version17$toEdgeLabel = function (_v0) {
 		zindex: zindex
 	};
 };
-var $author$project$Format$Version17$edgeCodec = A2($author$project$Codec$build, $author$project$Format$Version17$fromEdgeLabel, $author$project$Format$Version17$toEdgeLabel);
+var $author$project$Format$Version18$edgeCodec = A2($author$project$Codec$build, $author$project$Format$Version18$fromEdgeLabel, $author$project$Format$Version18$toEdgeLabel);
 var $elm_community$intdict$IntDict$map = F2(
 	function (f, dict) {
 		switch (dict.$) {
@@ -7892,24 +8958,24 @@ var $author$project$Polygraph$mapCodec = F2(
 				$elm$core$Basics$always(
 					$author$project$Codec$decoder(c2))));
 	});
-var $author$project$Format$Version17$CoqValidated = {$: 'CoqValidated'};
-var $author$project$Format$Version17$Text = {$: 'Text'};
-var $author$project$Format$Version17$UnrecognizedNodeFlag = {$: 'UnrecognizedNodeFlag'};
-var $author$project$Format$Version17$nodeFlagCodec = A2(
+var $author$project$Format$Version18$CoqValidated = {$: 'CoqValidated'};
+var $author$project$Format$Version18$Text = {$: 'Text'};
+var $author$project$Format$Version18$UnrecognizedNodeFlag = {$: 'UnrecognizedNodeFlag'};
+var $author$project$Format$Version18$nodeFlagCodec = A2(
 	$author$project$Codec$buildVariant,
-	$elm$core$Basics$always($author$project$Format$Version17$UnrecognizedNodeFlag),
+	$elm$core$Basics$always($author$project$Format$Version18$UnrecognizedNodeFlag),
 	A3(
 		$author$project$Codec$variant0,
 		'',
-		$author$project$Format$Version17$UnrecognizedNodeFlag,
+		$author$project$Format$Version18$UnrecognizedNodeFlag,
 		A3(
 			$author$project$Codec$variant0,
 			'text',
-			$author$project$Format$Version17$Text,
+			$author$project$Format$Version18$Text,
 			A3(
 				$author$project$Codec$variant0,
 				'coqValidated',
-				$author$project$Format$Version17$CoqValidated,
+				$author$project$Format$Version18$CoqValidated,
 				$author$project$Codec$customEnum(
 					F4(
 						function (coq, text, unrecognized, v) {
@@ -7922,15 +8988,15 @@ var $author$project$Format$Version17$nodeFlagCodec = A2(
 									return unrecognized;
 							}
 						}))))));
-var $author$project$Format$Version17$nodeFlagsCodec = $author$project$Codec$compose(
-	$author$project$Codec$list($author$project$Format$Version17$nodeFlagCodec));
-var $author$project$Format$Version17$nodeMaybeFlagCodecFalse = function (flag) {
-	return $author$project$Format$Version17$nodeFlagsCodec(
+var $author$project$Format$Version18$nodeFlagsCodec = $author$project$Codec$compose(
+	$author$project$Codec$list($author$project$Format$Version18$nodeFlagCodec));
+var $author$project$Format$Version18$nodeMaybeFlagCodecFalse = function (flag) {
+	return $author$project$Format$Version18$nodeFlagsCodec(
 		$author$project$Codec$boolList(flag));
 };
-var $author$project$Format$Version17$coqValidatedFlag = $author$project$Format$Version17$nodeMaybeFlagCodecFalse($author$project$Format$Version17$CoqValidated);
-var $author$project$Format$Version17$textFlag = $author$project$Format$Version17$nodeMaybeFlagCodecFalse($author$project$Format$Version17$Text);
-var $author$project$Format$Version17$nodeCodec = $author$project$Codec$buildObject(
+var $author$project$Format$Version18$coqValidatedFlag = $author$project$Format$Version18$nodeMaybeFlagCodecFalse($author$project$Format$Version18$CoqValidated);
+var $author$project$Format$Version18$textFlag = $author$project$Format$Version18$nodeMaybeFlagCodecFalse($author$project$Format$Version18$Text);
+var $author$project$Format$Version18$nodeCodec = $author$project$Codec$buildObject(
 	A4(
 		$author$project$Codec$fields,
 		function ($) {
@@ -7939,7 +9005,7 @@ var $author$project$Format$Version17$nodeCodec = $author$project$Codec$buildObje
 		function ($) {
 			return $.flags;
 		},
-		$author$project$Format$Version17$coqValidatedFlag,
+		$author$project$Format$Version18$coqValidatedFlag,
 		A4(
 			$author$project$Codec$fields,
 			function ($) {
@@ -7960,7 +9026,7 @@ var $author$project$Format$Version17$nodeCodec = $author$project$Codec$buildObje
 				function ($) {
 					return $.flags;
 				},
-				$author$project$Format$Version17$textFlag,
+				$author$project$Format$Version18$textFlag,
 				A4(
 					$author$project$Codec$fields,
 					function ($) {
@@ -7994,57 +9060,66 @@ var $author$project$Format$Version17$nodeCodec = $author$project$Codec$buildObje
 										zindex: zindex
 									};
 								}))))))));
-var $author$project$Format$Version17$tabCodec = $author$project$Codec$buildObject(
+var $author$project$Format$Version18$tabCodec = $author$project$Codec$buildObject(
 	A4(
 		$author$project$Codec$fields,
 		function ($) {
-			return $.id;
+			return $.freehandDrawings;
 		},
 		function ($) {
-			return $.id;
+			return $.freehandDrawings;
 		},
-		$author$project$Codec$identity,
+		$author$project$FreeHandDrawings$codec,
 		A4(
 			$author$project$Codec$fields,
 			function ($) {
-				return $.sizeGrid;
+				return $.id;
 			},
 			function ($) {
-				return $.sizeGrid;
+				return $.id;
 			},
 			$author$project$Codec$identity,
 			A4(
 				$author$project$Codec$fields,
 				function ($) {
-					return $.title;
+					return $.sizeGrid;
 				},
 				function ($) {
-					return $.title;
+					return $.sizeGrid;
 				},
 				$author$project$Codec$identity,
 				A4(
 					$author$project$Codec$fields,
 					function ($) {
-						return $.graph;
+						return $.title;
 					},
-					function (e) {
-						return {edges: e.edges, nextId: e.nextGraphId, nodes: e.nodes};
+					function ($) {
+						return $.title;
 					},
-					A2(
-						$author$project$Codec$compose,
-						$author$project$Polygraph$codec,
-						A2($author$project$Polygraph$mapCodec, $author$project$Format$Version17$nodeCodec, $author$project$Format$Version17$edgeCodec)),
-					A2(
-						$author$project$Codec$object,
-						F4(
-							function (graph, title, sizeGrid, tabId) {
-								return {graph: graph, id: tabId, sizeGrid: sizeGrid, title: title};
-							}),
-						F4(
-							function (graph, title, sizeGrid, tabId) {
-								return {edges: graph.edges, id: tabId, nextGraphId: graph.nextId, nodes: graph.nodes, sizeGrid: sizeGrid, title: title};
-							})))))));
-var $author$project$Format$Version17$graphInfoCodec = $author$project$Codec$buildObject(
+					$author$project$Codec$identity,
+					A4(
+						$author$project$Codec$fields,
+						function ($) {
+							return $.graph;
+						},
+						function (e) {
+							return {edges: e.edges, nextId: e.nextGraphId, nodes: e.nodes};
+						},
+						A2(
+							$author$project$Codec$compose,
+							$author$project$Polygraph$codec,
+							A2($author$project$Polygraph$mapCodec, $author$project$Format$Version18$nodeCodec, $author$project$Format$Version18$edgeCodec)),
+						A2(
+							$author$project$Codec$object,
+							F5(
+								function (graph, title, sizeGrid, tabId, freehandDrawings) {
+									return {freehandDrawings: freehandDrawings, graph: graph, id: tabId, sizeGrid: sizeGrid, title: title};
+								}),
+							F5(
+								function (graph, title, sizeGrid, tabId, freehandDrawings) {
+									return {edges: graph.edges, freehandDrawings: freehandDrawings, id: tabId, nextGraphId: graph.nextId, nodes: graph.nodes, sizeGrid: sizeGrid, title: title};
+								}))))))));
+var $author$project$Format$Version18$graphInfoCodec = $author$project$Codec$buildObject(
 	A4(
 		$author$project$Codec$fields,
 		function ($) {
@@ -8080,7 +9155,7 @@ var $author$project$Format$Version17$graphInfoCodec = $author$project$Codec$buil
 					function ($) {
 						return $.tabs;
 					},
-					$author$project$Codec$list($author$project$Format$Version17$tabCodec),
+					$author$project$Codec$list($author$project$Format$Version18$tabCodec),
 					A2(
 						$author$project$Codec$object,
 						F4(
@@ -8091,7 +9166,32 @@ var $author$project$Format$Version17$graphInfoCodec = $author$project$Codec$buil
 							function (tabs, nextTabId, latexPreamble, activeTabId) {
 								return {activeTabId: activeTabId, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs};
 							})))))));
-var $author$project$Format$Version17$fromJSGraph = $author$project$Codec$decoder($author$project$Format$Version17$graphInfoCodec);
+var $author$project$Format$Version18$fromJSGraph = $author$project$Codec$decoder($author$project$Format$Version18$graphInfoCodec);
+var $author$project$Format$Version17$toNextTab = function (_v0) {
+	var id = _v0.id;
+	var title = _v0.title;
+	var sizeGrid = _v0.sizeGrid;
+	var nodes = _v0.nodes;
+	var edges = _v0.edges;
+	var nextGraphId = _v0.nextGraphId;
+	return {edges: edges, freehandDrawings: _List_Nil, id: id, nextGraphId: nextGraphId, nodes: nodes, sizeGrid: sizeGrid, title: title};
+};
+var $author$project$Format$Version17$toNextVersion = function (_v0) {
+	var tabs = _v0.tabs;
+	var nextTabId = _v0.nextTabId;
+	var activeTabId = _v0.activeTabId;
+	var latexPreamble = _v0.latexPreamble;
+	return {
+		activeTabId: activeTabId,
+		latexPreamble: latexPreamble,
+		nextTabId: nextTabId,
+		tabs: A2($elm$core$List$map, $author$project$Format$Version17$toNextTab, tabs)
+	};
+};
+var $author$project$Format$Version17$fromJSGraph = function (g) {
+	return $author$project$Format$Version18$fromJSGraph(
+		$author$project$Format$Version17$toNextVersion(g));
+};
 var $author$project$Polygraph$edgeMap = F2(
 	function (f, _v0) {
 		var id = _v0.id;
@@ -8134,17 +9234,17 @@ var $author$project$Format$Version16$toNextStyle = function (_v0) {
 	var prefix = F2(
 		function (field, s) {
 			return _Utils_ap(
-				field($author$project$Format$Version17$prefixes),
+				field($author$project$Format$Version18$prefixes),
 				s);
 		});
 	return _Utils_ap(
-		A2(enc2, $author$project$Format$Version17$dashedFlag, dashed),
+		A2(enc2, $author$project$Format$Version18$dashedFlag, dashed),
 		_Utils_ap(
-			A2(enc2, $author$project$Format$Version17$wavyFlag, wavy),
+			A2(enc2, $author$project$Format$Version18$wavyFlag, wavy),
 			_Utils_ap(
-				A2(enc2, $author$project$Format$Version17$bendFlag, bend),
+				A2(enc2, $author$project$Format$Version18$bendFlag, bend),
 				_Utils_ap(
-					A2(enc2, $author$project$Format$Version17$positionFlag, position),
+					A2(enc2, $author$project$Format$Version18$positionFlag, position),
 					_List_fromArray(
 						[
 							A2(
@@ -8204,11 +9304,11 @@ var $author$project$Format$Version16$toNextEdge = function (_v0) {
 	var zindex = _v0.zindex;
 	var style2 = $author$project$Format$Version16$toNextStyle(style);
 	var style3 = _Utils_eq(kind, $author$project$Format$Version16$keys.pullshout) ? A2(
-		$author$project$Format$Version17$addFlag,
-		$author$project$Format$Version17$Pullshout(
+		$author$project$Format$Version18$addFlag,
+		$author$project$Format$Version18$Pullshout(
 			{offset1: style.position, offset2: style.bend}),
 		style2) : style2;
-	var style4 = _Utils_eq(kind, $author$project$Format$Version16$keys.adjunction) ? A2($author$project$Format$Version17$addFlag, $author$project$Format$Version17$Adjunction, style3) : style3;
+	var style4 = _Utils_eq(kind, $author$project$Format$Version16$keys.adjunction) ? A2($author$project$Format$Version18$addFlag, $author$project$Format$Version18$Adjunction, style3) : style3;
 	return {label: label, style: style4, zindex: zindex};
 };
 var $author$project$Format$Version16$toNextNode = function (_v0) {
@@ -8220,8 +9320,8 @@ var $author$project$Format$Version16$toNextNode = function (_v0) {
 	var enc = $author$project$Codec$encoder;
 	return {
 		flags: _Utils_ap(
-			A2(enc, $author$project$Format$Version17$textFlag, !isMath),
-			A2(enc, $author$project$Format$Version17$coqValidatedFlag, isCoqValidated)),
+			A2(enc, $author$project$Format$Version18$textFlag, !isMath),
+			A2(enc, $author$project$Format$Version18$coqValidatedFlag, isCoqValidated)),
 		label: label,
 		pos: pos,
 		zindex: zindex
@@ -10992,6 +12092,226 @@ var $author$project$Main$loadedGraph17 = _Platform_incomingPort(
 				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
 		},
 		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
+var $author$project$Main$loadedGraph18 = _Platform_incomingPort(
+	'loadedGraph18',
+	A2(
+		$elm$json$Json$Decode$andThen,
+		function (setFirstTab) {
+			return A2(
+				$elm$json$Json$Decode$andThen,
+				function (scenario) {
+					return A2(
+						$elm$json$Json$Decode$andThen,
+						function (graph) {
+							return A2(
+								$elm$json$Json$Decode$andThen,
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
+								},
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (tabs) {
+									return A2(
+										$elm$json$Json$Decode$andThen,
+										function (nextTabId) {
+											return A2(
+												$elm$json$Json$Decode$andThen,
+												function (latexPreamble) {
+													return A2(
+														$elm$json$Json$Decode$andThen,
+														function (activeTabId) {
+															return $elm$json$Json$Decode$succeed(
+																{activeTabId: activeTabId, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs});
+														},
+														A2($elm$json$Json$Decode$field, 'activeTabId', $elm$json$Json$Decode$int));
+												},
+												A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
+										},
+										A2($elm$json$Json$Decode$field, 'nextTabId', $elm$json$Json$Decode$int));
+								},
+								A2(
+									$elm$json$Json$Decode$field,
+									'tabs',
+									$elm$json$Json$Decode$list(
+										A2(
+											$elm$json$Json$Decode$andThen,
+											function (title) {
+												return A2(
+													$elm$json$Json$Decode$andThen,
+													function (sizeGrid) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (nodes) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (nextGraphId) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (id) {
+																				return A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (freehandDrawings) {
+																						return A2(
+																							$elm$json$Json$Decode$andThen,
+																							function (edges) {
+																								return $elm$json$Json$Decode$succeed(
+																									{edges: edges, freehandDrawings: freehandDrawings, id: id, nextGraphId: nextGraphId, nodes: nodes, sizeGrid: sizeGrid, title: title});
+																							},
+																							A2(
+																								$elm$json$Json$Decode$field,
+																								'edges',
+																								$elm$json$Json$Decode$list(
+																									A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (to) {
+																											return A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (label) {
+																													return A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (id) {
+																															return A2(
+																																$elm$json$Json$Decode$andThen,
+																																function (from) {
+																																	return $elm$json$Json$Decode$succeed(
+																																		{from: from, id: id, label: label, to: to});
+																																},
+																																A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																														},
+																														A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																												},
+																												A2(
+																													$elm$json$Json$Decode$field,
+																													'label',
+																													A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (zindex) {
+																															return A2(
+																																$elm$json$Json$Decode$andThen,
+																																function (style) {
+																																	return A2(
+																																		$elm$json$Json$Decode$andThen,
+																																		function (label) {
+																																			return $elm$json$Json$Decode$succeed(
+																																				{label: label, style: style, zindex: zindex});
+																																		},
+																																		A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																																},
+																																A2(
+																																	$elm$json$Json$Decode$field,
+																																	'style',
+																																	$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																														},
+																														A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
+																										},
+																										A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+																					},
+																					A2(
+																						$elm$json$Json$Decode$field,
+																						'freehandDrawings',
+																						$elm$json$Json$Decode$list(
+																							A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (start) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (offsets) {
+																											return $elm$json$Json$Decode$succeed(
+																												{offsets: offsets, start: start});
+																										},
+																										A2($elm$json$Json$Decode$field, 'offsets', $elm$json$Json$Decode$string));
+																								},
+																								A2(
+																									$elm$json$Json$Decode$field,
+																									'start',
+																									A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (_v0) {
+																											return A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (_v1) {
+																													return $elm$json$Json$Decode$succeed(
+																														_Utils_Tuple2(_v0, _v1));
+																												},
+																												A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																										},
+																										A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))));
+																			},
+																			A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																	},
+																	A2($elm$json$Json$Decode$field, 'nextGraphId', $elm$json$Json$Decode$int));
+															},
+															A2(
+																$elm$json$Json$Decode$field,
+																'nodes',
+																$elm$json$Json$Decode$list(
+																	A2(
+																		$elm$json$Json$Decode$andThen,
+																		function (label) {
+																			return A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (id) {
+																					return $elm$json$Json$Decode$succeed(
+																						{id: id, label: label});
+																				},
+																				A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																		},
+																		A2(
+																			$elm$json$Json$Decode$field,
+																			'label',
+																			A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (zindex) {
+																					return A2(
+																						$elm$json$Json$Decode$andThen,
+																						function (pos) {
+																							return A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (label) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (flags) {
+																											return $elm$json$Json$Decode$succeed(
+																												{flags: flags, label: label, pos: pos, zindex: zindex});
+																										},
+																										A2(
+																											$elm$json$Json$Decode$field,
+																											'flags',
+																											$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																								},
+																								A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																						},
+																						A2(
+																							$elm$json$Json$Decode$field,
+																							'pos',
+																							A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (_v0) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (_v1) {
+																											return $elm$json$Json$Decode$succeed(
+																												_Utils_Tuple2(_v0, _v1));
+																										},
+																										A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																								},
+																								A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))));
+																				},
+																				A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int)))))));
+													},
+													A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int));
+											},
+											A2($elm$json$Json$Decode$field, 'title', $elm$json$Json$Decode$string)))))));
+				},
+				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
+		},
+		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
 var $author$project$Main$loadedGraph2 = _Platform_incomingPort(
 	'loadedGraph2',
 	A2(
@@ -12655,6 +13975,14 @@ var $author$project$Msg$Snapshot = function (a) {
 var $author$project$Msg$Undo = function (a) {
 	return {$: 'Undo', a: a};
 };
+var $author$project$Format$GraphInfo$FreehandAdd = F2(
+	function (a, b) {
+		return {$: 'FreehandAdd', a: a, b: b};
+	});
+var $author$project$Format$GraphInfo$FreehandRemove = F2(
+	function (a, b) {
+		return {$: 'FreehandRemove', a: a, b: b};
+	});
 var $author$project$Format$GraphInfo$GraphChange = function (a) {
 	return {$: 'GraphChange', a: a};
 };
@@ -12686,7 +14014,7 @@ var $author$project$Format$GraphInfo$TabSizeGrid = F2(
 var $author$project$Format$GraphInfo$TabUnremove = function (a) {
 	return {$: 'TabUnremove', a: a};
 };
-var $author$project$Format$LastVersion$edgeCodec = $author$project$Format$Version17$edgeCodec;
+var $author$project$Format$LastVersion$edgeCodec = $author$project$Format$Version18$edgeCodec;
 var $author$project$Polygraph$Modif = function (a) {
 	return {$: 'Modif', a: a};
 };
@@ -12860,7 +14188,7 @@ var $author$project$Polygraph$modifCodec = A2(
 			return m;
 		},
 		$author$project$Polygraph$Modif));
-var $author$project$Format$LastVersion$nodeCodec = $author$project$Format$Version17$nodeCodec;
+var $author$project$Format$LastVersion$nodeCodec = $author$project$Format$Version18$nodeCodec;
 var $author$project$Format$GraphInfoCodec$codecGraphModif = A2(
 	$author$project$Codec$compose,
 	$author$project$Polygraph$modifCodec,
@@ -12990,12 +14318,18 @@ var $author$project$Format$GraphInfoCodec$defaultGraphModifJS = A2(
 	$author$project$Codec$encoder,
 	$author$project$Format$GraphInfoCodec$codecGraphModif,
 	$author$project$Polygraph$finaliseModif($author$project$Polygraph$emptyModifHelper));
-var $author$project$Format$GraphInfo$emptyTab = function (id) {
-	return {graph: $author$project$Polygraph$empty, id: id, sizeGrid: 200, title: '1'};
+var $author$project$FreeHandDrawings$emptyDrawingJS = {
+	offsets: '',
+	start: _Utils_Tuple2(0, 0)
 };
-var $author$project$Format$LastVersion$tabCodec = $author$project$Format$Version17$tabCodec;
+var $author$project$Format$GraphInfo$emptyTab = function (id) {
+	return {freehandDrawings: $author$project$FreeHandDrawings$empty, graph: $author$project$Polygraph$empty, id: id, sizeGrid: 200, title: '1'};
+};
+var $author$project$Format$LastVersion$tabCodec = $author$project$Format$Version18$tabCodec;
 var $author$project$Format$GraphInfoCodec$defaultModifJS = {
 	graphModif: $author$project$Format$GraphInfoCodec$defaultGraphModifJS,
+	newFreeHand: $author$project$FreeHandDrawings$emptyDrawingJS,
+	removeFreeHand: _List_Nil,
 	size: 0,
 	string: '',
 	tab: A2(
@@ -13058,94 +14392,109 @@ var $author$project$Format$GraphInfoCodec$codecModif = function () {
 			'noop',
 			$author$project$Format$GraphInfo$Noop,
 			A6(
-				$author$project$Codec$variant1,
-				'graphChange',
-				$author$project$Format$GraphInfo$GraphChange,
-				F2(
-					function (s, r) {
+				$author$project$Codec$variant2,
+				'freehandRemove',
+				$author$project$Format$GraphInfo$FreehandRemove,
+				F3(
+					function (tabId, idx, r) {
 						return _Utils_update(
 							r,
-							{graphModif: s.modif, tabId: s.tabId});
+							{removeFreeHand: idx, tabId: tabId});
 					}),
-				function (_v1) {
-					var graphModif = _v1.graphModif;
-					var tabId = _v1.tabId;
-					return {modif: graphModif, tabId: tabId};
+				function ($) {
+					return $.tabId;
 				},
-				$author$project$Codec$buildObject(
-					A4(
-						$author$project$Codec$fields,
-						function ($) {
-							return $.tabId;
-						},
-						function ($) {
-							return $.tabId;
-						},
-						$author$project$Codec$identity,
-						A4(
-							$author$project$Codec$fields,
-							function ($) {
-								return $.modif;
-							},
-							function ($) {
-								return $.modif;
-							},
-							$author$project$Format$GraphInfoCodec$codecGraphModif,
-							A2(
-								$author$project$Codec$object,
-								F2(
-									function (modif, tabId) {
-										return {modif: modif, tabId: tabId};
-									}),
-								F2(
-									function (modif, tabId) {
-										return {modif: modif, tabId: tabId};
-									}))))),
+				function ($) {
+					return $.removeFreeHand;
+				},
 				A6(
-					$author$project$Codec$variant1,
-					'latexPreamble',
-					$author$project$Format$GraphInfo$LatexPreamble,
-					F2(
-						function (s, r) {
+					$author$project$Codec$variant2,
+					'freehandAdd',
+					$author$project$Format$GraphInfo$FreehandAdd,
+					F3(
+						function (tabId, points, r) {
 							return _Utils_update(
 								r,
-								{string: s});
+								{
+									newFreeHand: $author$project$FreeHandDrawings$drawingToJS(points),
+									tabId: tabId
+								});
 						}),
 					function ($) {
-						return $.string;
+						return $.tabId;
 					},
-					$author$project$Codec$identity,
-					A3(
-						$author$project$Codec$variant0,
-						'tabNew',
-						$author$project$Format$GraphInfo$TabNew,
+					A2(
+						$elm$core$Basics$composeR,
+						function ($) {
+							return $.newFreeHand;
+						},
+						$author$project$FreeHandDrawings$drawingFromJS),
+					A6(
+						$author$project$Codec$variant1,
+						'graphChange',
+						$author$project$Format$GraphInfo$GraphChange,
+						F2(
+							function (s, r) {
+								return _Utils_update(
+									r,
+									{graphModif: s.modif, tabId: s.tabId});
+							}),
+						function (_v1) {
+							var graphModif = _v1.graphModif;
+							var tabId = _v1.tabId;
+							return {modif: graphModif, tabId: tabId};
+						},
+						$author$project$Codec$buildObject(
+							A4(
+								$author$project$Codec$fields,
+								function ($) {
+									return $.tabId;
+								},
+								function ($) {
+									return $.tabId;
+								},
+								$author$project$Codec$identity,
+								A4(
+									$author$project$Codec$fields,
+									function ($) {
+										return $.modif;
+									},
+									function ($) {
+										return $.modif;
+									},
+									$author$project$Format$GraphInfoCodec$codecGraphModif,
+									A2(
+										$author$project$Codec$object,
+										F2(
+											function (modif, tabId) {
+												return {modif: modif, tabId: tabId};
+											}),
+										F2(
+											function (modif, tabId) {
+												return {modif: modif, tabId: tabId};
+											}))))),
 						A6(
 							$author$project$Codec$variant1,
-							'tabDuplicate',
-							$author$project$Format$GraphInfo$TabDuplicate,
-							updTabId,
+							'latexPreamble',
+							$author$project$Format$GraphInfo$LatexPreamble,
+							F2(
+								function (s, r) {
+									return _Utils_update(
+										r,
+										{string: s});
+								}),
 							function ($) {
-								return $.tabId;
+								return $.string;
 							},
 							$author$project$Codec$identity,
-							A6(
-								$author$project$Codec$variant1,
-								'tabUnremove',
-								$author$project$Format$GraphInfo$TabUnremove,
-								F2(
-									function (tab, r) {
-										return _Utils_update(
-											r,
-											{tab: tab});
-									}),
-								function ($) {
-									return $.tab;
-								},
-								$author$project$Format$LastVersion$tabCodec,
+							A3(
+								$author$project$Codec$variant0,
+								'tabNew',
+								$author$project$Format$GraphInfo$TabNew,
 								A6(
 									$author$project$Codec$variant1,
-									'tabRemove',
-									$author$project$Format$GraphInfo$TabRemove,
+									'tabDuplicate',
+									$author$project$Format$GraphInfo$TabDuplicate,
 									updTabId,
 									function ($) {
 										return $.tabId;
@@ -13153,103 +14502,140 @@ var $author$project$Format$GraphInfoCodec$codecModif = function () {
 									$author$project$Codec$identity,
 									A6(
 										$author$project$Codec$variant1,
-										'tabMoveRight',
-										$author$project$Format$GraphInfo$TabMoveRight,
-										updTabId,
+										'tabUnremove',
+										$author$project$Format$GraphInfo$TabUnremove,
+										F2(
+											function (tab, r) {
+												return _Utils_update(
+													r,
+													{tab: tab});
+											}),
 										function ($) {
-											return $.tabId;
+											return $.tab;
 										},
-										$author$project$Codec$identity,
+										$author$project$Format$LastVersion$tabCodec,
 										A6(
 											$author$project$Codec$variant1,
-											'tabMoveLeft',
-											$author$project$Format$GraphInfo$TabMoveLeft,
+											'tabRemove',
+											$author$project$Format$GraphInfo$TabRemove,
 											updTabId,
 											function ($) {
 												return $.tabId;
 											},
 											$author$project$Codec$identity,
 											A6(
-												$author$project$Codec$variant2,
-												'tabSizeGrid',
-												$author$project$Format$GraphInfo$TabSizeGrid,
-												F3(
-													function (tabId, size, r) {
-														return _Utils_update(
-															r,
-															{size: size, tabId: tabId});
-													}),
+												$author$project$Codec$variant1,
+												'tabMoveRight',
+												$author$project$Format$GraphInfo$TabMoveRight,
+												updTabId,
 												function ($) {
 													return $.tabId;
 												},
-												function ($) {
-													return $.size;
-												},
+												$author$project$Codec$identity,
 												A6(
-													$author$project$Codec$variant2,
-													'tabRename',
-													$author$project$Format$GraphInfo$TabRename,
-													F3(
-														function (tabId, string, r) {
-															return _Utils_update(
-																r,
-																{string: string, tabId: tabId});
-														}),
+													$author$project$Codec$variant1,
+													'tabMoveLeft',
+													$author$project$Format$GraphInfo$TabMoveLeft,
+													updTabId,
 													function ($) {
 														return $.tabId;
 													},
-													function ($) {
-														return $.string;
-													},
-													A2(
-														$author$project$Codec$customStringTag,
-														function (tabRename) {
-															return function (tabSizeGrid) {
-																return function (tabMoveLeft) {
-																	return function (tabMoveRight) {
-																		return function (tabRemove) {
-																			return function (tabUnremove) {
-																				return function (tabDuplicate) {
-																					return function (tabNew) {
-																						return function (latexPreamble) {
-																							return function (graphChange) {
-																								return function (noop) {
-																									return function (v) {
-																										switch (v.$) {
-																											case 'TabRename':
-																												var id = v.a;
-																												var s = v.b;
-																												return A2(tabRename, id, s);
-																											case 'TabSizeGrid':
-																												var id = v.a;
-																												var size = v.b;
-																												return A2(tabSizeGrid, id, size);
-																											case 'TabMoveLeft':
-																												var id = v.a;
-																												return tabMoveLeft(id);
-																											case 'TabMoveRight':
-																												var id = v.a;
-																												return tabMoveRight(id);
-																											case 'TabRemove':
-																												var id = v.a;
-																												return tabRemove(id);
-																											case 'TabUnremove':
-																												var tab = v.a;
-																												return tabUnremove(tab);
-																											case 'TabDuplicate':
-																												var id = v.a;
-																												return tabDuplicate(id);
-																											case 'TabNew':
-																												return tabNew;
-																											case 'LatexPreamble':
-																												var s = v.a;
-																												return latexPreamble(s);
-																											case 'GraphChange':
-																												var arg = v.a;
-																												return graphChange(arg);
-																											default:
-																												return noop;
-																										}
+													$author$project$Codec$identity,
+													A6(
+														$author$project$Codec$variant2,
+														'tabSizeGrid',
+														$author$project$Format$GraphInfo$TabSizeGrid,
+														F3(
+															function (tabId, size, r) {
+																return _Utils_update(
+																	r,
+																	{size: size, tabId: tabId});
+															}),
+														function ($) {
+															return $.tabId;
+														},
+														function ($) {
+															return $.size;
+														},
+														A6(
+															$author$project$Codec$variant2,
+															'tabRename',
+															$author$project$Format$GraphInfo$TabRename,
+															F3(
+																function (tabId, string, r) {
+																	return _Utils_update(
+																		r,
+																		{string: string, tabId: tabId});
+																}),
+															function ($) {
+																return $.tabId;
+															},
+															function ($) {
+																return $.string;
+															},
+															A2(
+																$author$project$Codec$customStringTag,
+																function (tabRename) {
+																	return function (tabSizeGrid) {
+																		return function (tabMoveLeft) {
+																			return function (tabMoveRight) {
+																				return function (tabRemove) {
+																					return function (tabUnremove) {
+																						return function (tabDuplicate) {
+																							return function (tabNew) {
+																								return function (latexPreamble) {
+																									return function (graphChange) {
+																										return function (freehandAdd) {
+																											return function (freehandRemove) {
+																												return function (noop) {
+																													return function (v) {
+																														switch (v.$) {
+																															case 'TabRename':
+																																var id = v.a;
+																																var s = v.b;
+																																return A2(tabRename, id, s);
+																															case 'TabSizeGrid':
+																																var id = v.a;
+																																var size = v.b;
+																																return A2(tabSizeGrid, id, size);
+																															case 'TabMoveLeft':
+																																var id = v.a;
+																																return tabMoveLeft(id);
+																															case 'TabMoveRight':
+																																var id = v.a;
+																																return tabMoveRight(id);
+																															case 'TabRemove':
+																																var id = v.a;
+																																return tabRemove(id);
+																															case 'TabUnremove':
+																																var tab = v.a;
+																																return tabUnremove(tab);
+																															case 'TabDuplicate':
+																																var id = v.a;
+																																return tabDuplicate(id);
+																															case 'TabNew':
+																																return tabNew;
+																															case 'LatexPreamble':
+																																var s = v.a;
+																																return latexPreamble(s);
+																															case 'GraphChange':
+																																var arg = v.a;
+																																return graphChange(arg);
+																															case 'FreehandAdd':
+																																var tabId = v.a;
+																																var points = v.b;
+																																return A2(freehandAdd, tabId, points);
+																															case 'FreehandRemove':
+																																var tabId = v.a;
+																																var idx = v.b;
+																																return A2(freehandRemove, tabId, idx);
+																															default:
+																																return noop;
+																														}
+																													};
+																												};
+																											};
+																										};
 																									};
 																								};
 																							};
@@ -13259,15 +14645,13 @@ var $author$project$Format$GraphInfoCodec$codecModif = function () {
 																			};
 																		};
 																	};
-																};
-															};
-														},
-														$author$project$Format$GraphInfoCodec$defaultModifJS)))))))))))));
+																},
+																$author$project$Format$GraphInfoCodec$defaultModifJS)))))))))))))));
 }();
 var $author$project$Msg$Noop = {$: 'Noop'};
 var $author$project$CommandCodec$defaultProtocolMsg = $author$project$Msg$ModifProtocol(
 	{command: $author$project$Msg$Noop, id: $author$project$Msg$defaultModifId, modif: $author$project$Format$GraphInfo$Noop, selIds: $elm_community$intdict$IntDict$empty});
-var $author$project$Format$LastVersion$graphInfoCodec = $author$project$Format$Version17$graphInfoCodec;
+var $author$project$Format$LastVersion$graphInfoCodec = $author$project$Format$Version18$graphInfoCodec;
 var $author$project$Codec$maybeBuildVariant = F2(
 	function (defaultV, _v0) {
 		var c = _v0.a;
@@ -13844,58 +15228,92 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																															function (id) {
 																																return A2(
 																																	$elm$json$Json$Decode$andThen,
-																																	function (edges) {
-																																		return $elm$json$Json$Decode$succeed(
-																																			{edges: edges, id: id, nextGraphId: nextGraphId, nodes: nodes, sizeGrid: sizeGrid, title: title});
+																																	function (freehandDrawings) {
+																																		return A2(
+																																			$elm$json$Json$Decode$andThen,
+																																			function (edges) {
+																																				return $elm$json$Json$Decode$succeed(
+																																					{edges: edges, freehandDrawings: freehandDrawings, id: id, nextGraphId: nextGraphId, nodes: nodes, sizeGrid: sizeGrid, title: title});
+																																			},
+																																			A2(
+																																				$elm$json$Json$Decode$field,
+																																				'edges',
+																																				$elm$json$Json$Decode$list(
+																																					A2(
+																																						$elm$json$Json$Decode$andThen,
+																																						function (to) {
+																																							return A2(
+																																								$elm$json$Json$Decode$andThen,
+																																								function (label) {
+																																									return A2(
+																																										$elm$json$Json$Decode$andThen,
+																																										function (id) {
+																																											return A2(
+																																												$elm$json$Json$Decode$andThen,
+																																												function (from) {
+																																													return $elm$json$Json$Decode$succeed(
+																																														{from: from, id: id, label: label, to: to});
+																																												},
+																																												A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																																										},
+																																										A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																																								},
+																																								A2(
+																																									$elm$json$Json$Decode$field,
+																																									'label',
+																																									A2(
+																																										$elm$json$Json$Decode$andThen,
+																																										function (zindex) {
+																																											return A2(
+																																												$elm$json$Json$Decode$andThen,
+																																												function (style) {
+																																													return A2(
+																																														$elm$json$Json$Decode$andThen,
+																																														function (label) {
+																																															return $elm$json$Json$Decode$succeed(
+																																																{label: label, style: style, zindex: zindex});
+																																														},
+																																														A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																																												},
+																																												A2(
+																																													$elm$json$Json$Decode$field,
+																																													'style',
+																																													$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																										},
+																																										A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
+																																						},
+																																						A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
 																																	},
 																																	A2(
 																																		$elm$json$Json$Decode$field,
-																																		'edges',
+																																		'freehandDrawings',
 																																		$elm$json$Json$Decode$list(
 																																			A2(
 																																				$elm$json$Json$Decode$andThen,
-																																				function (to) {
+																																				function (start) {
 																																					return A2(
 																																						$elm$json$Json$Decode$andThen,
-																																						function (label) {
+																																						function (offsets) {
+																																							return $elm$json$Json$Decode$succeed(
+																																								{offsets: offsets, start: start});
+																																						},
+																																						A2($elm$json$Json$Decode$field, 'offsets', $elm$json$Json$Decode$string));
+																																				},
+																																				A2(
+																																					$elm$json$Json$Decode$field,
+																																					'start',
+																																					A2(
+																																						$elm$json$Json$Decode$andThen,
+																																						function (_v0) {
 																																							return A2(
 																																								$elm$json$Json$Decode$andThen,
-																																								function (id) {
-																																									return A2(
-																																										$elm$json$Json$Decode$andThen,
-																																										function (from) {
-																																											return $elm$json$Json$Decode$succeed(
-																																												{from: from, id: id, label: label, to: to});
-																																										},
-																																										A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																																								function (_v1) {
+																																									return $elm$json$Json$Decode$succeed(
+																																										_Utils_Tuple2(_v0, _v1));
 																																								},
-																																								A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																																								A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
 																																						},
-																																						A2(
-																																							$elm$json$Json$Decode$field,
-																																							'label',
-																																							A2(
-																																								$elm$json$Json$Decode$andThen,
-																																								function (zindex) {
-																																									return A2(
-																																										$elm$json$Json$Decode$andThen,
-																																										function (style) {
-																																											return A2(
-																																												$elm$json$Json$Decode$andThen,
-																																												function (label) {
-																																													return $elm$json$Json$Decode$succeed(
-																																														{label: label, style: style, zindex: zindex});
-																																												},
-																																												A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																																										},
-																																										A2(
-																																											$elm$json$Json$Decode$field,
-																																											'style',
-																																											$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
-																																								},
-																																								A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
-																																				},
-																																				A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+																																						A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))));
 																															},
 																															A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
 																													},
@@ -14078,42 +15496,155 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																										function (size) {
 																											return A2(
 																												$elm$json$Json$Decode$andThen,
-																												function (graphModif) {
-																													return $elm$json$Json$Decode$succeed(
-																														{graphModif: graphModif, size: size, string: string, tab: tab, tabId: tabId, tag: tag});
-																												},
-																												A2(
-																													$elm$json$Json$Decode$field,
-																													'graphModif',
-																													A2(
+																												function (removeFreeHand) {
+																													return A2(
 																														$elm$json$Json$Decode$andThen,
-																														function (removeIds) {
+																														function (newFreeHand) {
 																															return A2(
 																																$elm$json$Json$Decode$andThen,
-																																function (nextId) {
-																																	return A2(
+																																function (graphModif) {
+																																	return $elm$json$Json$Decode$succeed(
+																																		{graphModif: graphModif, newFreeHand: newFreeHand, removeFreeHand: removeFreeHand, size: size, string: string, tab: tab, tabId: tabId, tag: tag});
+																																},
+																																A2(
+																																	$elm$json$Json$Decode$field,
+																																	'graphModif',
+																																	A2(
 																																		$elm$json$Json$Decode$andThen,
-																																		function (newNodes) {
+																																		function (removeIds) {
 																																			return A2(
 																																				$elm$json$Json$Decode$andThen,
-																																				function (newEdges) {
+																																				function (nextId) {
 																																					return A2(
 																																						$elm$json$Json$Decode$andThen,
-																																						function (editNodes) {
+																																						function (newNodes) {
 																																							return A2(
 																																								$elm$json$Json$Decode$andThen,
-																																								function (editEdges) {
+																																								function (newEdges) {
 																																									return A2(
 																																										$elm$json$Json$Decode$andThen,
-																																										function (baseId) {
-																																											return $elm$json$Json$Decode$succeed(
-																																												{baseId: baseId, editEdges: editEdges, editNodes: editNodes, newEdges: newEdges, newNodes: newNodes, nextId: nextId, removeIds: removeIds});
+																																										function (editNodes) {
+																																											return A2(
+																																												$elm$json$Json$Decode$andThen,
+																																												function (editEdges) {
+																																													return A2(
+																																														$elm$json$Json$Decode$andThen,
+																																														function (baseId) {
+																																															return $elm$json$Json$Decode$succeed(
+																																																{baseId: baseId, editEdges: editEdges, editNodes: editNodes, newEdges: newEdges, newNodes: newNodes, nextId: nextId, removeIds: removeIds});
+																																														},
+																																														A2($elm$json$Json$Decode$field, 'baseId', $elm$json$Json$Decode$int));
+																																												},
+																																												A2(
+																																													$elm$json$Json$Decode$field,
+																																													'editEdges',
+																																													$elm$json$Json$Decode$list(
+																																														A2(
+																																															$elm$json$Json$Decode$andThen,
+																																															function (to) {
+																																																return A2(
+																																																	$elm$json$Json$Decode$andThen,
+																																																	function (label) {
+																																																		return A2(
+																																																			$elm$json$Json$Decode$andThen,
+																																																			function (id) {
+																																																				return A2(
+																																																					$elm$json$Json$Decode$andThen,
+																																																					function (from) {
+																																																						return $elm$json$Json$Decode$succeed(
+																																																							{from: from, id: id, label: label, to: to});
+																																																					},
+																																																					A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																																																			},
+																																																			A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																																																	},
+																																																	A2(
+																																																		$elm$json$Json$Decode$field,
+																																																		'label',
+																																																		A2(
+																																																			$elm$json$Json$Decode$andThen,
+																																																			function (zindex) {
+																																																				return A2(
+																																																					$elm$json$Json$Decode$andThen,
+																																																					function (style) {
+																																																						return A2(
+																																																							$elm$json$Json$Decode$andThen,
+																																																							function (label) {
+																																																								return $elm$json$Json$Decode$succeed(
+																																																									{label: label, style: style, zindex: zindex});
+																																																							},
+																																																							A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																																																					},
+																																																					A2(
+																																																						$elm$json$Json$Decode$field,
+																																																						'style',
+																																																						$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																																			},
+																																																			A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
+																																															},
+																																															A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
 																																										},
-																																										A2($elm$json$Json$Decode$field, 'baseId', $elm$json$Json$Decode$int));
+																																										A2(
+																																											$elm$json$Json$Decode$field,
+																																											'editNodes',
+																																											$elm$json$Json$Decode$list(
+																																												A2(
+																																													$elm$json$Json$Decode$andThen,
+																																													function (label) {
+																																														return A2(
+																																															$elm$json$Json$Decode$andThen,
+																																															function (id) {
+																																																return $elm$json$Json$Decode$succeed(
+																																																	{id: id, label: label});
+																																															},
+																																															A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																																													},
+																																													A2(
+																																														$elm$json$Json$Decode$field,
+																																														'label',
+																																														A2(
+																																															$elm$json$Json$Decode$andThen,
+																																															function (zindex) {
+																																																return A2(
+																																																	$elm$json$Json$Decode$andThen,
+																																																	function (pos) {
+																																																		return A2(
+																																																			$elm$json$Json$Decode$andThen,
+																																																			function (label) {
+																																																				return A2(
+																																																					$elm$json$Json$Decode$andThen,
+																																																					function (flags) {
+																																																						return $elm$json$Json$Decode$succeed(
+																																																							{flags: flags, label: label, pos: pos, zindex: zindex});
+																																																					},
+																																																					A2(
+																																																						$elm$json$Json$Decode$field,
+																																																						'flags',
+																																																						$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																																			},
+																																																			A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																																																	},
+																																																	A2(
+																																																		$elm$json$Json$Decode$field,
+																																																		'pos',
+																																																		A2(
+																																																			$elm$json$Json$Decode$andThen,
+																																																			function (_v0) {
+																																																				return A2(
+																																																					$elm$json$Json$Decode$andThen,
+																																																					function (_v1) {
+																																																						return $elm$json$Json$Decode$succeed(
+																																																							_Utils_Tuple2(_v0, _v1));
+																																																					},
+																																																					A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																																																			},
+																																																			A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))));
+																																															},
+																																															A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int)))))));
 																																								},
 																																								A2(
 																																									$elm$json$Json$Decode$field,
-																																									'editEdges',
+																																									'newEdges',
 																																									$elm$json$Json$Decode$list(
 																																										A2(
 																																											$elm$json$Json$Decode$andThen,
@@ -14162,7 +15693,7 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																						},
 																																						A2(
 																																							$elm$json$Json$Decode$field,
-																																							'editNodes',
+																																							'newNodes',
 																																							$elm$json$Json$Decode$list(
 																																								A2(
 																																									$elm$json$Json$Decode$andThen,
@@ -14218,9 +15749,82 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																											},
 																																											A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int)))))));
 																																				},
+																																				A2($elm$json$Json$Decode$field, 'nextId', $elm$json$Json$Decode$int));
+																																		},
+																																		A2(
+																																			$elm$json$Json$Decode$field,
+																																			'removeIds',
+																																			$elm$json$Json$Decode$list($elm$json$Json$Decode$int)))));
+																														},
+																														A2(
+																															$elm$json$Json$Decode$field,
+																															'newFreeHand',
+																															A2(
+																																$elm$json$Json$Decode$andThen,
+																																function (start) {
+																																	return A2(
+																																		$elm$json$Json$Decode$andThen,
+																																		function (offsets) {
+																																			return $elm$json$Json$Decode$succeed(
+																																				{offsets: offsets, start: start});
+																																		},
+																																		A2($elm$json$Json$Decode$field, 'offsets', $elm$json$Json$Decode$string));
+																																},
+																																A2(
+																																	$elm$json$Json$Decode$field,
+																																	'start',
+																																	A2(
+																																		$elm$json$Json$Decode$andThen,
+																																		function (_v0) {
+																																			return A2(
+																																				$elm$json$Json$Decode$andThen,
+																																				function (_v1) {
+																																					return $elm$json$Json$Decode$succeed(
+																																						_Utils_Tuple2(_v0, _v1));
+																																				},
+																																				A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																																		},
+																																		A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))))));
+																												},
+																												A2(
+																													$elm$json$Json$Decode$field,
+																													'removeFreeHand',
+																													$elm$json$Json$Decode$list($elm$json$Json$Decode$int)));
+																										},
+																										A2($elm$json$Json$Decode$field, 'size', $elm$json$Json$Decode$int));
+																								},
+																								A2($elm$json$Json$Decode$field, 'string', $elm$json$Json$Decode$string));
+																						},
+																						A2(
+																							$elm$json$Json$Decode$field,
+																							'tab',
+																							A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (title) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (sizeGrid) {
+																											return A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (nodes) {
+																													return A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (nextGraphId) {
+																															return A2(
+																																$elm$json$Json$Decode$andThen,
+																																function (id) {
+																																	return A2(
+																																		$elm$json$Json$Decode$andThen,
+																																		function (freehandDrawings) {
+																																			return A2(
+																																				$elm$json$Json$Decode$andThen,
+																																				function (edges) {
+																																					return $elm$json$Json$Decode$succeed(
+																																						{edges: edges, freehandDrawings: freehandDrawings, id: id, nextGraphId: nextGraphId, nodes: nodes, sizeGrid: sizeGrid, title: title});
+																																				},
 																																				A2(
 																																					$elm$json$Json$Decode$field,
-																																					'newEdges',
+																																					'edges',
 																																					$elm$json$Json$Decode$list(
 																																						A2(
 																																							$elm$json$Json$Decode$andThen,
@@ -14269,145 +15873,34 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																		},
 																																		A2(
 																																			$elm$json$Json$Decode$field,
-																																			'newNodes',
+																																			'freehandDrawings',
 																																			$elm$json$Json$Decode$list(
 																																				A2(
 																																					$elm$json$Json$Decode$andThen,
-																																					function (label) {
+																																					function (start) {
 																																						return A2(
 																																							$elm$json$Json$Decode$andThen,
-																																							function (id) {
+																																							function (offsets) {
 																																								return $elm$json$Json$Decode$succeed(
-																																									{id: id, label: label});
+																																									{offsets: offsets, start: start});
 																																							},
-																																							A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																																							A2($elm$json$Json$Decode$field, 'offsets', $elm$json$Json$Decode$string));
 																																					},
 																																					A2(
 																																						$elm$json$Json$Decode$field,
-																																						'label',
+																																						'start',
 																																						A2(
 																																							$elm$json$Json$Decode$andThen,
-																																							function (zindex) {
+																																							function (_v0) {
 																																								return A2(
 																																									$elm$json$Json$Decode$andThen,
-																																									function (pos) {
-																																										return A2(
-																																											$elm$json$Json$Decode$andThen,
-																																											function (label) {
-																																												return A2(
-																																													$elm$json$Json$Decode$andThen,
-																																													function (flags) {
-																																														return $elm$json$Json$Decode$succeed(
-																																															{flags: flags, label: label, pos: pos, zindex: zindex});
-																																													},
-																																													A2(
-																																														$elm$json$Json$Decode$field,
-																																														'flags',
-																																														$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
-																																											},
-																																											A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																																									function (_v1) {
+																																										return $elm$json$Json$Decode$succeed(
+																																											_Utils_Tuple2(_v0, _v1));
 																																									},
-																																									A2(
-																																										$elm$json$Json$Decode$field,
-																																										'pos',
-																																										A2(
-																																											$elm$json$Json$Decode$andThen,
-																																											function (_v0) {
-																																												return A2(
-																																													$elm$json$Json$Decode$andThen,
-																																													function (_v1) {
-																																														return $elm$json$Json$Decode$succeed(
-																																															_Utils_Tuple2(_v0, _v1));
-																																													},
-																																													A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
-																																											},
-																																											A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))));
+																																									A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
 																																							},
-																																							A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int)))))));
-																																},
-																																A2($elm$json$Json$Decode$field, 'nextId', $elm$json$Json$Decode$int));
-																														},
-																														A2(
-																															$elm$json$Json$Decode$field,
-																															'removeIds',
-																															$elm$json$Json$Decode$list($elm$json$Json$Decode$int)))));
-																										},
-																										A2($elm$json$Json$Decode$field, 'size', $elm$json$Json$Decode$int));
-																								},
-																								A2($elm$json$Json$Decode$field, 'string', $elm$json$Json$Decode$string));
-																						},
-																						A2(
-																							$elm$json$Json$Decode$field,
-																							'tab',
-																							A2(
-																								$elm$json$Json$Decode$andThen,
-																								function (title) {
-																									return A2(
-																										$elm$json$Json$Decode$andThen,
-																										function (sizeGrid) {
-																											return A2(
-																												$elm$json$Json$Decode$andThen,
-																												function (nodes) {
-																													return A2(
-																														$elm$json$Json$Decode$andThen,
-																														function (nextGraphId) {
-																															return A2(
-																																$elm$json$Json$Decode$andThen,
-																																function (id) {
-																																	return A2(
-																																		$elm$json$Json$Decode$andThen,
-																																		function (edges) {
-																																			return $elm$json$Json$Decode$succeed(
-																																				{edges: edges, id: id, nextGraphId: nextGraphId, nodes: nodes, sizeGrid: sizeGrid, title: title});
-																																		},
-																																		A2(
-																																			$elm$json$Json$Decode$field,
-																																			'edges',
-																																			$elm$json$Json$Decode$list(
-																																				A2(
-																																					$elm$json$Json$Decode$andThen,
-																																					function (to) {
-																																						return A2(
-																																							$elm$json$Json$Decode$andThen,
-																																							function (label) {
-																																								return A2(
-																																									$elm$json$Json$Decode$andThen,
-																																									function (id) {
-																																										return A2(
-																																											$elm$json$Json$Decode$andThen,
-																																											function (from) {
-																																												return $elm$json$Json$Decode$succeed(
-																																													{from: from, id: id, label: label, to: to});
-																																											},
-																																											A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
-																																									},
-																																									A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-																																							},
-																																							A2(
-																																								$elm$json$Json$Decode$field,
-																																								'label',
-																																								A2(
-																																									$elm$json$Json$Decode$andThen,
-																																									function (zindex) {
-																																										return A2(
-																																											$elm$json$Json$Decode$andThen,
-																																											function (style) {
-																																												return A2(
-																																													$elm$json$Json$Decode$andThen,
-																																													function (label) {
-																																														return $elm$json$Json$Decode$succeed(
-																																															{label: label, style: style, zindex: zindex});
-																																													},
-																																													A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																																											},
-																																											A2(
-																																												$elm$json$Json$Decode$field,
-																																												'style',
-																																												$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
-																																									},
-																																									A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
-																																					},
-																																					A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+																																							A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))));
 																																},
 																																A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
 																														},
@@ -14552,58 +16045,92 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																							function (id) {
 																								return A2(
 																									$elm$json$Json$Decode$andThen,
-																									function (edges) {
-																										return $elm$json$Json$Decode$succeed(
-																											{edges: edges, id: id, nextGraphId: nextGraphId, nodes: nodes, sizeGrid: sizeGrid, title: title});
+																									function (freehandDrawings) {
+																										return A2(
+																											$elm$json$Json$Decode$andThen,
+																											function (edges) {
+																												return $elm$json$Json$Decode$succeed(
+																													{edges: edges, freehandDrawings: freehandDrawings, id: id, nextGraphId: nextGraphId, nodes: nodes, sizeGrid: sizeGrid, title: title});
+																											},
+																											A2(
+																												$elm$json$Json$Decode$field,
+																												'edges',
+																												$elm$json$Json$Decode$list(
+																													A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (to) {
+																															return A2(
+																																$elm$json$Json$Decode$andThen,
+																																function (label) {
+																																	return A2(
+																																		$elm$json$Json$Decode$andThen,
+																																		function (id) {
+																																			return A2(
+																																				$elm$json$Json$Decode$andThen,
+																																				function (from) {
+																																					return $elm$json$Json$Decode$succeed(
+																																						{from: from, id: id, label: label, to: to});
+																																				},
+																																				A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																																		},
+																																		A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																																},
+																																A2(
+																																	$elm$json$Json$Decode$field,
+																																	'label',
+																																	A2(
+																																		$elm$json$Json$Decode$andThen,
+																																		function (zindex) {
+																																			return A2(
+																																				$elm$json$Json$Decode$andThen,
+																																				function (style) {
+																																					return A2(
+																																						$elm$json$Json$Decode$andThen,
+																																						function (label) {
+																																							return $elm$json$Json$Decode$succeed(
+																																								{label: label, style: style, zindex: zindex});
+																																						},
+																																						A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																																				},
+																																				A2(
+																																					$elm$json$Json$Decode$field,
+																																					'style',
+																																					$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																		},
+																																		A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
+																														},
+																														A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
 																									},
 																									A2(
 																										$elm$json$Json$Decode$field,
-																										'edges',
+																										'freehandDrawings',
 																										$elm$json$Json$Decode$list(
 																											A2(
 																												$elm$json$Json$Decode$andThen,
-																												function (to) {
+																												function (start) {
 																													return A2(
 																														$elm$json$Json$Decode$andThen,
-																														function (label) {
+																														function (offsets) {
+																															return $elm$json$Json$Decode$succeed(
+																																{offsets: offsets, start: start});
+																														},
+																														A2($elm$json$Json$Decode$field, 'offsets', $elm$json$Json$Decode$string));
+																												},
+																												A2(
+																													$elm$json$Json$Decode$field,
+																													'start',
+																													A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (_v0) {
 																															return A2(
 																																$elm$json$Json$Decode$andThen,
-																																function (id) {
-																																	return A2(
-																																		$elm$json$Json$Decode$andThen,
-																																		function (from) {
-																																			return $elm$json$Json$Decode$succeed(
-																																				{from: from, id: id, label: label, to: to});
-																																		},
-																																		A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																																function (_v1) {
+																																	return $elm$json$Json$Decode$succeed(
+																																		_Utils_Tuple2(_v0, _v1));
 																																},
-																																A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																																A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
 																														},
-																														A2(
-																															$elm$json$Json$Decode$field,
-																															'label',
-																															A2(
-																																$elm$json$Json$Decode$andThen,
-																																function (zindex) {
-																																	return A2(
-																																		$elm$json$Json$Decode$andThen,
-																																		function (style) {
-																																			return A2(
-																																				$elm$json$Json$Decode$andThen,
-																																				function (label) {
-																																					return $elm$json$Json$Decode$succeed(
-																																						{label: label, style: style, zindex: zindex});
-																																				},
-																																				A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																																		},
-																																		A2(
-																																			$elm$json$Json$Decode$field,
-																																			'style',
-																																			$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
-																																},
-																																A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
-																												},
-																												A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+																														A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))));
 																							},
 																							A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
 																					},
@@ -14700,42 +16227,155 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																			function (size) {
 																				return A2(
 																					$elm$json$Json$Decode$andThen,
-																					function (graphModif) {
-																						return $elm$json$Json$Decode$succeed(
-																							{graphModif: graphModif, size: size, string: string, tab: tab, tabId: tabId, tag: tag});
-																					},
-																					A2(
-																						$elm$json$Json$Decode$field,
-																						'graphModif',
-																						A2(
+																					function (removeFreeHand) {
+																						return A2(
 																							$elm$json$Json$Decode$andThen,
-																							function (removeIds) {
+																							function (newFreeHand) {
 																								return A2(
 																									$elm$json$Json$Decode$andThen,
-																									function (nextId) {
-																										return A2(
+																									function (graphModif) {
+																										return $elm$json$Json$Decode$succeed(
+																											{graphModif: graphModif, newFreeHand: newFreeHand, removeFreeHand: removeFreeHand, size: size, string: string, tab: tab, tabId: tabId, tag: tag});
+																									},
+																									A2(
+																										$elm$json$Json$Decode$field,
+																										'graphModif',
+																										A2(
 																											$elm$json$Json$Decode$andThen,
-																											function (newNodes) {
+																											function (removeIds) {
 																												return A2(
 																													$elm$json$Json$Decode$andThen,
-																													function (newEdges) {
+																													function (nextId) {
 																														return A2(
 																															$elm$json$Json$Decode$andThen,
-																															function (editNodes) {
+																															function (newNodes) {
 																																return A2(
 																																	$elm$json$Json$Decode$andThen,
-																																	function (editEdges) {
+																																	function (newEdges) {
 																																		return A2(
 																																			$elm$json$Json$Decode$andThen,
-																																			function (baseId) {
-																																				return $elm$json$Json$Decode$succeed(
-																																					{baseId: baseId, editEdges: editEdges, editNodes: editNodes, newEdges: newEdges, newNodes: newNodes, nextId: nextId, removeIds: removeIds});
+																																			function (editNodes) {
+																																				return A2(
+																																					$elm$json$Json$Decode$andThen,
+																																					function (editEdges) {
+																																						return A2(
+																																							$elm$json$Json$Decode$andThen,
+																																							function (baseId) {
+																																								return $elm$json$Json$Decode$succeed(
+																																									{baseId: baseId, editEdges: editEdges, editNodes: editNodes, newEdges: newEdges, newNodes: newNodes, nextId: nextId, removeIds: removeIds});
+																																							},
+																																							A2($elm$json$Json$Decode$field, 'baseId', $elm$json$Json$Decode$int));
+																																					},
+																																					A2(
+																																						$elm$json$Json$Decode$field,
+																																						'editEdges',
+																																						$elm$json$Json$Decode$list(
+																																							A2(
+																																								$elm$json$Json$Decode$andThen,
+																																								function (to) {
+																																									return A2(
+																																										$elm$json$Json$Decode$andThen,
+																																										function (label) {
+																																											return A2(
+																																												$elm$json$Json$Decode$andThen,
+																																												function (id) {
+																																													return A2(
+																																														$elm$json$Json$Decode$andThen,
+																																														function (from) {
+																																															return $elm$json$Json$Decode$succeed(
+																																																{from: from, id: id, label: label, to: to});
+																																														},
+																																														A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																																												},
+																																												A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																																										},
+																																										A2(
+																																											$elm$json$Json$Decode$field,
+																																											'label',
+																																											A2(
+																																												$elm$json$Json$Decode$andThen,
+																																												function (zindex) {
+																																													return A2(
+																																														$elm$json$Json$Decode$andThen,
+																																														function (style) {
+																																															return A2(
+																																																$elm$json$Json$Decode$andThen,
+																																																function (label) {
+																																																	return $elm$json$Json$Decode$succeed(
+																																																		{label: label, style: style, zindex: zindex});
+																																																},
+																																																A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																																														},
+																																														A2(
+																																															$elm$json$Json$Decode$field,
+																																															'style',
+																																															$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																												},
+																																												A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
+																																								},
+																																								A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
 																																			},
-																																			A2($elm$json$Json$Decode$field, 'baseId', $elm$json$Json$Decode$int));
+																																			A2(
+																																				$elm$json$Json$Decode$field,
+																																				'editNodes',
+																																				$elm$json$Json$Decode$list(
+																																					A2(
+																																						$elm$json$Json$Decode$andThen,
+																																						function (label) {
+																																							return A2(
+																																								$elm$json$Json$Decode$andThen,
+																																								function (id) {
+																																									return $elm$json$Json$Decode$succeed(
+																																										{id: id, label: label});
+																																								},
+																																								A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																																						},
+																																						A2(
+																																							$elm$json$Json$Decode$field,
+																																							'label',
+																																							A2(
+																																								$elm$json$Json$Decode$andThen,
+																																								function (zindex) {
+																																									return A2(
+																																										$elm$json$Json$Decode$andThen,
+																																										function (pos) {
+																																											return A2(
+																																												$elm$json$Json$Decode$andThen,
+																																												function (label) {
+																																													return A2(
+																																														$elm$json$Json$Decode$andThen,
+																																														function (flags) {
+																																															return $elm$json$Json$Decode$succeed(
+																																																{flags: flags, label: label, pos: pos, zindex: zindex});
+																																														},
+																																														A2(
+																																															$elm$json$Json$Decode$field,
+																																															'flags',
+																																															$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																												},
+																																												A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																																										},
+																																										A2(
+																																											$elm$json$Json$Decode$field,
+																																											'pos',
+																																											A2(
+																																												$elm$json$Json$Decode$andThen,
+																																												function (_v0) {
+																																													return A2(
+																																														$elm$json$Json$Decode$andThen,
+																																														function (_v1) {
+																																															return $elm$json$Json$Decode$succeed(
+																																																_Utils_Tuple2(_v0, _v1));
+																																														},
+																																														A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																																												},
+																																												A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))));
+																																								},
+																																								A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int)))))));
 																																	},
 																																	A2(
 																																		$elm$json$Json$Decode$field,
-																																		'editEdges',
+																																		'newEdges',
 																																		$elm$json$Json$Decode$list(
 																																			A2(
 																																				$elm$json$Json$Decode$andThen,
@@ -14784,7 +16424,7 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																															},
 																															A2(
 																																$elm$json$Json$Decode$field,
-																																'editNodes',
+																																'newNodes',
 																																$elm$json$Json$Decode$list(
 																																	A2(
 																																		$elm$json$Json$Decode$andThen,
@@ -14840,9 +16480,82 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																				},
 																																				A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int)))))));
 																													},
+																													A2($elm$json$Json$Decode$field, 'nextId', $elm$json$Json$Decode$int));
+																											},
+																											A2(
+																												$elm$json$Json$Decode$field,
+																												'removeIds',
+																												$elm$json$Json$Decode$list($elm$json$Json$Decode$int)))));
+																							},
+																							A2(
+																								$elm$json$Json$Decode$field,
+																								'newFreeHand',
+																								A2(
+																									$elm$json$Json$Decode$andThen,
+																									function (start) {
+																										return A2(
+																											$elm$json$Json$Decode$andThen,
+																											function (offsets) {
+																												return $elm$json$Json$Decode$succeed(
+																													{offsets: offsets, start: start});
+																											},
+																											A2($elm$json$Json$Decode$field, 'offsets', $elm$json$Json$Decode$string));
+																									},
+																									A2(
+																										$elm$json$Json$Decode$field,
+																										'start',
+																										A2(
+																											$elm$json$Json$Decode$andThen,
+																											function (_v0) {
+																												return A2(
+																													$elm$json$Json$Decode$andThen,
+																													function (_v1) {
+																														return $elm$json$Json$Decode$succeed(
+																															_Utils_Tuple2(_v0, _v1));
+																													},
+																													A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																											},
+																											A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))))));
+																					},
+																					A2(
+																						$elm$json$Json$Decode$field,
+																						'removeFreeHand',
+																						$elm$json$Json$Decode$list($elm$json$Json$Decode$int)));
+																			},
+																			A2($elm$json$Json$Decode$field, 'size', $elm$json$Json$Decode$int));
+																	},
+																	A2($elm$json$Json$Decode$field, 'string', $elm$json$Json$Decode$string));
+															},
+															A2(
+																$elm$json$Json$Decode$field,
+																'tab',
+																A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (title) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (sizeGrid) {
+																				return A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (nodes) {
+																						return A2(
+																							$elm$json$Json$Decode$andThen,
+																							function (nextGraphId) {
+																								return A2(
+																									$elm$json$Json$Decode$andThen,
+																									function (id) {
+																										return A2(
+																											$elm$json$Json$Decode$andThen,
+																											function (freehandDrawings) {
+																												return A2(
+																													$elm$json$Json$Decode$andThen,
+																													function (edges) {
+																														return $elm$json$Json$Decode$succeed(
+																															{edges: edges, freehandDrawings: freehandDrawings, id: id, nextGraphId: nextGraphId, nodes: nodes, sizeGrid: sizeGrid, title: title});
+																													},
 																													A2(
 																														$elm$json$Json$Decode$field,
-																														'newEdges',
+																														'edges',
 																														$elm$json$Json$Decode$list(
 																															A2(
 																																$elm$json$Json$Decode$andThen,
@@ -14891,145 +16604,34 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																											},
 																											A2(
 																												$elm$json$Json$Decode$field,
-																												'newNodes',
+																												'freehandDrawings',
 																												$elm$json$Json$Decode$list(
 																													A2(
 																														$elm$json$Json$Decode$andThen,
-																														function (label) {
+																														function (start) {
 																															return A2(
 																																$elm$json$Json$Decode$andThen,
-																																function (id) {
+																																function (offsets) {
 																																	return $elm$json$Json$Decode$succeed(
-																																		{id: id, label: label});
+																																		{offsets: offsets, start: start});
 																																},
-																																A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																																A2($elm$json$Json$Decode$field, 'offsets', $elm$json$Json$Decode$string));
 																														},
 																														A2(
 																															$elm$json$Json$Decode$field,
-																															'label',
+																															'start',
 																															A2(
 																																$elm$json$Json$Decode$andThen,
-																																function (zindex) {
+																																function (_v0) {
 																																	return A2(
 																																		$elm$json$Json$Decode$andThen,
-																																		function (pos) {
-																																			return A2(
-																																				$elm$json$Json$Decode$andThen,
-																																				function (label) {
-																																					return A2(
-																																						$elm$json$Json$Decode$andThen,
-																																						function (flags) {
-																																							return $elm$json$Json$Decode$succeed(
-																																								{flags: flags, label: label, pos: pos, zindex: zindex});
-																																						},
-																																						A2(
-																																							$elm$json$Json$Decode$field,
-																																							'flags',
-																																							$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
-																																				},
-																																				A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																																		function (_v1) {
+																																			return $elm$json$Json$Decode$succeed(
+																																				_Utils_Tuple2(_v0, _v1));
 																																		},
-																																		A2(
-																																			$elm$json$Json$Decode$field,
-																																			'pos',
-																																			A2(
-																																				$elm$json$Json$Decode$andThen,
-																																				function (_v0) {
-																																					return A2(
-																																						$elm$json$Json$Decode$andThen,
-																																						function (_v1) {
-																																							return $elm$json$Json$Decode$succeed(
-																																								_Utils_Tuple2(_v0, _v1));
-																																						},
-																																						A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
-																																				},
-																																				A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))));
+																																		A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
 																																},
-																																A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int)))))));
-																									},
-																									A2($elm$json$Json$Decode$field, 'nextId', $elm$json$Json$Decode$int));
-																							},
-																							A2(
-																								$elm$json$Json$Decode$field,
-																								'removeIds',
-																								$elm$json$Json$Decode$list($elm$json$Json$Decode$int)))));
-																			},
-																			A2($elm$json$Json$Decode$field, 'size', $elm$json$Json$Decode$int));
-																	},
-																	A2($elm$json$Json$Decode$field, 'string', $elm$json$Json$Decode$string));
-															},
-															A2(
-																$elm$json$Json$Decode$field,
-																'tab',
-																A2(
-																	$elm$json$Json$Decode$andThen,
-																	function (title) {
-																		return A2(
-																			$elm$json$Json$Decode$andThen,
-																			function (sizeGrid) {
-																				return A2(
-																					$elm$json$Json$Decode$andThen,
-																					function (nodes) {
-																						return A2(
-																							$elm$json$Json$Decode$andThen,
-																							function (nextGraphId) {
-																								return A2(
-																									$elm$json$Json$Decode$andThen,
-																									function (id) {
-																										return A2(
-																											$elm$json$Json$Decode$andThen,
-																											function (edges) {
-																												return $elm$json$Json$Decode$succeed(
-																													{edges: edges, id: id, nextGraphId: nextGraphId, nodes: nodes, sizeGrid: sizeGrid, title: title});
-																											},
-																											A2(
-																												$elm$json$Json$Decode$field,
-																												'edges',
-																												$elm$json$Json$Decode$list(
-																													A2(
-																														$elm$json$Json$Decode$andThen,
-																														function (to) {
-																															return A2(
-																																$elm$json$Json$Decode$andThen,
-																																function (label) {
-																																	return A2(
-																																		$elm$json$Json$Decode$andThen,
-																																		function (id) {
-																																			return A2(
-																																				$elm$json$Json$Decode$andThen,
-																																				function (from) {
-																																					return $elm$json$Json$Decode$succeed(
-																																						{from: from, id: id, label: label, to: to});
-																																				},
-																																				A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
-																																		},
-																																		A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
-																																},
-																																A2(
-																																	$elm$json$Json$Decode$field,
-																																	'label',
-																																	A2(
-																																		$elm$json$Json$Decode$andThen,
-																																		function (zindex) {
-																																			return A2(
-																																				$elm$json$Json$Decode$andThen,
-																																				function (style) {
-																																					return A2(
-																																						$elm$json$Json$Decode$andThen,
-																																						function (label) {
-																																							return $elm$json$Json$Decode$succeed(
-																																								{label: label, style: style, zindex: zindex});
-																																						},
-																																						A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
-																																				},
-																																				A2(
-																																					$elm$json$Json$Decode$field,
-																																					'style',
-																																					$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
-																																		},
-																																		A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
-																														},
-																														A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+																																A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))));
 																									},
 																									A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
 																							},
@@ -15265,6 +16867,11 @@ var $author$project$Main$subscriptions = function (m) {
 						$elm$core$Basics$composeR,
 						$author$project$Msg$mapLoadGraphInfo($author$project$Format$Version17$fromJSGraph),
 						$author$project$Msg$loadGraphInfoToMsg)),
+					$author$project$Main$loadedGraph18(
+					A2(
+						$elm$core$Basics$composeR,
+						$author$project$Msg$mapLoadGraphInfo($author$project$Format$Version18$fromJSGraph),
+						$author$project$Msg$loadGraphInfoToMsg)),
 					$author$project$Main$setFirstTabEquation($author$project$Msg$SetFirstTabEquation),
 					$elm$browser$Browser$Events$onClick(
 					$elm$json$Json$Decode$succeed($author$project$Msg$MouseClick)),
@@ -15450,6 +17057,13 @@ var $author$project$Format$GraphInfo$activeGraphModifHelper = function (gi) {
 var $author$project$Command$FailedUndo = {$: 'FailedUndo'};
 var $author$project$Command$NoUndo = {$: 'NoUndo'};
 var $author$project$Command$AtLeastOneUndo = {$: 'AtLeastOneUndo'};
+var $author$project$FreeHandDrawings$add = F2(
+	function (fhd, points) {
+		return {
+			freehandDrawings: A3($elm_community$intdict$IntDict$insert, fhd.nextFreehandId, points, fhd.freehandDrawings),
+			nextFreehandId: 1 + fhd.nextFreehandId
+		};
+	});
 var $author$project$Polygraph$translateId = F2(
 	function (_v0, id) {
 		var baseId = _v0.a.baseId;
@@ -16280,6 +17894,17 @@ var $author$project$Format$GraphInfo$applyTabMove = F3(
 				undo: isRight ? $author$project$Format$GraphInfo$TabMoveLeft(id) : $author$project$Format$GraphInfo$TabMoveRight(id)
 			});
 	});
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
 var $author$project$Format$GraphInfo$isActiveTab = F2(
 	function (gi, tab) {
 		return _Utils_eq(tab.id, gi.activeTabId);
@@ -16327,7 +17952,7 @@ var $author$project$Format$GraphInfo$initialiseNewTab = F2(
 					m.tabs,
 					_List_fromArray(
 						[
-							{graph: tab.graph, id: m.nextTabId, sizeGrid: tab.sizeGrid, title: title}
+							{freehandDrawings: tab.freehandDrawings, graph: tab.graph, id: m.nextTabId, sizeGrid: tab.sizeGrid, title: title}
 						]))
 			});
 	});
@@ -16337,6 +17962,7 @@ var $author$project$Format$GraphInfo$createNewTab = function (m) {
 		$author$project$Format$GraphInfo$initialiseNewTab,
 		m,
 		{
+			freehandDrawings: $author$project$FreeHandDrawings$empty,
 			graph: $author$project$Polygraph$empty,
 			sizeGrid: sizeGrid,
 			title: $author$project$Format$GraphInfo$nextTabName(m)
@@ -16347,6 +17973,10 @@ var $author$project$Polygraph$defaultTranslation = $author$project$Polygraph$Tra
 var $author$project$Format$GraphInfo$duplicateTab = F2(
 	function (m, tab) {
 		return A2($author$project$Format$GraphInfo$initialiseNewTab, m, tab);
+	});
+var $author$project$FreeHandDrawings$get = F2(
+	function (fhd, id) {
+		return A2($elm_community$intdict$IntDict$get, id, fhd.freehandDrawings);
 	});
 var $author$project$Modif$map = F2(
 	function (f, g) {
@@ -16612,6 +18242,14 @@ var $author$project$GraphDefs$mergeFunctions = {
 				{dims: dims, isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
 		})
 };
+var $author$project$FreeHandDrawings$remove = F2(
+	function (fhd, ids) {
+		return _Utils_update(
+			fhd,
+			{
+				freehandDrawings: A2($author$project$IntDictExtra$removeList, ids, fhd.freehandDrawings)
+			});
+	});
 var $author$project$Format$GraphInfo$applyModif = F2(
 	function (gi, modif) {
 		var retModif = A2(
@@ -16754,7 +18392,7 @@ var $author$project$Format$GraphInfo$applyModif = F2(
 							};
 						},
 						A2($author$project$Format$GraphInfo$getTabById, gi, id)));
-			default:
+			case 'GraphChange':
 				var arg = modif.a;
 				return A3(
 					$author$project$Format$GraphInfo$mapTabModifInfo,
@@ -16777,6 +18415,60 @@ var $author$project$Format$GraphInfo$applyModif = F2(
 							},
 							A3($author$project$Polygraph$applyModifTrans, $author$project$GraphDefs$mergeFunctions, tab.graph, arg.modif));
 					});
+			case 'FreehandAdd':
+				var tabId = modif.a;
+				var points = modif.b;
+				return A3(
+					$author$project$Format$GraphInfo$mapTabModifInfo,
+					gi,
+					tabId,
+					A2(
+						$elm$core$Basics$composeL,
+						retTabModif,
+						function (tab) {
+							var idx = tab.freehandDrawings.nextFreehandId;
+							return $elm$core$Maybe$Just(
+								{
+									next: _Utils_update(
+										tab,
+										{
+											freehandDrawings: A2($author$project$FreeHandDrawings$add, tab.freehandDrawings, points)
+										}),
+									undo: A2(
+										$author$project$Format$GraphInfo$FreehandRemove,
+										tabId,
+										_List_fromArray(
+											[idx]))
+								});
+						}));
+			default:
+				var tabId = modif.a;
+				var ids = modif.b;
+				return A3(
+					$author$project$Format$GraphInfo$mapTabModifInfo,
+					gi,
+					tabId,
+					A2(
+						$elm$core$Basics$composeL,
+						retTabModif,
+						function (tab) {
+							var points = $elm$core$List$concat(
+								A2(
+									$elm$core$List$filterMap,
+									function (id) {
+										return A2($author$project$FreeHandDrawings$get, tab.freehandDrawings, id);
+									},
+									ids));
+							return _Utils_eq(points, _List_Nil) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(
+								{
+									next: _Utils_update(
+										tab,
+										{
+											freehandDrawings: A2($author$project$FreeHandDrawings$remove, tab.freehandDrawings, ids)
+										}),
+									undo: A2($author$project$Format$GraphInfo$FreehandAdd, tabId, points)
+								});
+						}));
 		}
 	});
 var $author$project$Modes$Free = {$: 'Free'};
@@ -17461,14 +19153,6 @@ var $author$project$GraphDefs$getNodeDims = function (n) {
 		return p;
 	}
 };
-var $author$project$Geometry$Point$add = F2(
-	function (_v0, _v1) {
-		var x1 = _v0.a;
-		var y1 = _v0.b;
-		var x2 = _v1.a;
-		var y2 = _v1.b;
-		return _Utils_Tuple2(x1 + x2, y1 + y2);
-	});
 var $author$project$Geometry$Point$resize = F2(
 	function (s, _v0) {
 		var x1 = _v0.a;
@@ -17518,14 +19202,6 @@ var $author$project$Geometry$pad = F2(
 				_Utils_Tuple2(n2, n2)),
 			pos: pos
 		};
-	});
-var $author$project$Geometry$Point$subtract = F2(
-	function (_v0, _v1) {
-		var x1 = _v0.a;
-		var y1 = _v0.b;
-		var x2 = _v1.a;
-		var y2 = _v1.b;
-		return _Utils_Tuple2(x1 - x2, y1 - y2);
 	});
 var $author$project$Geometry$Point$lerp = F3(
 	function (_this, other, t) {
@@ -18366,8 +20042,12 @@ var $author$project$Command$fixModel = function (modeli) {
 				function (_v8) {
 					return A2($author$project$Modes$Square$fixModel, model, state);
 				});
-		default:
+		case 'LatexPreamble':
 			return model;
+		case 'FreeHandMode':
+			return defaultIfTabChanged;
+		default:
+			return defaultIfTabChanged;
 	}
 };
 var $elm$json$Json$Encode$float = _Json_wrap;
@@ -18607,6 +20287,32 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																													$elm$json$Json$Encode$int($.to))
 																												]));
 																									})($.edges)),
+																								_Utils_Tuple2(
+																								'freehandDrawings',
+																								$elm$json$Json$Encode$list(
+																									function ($) {
+																										return $elm$json$Json$Encode$object(
+																											_List_fromArray(
+																												[
+																													_Utils_Tuple2(
+																													'offsets',
+																													$elm$json$Json$Encode$string($.offsets)),
+																													_Utils_Tuple2(
+																													'start',
+																													function ($) {
+																														var a = $.a;
+																														var b = $.b;
+																														return A2(
+																															$elm$json$Json$Encode$list,
+																															$elm$core$Basics$identity,
+																															_List_fromArray(
+																																[
+																																	$elm$json$Json$Encode$float(a),
+																																	$elm$json$Json$Encode$float(b)
+																																]));
+																													}($.start))
+																												]));
+																									})($.freehandDrawings)),
 																								_Utils_Tuple2(
 																								'id',
 																								$elm$json$Json$Encode$int($.id)),
@@ -18908,6 +20614,34 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																						]));
 																			}($.graphModif)),
 																			_Utils_Tuple2(
+																			'newFreeHand',
+																			function ($) {
+																				return $elm$json$Json$Encode$object(
+																					_List_fromArray(
+																						[
+																							_Utils_Tuple2(
+																							'offsets',
+																							$elm$json$Json$Encode$string($.offsets)),
+																							_Utils_Tuple2(
+																							'start',
+																							function ($) {
+																								var a = $.a;
+																								var b = $.b;
+																								return A2(
+																									$elm$json$Json$Encode$list,
+																									$elm$core$Basics$identity,
+																									_List_fromArray(
+																										[
+																											$elm$json$Json$Encode$float(a),
+																											$elm$json$Json$Encode$float(b)
+																										]));
+																							}($.start))
+																						]));
+																			}($.newFreeHand)),
+																			_Utils_Tuple2(
+																			'removeFreeHand',
+																			$elm$json$Json$Encode$list($elm$json$Json$Encode$int)($.removeFreeHand)),
+																			_Utils_Tuple2(
 																			'size',
 																			$elm$json$Json$Encode$int($.size)),
 																			_Utils_Tuple2(
@@ -18954,6 +20688,32 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																												$elm$json$Json$Encode$int($.to))
 																											]));
 																								})($.edges)),
+																							_Utils_Tuple2(
+																							'freehandDrawings',
+																							$elm$json$Json$Encode$list(
+																								function ($) {
+																									return $elm$json$Json$Encode$object(
+																										_List_fromArray(
+																											[
+																												_Utils_Tuple2(
+																												'offsets',
+																												$elm$json$Json$Encode$string($.offsets)),
+																												_Utils_Tuple2(
+																												'start',
+																												function ($) {
+																													var a = $.a;
+																													var b = $.b;
+																													return A2(
+																														$elm$json$Json$Encode$list,
+																														$elm$core$Basics$identity,
+																														_List_fromArray(
+																															[
+																																$elm$json$Json$Encode$float(a),
+																																$elm$json$Json$Encode$float(b)
+																															]));
+																												}($.start))
+																											]));
+																								})($.freehandDrawings)),
 																							_Utils_Tuple2(
 																							'id',
 																							$elm$json$Json$Encode$int($.id)),
@@ -19099,6 +20859,32 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																									$elm$json$Json$Encode$int($.to))
 																								]));
 																					})($.edges)),
+																				_Utils_Tuple2(
+																				'freehandDrawings',
+																				$elm$json$Json$Encode$list(
+																					function ($) {
+																						return $elm$json$Json$Encode$object(
+																							_List_fromArray(
+																								[
+																									_Utils_Tuple2(
+																									'offsets',
+																									$elm$json$Json$Encode$string($.offsets)),
+																									_Utils_Tuple2(
+																									'start',
+																									function ($) {
+																										var a = $.a;
+																										var b = $.b;
+																										return A2(
+																											$elm$json$Json$Encode$list,
+																											$elm$core$Basics$identity,
+																											_List_fromArray(
+																												[
+																													$elm$json$Json$Encode$float(a),
+																													$elm$json$Json$Encode$float(b)
+																												]));
+																									}($.start))
+																								]));
+																					})($.freehandDrawings)),
 																				_Utils_Tuple2(
 																				'id',
 																				$elm$json$Json$Encode$int($.id)),
@@ -19345,6 +21131,34 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																			]));
 																}($.graphModif)),
 																_Utils_Tuple2(
+																'newFreeHand',
+																function ($) {
+																	return $elm$json$Json$Encode$object(
+																		_List_fromArray(
+																			[
+																				_Utils_Tuple2(
+																				'offsets',
+																				$elm$json$Json$Encode$string($.offsets)),
+																				_Utils_Tuple2(
+																				'start',
+																				function ($) {
+																					var a = $.a;
+																					var b = $.b;
+																					return A2(
+																						$elm$json$Json$Encode$list,
+																						$elm$core$Basics$identity,
+																						_List_fromArray(
+																							[
+																								$elm$json$Json$Encode$float(a),
+																								$elm$json$Json$Encode$float(b)
+																							]));
+																				}($.start))
+																			]));
+																}($.newFreeHand)),
+																_Utils_Tuple2(
+																'removeFreeHand',
+																$elm$json$Json$Encode$list($elm$json$Json$Encode$int)($.removeFreeHand)),
+																_Utils_Tuple2(
 																'size',
 																$elm$json$Json$Encode$int($.size)),
 																_Utils_Tuple2(
@@ -19391,6 +21205,32 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																									$elm$json$Json$Encode$int($.to))
 																								]));
 																					})($.edges)),
+																				_Utils_Tuple2(
+																				'freehandDrawings',
+																				$elm$json$Json$Encode$list(
+																					function ($) {
+																						return $elm$json$Json$Encode$object(
+																							_List_fromArray(
+																								[
+																									_Utils_Tuple2(
+																									'offsets',
+																									$elm$json$Json$Encode$string($.offsets)),
+																									_Utils_Tuple2(
+																									'start',
+																									function ($) {
+																										var a = $.a;
+																										var b = $.b;
+																										return A2(
+																											$elm$json$Json$Encode$list,
+																											$elm$core$Basics$identity,
+																											_List_fromArray(
+																												[
+																													$elm$json$Json$Encode$float(a),
+																													$elm$json$Json$Encode$float(b)
+																												]));
+																									}($.start))
+																								]));
+																					})($.freehandDrawings)),
 																				_Utils_Tuple2(
 																				'id',
 																				$elm$json$Json$Encode$int($.id)),
@@ -19658,1080 +21498,63 @@ var $author$project$GraphDefs$allDimsReady = function (g) {
 				$author$project$GraphDefs$filterLabelNormal),
 			$author$project$Polygraph$edges(g)));
 };
-var $author$project$GraphProof$prefixProofStep = F2(
-	function (id, r) {
-		return _Utils_update(
-			r,
-			{
-				endChain: A2($elm$core$List$cons, id, r.endChain),
-				startOffset: r.startOffset + 1
-			});
-	});
-var $elm_community$list_extra$List$Extra$stripPrefix = F2(
-	function (prefix, xs) {
-		var step = F2(
-			function (e, m) {
-				if (m.$ === 'Nothing') {
-					return $elm$core$Maybe$Nothing;
-				} else {
-					if (!m.a.b) {
-						return $elm$core$Maybe$Nothing;
-					} else {
-						var _v1 = m.a;
-						var x = _v1.a;
-						var xs_ = _v1.b;
-						return _Utils_eq(e, x) ? $elm$core$Maybe$Just(xs_) : $elm$core$Maybe$Nothing;
-					}
-				}
-			});
-		return A3(
-			$elm$core$List$foldl,
-			step,
-			$elm$core$Maybe$Just(xs),
-			prefix);
-	});
-var $author$project$GraphProof$applyDiag = F2(
-	function (d, l) {
-		var _v0 = A2(
-			$elm_community$list_extra$List$Extra$stripPrefix,
-			A2(
-				$elm$core$List$map,
-				function ($) {
-					return $.id;
-				},
-				d.lhs),
-			l);
-		if (_v0.$ === 'Nothing') {
-			if (!l.b) {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var t = l.a;
-				var q = l.b;
-				return A2(
-					$elm$core$Maybe$map,
-					$author$project$GraphProof$prefixProofStep(t),
-					A2($author$project$GraphProof$applyDiag, d, q));
-			}
-		} else {
-			var tail = _v0.a;
-			return $elm$core$Maybe$Just(
-				{
-					backOffset: $elm$core$List$length(tail),
-					diag: d,
-					endChain: _Utils_ap(
-						A2(
-							$elm$core$List$map,
-							function ($) {
-								return $.id;
-							},
-							d.rhs),
-						tail),
-					startOffset: 0
-				});
-		}
-	});
-var $elm_community$list_extra$List$Extra$reverseAppend = F2(
-	function (list1, list2) {
-		return A3($elm$core$List$foldl, $elm$core$List$cons, list2, list1);
-	});
-var $elm_community$list_extra$List$Extra$removeHelp = F4(
-	function (list, x, xs, previousElements) {
-		removeHelp:
-		while (true) {
-			if (!xs.b) {
-				return list;
-			} else {
-				var y = xs.a;
-				var ys = xs.b;
-				if (_Utils_eq(x, y)) {
-					return A2($elm_community$list_extra$List$Extra$reverseAppend, previousElements, ys);
-				} else {
-					var $temp$list = list,
-						$temp$x = x,
-						$temp$xs = ys,
-						$temp$previousElements = A2($elm$core$List$cons, y, previousElements);
-					list = $temp$list;
-					x = $temp$x;
-					xs = $temp$xs;
-					previousElements = $temp$previousElements;
-					continue removeHelp;
-				}
-			}
-		}
-	});
-var $elm_community$list_extra$List$Extra$remove = F2(
-	function (x, xs) {
-		return A4($elm_community$list_extra$List$Extra$removeHelp, xs, x, xs, _List_Nil);
-	});
-var $author$project$GraphProof$commuteProof = F2(
-	function (diags, l) {
-		var _v0 = A2(
-			$elm_community$list_extra$List$Extra$findMap,
-			function (d) {
-				return A2($author$project$GraphProof$applyDiag, d, l);
-			},
-			diags);
-		if (_v0.$ === 'Nothing') {
-			return _List_Nil;
-		} else {
-			var step = _v0.a;
-			return A2(
-				$elm$core$List$cons,
-				step,
-				A2(
-					$author$project$GraphProof$commuteProof,
-					A2($elm_community$list_extra$List$Extra$remove, step.diag, diags),
-					step.endChain));
-		}
-	});
-var $elm$core$Basics$pi = _Basics_pi;
-var $elm$core$Basics$round = _Basics_round;
-var $author$project$Geometry$Point$countRoundsAngle = function (a) {
-	return $elm$core$Basics$round(a / (2 * $elm$core$Basics$pi));
+var $author$project$FreeHandDrawings$getDrawings = function (_v0) {
+	var freehandDrawings = _v0.freehandDrawings;
+	return freehandDrawings;
 };
-var $author$project$Geometry$Point$closeRemainder = F2(
-	function (q, a) {
-		return a - ($elm$core$Basics$round(a / q) * q);
-	});
-var $author$project$Geometry$Point$normaliseAngle = function (alpha) {
-	return A2($author$project$Geometry$Point$closeRemainder, 2 * $elm$core$Basics$pi, alpha);
+var $author$project$Drawing$Drawing = function (a) {
+	return {$: 'Drawing', a: a};
 };
-var $author$project$Geometry$Point$distanceAngleSigned = F2(
-	function (alpha, beta) {
-		return $author$project$Geometry$Point$normaliseAngle(beta - alpha);
-	});
-var $elm$core$Basics$atan = _Basics_atan;
-var $author$project$Geometry$Point$pointToAngle = function (_v0) {
-	var x = _v0.a;
-	var y = _v0.b;
-	return ((!y) && (x <= 0)) ? $elm$core$Basics$pi : (2 * $elm$core$Basics$atan(
-		y / (x + $author$project$Geometry$Point$radius(
-			_Utils_Tuple2(x, y)))));
-};
-var $author$project$ListExtraExtra$permute = function (l) {
-	if (!l.b) {
-		return _List_Nil;
-	} else {
-		var t = l.a;
-		var q = l.b;
-		return _Utils_ap(
-			q,
-			_List_fromArray(
-				[t]));
-	}
-};
-var $elm$core$Tuple$pair = F2(
-	function (a, b) {
-		return _Utils_Tuple2(a, b);
-	});
-var $elm_community$list_extra$List$Extra$zip = $elm$core$List$map2($elm$core$Tuple$pair);
-var $author$project$ListExtraExtra$succCyclePairs = function (l) {
-	var _v0 = A2(
-		$elm_community$list_extra$List$Extra$zip,
-		l,
-		$author$project$ListExtraExtra$permute(l));
-	if (_v0.b && (!_v0.b.b)) {
-		return _List_Nil;
-	} else {
-		var r = _v0;
-		return r;
-	}
-};
-var $elm$core$List$sum = function (numbers) {
-	return A3($elm$core$List$foldl, $elm$core$Basics$add, 0, numbers);
-};
-var $author$project$Geometry$Point$isInPoly = F2(
-	function (pos, l) {
-		var angles = A2(
-			$elm$core$List$map,
-			A2(
-				$elm$core$Basics$composeR,
-				$author$project$Geometry$Point$subtract(pos),
-				$author$project$Geometry$Point$pointToAngle),
-			l);
-		var anglesLoop = $elm$core$List$sum(
+var $author$project$Drawing$group = function (l) {
+	return $author$project$Drawing$Drawing(
+		$elm$core$List$concat(
 			A2(
 				$elm$core$List$map,
 				function (_v0) {
-					var a = _v0.a;
-					var b = _v0.b;
-					return A2($author$project$Geometry$Point$distanceAngleSigned, a, b);
+					var d = _v0.a;
+					return d;
 				},
-				$author$project$ListExtraExtra$succCyclePairs(angles)));
-		return $author$project$Geometry$Point$countRoundsAngle(anglesLoop) === 1;
+				l)));
+};
+var $author$project$Drawing$Polyline = function (a) {
+	return {$: 'Polyline', a: a};
+};
+var $author$project$Drawing$TikzShape = F2(
+	function (a, b) {
+		return {$: 'TikzShape', a: a, b: b};
 	});
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
-		}
-	});
-var $elm$core$List$concat = function (lists) {
-	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
-};
-var $elm$core$List$concatMap = F2(
-	function (f, list) {
-		return $elm$core$List$concat(
-			A2($elm$core$List$map, f, list));
-	});
-var $author$project$GraphProof$positionsInDiagram = function (_v0) {
-	var lhs = _v0.lhs;
-	var rhs = _v0.rhs;
-	var getPositions = function (_v1) {
-		var label = _v1.label;
-		return _List_fromArray(
-			[label.from, label.pos, label.to]);
-	};
-	return _Utils_ap(
-		A2($elm$core$List$concatMap, getPositions, lhs),
-		$elm$core$List$reverse(
-			A2($elm$core$List$concatMap, getPositions, rhs)));
-};
-var $author$project$GraphProof$isInDiag = F3(
-	function (g, pos, d) {
-		return A2(
-			$author$project$Geometry$Point$isInPoly,
-			pos,
-			$author$project$GraphProof$positionsInDiagram(d));
-	});
-var $author$project$GraphProof$findProofOfDiagram = F3(
-	function (g, l, d) {
-		return A2(
-			$elm$core$Maybe$andThen,
-			A2(
-				$elm$core$Basics$composeR,
-				function ($) {
-					return $.label;
-				},
-				function ($) {
-					return $.proof;
-				}),
-			A2(
-				$elm_community$list_extra$List$Extra$find,
-				function (n) {
-					return A3($author$project$GraphProof$isInDiag, g, n.label.pos, d);
-				},
-				l));
-	});
-var $author$project$GraphProof$finishedProof = function (_v0) {
-	var statement = _v0.statement;
-	var proof = _v0.proof;
-	return A2(
-		$elm$core$Maybe$withDefault,
-		false,
-		A2(
-			$elm$core$Maybe$map,
-			function (h) {
-				return _Utils_eq(
-					h.endChain,
-					A2(
-						$elm$core$List$map,
-						function ($) {
-							return $.id;
-						},
-						statement.rhs));
-			},
-			$elm$core$List$head(
-				$elm$core$List$reverse(proof))));
-};
-var $author$project$Polygraph$incidence = function (g) {
-	var gDict = $author$project$Polygraph$graphRep(g);
-	var es = $author$project$Polygraph$edges(g);
-	var emptyInfo = {incomings: _List_Nil, outgoings: _List_Nil};
-	var insertIn = F2(
-		function (e, i) {
-			return _Utils_update(
-				i,
-				{
-					incomings: A2($elm$core$List$cons, e, i.incomings)
-				});
-		});
-	var insertOut = F2(
-		function (e, i) {
-			return _Utils_update(
-				i,
-				{
-					outgoings: A2($elm$core$List$cons, e, i.outgoings)
-				});
-		});
-	var aux = F2(
-		function (l, d) {
-			if (!l.b) {
-				return d;
-			} else {
-				var e = l.a;
-				var q = l.b;
-				return A2(
-					aux,
-					q,
-					A3(
-						$elm_community$intdict$IntDict$update,
-						e.from,
-						A2(
-							$elm$core$Basics$composeR,
-							$elm$core$Maybe$withDefault(emptyInfo),
-							A2(
-								$elm$core$Basics$composeR,
-								insertOut(e),
-								$elm$core$Maybe$Just)),
-						A3(
-							$elm_community$intdict$IntDict$update,
-							e.to,
-							A2(
-								$elm$core$Basics$composeR,
-								$elm$core$Maybe$withDefault(emptyInfo),
-								A2(
-									$elm$core$Basics$composeR,
-									insertIn(e),
-									$elm$core$Maybe$Just)),
-							d)));
-			}
-		});
-	var di = A2(
-		$elm_community$intdict$IntDict$map,
-		F2(
-			function (_v1, _v2) {
-				return {incomings: _List_Nil, outgoings: _List_Nil};
-			}),
-		gDict);
-	return A2(aux, es, di);
-};
-var $elm$core$List$sortBy = _List_sortBy;
-var $elm_community$intdict$IntDict$values = function (dict) {
-	return A3(
-		$elm_community$intdict$IntDict$foldr,
-		F3(
-			function (key, value, valueList) {
-				return A2($elm$core$List$cons, value, valueList);
-			}),
-		_List_Nil,
-		dict);
-};
-var $author$project$GraphProof$adjacentEdges = function (g) {
-	var inc = $author$project$Polygraph$incidence(g);
-	var dumpEdge = function (_v2) {
-		var label = _v2.label;
-		var angleIn = _v2.angleIn;
-		var angleOut = _v2.angleOut;
-		return {angleIn: angleIn, angleOut: angleOut, label: label};
-	};
-	var dump = function (_v1) {
-		var id = _v1.a;
-		var stuff = _v1.b;
-		var f = A2(
-			$elm$core$List$map,
-			A2(
-				$elm$core$Basics$composeR,
-				function ($) {
-					return $.label;
-				},
-				dumpEdge),
-			stuff.incomings);
-		return A2(
-			$elm$core$List$map,
-			A2(
-				$elm$core$Basics$composeR,
-				function ($) {
-					return $.label;
-				},
-				dumpEdge),
-			stuff.outgoings);
-	};
-	return A2(
-		$elm$core$List$concatMap,
-		function (i) {
-			return $author$project$ListExtraExtra$succCyclePairs(
-				A2(
-					$elm$core$List$map,
-					function (e) {
-						return e;
-					},
-					A2(
-						$elm$core$List$sortBy,
-						function (_v0) {
-							var edge = _v0.edge;
-							var incoming = _v0.incoming;
-							return incoming ? edge.label.angleOut : edge.label.angleIn;
-						},
-						_Utils_ap(
-							A2(
-								$elm$core$List$map,
-								function (e) {
-									return {edge: e, incoming: true};
-								},
-								i.incomings),
-							A2(
-								$elm$core$List$map,
-								function (e) {
-									return {edge: e, incoming: false};
-								},
-								i.outgoings)))));
-		},
-		$elm_community$intdict$IntDict$values(inc));
-};
-var $author$project$GraphProof$adjacentListToDict = function (l) {
-	return $elm_community$intdict$IntDict$fromList(
-		A2(
-			$elm$core$List$map,
-			function (_v0) {
-				var e1 = _v0.a;
-				var e2 = _v0.b;
-				return _Utils_Tuple2(e1.edge.id, e2.edge);
-			},
-			l));
-};
-var $elm_community$list_extra$List$Extra$last = function (items) {
-	last:
-	while (true) {
-		if (!items.b) {
-			return $elm$core$Maybe$Nothing;
-		} else {
-			if (!items.b.b) {
-				var x = items.a;
-				return $elm$core$Maybe$Just(x);
-			} else {
-				var rest = items.b;
-				var $temp$items = rest;
-				items = $temp$items;
-				continue last;
-			}
-		}
-	}
-};
-var $author$project$GraphProof$checkEndPoints = function (_v0) {
-	var lhs = _v0.lhs;
-	var rhs = _v0.rhs;
-	var _v1 = _Utils_Tuple2(
-		$elm_community$list_extra$List$Extra$last(lhs),
-		$elm_community$list_extra$List$Extra$last(rhs));
-	if ((_v1.a.$ === 'Just') && (_v1.b.$ === 'Just')) {
-		var e1 = _v1.a.a;
-		var e2 = _v1.b.a;
-		return _Utils_eq(e1.to, e2.to);
-	} else {
-		return false;
-	}
-};
-var $author$project$GraphProof$getAllValidDiagrams = function (g) {
-	var inc = $author$project$GraphProof$adjacentEdges(g);
-	var starts = A2(
-		$elm$core$List$map,
-		function (_v6) {
-			var e1 = _v6.a;
-			var e2 = _v6.b;
-			return _Utils_Tuple2(e2, e1);
-		},
-		A2(
-			$elm$core$List$filter,
-			function (_v5) {
-				var e1 = _v5.a;
-				var e2 = _v5.b;
-				return (!e1.incoming) && (!e2.incoming);
-			},
-			inc));
-	var nextRights = A2(
-		$elm$core$List$map,
-		function (_v4) {
-			var e1 = _v4.a;
-			var e2 = _v4.b;
-			return _Utils_Tuple2(e2, e1);
-		},
-		A2(
-			$elm$core$List$filter,
-			function (_v3) {
-				var e1 = _v3.a;
-				var e2 = _v3.b;
-				return (!e1.incoming) && e2.incoming;
-			},
-			inc));
-	var nextLefts = A2(
-		$elm$core$List$filter,
-		function (_v2) {
-			var e1 = _v2.a;
-			var e2 = _v2.b;
-			return e1.incoming && (!e2.incoming);
-		},
-		inc);
-	var buildBranch = F2(
-		function (next, startEdge) {
-			var _v0 = A2($elm_community$intdict$IntDict$get, startEdge.id, next);
-			if (_v0.$ === 'Nothing') {
-				return _List_fromArray(
-					[startEdge]);
-			} else {
-				var e = _v0.a;
-				return A2(
-					$elm$core$List$cons,
-					startEdge,
-					A2(buildBranch, next, e));
-			}
-		});
-	var diags = A2(
-		$elm$core$List$map,
-		function (_v1) {
-			var rhs = _v1.a;
-			var lhs = _v1.b;
-			return {
-				lhs: A2(
-					buildBranch,
-					$author$project$GraphProof$adjacentListToDict(nextRights),
-					lhs.edge),
-				proof: $elm$core$Maybe$Nothing,
-				rhs: A2(
-					buildBranch,
-					$author$project$GraphProof$adjacentListToDict(nextLefts),
-					rhs.edge)
-			};
-		},
-		starts);
-	var validDiags = A2($elm$core$List$filter, $author$project$GraphProof$checkEndPoints, diags);
-	return validDiags;
-};
-var $author$project$GraphProof$invertDiagram = function (_v0) {
-	var lhs = _v0.lhs;
-	var rhs = _v0.rhs;
-	var proof = _v0.proof;
-	return {lhs: rhs, proof: proof, rhs: lhs};
-};
-var $author$project$Geometry$Point$sumAngles = function (l) {
-	if (!l.b) {
-		return 0;
-	} else {
-		if (!l.b.b) {
-			return 0;
-		} else {
-			var a = l.a;
-			var _v1 = l.b;
-			var b = _v1.a;
-			var tl = _v1.b;
-			var sr = A2($author$project$Geometry$Point$distanceAngleSigned, a, b);
-			return sr + $author$project$Geometry$Point$sumAngles(
-				A2($elm$core$List$cons, b, tl));
-		}
-	}
-};
-var $author$project$Geometry$Point$countRounds = function (l) {
-	return $author$project$Geometry$Point$countRoundsAngle(
-		$author$project$Geometry$Point$sumAngles(l));
-};
-var $author$project$GraphProof$isOuterDiagram = function (_v0) {
-	var lhs = _v0.lhs;
-	var rhs = _v0.rhs;
-	var makeAngles = function (angleField) {
-		return $elm$core$List$map(
-			A2(
-				$elm$core$Basics$composeR,
-				function ($) {
-					return $.label;
-				},
-				angleField));
-	};
-	var anglesRhs = A2(
-		makeAngles,
-		function ($) {
-			return $.angleOut;
-		},
-		rhs);
-	var anglesLhs = A2(
-		makeAngles,
-		function ($) {
-			return $.angleIn;
-		},
-		lhs);
-	var angles = A2(
-		$elm$core$List$cons,
-		A2(
-			$elm$core$Maybe$withDefault,
-			0,
-			$elm$core$List$head(anglesRhs)),
-		_Utils_ap(
-			anglesLhs,
-			$elm$core$List$reverse(anglesRhs)));
-	var _v1 = A2(
-		$elm$core$List$map,
-		A2(
-			$elm$core$Basics$composeR,
-			function ($) {
-				return $.label;
-			},
-			function ($) {
-				return $.label;
-			}),
-		lhs);
-	var _v2 = anglesLhs;
-	return _Utils_eq(
-		$author$project$Geometry$Point$countRounds(angles),
-		-1);
-};
-var $author$project$GraphProof$nameIdentities = A4(
-	$author$project$Polygraph$mapRecAll,
-	function (n) {
-		return n.label;
-	},
-	function (n) {
-		return n.label;
-	},
-	F2(
-		function (_v0, n) {
-			return n;
-		}),
-	F4(
-		function (_v1, fromLabel, _v2, l) {
-			return _Utils_update(
-				l,
-				{
-					label: ((l.label === '') && l.identity) ? ('|' + (fromLabel + '|')) : l.label
-				});
-		}));
-var $elm$core$List$partition = F2(
-	function (pred, list) {
-		var step = F2(
-			function (x, _v0) {
-				var trues = _v0.a;
-				var falses = _v0.b;
-				return pred(x) ? _Utils_Tuple2(
-					A2($elm$core$List$cons, x, trues),
-					falses) : _Utils_Tuple2(
-					trues,
-					A2($elm$core$List$cons, x, falses));
-			});
-		return A3(
-			$elm$core$List$foldr,
-			step,
-			_Utils_Tuple2(_List_Nil, _List_Nil),
-			list);
-	});
-var $elm_community$maybe_extra$Maybe$Extra$isJust = function (m) {
-	if (m.$ === 'Nothing') {
-		return false;
-	} else {
-		return true;
-	}
-};
-var $author$project$GraphProof$proofNodes = function (g) {
-	return A2(
-		$elm$core$List$filter,
-		A2(
-			$elm$core$Basics$composeR,
-			function ($) {
-				return $.label;
-			},
-			A2(
-				$elm$core$Basics$composeR,
-				function ($) {
-					return $.proof;
-				},
-				$elm_community$maybe_extra$Maybe$Extra$isJust)),
-		$author$project$Polygraph$nodes(g));
-};
-var $author$project$GraphProof$fullProofs = function (g0) {
-	var g = $author$project$GraphProof$nameIdentities(g0);
-	var diags = $author$project$GraphProof$getAllValidDiagrams(g);
-	var _v0 = A2($elm$core$List$partition, $author$project$GraphProof$isOuterDiagram, diags);
-	var bigDiags = _v0.a;
-	var smallDiags_without_proofs = _v0.b;
-	var smallProofs = $author$project$GraphProof$proofNodes(g);
-	var updateDiag = function (d) {
-		return _Utils_update(
-			d,
-			{
-				proof: A3($author$project$GraphProof$findProofOfDiagram, g, smallProofs, d)
-			});
-	};
-	var smallDiags = A2($elm$core$List$map, updateDiag, smallDiags_without_proofs);
-	return A2(
-		$elm$core$List$filter,
-		$author$project$GraphProof$finishedProof,
-		A2(
-			$elm$core$List$map,
-			function (d) {
-				return {
-					proof: A2(
-						$author$project$GraphProof$commuteProof,
-						smallDiags,
-						A2(
-							$elm$core$List$map,
-							function ($) {
-								return $.id;
-							},
-							d.lhs)),
-					statement: d
-				};
-			},
-			A2($elm$core$List$map, $author$project$GraphProof$invertDiagram, bigDiags)));
-};
-var $author$project$GraphProof$debugEdgeName = function (id) {
-	return 'e' + $elm$core$String$fromInt(id);
-};
-var $author$project$GraphProof$edgesOfDiag = function (d) {
-	var setOf = function (e) {
-		return _Utils_Tuple2(
-			e.id,
-			{from: e.from, to: e.to});
-	};
-	return $elm_community$intdict$IntDict$fromList(
-		_Utils_ap(
-			A2($elm$core$List$map, setOf, d.lhs),
-			A2($elm$core$List$map, setOf, d.rhs)));
-};
-var $elm$core$Set$Set_elm_builtin = function (a) {
-	return {$: 'Set_elm_builtin', a: a};
-};
-var $elm$core$Set$empty = $elm$core$Set$Set_elm_builtin($elm$core$Dict$empty);
-var $elm$core$Set$insert = F2(
-	function (key, _v0) {
-		var dict = _v0.a;
-		return $elm$core$Set$Set_elm_builtin(
-			A3($elm$core$Dict$insert, key, _Utils_Tuple0, dict));
-	});
-var $elm$core$Set$fromList = function (list) {
-	return A3($elm$core$List$foldl, $elm$core$Set$insert, $elm$core$Set$empty, list);
-};
-var $elm_community$list_extra$List$Extra$reverseMap = F2(
-	function (f, xs) {
-		return A3(
-			$elm$core$List$foldl,
-			F2(
-				function (x, acc) {
-					return A2(
-						$elm$core$List$cons,
-						f(x),
-						acc);
-				}),
-			_List_Nil,
-			xs);
-	});
-var $author$project$GraphProof$nodesOfDiag = function (d) {
-	return _Utils_ap(
-		A2(
-			$elm$core$List$map,
-			function ($) {
-				return $.from;
-			},
-			d.lhs),
-		A2(
-			$elm_community$list_extra$List$Extra$reverseMap,
-			function ($) {
-				return $.to;
-			},
-			d.rhs));
-};
-var $author$project$GraphProof$getToThePoint = F2(
-	function (startOffset, backOffset) {
-		return 'yade_strip ' + ($elm$core$String$fromInt(startOffset) + (' ' + ($elm$core$String$fromInt(backOffset) + '.')));
-	});
-var $elm$core$String$endsWith = _String_endsWith;
-var $author$project$Verbatim$verbatimCmd = '\\coqverb';
-var $author$project$Verbatim$extractVerbatim = function (s) {
-	var prefix = $author$project$Verbatim$verbatimCmd + '{';
-	return (A2($elm$core$String$startsWith, prefix, s) && A2($elm$core$String$endsWith, '}', s)) ? $elm$core$Maybe$Just(
-		A3(
-			$elm$core$String$slice,
-			$elm$core$String$length(prefix),
-			-1,
-			s)) : $elm$core$Maybe$Nothing;
-};
-var $author$project$Verbatim$removeVerbatim = function (s) {
-	return A2(
-		$elm$core$Maybe$withDefault,
-		s,
-		$author$project$Verbatim$extractVerbatim(s));
-};
-var $author$project$GraphProof$statementToString = function (d) {
-	var expand = function (s) {
-		return (s === '') ? '{_}' : s;
-	};
-	var edgeToString = A2(
-		$elm$core$Basics$composeR,
-		$elm$core$List$map(
-			A2(
-				$elm$core$Basics$composeR,
-				function ($) {
-					return $.label;
-				},
-				A2(
-					$elm$core$Basics$composeR,
-					function ($) {
-						return $.label;
-					},
-					A2($elm$core$Basics$composeR, expand, $author$project$Verbatim$removeVerbatim)))),
-		$elm$core$String$join(' · '));
-	return '<YADE> ' + (edgeToString(d.lhs) + (' = ' + (edgeToString(d.rhs) + ' </YADE>')));
-};
-var $author$project$GraphProof$proofStepToString = function (_v0) {
-	var startOffset = _v0.startOffset;
-	var backOffset = _v0.backOffset;
-	var diag = _v0.diag;
-	return 'eapply yade.transitivity.\n' + (A2($author$project$GraphProof$getToThePoint, startOffset, backOffset) + ('\n' + ('refine (_ :> ' + ($author$project$GraphProof$statementToString(diag) + (').\n' + ('{\n' + ('  ' + (A2($elm$core$Maybe$withDefault, 'admit.', diag.proof) + '\n}\nrepeat rewrite -> yade.assoc\'\'.\n'))))))));
-};
-var $author$project$GraphProof$renameDebugDiag = function (diag) {
-	var renameEdge = function (e) {
-		var label = e.label;
-		return _Utils_update(
-			e,
-			{
-				label: _Utils_update(
-					label,
+var $author$project$Drawing$singlePolyLine = F2(
+	function (args, attrs) {
+		return $author$project$Drawing$Drawing(
+			_List_fromArray(
+				[
 					{
-						label: $author$project$GraphProof$debugEdgeName(e.id)
-					})
-			});
-	};
-	return {
-		lhs: A2($elm$core$List$map, renameEdge, diag.lhs),
-		proof: $elm$core$Maybe$Nothing,
-		rhs: A2($elm$core$List$map, renameEdge, diag.rhs)
-	};
-};
-var $author$project$GraphProof$renameDebugProofStep = function (step) {
-	return _Utils_update(
-		step,
-		{
-			diag: $author$project$GraphProof$renameDebugDiag(step.diag)
-		});
-};
-var $elm$core$Set$union = F2(
-	function (_v0, _v1) {
-		var dict1 = _v0.a;
-		var dict2 = _v1.a;
-		return $elm$core$Set$Set_elm_builtin(
-			A2($elm$core$Dict$union, dict1, dict2));
+					key: $elm$core$Maybe$Nothing,
+					shape: A2(
+						$author$project$Drawing$TikzShape,
+						attrs,
+						$author$project$Drawing$Polyline(args)),
+					zindex: $author$project$Zindex$defaultZ
+				}
+				]));
 	});
-var $author$project$GraphProof$proofStatementToDebugString = function (st) {
-	var nodes = A3(
-		$elm$core$List$foldl,
-		$elm$core$Set$union,
-		$elm$core$Set$empty,
-		A2(
-			$elm$core$List$map,
-			A2(
-				$elm$core$Basics$composeR,
-				function ($) {
-					return $.diag;
-				},
-				A2($elm$core$Basics$composeR, $author$project$GraphProof$nodesOfDiag, $elm$core$Set$fromList)),
-			st.proof));
-	var edges = A3(
-		$elm$core$List$foldl,
-		$elm_community$intdict$IntDict$union,
-		$elm_community$intdict$IntDict$empty,
-		A2(
-			$elm$core$List$map,
-			A2(
-				$elm$core$Basics$composeR,
-				function ($) {
-					return $.diag;
-				},
-				$author$project$GraphProof$edgesOfDiag),
-			st.proof));
-	var nidS = function (id) {
-		return 'o' + $elm$core$String$fromInt(id);
-	};
-	return 'Goal ' + ('∏ (C : category)\n  ' + (A2(
-		$elm$core$String$join,
-		'',
-		A2(
-			$elm$core$List$map,
-			function (id) {
-				return '(' + (nidS(id) + ' : C)');
-			},
-			$elm$core$Set$toList(nodes))) + ('\n  ' + (A2(
-		$elm$core$String$join,
-		'',
-		A2(
-			$elm$core$List$map,
-			function (_v0) {
-				var id = _v0.a;
-				var from = _v0.b.from;
-				var to = _v0.b.to;
-				return '(' + ($author$project$GraphProof$debugEdgeName(id) + (' : ' + (nidS(from) + (' --> ' + (nidS(to) + ')')))));
-			},
-			$elm_community$intdict$IntDict$toList(edges))) + (',\n  ' + ($author$project$GraphProof$statementToString(
-		$author$project$GraphProof$renameDebugDiag(st.statement)) + ('.\n\nintros.\n' + (A2(
-		$elm$core$String$join,
-		'\n',
-		A2(
-			$elm$core$List$map,
-			A2($elm$core$Basics$composeR, $author$project$GraphProof$renameDebugProofStep, $author$project$GraphProof$proofStepToString),
-			st.proof)) + '\n reflexivity.'))))))));
-};
-var $author$project$GraphProof$proofStatementToString = function (st) {
-	return 'change (' + ($author$project$GraphProof$statementToString(st.statement) + (').\n\n' + (A2(
-		$elm$core$String$join,
-		'\n',
-		A2($elm$core$List$map, $author$project$GraphProof$proofStepToString, st.proof)) + ('\n reflexivity.' + '\nQed.'))));
-};
-var $author$project$Polygraph$invalidEdges = function (fullGraph) {
-	var g = $author$project$Polygraph$graphRep(fullGraph);
-	var dict = A6(
-		$author$project$Polygraph$mapRecAux,
-		$elm$core$Basics$always(_Utils_Tuple0),
-		$elm$core$Basics$always(_Utils_Tuple0),
-		$elm$core$Basics$always($elm$core$Basics$identity),
-		F3(
-			function (_v2, _v3, _v4) {
-				return $elm$core$Basics$identity;
-			}),
-		A2(
-			$elm_community$intdict$IntDict$map,
-			function (_v5) {
-				return $author$project$Polygraph$Input;
-			},
-			g),
-		$elm_community$intdict$IntDict$keys(g));
-	var l = $elm_community$intdict$IntDict$toList(dict);
-	var missings = A2(
-		$elm$core$List$filterMap,
-		function (_v0) {
-			var id = _v0.a;
-			var o = _v0.b;
-			if (o.$ === 'Waiting') {
-				var i1 = o.a;
-				var i2 = o.b;
-				var e = o.c;
-				return $elm$core$Maybe$Just(
-					{from: i1, id: id, label: e, to: i2});
-			} else {
-				return $elm$core$Maybe$Nothing;
-			}
-		},
-		l);
-	return missings;
-};
-var $author$project$Polygraph$sanitise = function (g) {
-	var d = $author$project$Polygraph$graphRep(g);
-	var ids = A2(
-		$elm$core$List$map,
-		function ($) {
-			return $.id;
-		},
-		$author$project$Polygraph$invalidEdges(g));
-	return A2(
-		$author$project$Polygraph$setGraphRep,
-		g,
-		A2($author$project$IntDictExtra$removeList, ids, d));
-};
-var $author$project$Polygraph$filterMap = F3(
-	function (fn, fe, g) {
-		var g2 = A3(
-			$author$project$Polygraph$rawFilterMap,
-			fn,
-			fe,
-			$author$project$Polygraph$graphRep(g));
-		return $author$project$Polygraph$sanitise(
-			A2($author$project$Polygraph$setGraphRep, g, g2));
-	});
-var $elm$core$String$trim = _String_trim;
-var $author$project$GraphDefs$getProofFromLabel = function (s) {
-	var s2 = $elm$core$String$trim(s);
-	var prefix = '\\' + ($author$project$GraphDefs$coqProofTexCommand + '{');
-	return A2($elm$core$String$startsWith, prefix, s2) ? $elm$core$Maybe$Just(
-		A3(
-			$elm$core$String$slice,
-			$elm$core$String$length(prefix),
-			-1,
-			s2)) : $elm$core$Maybe$Nothing;
-};
-var $author$project$ArrowStyle$isDouble = function (_v0) {
-	var kind = _v0.kind;
-	return _Utils_eq(kind, $author$project$ArrowStyle$DoubleArrow);
-};
-var $author$project$Polygraph$loopsIds = function (g) {
-	return $elm_community$intdict$IntDict$keys(
-		A3(
-			$author$project$Polygraph$rawFilterIds,
-			$elm$core$Basics$always(false),
-			F3(
-				function (id1, id2, _v0) {
-					return _Utils_eq(id1, id2);
-				}),
-			g));
-};
-var $author$project$Polygraph$removeList = F2(
-	function (l, g) {
-		return $author$project$Polygraph$sanitise(
-			A2(
-				$author$project$Polygraph$mapRep,
-				$author$project$Polygraph$rawRemoveList(l),
-				g));
-	});
-var $author$project$Polygraph$removeLoops = function (g) {
-	return A2(
-		$author$project$Polygraph$removeList,
-		$author$project$Polygraph$loopsIds(
-			$author$project$Polygraph$graphRep(g)),
-		g);
-};
-var $author$project$GraphDefs$toProofGraph = A2(
-	$elm$core$Basics$composeR,
-	$author$project$Polygraph$removeLoops,
-	A2(
-		$elm$core$Basics$composeR,
-		$author$project$GraphDefs$posGraph,
-		A2(
-			$elm$core$Basics$composeR,
-			A2(
-				$author$project$Polygraph$filterMap,
-				$elm$core$Maybe$Just,
-				function (e) {
-					var _v0 = _Utils_Tuple2(
-						$author$project$GraphDefs$filterLabelNormal(e.label),
-						e.shape);
-					if ((_v0.a.$ === 'Just') && (_v0.b.$ === 'Bezier')) {
-						var l = _v0.a.a;
-						var b = _v0.b.a;
-						return $elm$core$Maybe$Just(
-							{bezier: b, details: l.details});
-					} else {
-						return $elm$core$Maybe$Nothing;
-					}
-				}),
-			A2(
-				$author$project$Polygraph$map,
-				F2(
-					function (_v1, n) {
-						return {
-							label: n.label,
-							pos: n.pos,
-							proof: $author$project$GraphDefs$getProofFromLabel(n.label)
-						};
-					}),
-				F2(
-					function (_v2, _v3) {
-						var details = _v3.details;
-						var bezier = _v3.bezier;
-						return {
-							angleIn: $author$project$Geometry$Point$pointToAngle(
-								A2($author$project$Geometry$Point$subtract, bezier.controlPoint, bezier.from)),
-							angleOut: $author$project$Geometry$Point$pointToAngle(
-								A2($author$project$Geometry$Point$subtract, bezier.controlPoint, bezier.to)),
-							from: bezier.from,
-							identity: $author$project$ArrowStyle$isDouble(details.style),
-							label: details.label,
-							pos: $author$project$Geometry$QuadraticBezier$middle(bezier),
-							to: bezier.to
-						};
-					})))));
-var $author$project$Main$generateProofString = F2(
-	function (debug, g) {
-		var stToString = debug ? $author$project$GraphProof$proofStatementToDebugString : $author$project$GraphProof$proofStatementToString;
-		var s = A2(
-			$elm$core$String$join,
-			'\n\n',
+var $author$project$Main$drawFreeHand = F2(
+	function (attrs, drawings) {
+		return $author$project$Drawing$group(
 			A2(
 				$elm$core$List$map,
-				stToString,
-				$author$project$GraphProof$fullProofs(
-					$author$project$GraphDefs$toProofGraph(g))));
-		return s;
+				function (_v0) {
+					var id = _v0.a;
+					var points = _v0.b;
+					return A2(
+						$author$project$Drawing$singlePolyLine,
+						{color: $author$project$Drawing$Color$black, points: points},
+						attrs(id));
+				},
+				$elm_community$intdict$IntDict$toList(
+					$author$project$FreeHandDrawings$getDrawings(drawings))));
 	});
-var $author$project$Main$coqExport = F2(
-	function (model, graph) {
-		var s = A2($author$project$Main$generateProofString, false, graph);
-		return (s === '') ? '(* No diagram found *)' : s;
-	});
+var $elm$core$List$sortBy = _List_sortBy;
 var $author$project$Main$textNodesToLatex = function (nodes) {
 	return A2(
 		$elm$core$String$join,
@@ -20756,6 +21579,24 @@ var $elm_community$maybe_extra$Maybe$Extra$isNothing = function (m) {
 		return false;
 	}
 };
+var $elm$core$List$partition = F2(
+	function (pred, list) {
+		var step = F2(
+			function (x, _v0) {
+				var trues = _v0.a;
+				var falses = _v0.b;
+				return pred(x) ? _Utils_Tuple2(
+					A2($elm$core$List$cons, x, trues),
+					falses) : _Utils_Tuple2(
+					trues,
+					A2($elm$core$List$cons, x, falses));
+			});
+		return A3(
+			$elm$core$List$foldr,
+			step,
+			_Utils_Tuple2(_List_Nil, _List_Nil),
+			list);
+	});
 var $author$project$Drawing$keyPartition = function (_v0) {
 	var l = _v0.a;
 	var _v1 = A2(
@@ -20863,6 +21704,7 @@ var $author$project$Drawing$arrowToTikz = function (args) {
 var $author$project$Drawing$lineToTikz = function (arg) {
 	return '\\draw[' + ($author$project$Drawing$Color$toString(arg.color) + ('] ' + ($author$project$Drawing$pointToTikz(arg.from) + (' -- ' + ($author$project$Drawing$pointToTikz(arg.to) + ';')))));
 };
+var $elm$core$Basics$pi = _Basics_pi;
 var $author$project$Drawing$nodeToTikz = function (arg) {
 	var _v0 = arg.pos;
 	var x = _v0.a;
@@ -20882,6 +21724,12 @@ var $author$project$Drawing$nodeToTikz = function (arg) {
 	return '\\node' + (options + (' at ' + ($author$project$Drawing$pointToTikz(
 		_Utils_Tuple2(x, y)) + (' {$' + (arg.label + '$} ;')))));
 };
+var $author$project$Drawing$singlePolylineToTikz = function (arg) {
+	return '\\draw[' + ($author$project$Drawing$Color$toString(arg.color) + ('] ' + (A2(
+		$elm$core$String$join,
+		' -- ',
+		A2($elm$core$List$map, $author$project$Drawing$pointToTikz, arg.points)) + ';')));
+};
 var $author$project$Drawing$tikzShapeToTikz = function (shape) {
 	switch (shape.$) {
 		case 'Node':
@@ -20890,9 +21738,12 @@ var $author$project$Drawing$tikzShapeToTikz = function (shape) {
 		case 'Line':
 			var arg = shape.a;
 			return $author$project$Drawing$lineToTikz(arg);
-		default:
+		case 'Arrow':
 			var arg = shape.a;
 			return $author$project$Drawing$arrowToTikz(arg);
+		default:
+			var arg = shape.a;
+			return $author$project$Drawing$singlePolylineToTikz(arg);
 	}
 };
 var $author$project$Drawing$shapeToTikz = function (shape) {
@@ -21057,24 +21908,6 @@ var $author$project$GraphDrawing$onClick = $mpizenberg$elm_pointer_events$Html$E
 var $author$project$Drawing$Line = function (a) {
 	return {$: 'Line', a: a};
 };
-var $author$project$Drawing$TikzShape = F2(
-	function (a, b) {
-		return {$: 'TikzShape', a: a, b: b};
-	});
-var $author$project$Drawing$Drawing = function (a) {
-	return {$: 'Drawing', a: a};
-};
-var $author$project$Drawing$group = function (l) {
-	return $author$project$Drawing$Drawing(
-		$elm$core$List$concat(
-			A2(
-				$elm$core$List$map,
-				function (_v0) {
-					var d = _v0.a;
-					return d;
-				},
-				l)));
-};
 var $author$project$Drawing$ofShapeWithKey = F3(
 	function (z, k, s) {
 		return $author$project$Drawing$Drawing(
@@ -21201,6 +22034,17 @@ var $author$project$HtmlDefs$dimsAttribute = function (_v0) {
 			$elm$core$String$fromFloat(height))
 		]);
 };
+var $elm$core$String$endsWith = _String_endsWith;
+var $author$project$Verbatim$verbatimCmd = '\\coqverb';
+var $author$project$Verbatim$extractVerbatim = function (s) {
+	var prefix = $author$project$Verbatim$verbatimCmd + '{';
+	return (A2($elm$core$String$startsWith, prefix, s) && A2($elm$core$String$endsWith, '}', s)) ? $elm$core$Maybe$Just(
+		A3(
+			$elm$core$String$slice,
+			$elm$core$String$length(prefix),
+			-1,
+			s)) : $elm$core$Maybe$Nothing;
+};
 var $author$project$GraphDrawing$idToKey = A2($elm$core$Basics$composeR, $elm$core$String$fromInt, $elm$core$Maybe$Just);
 var $author$project$Drawing$Node = function (a) {
 	return {$: 'Node', a: a};
@@ -21217,10 +22061,6 @@ var $author$project$Drawing$makeLatex = F2(
 				$author$project$Drawing$Node(
 					{angle: arg.angle, dims: arg.dims, label: arg.label, pos: arg.pos, preamble: arg.preamble, scale: arg.scale})));
 	});
-var $elm$core$String$cons = _String_cons;
-var $elm$core$String$fromChar = function (_char) {
-	return A2($elm$core$String$cons, _char, '');
-};
 var $author$project$Drawing$makeVerbatimString = function (s) {
 	var verbatimDelimiters = _List_fromArray(
 		[
@@ -21598,6 +22438,14 @@ var $author$project$Drawing$arrow = F2(
 				]));
 	});
 var $author$project$GraphDefs$edgeScaleFactor = 0.7;
+var $elm$core$Basics$atan = _Basics_atan;
+var $author$project$Geometry$Point$pointToAngle = function (_v0) {
+	var x = _v0.a;
+	var y = _v0.b;
+	return ((!y) && (x <= 0)) ? $elm$core$Basics$pi : (2 * $elm$core$Basics$atan(
+		y / (x + $author$project$Geometry$Point$radius(
+			_Utils_Tuple2(x, y)))));
+};
 var $author$project$GraphDrawing$drawStringMarker = F3(
 	function (color, marker, q) {
 		var pos = $author$project$Geometry$QuadraticBezier$middle(q);
@@ -21638,8 +22486,17 @@ var $author$project$Geometry$Point$NamedPoint = F2(
 	function (x, y) {
 		return {x: x, y: y};
 	});
+var $elm$core$Set$Set_elm_builtin = function (a) {
+	return {$: 'Set_elm_builtin', a: a};
+};
+var $elm$core$Set$empty = $elm$core$Set$Set_elm_builtin($elm$core$Dict$empty);
 var $author$project$Geometry$Epsilon$epsilon = A2($elm$core$Basics$pow, 10, -10);
-var $elm$core$Basics$ge = _Utils_ge;
+var $elm$core$Set$insert = F2(
+	function (key, _v0) {
+		var dict = _v0.a;
+		return $elm$core$Set$Set_elm_builtin(
+			A3($elm$core$Dict$insert, key, _Utils_Tuple0, dict));
+	});
 var $author$project$Geometry$Epsilon$inv_epsilon = 1 / $author$project$Geometry$Epsilon$epsilon;
 var $author$project$Geometry$Point$inv_scale = F3(
 	function (sx, sy, _v0) {
@@ -21658,6 +22515,69 @@ var $elm$core$Set$isEmpty = function (_v0) {
 	var dict = _v0.a;
 	return $elm$core$Dict$isEmpty(dict);
 };
+var $elm$core$Basics$round = _Basics_round;
+var $author$project$Geometry$Point$countRoundsAngle = function (a) {
+	return $elm$core$Basics$round(a / (2 * $elm$core$Basics$pi));
+};
+var $author$project$Geometry$Point$closeRemainder = F2(
+	function (q, a) {
+		return a - ($elm$core$Basics$round(a / q) * q);
+	});
+var $author$project$Geometry$Point$normaliseAngle = function (alpha) {
+	return A2($author$project$Geometry$Point$closeRemainder, 2 * $elm$core$Basics$pi, alpha);
+};
+var $author$project$Geometry$Point$distanceAngleSigned = F2(
+	function (alpha, beta) {
+		return $author$project$Geometry$Point$normaliseAngle(beta - alpha);
+	});
+var $author$project$ListExtraExtra$permute = function (l) {
+	if (!l.b) {
+		return _List_Nil;
+	} else {
+		var t = l.a;
+		var q = l.b;
+		return _Utils_ap(
+			q,
+			_List_fromArray(
+				[t]));
+	}
+};
+var $elm_community$list_extra$List$Extra$zip = $elm$core$List$map2($elm$core$Tuple$pair);
+var $author$project$ListExtraExtra$succCyclePairs = function (l) {
+	var _v0 = A2(
+		$elm_community$list_extra$List$Extra$zip,
+		l,
+		$author$project$ListExtraExtra$permute(l));
+	if (_v0.b && (!_v0.b.b)) {
+		return _List_Nil;
+	} else {
+		var r = _v0;
+		return r;
+	}
+};
+var $elm$core$List$sum = function (numbers) {
+	return A3($elm$core$List$foldl, $elm$core$Basics$add, 0, numbers);
+};
+var $author$project$Geometry$Point$isInPoly = F2(
+	function (pos, l) {
+		var angles = A2(
+			$elm$core$List$map,
+			A2(
+				$elm$core$Basics$composeR,
+				$author$project$Geometry$Point$subtract(pos),
+				$author$project$Geometry$Point$pointToAngle),
+			l);
+		var anglesLoop = $elm$core$List$sum(
+			A2(
+				$elm$core$List$map,
+				function (_v0) {
+					var a = _v0.a;
+					var b = _v0.b;
+					return A2($author$project$Geometry$Point$distanceAngleSigned, a, b);
+				},
+				$author$project$ListExtraExtra$succCyclePairs(angles)));
+		return $author$project$Geometry$Point$countRoundsAngle(anglesLoop) === 1;
+	});
 var $author$project$Geometry$Point$name = function (_v0) {
 	var x = _v0.a;
 	var y = _v0.b;
@@ -22133,6 +23053,10 @@ var $author$project$Geometry$determine_label_position = F9(
 		}
 	});
 var $author$project$ArrowStyle$doubleSize = 2.5;
+var $author$project$ArrowStyle$isDouble = function (_v0) {
+	var kind = _v0.kind;
+	return _Utils_eq(kind, $author$project$ArrowStyle$DoubleArrow);
+};
 var $author$project$ArrowStyle$isMarker = function (marker) {
 	return marker !== '';
 };
@@ -22230,7 +23154,7 @@ var $author$project$GraphDrawing$segmentLabel = F7(
 			}
 		}
 	});
-var $author$project$GraphDrawing$simpleOn = function (event) {
+var $author$project$HtmlDefs$simpleOn = function (event) {
 	return A2(
 		$elm$core$Basics$composeR,
 		$elm$json$Json$Decode$succeed,
@@ -22250,7 +23174,7 @@ var $author$project$GraphDrawing$normalEdgeDrawing = F7(
 					$author$project$GraphDrawing$onDoubleClick(
 					$author$project$Msg$EltDoubleClick(edgeId)),
 					A2(
-					$author$project$GraphDrawing$simpleOn,
+					$author$project$HtmlDefs$simpleOn,
 					'mousemove',
 					$author$project$Msg$MouseOn(edgeId))
 				]));
@@ -22433,8 +23357,8 @@ var $author$project$GraphDrawing$toDrawingGraph = function (g) {
 			}),
 		graphWithPos);
 };
-var $author$project$Main$graphToTikz = F2(
-	function (model, graph) {
+var $author$project$Main$allToTikz = F3(
+	function (model, graph, drawings) {
 		var nodes = A2(
 			$elm$core$List$map,
 			function ($) {
@@ -22458,8 +23382,950 @@ var $author$project$Main$graphToTikz = F2(
 				$author$project$Main$toDrawing,
 				model,
 				$author$project$GraphDrawing$toDrawingGraph(graph));
-			return $author$project$Drawing$tikz(d);
+			return $author$project$Drawing$tikz(
+				$author$project$Drawing$group(
+					_List_fromArray(
+						[
+							d,
+							A2(
+							$author$project$Main$drawFreeHand,
+							$elm$core$Basics$always(_List_Nil),
+							drawings)
+						])));
 		}
+	});
+var $author$project$GraphProof$prefixProofStep = F2(
+	function (id, r) {
+		return _Utils_update(
+			r,
+			{
+				endChain: A2($elm$core$List$cons, id, r.endChain),
+				startOffset: r.startOffset + 1
+			});
+	});
+var $elm_community$list_extra$List$Extra$stripPrefix = F2(
+	function (prefix, xs) {
+		var step = F2(
+			function (e, m) {
+				if (m.$ === 'Nothing') {
+					return $elm$core$Maybe$Nothing;
+				} else {
+					if (!m.a.b) {
+						return $elm$core$Maybe$Nothing;
+					} else {
+						var _v1 = m.a;
+						var x = _v1.a;
+						var xs_ = _v1.b;
+						return _Utils_eq(e, x) ? $elm$core$Maybe$Just(xs_) : $elm$core$Maybe$Nothing;
+					}
+				}
+			});
+		return A3(
+			$elm$core$List$foldl,
+			step,
+			$elm$core$Maybe$Just(xs),
+			prefix);
+	});
+var $author$project$GraphProof$applyDiag = F2(
+	function (d, l) {
+		var _v0 = A2(
+			$elm_community$list_extra$List$Extra$stripPrefix,
+			A2(
+				$elm$core$List$map,
+				function ($) {
+					return $.id;
+				},
+				d.lhs),
+			l);
+		if (_v0.$ === 'Nothing') {
+			if (!l.b) {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var t = l.a;
+				var q = l.b;
+				return A2(
+					$elm$core$Maybe$map,
+					$author$project$GraphProof$prefixProofStep(t),
+					A2($author$project$GraphProof$applyDiag, d, q));
+			}
+		} else {
+			var tail = _v0.a;
+			return $elm$core$Maybe$Just(
+				{
+					backOffset: $elm$core$List$length(tail),
+					diag: d,
+					endChain: _Utils_ap(
+						A2(
+							$elm$core$List$map,
+							function ($) {
+								return $.id;
+							},
+							d.rhs),
+						tail),
+					startOffset: 0
+				});
+		}
+	});
+var $elm_community$list_extra$List$Extra$reverseAppend = F2(
+	function (list1, list2) {
+		return A3($elm$core$List$foldl, $elm$core$List$cons, list2, list1);
+	});
+var $elm_community$list_extra$List$Extra$removeHelp = F4(
+	function (list, x, xs, previousElements) {
+		removeHelp:
+		while (true) {
+			if (!xs.b) {
+				return list;
+			} else {
+				var y = xs.a;
+				var ys = xs.b;
+				if (_Utils_eq(x, y)) {
+					return A2($elm_community$list_extra$List$Extra$reverseAppend, previousElements, ys);
+				} else {
+					var $temp$list = list,
+						$temp$x = x,
+						$temp$xs = ys,
+						$temp$previousElements = A2($elm$core$List$cons, y, previousElements);
+					list = $temp$list;
+					x = $temp$x;
+					xs = $temp$xs;
+					previousElements = $temp$previousElements;
+					continue removeHelp;
+				}
+			}
+		}
+	});
+var $elm_community$list_extra$List$Extra$remove = F2(
+	function (x, xs) {
+		return A4($elm_community$list_extra$List$Extra$removeHelp, xs, x, xs, _List_Nil);
+	});
+var $author$project$GraphProof$commuteProof = F2(
+	function (diags, l) {
+		var _v0 = A2(
+			$elm_community$list_extra$List$Extra$findMap,
+			function (d) {
+				return A2($author$project$GraphProof$applyDiag, d, l);
+			},
+			diags);
+		if (_v0.$ === 'Nothing') {
+			return _List_Nil;
+		} else {
+			var step = _v0.a;
+			return A2(
+				$elm$core$List$cons,
+				step,
+				A2(
+					$author$project$GraphProof$commuteProof,
+					A2($elm_community$list_extra$List$Extra$remove, step.diag, diags),
+					step.endChain));
+		}
+	});
+var $elm$core$List$concatMap = F2(
+	function (f, list) {
+		return $elm$core$List$concat(
+			A2($elm$core$List$map, f, list));
+	});
+var $author$project$GraphProof$positionsInDiagram = function (_v0) {
+	var lhs = _v0.lhs;
+	var rhs = _v0.rhs;
+	var getPositions = function (_v1) {
+		var label = _v1.label;
+		return _List_fromArray(
+			[label.from, label.pos, label.to]);
+	};
+	return _Utils_ap(
+		A2($elm$core$List$concatMap, getPositions, lhs),
+		$elm$core$List$reverse(
+			A2($elm$core$List$concatMap, getPositions, rhs)));
+};
+var $author$project$GraphProof$isInDiag = F3(
+	function (g, pos, d) {
+		return A2(
+			$author$project$Geometry$Point$isInPoly,
+			pos,
+			$author$project$GraphProof$positionsInDiagram(d));
+	});
+var $author$project$GraphProof$findProofOfDiagram = F3(
+	function (g, l, d) {
+		return A2(
+			$elm$core$Maybe$andThen,
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.label;
+				},
+				function ($) {
+					return $.proof;
+				}),
+			A2(
+				$elm_community$list_extra$List$Extra$find,
+				function (n) {
+					return A3($author$project$GraphProof$isInDiag, g, n.label.pos, d);
+				},
+				l));
+	});
+var $author$project$GraphProof$finishedProof = function (_v0) {
+	var statement = _v0.statement;
+	var proof = _v0.proof;
+	return A2(
+		$elm$core$Maybe$withDefault,
+		false,
+		A2(
+			$elm$core$Maybe$map,
+			function (h) {
+				return _Utils_eq(
+					h.endChain,
+					A2(
+						$elm$core$List$map,
+						function ($) {
+							return $.id;
+						},
+						statement.rhs));
+			},
+			$elm$core$List$head(
+				$elm$core$List$reverse(proof))));
+};
+var $author$project$Polygraph$incidence = function (g) {
+	var gDict = $author$project$Polygraph$graphRep(g);
+	var es = $author$project$Polygraph$edges(g);
+	var emptyInfo = {incomings: _List_Nil, outgoings: _List_Nil};
+	var insertIn = F2(
+		function (e, i) {
+			return _Utils_update(
+				i,
+				{
+					incomings: A2($elm$core$List$cons, e, i.incomings)
+				});
+		});
+	var insertOut = F2(
+		function (e, i) {
+			return _Utils_update(
+				i,
+				{
+					outgoings: A2($elm$core$List$cons, e, i.outgoings)
+				});
+		});
+	var aux = F2(
+		function (l, d) {
+			if (!l.b) {
+				return d;
+			} else {
+				var e = l.a;
+				var q = l.b;
+				return A2(
+					aux,
+					q,
+					A3(
+						$elm_community$intdict$IntDict$update,
+						e.from,
+						A2(
+							$elm$core$Basics$composeR,
+							$elm$core$Maybe$withDefault(emptyInfo),
+							A2(
+								$elm$core$Basics$composeR,
+								insertOut(e),
+								$elm$core$Maybe$Just)),
+						A3(
+							$elm_community$intdict$IntDict$update,
+							e.to,
+							A2(
+								$elm$core$Basics$composeR,
+								$elm$core$Maybe$withDefault(emptyInfo),
+								A2(
+									$elm$core$Basics$composeR,
+									insertIn(e),
+									$elm$core$Maybe$Just)),
+							d)));
+			}
+		});
+	var di = A2(
+		$elm_community$intdict$IntDict$map,
+		F2(
+			function (_v1, _v2) {
+				return {incomings: _List_Nil, outgoings: _List_Nil};
+			}),
+		gDict);
+	return A2(aux, es, di);
+};
+var $author$project$GraphProof$adjacentEdges = function (g) {
+	var inc = $author$project$Polygraph$incidence(g);
+	var dumpEdge = function (_v2) {
+		var label = _v2.label;
+		var angleIn = _v2.angleIn;
+		var angleOut = _v2.angleOut;
+		return {angleIn: angleIn, angleOut: angleOut, label: label};
+	};
+	var dump = function (_v1) {
+		var id = _v1.a;
+		var stuff = _v1.b;
+		var f = A2(
+			$elm$core$List$map,
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.label;
+				},
+				dumpEdge),
+			stuff.incomings);
+		return A2(
+			$elm$core$List$map,
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.label;
+				},
+				dumpEdge),
+			stuff.outgoings);
+	};
+	return A2(
+		$elm$core$List$concatMap,
+		function (i) {
+			return $author$project$ListExtraExtra$succCyclePairs(
+				A2(
+					$elm$core$List$map,
+					function (e) {
+						return e;
+					},
+					A2(
+						$elm$core$List$sortBy,
+						function (_v0) {
+							var edge = _v0.edge;
+							var incoming = _v0.incoming;
+							return incoming ? edge.label.angleOut : edge.label.angleIn;
+						},
+						_Utils_ap(
+							A2(
+								$elm$core$List$map,
+								function (e) {
+									return {edge: e, incoming: true};
+								},
+								i.incomings),
+							A2(
+								$elm$core$List$map,
+								function (e) {
+									return {edge: e, incoming: false};
+								},
+								i.outgoings)))));
+		},
+		$elm_community$intdict$IntDict$values(inc));
+};
+var $author$project$GraphProof$adjacentListToDict = function (l) {
+	return $elm_community$intdict$IntDict$fromList(
+		A2(
+			$elm$core$List$map,
+			function (_v0) {
+				var e1 = _v0.a;
+				var e2 = _v0.b;
+				return _Utils_Tuple2(e1.edge.id, e2.edge);
+			},
+			l));
+};
+var $elm_community$list_extra$List$Extra$last = function (items) {
+	last:
+	while (true) {
+		if (!items.b) {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			if (!items.b.b) {
+				var x = items.a;
+				return $elm$core$Maybe$Just(x);
+			} else {
+				var rest = items.b;
+				var $temp$items = rest;
+				items = $temp$items;
+				continue last;
+			}
+		}
+	}
+};
+var $author$project$GraphProof$checkEndPoints = function (_v0) {
+	var lhs = _v0.lhs;
+	var rhs = _v0.rhs;
+	var _v1 = _Utils_Tuple2(
+		$elm_community$list_extra$List$Extra$last(lhs),
+		$elm_community$list_extra$List$Extra$last(rhs));
+	if ((_v1.a.$ === 'Just') && (_v1.b.$ === 'Just')) {
+		var e1 = _v1.a.a;
+		var e2 = _v1.b.a;
+		return _Utils_eq(e1.to, e2.to);
+	} else {
+		return false;
+	}
+};
+var $author$project$GraphProof$getAllValidDiagrams = function (g) {
+	var inc = $author$project$GraphProof$adjacentEdges(g);
+	var starts = A2(
+		$elm$core$List$map,
+		function (_v6) {
+			var e1 = _v6.a;
+			var e2 = _v6.b;
+			return _Utils_Tuple2(e2, e1);
+		},
+		A2(
+			$elm$core$List$filter,
+			function (_v5) {
+				var e1 = _v5.a;
+				var e2 = _v5.b;
+				return (!e1.incoming) && (!e2.incoming);
+			},
+			inc));
+	var nextRights = A2(
+		$elm$core$List$map,
+		function (_v4) {
+			var e1 = _v4.a;
+			var e2 = _v4.b;
+			return _Utils_Tuple2(e2, e1);
+		},
+		A2(
+			$elm$core$List$filter,
+			function (_v3) {
+				var e1 = _v3.a;
+				var e2 = _v3.b;
+				return (!e1.incoming) && e2.incoming;
+			},
+			inc));
+	var nextLefts = A2(
+		$elm$core$List$filter,
+		function (_v2) {
+			var e1 = _v2.a;
+			var e2 = _v2.b;
+			return e1.incoming && (!e2.incoming);
+		},
+		inc);
+	var buildBranch = F2(
+		function (next, startEdge) {
+			var _v0 = A2($elm_community$intdict$IntDict$get, startEdge.id, next);
+			if (_v0.$ === 'Nothing') {
+				return _List_fromArray(
+					[startEdge]);
+			} else {
+				var e = _v0.a;
+				return A2(
+					$elm$core$List$cons,
+					startEdge,
+					A2(buildBranch, next, e));
+			}
+		});
+	var diags = A2(
+		$elm$core$List$map,
+		function (_v1) {
+			var rhs = _v1.a;
+			var lhs = _v1.b;
+			return {
+				lhs: A2(
+					buildBranch,
+					$author$project$GraphProof$adjacentListToDict(nextRights),
+					lhs.edge),
+				proof: $elm$core$Maybe$Nothing,
+				rhs: A2(
+					buildBranch,
+					$author$project$GraphProof$adjacentListToDict(nextLefts),
+					rhs.edge)
+			};
+		},
+		starts);
+	var validDiags = A2($elm$core$List$filter, $author$project$GraphProof$checkEndPoints, diags);
+	return validDiags;
+};
+var $author$project$GraphProof$invertDiagram = function (_v0) {
+	var lhs = _v0.lhs;
+	var rhs = _v0.rhs;
+	var proof = _v0.proof;
+	return {lhs: rhs, proof: proof, rhs: lhs};
+};
+var $author$project$Geometry$Point$sumAngles = function (l) {
+	if (!l.b) {
+		return 0;
+	} else {
+		if (!l.b.b) {
+			return 0;
+		} else {
+			var a = l.a;
+			var _v1 = l.b;
+			var b = _v1.a;
+			var tl = _v1.b;
+			var sr = A2($author$project$Geometry$Point$distanceAngleSigned, a, b);
+			return sr + $author$project$Geometry$Point$sumAngles(
+				A2($elm$core$List$cons, b, tl));
+		}
+	}
+};
+var $author$project$Geometry$Point$countRounds = function (l) {
+	return $author$project$Geometry$Point$countRoundsAngle(
+		$author$project$Geometry$Point$sumAngles(l));
+};
+var $author$project$GraphProof$isOuterDiagram = function (_v0) {
+	var lhs = _v0.lhs;
+	var rhs = _v0.rhs;
+	var makeAngles = function (angleField) {
+		return $elm$core$List$map(
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.label;
+				},
+				angleField));
+	};
+	var anglesRhs = A2(
+		makeAngles,
+		function ($) {
+			return $.angleOut;
+		},
+		rhs);
+	var anglesLhs = A2(
+		makeAngles,
+		function ($) {
+			return $.angleIn;
+		},
+		lhs);
+	var angles = A2(
+		$elm$core$List$cons,
+		A2(
+			$elm$core$Maybe$withDefault,
+			0,
+			$elm$core$List$head(anglesRhs)),
+		_Utils_ap(
+			anglesLhs,
+			$elm$core$List$reverse(anglesRhs)));
+	var _v1 = A2(
+		$elm$core$List$map,
+		A2(
+			$elm$core$Basics$composeR,
+			function ($) {
+				return $.label;
+			},
+			function ($) {
+				return $.label;
+			}),
+		lhs);
+	var _v2 = anglesLhs;
+	return _Utils_eq(
+		$author$project$Geometry$Point$countRounds(angles),
+		-1);
+};
+var $author$project$GraphProof$nameIdentities = A4(
+	$author$project$Polygraph$mapRecAll,
+	function (n) {
+		return n.label;
+	},
+	function (n) {
+		return n.label;
+	},
+	F2(
+		function (_v0, n) {
+			return n;
+		}),
+	F4(
+		function (_v1, fromLabel, _v2, l) {
+			return _Utils_update(
+				l,
+				{
+					label: ((l.label === '') && l.identity) ? ('|' + (fromLabel + '|')) : l.label
+				});
+		}));
+var $elm_community$maybe_extra$Maybe$Extra$isJust = function (m) {
+	if (m.$ === 'Nothing') {
+		return false;
+	} else {
+		return true;
+	}
+};
+var $author$project$GraphProof$proofNodes = function (g) {
+	return A2(
+		$elm$core$List$filter,
+		A2(
+			$elm$core$Basics$composeR,
+			function ($) {
+				return $.label;
+			},
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.proof;
+				},
+				$elm_community$maybe_extra$Maybe$Extra$isJust)),
+		$author$project$Polygraph$nodes(g));
+};
+var $author$project$GraphProof$fullProofs = function (g0) {
+	var g = $author$project$GraphProof$nameIdentities(g0);
+	var diags = $author$project$GraphProof$getAllValidDiagrams(g);
+	var _v0 = A2($elm$core$List$partition, $author$project$GraphProof$isOuterDiagram, diags);
+	var bigDiags = _v0.a;
+	var smallDiags_without_proofs = _v0.b;
+	var smallProofs = $author$project$GraphProof$proofNodes(g);
+	var updateDiag = function (d) {
+		return _Utils_update(
+			d,
+			{
+				proof: A3($author$project$GraphProof$findProofOfDiagram, g, smallProofs, d)
+			});
+	};
+	var smallDiags = A2($elm$core$List$map, updateDiag, smallDiags_without_proofs);
+	return A2(
+		$elm$core$List$filter,
+		$author$project$GraphProof$finishedProof,
+		A2(
+			$elm$core$List$map,
+			function (d) {
+				return {
+					proof: A2(
+						$author$project$GraphProof$commuteProof,
+						smallDiags,
+						A2(
+							$elm$core$List$map,
+							function ($) {
+								return $.id;
+							},
+							d.lhs)),
+					statement: d
+				};
+			},
+			A2($elm$core$List$map, $author$project$GraphProof$invertDiagram, bigDiags)));
+};
+var $author$project$GraphProof$debugEdgeName = function (id) {
+	return 'e' + $elm$core$String$fromInt(id);
+};
+var $author$project$GraphProof$edgesOfDiag = function (d) {
+	var setOf = function (e) {
+		return _Utils_Tuple2(
+			e.id,
+			{from: e.from, to: e.to});
+	};
+	return $elm_community$intdict$IntDict$fromList(
+		_Utils_ap(
+			A2($elm$core$List$map, setOf, d.lhs),
+			A2($elm$core$List$map, setOf, d.rhs)));
+};
+var $elm$core$Set$fromList = function (list) {
+	return A3($elm$core$List$foldl, $elm$core$Set$insert, $elm$core$Set$empty, list);
+};
+var $elm_community$list_extra$List$Extra$reverseMap = F2(
+	function (f, xs) {
+		return A3(
+			$elm$core$List$foldl,
+			F2(
+				function (x, acc) {
+					return A2(
+						$elm$core$List$cons,
+						f(x),
+						acc);
+				}),
+			_List_Nil,
+			xs);
+	});
+var $author$project$GraphProof$nodesOfDiag = function (d) {
+	return _Utils_ap(
+		A2(
+			$elm$core$List$map,
+			function ($) {
+				return $.from;
+			},
+			d.lhs),
+		A2(
+			$elm_community$list_extra$List$Extra$reverseMap,
+			function ($) {
+				return $.to;
+			},
+			d.rhs));
+};
+var $author$project$GraphProof$getToThePoint = F2(
+	function (startOffset, backOffset) {
+		return 'yade_strip ' + ($elm$core$String$fromInt(startOffset) + (' ' + ($elm$core$String$fromInt(backOffset) + '.')));
+	});
+var $author$project$Verbatim$removeVerbatim = function (s) {
+	return A2(
+		$elm$core$Maybe$withDefault,
+		s,
+		$author$project$Verbatim$extractVerbatim(s));
+};
+var $author$project$GraphProof$statementToString = function (d) {
+	var expand = function (s) {
+		return (s === '') ? '{_}' : s;
+	};
+	var edgeToString = A2(
+		$elm$core$Basics$composeR,
+		$elm$core$List$map(
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.label;
+				},
+				A2(
+					$elm$core$Basics$composeR,
+					function ($) {
+						return $.label;
+					},
+					A2($elm$core$Basics$composeR, expand, $author$project$Verbatim$removeVerbatim)))),
+		$elm$core$String$join(' · '));
+	return '<YADE> ' + (edgeToString(d.lhs) + (' = ' + (edgeToString(d.rhs) + ' </YADE>')));
+};
+var $author$project$GraphProof$proofStepToString = function (_v0) {
+	var startOffset = _v0.startOffset;
+	var backOffset = _v0.backOffset;
+	var diag = _v0.diag;
+	return 'eapply yade.transitivity.\n' + (A2($author$project$GraphProof$getToThePoint, startOffset, backOffset) + ('\n' + ('refine (_ :> ' + ($author$project$GraphProof$statementToString(diag) + (').\n' + ('{\n' + ('  ' + (A2($elm$core$Maybe$withDefault, 'admit.', diag.proof) + '\n}\nrepeat rewrite -> yade.assoc\'\'.\n'))))))));
+};
+var $author$project$GraphProof$renameDebugDiag = function (diag) {
+	var renameEdge = function (e) {
+		var label = e.label;
+		return _Utils_update(
+			e,
+			{
+				label: _Utils_update(
+					label,
+					{
+						label: $author$project$GraphProof$debugEdgeName(e.id)
+					})
+			});
+	};
+	return {
+		lhs: A2($elm$core$List$map, renameEdge, diag.lhs),
+		proof: $elm$core$Maybe$Nothing,
+		rhs: A2($elm$core$List$map, renameEdge, diag.rhs)
+	};
+};
+var $author$project$GraphProof$renameDebugProofStep = function (step) {
+	return _Utils_update(
+		step,
+		{
+			diag: $author$project$GraphProof$renameDebugDiag(step.diag)
+		});
+};
+var $elm$core$Set$union = F2(
+	function (_v0, _v1) {
+		var dict1 = _v0.a;
+		var dict2 = _v1.a;
+		return $elm$core$Set$Set_elm_builtin(
+			A2($elm$core$Dict$union, dict1, dict2));
+	});
+var $author$project$GraphProof$proofStatementToDebugString = function (st) {
+	var nodes = A3(
+		$elm$core$List$foldl,
+		$elm$core$Set$union,
+		$elm$core$Set$empty,
+		A2(
+			$elm$core$List$map,
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.diag;
+				},
+				A2($elm$core$Basics$composeR, $author$project$GraphProof$nodesOfDiag, $elm$core$Set$fromList)),
+			st.proof));
+	var edges = A3(
+		$elm$core$List$foldl,
+		$elm_community$intdict$IntDict$union,
+		$elm_community$intdict$IntDict$empty,
+		A2(
+			$elm$core$List$map,
+			A2(
+				$elm$core$Basics$composeR,
+				function ($) {
+					return $.diag;
+				},
+				$author$project$GraphProof$edgesOfDiag),
+			st.proof));
+	var nidS = function (id) {
+		return 'o' + $elm$core$String$fromInt(id);
+	};
+	return 'Goal ' + ('∏ (C : category)\n  ' + (A2(
+		$elm$core$String$join,
+		'',
+		A2(
+			$elm$core$List$map,
+			function (id) {
+				return '(' + (nidS(id) + ' : C)');
+			},
+			$elm$core$Set$toList(nodes))) + ('\n  ' + (A2(
+		$elm$core$String$join,
+		'',
+		A2(
+			$elm$core$List$map,
+			function (_v0) {
+				var id = _v0.a;
+				var from = _v0.b.from;
+				var to = _v0.b.to;
+				return '(' + ($author$project$GraphProof$debugEdgeName(id) + (' : ' + (nidS(from) + (' --> ' + (nidS(to) + ')')))));
+			},
+			$elm_community$intdict$IntDict$toList(edges))) + (',\n  ' + ($author$project$GraphProof$statementToString(
+		$author$project$GraphProof$renameDebugDiag(st.statement)) + ('.\n\nintros.\n' + (A2(
+		$elm$core$String$join,
+		'\n',
+		A2(
+			$elm$core$List$map,
+			A2($elm$core$Basics$composeR, $author$project$GraphProof$renameDebugProofStep, $author$project$GraphProof$proofStepToString),
+			st.proof)) + '\n reflexivity.'))))))));
+};
+var $author$project$GraphProof$proofStatementToString = function (st) {
+	return 'change (' + ($author$project$GraphProof$statementToString(st.statement) + (').\n\n' + (A2(
+		$elm$core$String$join,
+		'\n',
+		A2($elm$core$List$map, $author$project$GraphProof$proofStepToString, st.proof)) + ('\n reflexivity.' + '\nQed.'))));
+};
+var $author$project$Polygraph$invalidEdges = function (fullGraph) {
+	var g = $author$project$Polygraph$graphRep(fullGraph);
+	var dict = A6(
+		$author$project$Polygraph$mapRecAux,
+		$elm$core$Basics$always(_Utils_Tuple0),
+		$elm$core$Basics$always(_Utils_Tuple0),
+		$elm$core$Basics$always($elm$core$Basics$identity),
+		F3(
+			function (_v2, _v3, _v4) {
+				return $elm$core$Basics$identity;
+			}),
+		A2(
+			$elm_community$intdict$IntDict$map,
+			function (_v5) {
+				return $author$project$Polygraph$Input;
+			},
+			g),
+		$elm_community$intdict$IntDict$keys(g));
+	var l = $elm_community$intdict$IntDict$toList(dict);
+	var missings = A2(
+		$elm$core$List$filterMap,
+		function (_v0) {
+			var id = _v0.a;
+			var o = _v0.b;
+			if (o.$ === 'Waiting') {
+				var i1 = o.a;
+				var i2 = o.b;
+				var e = o.c;
+				return $elm$core$Maybe$Just(
+					{from: i1, id: id, label: e, to: i2});
+			} else {
+				return $elm$core$Maybe$Nothing;
+			}
+		},
+		l);
+	return missings;
+};
+var $author$project$Polygraph$sanitise = function (g) {
+	var d = $author$project$Polygraph$graphRep(g);
+	var ids = A2(
+		$elm$core$List$map,
+		function ($) {
+			return $.id;
+		},
+		$author$project$Polygraph$invalidEdges(g));
+	return A2(
+		$author$project$Polygraph$setGraphRep,
+		g,
+		A2($author$project$IntDictExtra$removeList, ids, d));
+};
+var $author$project$Polygraph$filterMap = F3(
+	function (fn, fe, g) {
+		var g2 = A3(
+			$author$project$Polygraph$rawFilterMap,
+			fn,
+			fe,
+			$author$project$Polygraph$graphRep(g));
+		return $author$project$Polygraph$sanitise(
+			A2($author$project$Polygraph$setGraphRep, g, g2));
+	});
+var $elm$core$String$trim = _String_trim;
+var $author$project$GraphDefs$getProofFromLabel = function (s) {
+	var s2 = $elm$core$String$trim(s);
+	var prefix = '\\' + ($author$project$GraphDefs$coqProofTexCommand + '{');
+	return A2($elm$core$String$startsWith, prefix, s2) ? $elm$core$Maybe$Just(
+		A3(
+			$elm$core$String$slice,
+			$elm$core$String$length(prefix),
+			-1,
+			s2)) : $elm$core$Maybe$Nothing;
+};
+var $author$project$Polygraph$loopsIds = function (g) {
+	return $elm_community$intdict$IntDict$keys(
+		A3(
+			$author$project$Polygraph$rawFilterIds,
+			$elm$core$Basics$always(false),
+			F3(
+				function (id1, id2, _v0) {
+					return _Utils_eq(id1, id2);
+				}),
+			g));
+};
+var $author$project$Polygraph$removeList = F2(
+	function (l, g) {
+		return $author$project$Polygraph$sanitise(
+			A2(
+				$author$project$Polygraph$mapRep,
+				$author$project$Polygraph$rawRemoveList(l),
+				g));
+	});
+var $author$project$Polygraph$removeLoops = function (g) {
+	return A2(
+		$author$project$Polygraph$removeList,
+		$author$project$Polygraph$loopsIds(
+			$author$project$Polygraph$graphRep(g)),
+		g);
+};
+var $author$project$GraphDefs$toProofGraph = A2(
+	$elm$core$Basics$composeR,
+	$author$project$Polygraph$removeLoops,
+	A2(
+		$elm$core$Basics$composeR,
+		$author$project$GraphDefs$posGraph,
+		A2(
+			$elm$core$Basics$composeR,
+			A2(
+				$author$project$Polygraph$filterMap,
+				$elm$core$Maybe$Just,
+				function (e) {
+					var _v0 = _Utils_Tuple2(
+						$author$project$GraphDefs$filterLabelNormal(e.label),
+						e.shape);
+					if ((_v0.a.$ === 'Just') && (_v0.b.$ === 'Bezier')) {
+						var l = _v0.a.a;
+						var b = _v0.b.a;
+						return $elm$core$Maybe$Just(
+							{bezier: b, details: l.details});
+					} else {
+						return $elm$core$Maybe$Nothing;
+					}
+				}),
+			A2(
+				$author$project$Polygraph$map,
+				F2(
+					function (_v1, n) {
+						return {
+							label: n.label,
+							pos: n.pos,
+							proof: $author$project$GraphDefs$getProofFromLabel(n.label)
+						};
+					}),
+				F2(
+					function (_v2, _v3) {
+						var details = _v3.details;
+						var bezier = _v3.bezier;
+						return {
+							angleIn: $author$project$Geometry$Point$pointToAngle(
+								A2($author$project$Geometry$Point$subtract, bezier.controlPoint, bezier.from)),
+							angleOut: $author$project$Geometry$Point$pointToAngle(
+								A2($author$project$Geometry$Point$subtract, bezier.controlPoint, bezier.to)),
+							from: bezier.from,
+							identity: $author$project$ArrowStyle$isDouble(details.style),
+							label: details.label,
+							pos: $author$project$Geometry$QuadraticBezier$middle(bezier),
+							to: bezier.to
+						};
+					})))));
+var $author$project$Main$generateProofString = F2(
+	function (debug, g) {
+		var stToString = debug ? $author$project$GraphProof$proofStatementToDebugString : $author$project$GraphProof$proofStatementToString;
+		var s = A2(
+			$elm$core$String$join,
+			'\n\n',
+			A2(
+				$elm$core$List$map,
+				stToString,
+				$author$project$GraphProof$fullProofs(
+					$author$project$GraphDefs$toProofGraph(g))));
+		return s;
+	});
+var $author$project$Main$coqExport = F2(
+	function (model, graph) {
+		var s = A2($author$project$Main$generateProofString, false, graph);
+		return (s === '') ? '(* No diagram found *)' : s;
 	});
 var $author$project$GraphDefs$clearWeakSelection = function (g) {
 	return A3(
@@ -23360,6 +25226,36 @@ var $author$project$Drawing$nodeToSvg = F2(
 						A2($author$project$Drawing$withPreamble, arg.preamble, arg.label)))
 				]));
 	});
+var $author$project$String$Svg$points = $author$project$String$Html$attribute('points');
+var $author$project$String$Svg$polyline = $author$project$String$Svg$node('polyline');
+var $author$project$Drawing$singlePolylineToSvg = F2(
+	function (arg, attrs) {
+		var coordToString = function (x) {
+			return $elm$core$String$fromInt(x | 0);
+		};
+		return A2(
+			$author$project$String$Svg$polyline,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						$author$project$String$Svg$fill('none'),
+						$author$project$String$Svg$strokeFromColor(arg.color),
+						$author$project$String$Svg$points(
+						A2(
+							$elm$core$String$join,
+							' ',
+							A2(
+								$elm$core$List$map,
+								function (_v0) {
+									var x = _v0.a;
+									var y = _v0.b;
+									return coordToString(x) + (',' + coordToString(y));
+								},
+								arg.points)))
+					]),
+				A2($elm$core$List$map, $author$project$String$Html$ghostAttribute, attrs)),
+			_List_Nil);
+	});
 var $author$project$Drawing$tikzShapeToSvg = F2(
 	function (shape, attrs) {
 		switch (shape.$) {
@@ -23369,9 +25265,12 @@ var $author$project$Drawing$tikzShapeToSvg = F2(
 			case 'Line':
 				var arg = shape.a;
 				return A2($author$project$Drawing$lineToSvg, arg, attrs);
-			default:
+			case 'Arrow':
 				var arg = shape.a;
 				return A2($author$project$Drawing$arrowToSvg, arg, attrs);
+			default:
+				var arg = shape.a;
+				return A2($author$project$Drawing$singlePolylineToSvg, arg, attrs);
 		}
 	});
 var $author$project$Drawing$shapeToSvg = function (shape) {
@@ -23516,7 +25415,6 @@ var $author$project$String$Html$toHtmlString = function (root) {
 			return $zwilias$elm_html_string$Html$String$text(s);
 	}
 };
-var $elm$core$Bitwise$shiftRightBy = _Bitwise_shiftRightBy;
 var $elm$core$String$repeatHelp = F3(
 	function (n, chunk, result) {
 		return (n <= 0) ? result : A3(
@@ -23931,8 +25829,8 @@ var $author$project$String$Svg$viewBox = function (_v0) {
 		'viewbox',
 		f(a1) + (' ' + (f(b1) + (' ' + (f(a2 - a1) + (' ' + f(b2 - b1)))))));
 };
-var $author$project$Main$svgExport = F2(
-	function (model, graph) {
+var $author$project$Main$svgExport = F3(
+	function (model, graph, freehandDrawings) {
 		var g = $author$project$GraphDefs$clearWeakSelection(
 			$author$project$GraphDefs$clearSelection(graph));
 		var box = $author$project$Geometry$rectFromPosDims(
@@ -23947,17 +25845,27 @@ var $author$project$Main$svgExport = F2(
 				[
 					$author$project$String$Svg$viewBox(box)
 				]),
-			A2(
-				$author$project$Main$toDrawing,
-				model,
-				$author$project$GraphDrawing$toDrawingGraph(g)));
+			$author$project$Drawing$group(
+				_List_fromArray(
+					[
+						A2(
+						$author$project$Main$toDrawing,
+						model,
+						$author$project$GraphDrawing$toDrawingGraph(g)),
+						A2(
+						$author$project$Main$drawFreeHand,
+						$elm$core$Basics$always(_List_Nil),
+						freehandDrawings)
+					])));
 	});
 var $author$project$Main$makeExports = function (model) {
-	var modelGraph = $author$project$Model$getActiveGraph(model);
+	var tab = $author$project$Model$getActiveTab(model);
+	var modelGraph = tab.graph;
+	var freehand = tab.freehandDrawings;
 	return {
 		coq: A2($author$project$Main$coqExport, model, modelGraph),
-		svg: A2($author$project$Main$svgExport, model, modelGraph),
-		tex: A2($author$project$Main$graphToTikz, model, modelGraph)
+		svg: A3($author$project$Main$svgExport, model, modelGraph, freehand),
+		tex: A3($author$project$Main$allToTikz, model, modelGraph, freehand)
 	};
 };
 var $author$project$Main$saveGraph = _Platform_outgoingPort(
@@ -24046,6 +25954,32 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 																							$elm$json$Json$Encode$int($.to))
 																						]));
 																			})($.edges)),
+																		_Utils_Tuple2(
+																		'freehandDrawings',
+																		$elm$json$Json$Encode$list(
+																			function ($) {
+																				return $elm$json$Json$Encode$object(
+																					_List_fromArray(
+																						[
+																							_Utils_Tuple2(
+																							'offsets',
+																							$elm$json$Json$Encode$string($.offsets)),
+																							_Utils_Tuple2(
+																							'start',
+																							function ($) {
+																								var a = $.a;
+																								var b = $.b;
+																								return A2(
+																									$elm$json$Json$Encode$list,
+																									$elm$core$Basics$identity,
+																									_List_fromArray(
+																										[
+																											$elm$json$Json$Encode$float(a),
+																											$elm$json$Json$Encode$float(b)
+																										]));
+																							}($.start))
+																						]));
+																			})($.freehandDrawings)),
 																		_Utils_Tuple2(
 																		'id',
 																		$elm$json$Json$Encode$int($.id)),
@@ -24225,12 +26159,12 @@ var $author$project$Format$GraphInfo$normalise = function (gi) {
 var $author$project$Model$toGraphInfo = function (m) {
 	return m.graphInfo;
 };
-var $author$project$Format$Version17$toJSGraph = function (g) {
-	return A2($author$project$Codec$encoder, $author$project$Format$Version17$graphInfoCodec, g);
+var $author$project$Format$Version18$toJSGraph = function (g) {
+	return A2($author$project$Codec$encoder, $author$project$Format$Version18$graphInfoCodec, g);
 };
-var $author$project$Format$LastVersion$toJSGraph = $author$project$Format$Version17$toJSGraph;
-var $author$project$Format$Version17$version = 17;
-var $author$project$Format$LastVersion$version = $author$project$Format$Version17$version;
+var $author$project$Format$LastVersion$toJSGraph = $author$project$Format$Version18$toJSGraph;
+var $author$project$Format$Version18$version = 18;
+var $author$project$Format$LastVersion$version = $author$project$Format$Version18$version;
 var $author$project$Main$toJsGraphInfo = function (model) {
 	return {
 		graph: $author$project$Format$LastVersion$toJSGraph(
@@ -24472,6 +26406,32 @@ var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
 																							$elm$json$Json$Encode$int($.to))
 																						]));
 																			})($.edges)),
+																		_Utils_Tuple2(
+																		'freehandDrawings',
+																		$elm$json$Json$Encode$list(
+																			function ($) {
+																				return $elm$json$Json$Encode$object(
+																					_List_fromArray(
+																						[
+																							_Utils_Tuple2(
+																							'offsets',
+																							$elm$json$Json$Encode$string($.offsets)),
+																							_Utils_Tuple2(
+																							'start',
+																							function ($) {
+																								var a = $.a;
+																								var b = $.b;
+																								return A2(
+																									$elm$json$Json$Encode$list,
+																									$elm$core$Basics$identity,
+																									_List_fromArray(
+																										[
+																											$elm$json$Json$Encode$float(a),
+																											$elm$json$Json$Encode$float(b)
+																										]));
+																							}($.start))
+																						]));
+																			})($.freehandDrawings)),
 																		_Utils_Tuple2(
 																		'id',
 																		$elm$json$Json$Encode$int($.id)),
@@ -26716,6 +28676,129 @@ var $author$project$Modes$CutHead$update = F3(
 		}
 		return $author$project$Model$noCmd(m);
 	});
+var $author$project$Modes$DeleteFreeHandMode = function (a) {
+	return {$: 'DeleteFreeHandMode', a: a};
+};
+var $author$project$CommandCodec$updateModif = F2(
+	function (model, modif) {
+		return _Utils_Tuple2(
+			model,
+			A2($author$project$CommandCodec$protocolSendModif, $author$project$Msg$defaultModifId, modif));
+	});
+var $author$project$Modes$Delfreehand$update = F3(
+	function (state, msg, model) {
+		var finalise = function (_v2) {
+			var newModel = A2($author$project$Model$setMode, $author$project$Modes$DefaultMode, model);
+			var _v1 = state.ids;
+			if (!_v1.b) {
+				return $author$project$Model$noCmd(newModel);
+			} else {
+				return A2(
+					$author$project$CommandCodec$updateModif,
+					newModel,
+					A2($author$project$Format$GraphInfo$FreehandRemove, newModel.graphInfo.activeTabId, state.ids));
+			}
+		};
+		_v0$3:
+		while (true) {
+			switch (msg.$) {
+				case 'MouseOnHandFree':
+					var id = msg.a;
+					return $author$project$Model$noCmd(
+						A2(
+							$author$project$Model$setMode,
+							$author$project$Modes$DeleteFreeHandMode(
+								_Utils_update(
+									state,
+									{
+										ids: A2($elm$core$List$cons, id, state.ids)
+									})),
+							model));
+				case 'KeyChanged':
+					if (!msg.a) {
+						if (msg.c.$ === 'Control') {
+							if (msg.c.a === 'Escape') {
+								return $author$project$Model$switch_Default(model);
+							} else {
+								break _v0$3;
+							}
+						} else {
+							if (',' === msg.c.a.valueOf()) {
+								return finalise(_Utils_Tuple0);
+							} else {
+								break _v0$3;
+							}
+						}
+					} else {
+						break _v0$3;
+					}
+				default:
+					break _v0$3;
+			}
+		}
+		return $author$project$Model$noCmd(model);
+	});
+var $author$project$Modes$FreeHandMode = function (a) {
+	return {$: 'FreeHandMode', a: a};
+};
+var $author$project$Modes$Freehand$update = F3(
+	function (state, msg, model) {
+		var finalise = function (_v2) {
+			var newModel = A2($author$project$Model$setMode, $author$project$Modes$DefaultMode, model);
+			var _v1 = state.points;
+			if (!_v1.b) {
+				return $author$project$Model$noCmd(newModel);
+			} else {
+				if (!_v1.b.b) {
+					return $author$project$Model$noCmd(newModel);
+				} else {
+					return A2(
+						$author$project$CommandCodec$updateModif,
+						newModel,
+						A2($author$project$Format$GraphInfo$FreehandAdd, newModel.graphInfo.activeTabId, state.points));
+				}
+			}
+		};
+		_v0$4:
+		while (true) {
+			switch (msg.$) {
+				case 'MouseMove':
+					return $author$project$Model$noCmd(
+						A2(
+							$author$project$Model$setMode,
+							$author$project$Modes$FreeHandMode(
+								_Utils_update(
+									state,
+									{
+										points: A2($elm$core$List$cons, model.mousePos, state.points)
+									})),
+							model));
+				case 'KeyChanged':
+					if (!msg.a) {
+						if (msg.c.$ === 'Control') {
+							if (msg.c.a === 'Escape') {
+								return $author$project$Model$switch_Default(model);
+							} else {
+								break _v0$4;
+							}
+						} else {
+							if ('d' === msg.c.a.valueOf()) {
+								return finalise(_Utils_Tuple0);
+							} else {
+								break _v0$4;
+							}
+						}
+					} else {
+						break _v0$4;
+					}
+				case 'PenUp':
+					return finalise(_Utils_Tuple0);
+				default:
+					break _v0$4;
+			}
+		}
+		return $author$project$Model$noCmd(model);
+	});
 var $author$project$Modes$Horizontal = {$: 'Horizontal'};
 var $author$project$Modes$Vertical = {$: 'Vertical'};
 var $author$project$Polygraph$drop = F2(
@@ -27384,9 +29467,6 @@ var $author$project$ArrowStyle$keyMaybeUpdateStyle = F2(
 		}
 		return $elm$core$Maybe$Nothing;
 	});
-var $author$project$Modes$CreateArrow = function (a) {
-	return {$: 'CreateArrow', a: a};
-};
 var $author$project$Modes$CreateCone = {$: 'CreateCone'};
 var $author$project$Modes$CreateCylinder = {$: 'CreateCylinder'};
 var $elm$core$List$isEmpty = function (xs) {
@@ -27403,13 +29483,9 @@ var $author$project$Modes$NewArrow$nextPossibleKind = function (s) {
 			return $elm$core$Maybe$Nothing;
 		case 'CreateCylinder':
 			return $elm$core$Maybe$Just($author$project$Modes$CreateCone);
-		case 'CreateArrow':
+		default:
 			return $elm$core$List$isEmpty(
 				$author$project$Polygraph$edges(s.chosen)) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just($author$project$Modes$CreateCylinder);
-		default:
-			var id = _v0.a;
-			return $elm$core$Maybe$Just(
-				$author$project$Modes$CreateArrow(id));
 	}
 };
 var $author$project$Modes$NewArrow$getStyle = function (state) {
@@ -27488,7 +29564,7 @@ var $author$project$Modes$NewArrow$moveNodeInfo = F4(
 						nodeLabel,
 						edgeLabel,
 						state.inverted);
-				case 'CreateArrow':
+				default:
 					var id = _v0.a;
 					return A5(
 						$author$project$Polygraph$md_makeCone,
@@ -27498,17 +29574,6 @@ var $author$project$Modes$NewArrow$moveNodeInfo = F4(
 						nodeLabel,
 						edgeLabel,
 						state.inverted);
-				default:
-					var id = _v0.a;
-					var _v1 = A4($author$project$Polygraph$md_newEdge, modifGraph, id, id, edgeLabel);
-					var modif = _v1.a;
-					var edgeId = _v1.b;
-					return {
-						edgeIds: _List_fromArray(
-							[edgeId]),
-						extendedGraph: modif,
-						newSubGraph: $author$project$Polygraph$empty
-					};
 			}
 		}();
 		var moveInfo = A7($author$project$Modes$Move$mkGraph, model, state.pos, $author$project$Modes$Free, merge, extendedGraph.extendedGraph, modelGraph, extendedGraph.newSubGraph);
@@ -27580,39 +29645,6 @@ var $author$project$Modes$NewArrow$requestMarkerDefault = function (s) {
 	return $author$project$Modes$NewArrow$requestMarker(
 		(s === '') ? '\\bullet' : s);
 };
-var $author$project$Modes$CreateLoop = function (a) {
-	return {$: 'CreateLoop', a: a};
-};
-var $author$project$Modes$NewArrow$toggleLoop = F2(
-	function (model, state) {
-		var _v0 = state.kind;
-		switch (_v0.$) {
-			case 'CreateArrow':
-				var id = _v0.a;
-				var _v1 = A2($elm$core$Debug$log, 'Switching from Loop to Arrow', id);
-				return A2(
-					$author$project$Modes$NewArrow$updateState,
-					model,
-					_Utils_update(
-						state,
-						{
-							kind: $author$project$Modes$CreateLoop(id)
-						}));
-			case 'CreateLoop':
-				var id = _v0.a;
-				var _v2 = A2($elm$core$Debug$log, 'Switching from Arrow to Loop', id);
-				return A2(
-					$author$project$Modes$NewArrow$updateState,
-					model,
-					_Utils_update(
-						state,
-						{
-							kind: $author$project$Modes$CreateArrow(id)
-						}));
-			default:
-				return model;
-		}
-	});
 var $author$project$Modes$NewArrow$handleCapture = F4(
 	function (model, captureState, msg, updateFunc) {
 		var result = A2($author$project$Modes$Capture$update, captureState, msg);
@@ -27726,7 +29758,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 							mode: $author$project$Modes$NewArrowPart(m)
 						}))) : $author$project$Model$noCmd(model);
 		};
-		_v0$24:
+		_v0$23:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseClick':
@@ -27752,7 +29784,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 							return next(
 								{finish: false, merge: true});
 						} else {
-							break _v0$24;
+							break _v0$23;
 						}
 					} else {
 						if (msg.c.$ === 'Control') {
@@ -27766,7 +29798,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 									return next(
 										{finish: false, merge: state.merge || state.isAdjunction});
 								default:
-									break _v0$24;
+									break _v0$23;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -27826,12 +29858,6 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 											_Utils_update(
 												state,
 												{inverted: !state.inverted})));
-								case 'L':
-									return $author$project$Model$noCmd(
-										A2(
-											$author$project$Modes$NewArrow$toggleLoop,
-											model,
-											A2($elm$core$Debug$log, 'state loop', state)));
 								case 'p':
 									return pullshoutMode($author$project$Modes$Pullback);
 								case 'P':
@@ -27861,12 +29887,12 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 												state,
 												{kind: kind})));
 								default:
-									break _v0$24;
+									break _v0$23;
 							}
 						}
 					}
 				default:
-					break _v0$24;
+					break _v0$23;
 			}
 		}
 		var _v1 = A3($author$project$Modes$NewArrow$updateCapture, state, msg, model);
@@ -28800,7 +30826,6 @@ var $author$project$Modes$Square$nToMoved = F2(
 var $elm$core$List$product = function (numbers) {
 	return A3($elm$core$List$foldl, $elm$core$Basics$mul, 1, numbers);
 };
-var $elm$core$String$fromList = _String_fromList;
 var $author$project$MyDiff$apply = F2(
 	function (c, l) {
 		var _v0 = A2($elm_community$list_extra$List$Extra$splitAt, c.index, l);
@@ -29035,7 +31060,6 @@ var $elm$core$Array$getHelp = F3(
 			}
 		}
 	});
-var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
 var $elm$core$Array$tailIndex = function (len) {
 	return (len >>> 5) << 5;
 };
@@ -29435,10 +31459,6 @@ var $author$project$MyDiff$swapDiff = F4(
 			$author$project$MyDiff$applyAll(l1),
 			A3($author$project$MyDiff$commuteAll, lr, cl2, cl1));
 	});
-var $elm$core$String$foldr = _String_foldr;
-var $elm$core$String$toList = function (string) {
-	return A3($elm$core$String$foldr, $elm$core$List$cons, _List_Nil, string);
-};
 var $author$project$MyDiff$swapDiffStr = F4(
 	function (lr, s1, s2, s3) {
 		return A2(
@@ -29790,12 +31810,6 @@ var $author$project$Modes$Square$update = F3(
 		}
 		return $author$project$Model$noCmd(model);
 	});
-var $author$project$CommandCodec$updateModif = F2(
-	function (model, modif) {
-		return _Utils_Tuple2(
-			model,
-			A2($author$project$CommandCodec$protocolSendModif, $author$project$Msg$defaultModifId, modif));
-	});
 var $author$project$Polygraph$updateNode = F3(
 	function (i, fn, g) {
 		return A4($author$project$Polygraph$update, i, fn, $elm$core$Basics$identity, g);
@@ -29819,7 +31833,6 @@ var $author$project$Main$update_DebugMode = F2(
 			return $author$project$Model$noCmd(model);
 		}
 	});
-var $author$project$Modes$DebugMode = {$: 'DebugMode'};
 var $author$project$Modes$LatexPreamble = function (a) {
 	return {$: 'LatexPreamble', a: a};
 };
@@ -29942,6 +31955,32 @@ var $author$project$Main$clipboardWriteGraph = _Platform_outgoingPort(
 																			$elm$json$Json$Encode$int($.to))
 																		]));
 															})($.edges)),
+														_Utils_Tuple2(
+														'freehandDrawings',
+														$elm$json$Json$Encode$list(
+															function ($) {
+																return $elm$json$Json$Encode$object(
+																	_List_fromArray(
+																		[
+																			_Utils_Tuple2(
+																			'offsets',
+																			$elm$json$Json$Encode$string($.offsets)),
+																			_Utils_Tuple2(
+																			'start',
+																			function ($) {
+																				var a = $.a;
+																				var b = $.b;
+																				return A2(
+																					$elm$json$Json$Encode$list,
+																					$elm$core$Basics$identity,
+																					_List_fromArray(
+																						[
+																							$elm$json$Json$Encode$float(a),
+																							$elm$json$Json$Encode$float(b)
+																						]));
+																			}($.start))
+																		]));
+															})($.freehandDrawings)),
 														_Utils_Tuple2(
 														'id',
 														$elm$json$Json$Encode$int($.id)),
@@ -30075,6 +32114,32 @@ var $author$project$Main$clipboardWriteLatex = _Platform_outgoingPort(
 																							$elm$json$Json$Encode$int($.to))
 																						]));
 																			})($.edges)),
+																		_Utils_Tuple2(
+																		'freehandDrawings',
+																		$elm$json$Json$Encode$list(
+																			function ($) {
+																				return $elm$json$Json$Encode$object(
+																					_List_fromArray(
+																						[
+																							_Utils_Tuple2(
+																							'offsets',
+																							$elm$json$Json$Encode$string($.offsets)),
+																							_Utils_Tuple2(
+																							'start',
+																							function ($) {
+																								var a = $.a;
+																								var b = $.b;
+																								return A2(
+																									$elm$json$Json$Encode$list,
+																									$elm$core$Basics$identity,
+																									_List_fromArray(
+																										[
+																											$elm$json$Json$Encode$float(a),
+																											$elm$json$Json$Encode$float(b)
+																										]));
+																							}($.start))
+																						]));
+																			})($.freehandDrawings)),
 																		_Utils_Tuple2(
 																		'id',
 																		$elm$json$Json$Encode$int($.id)),
@@ -30339,6 +32404,32 @@ var $author$project$Main$generateProofJs = _Platform_outgoingPort(
 																							$elm$json$Json$Encode$int($.to))
 																						]));
 																			})($.edges)),
+																		_Utils_Tuple2(
+																		'freehandDrawings',
+																		$elm$json$Json$Encode$list(
+																			function ($) {
+																				return $elm$json$Json$Encode$object(
+																					_List_fromArray(
+																						[
+																							_Utils_Tuple2(
+																							'offsets',
+																							$elm$json$Json$Encode$string($.offsets)),
+																							_Utils_Tuple2(
+																							'start',
+																							function ($) {
+																								var a = $.a;
+																								var b = $.b;
+																								return A2(
+																									$elm$json$Json$Encode$list,
+																									$elm$core$Basics$identity,
+																									_List_fromArray(
+																										[
+																											$elm$json$Json$Encode$float(a),
+																											$elm$json$Json$Encode$float(b)
+																										]));
+																							}($.start))
+																						]));
+																			})($.freehandDrawings)),
 																		_Utils_Tuple2(
 																		'id',
 																		$elm$json$Json$Encode$int($.id)),
@@ -30787,6 +32878,10 @@ var $author$project$Main$graphQuickInput = F2(
 					A2(split, d.rhs, eq2)));
 		}
 	});
+var $author$project$Main$graphToTikz = F2(
+	function (model, graph) {
+		return A3($author$project$Main$allToTikz, model, graph, $author$project$FreeHandDrawings$empty);
+	});
 var $author$project$Modes$Bend$initialise = function (model) {
 	return A2($author$project$Modes$Bend$initialise_with_state, model, $elm$core$Maybe$Nothing);
 };
@@ -30855,6 +32950,28 @@ var $author$project$Modes$CutHead$initialise = function (model) {
 				{duplicate: false, edge: e, head: true}),
 			model);
 	}
+};
+var $author$project$Modes$Delfreehand$initialise = F2(
+	function (model, p) {
+		return A2(
+			$author$project$Model$setMode,
+			$author$project$Modes$DeleteFreeHandMode(
+				{ids: _List_Nil}),
+			model);
+	});
+var $author$project$Modes$Freehand$initialise = F2(
+	function (model, p) {
+		return A2(
+			$author$project$Model$setMode,
+			$author$project$Modes$FreeHandMode(
+				{
+					points: _List_fromArray(
+						[p])
+				}),
+			model);
+	});
+var $author$project$Modes$CreateArrow = function (a) {
+	return {$: 'CreateArrow', a: a};
 };
 var $author$project$GraphDefs$isNormal = A2($elm$core$Basics$composeL, $elm$core$Basics$not, $author$project$GraphDefs$isPullshout);
 var $author$project$GraphDefs$isNormalId = F2(
@@ -31228,6 +33345,7 @@ var $author$project$Model$restrictSelection = function (model) {
 					tabs: _List_fromArray(
 						[
 							{
+							freehandDrawings: $author$project$FreeHandDrawings$empty,
 							graph: $author$project$GraphDefs$selectedGraph(modelGraph),
 							id: 0,
 							sizeGrid: sizeGrid,
@@ -31784,9 +33902,9 @@ var $author$project$Main$update_DefaultMode = F2(
 						$author$project$Polygraph$newModif(modelGraph)));
 			}
 		};
-		_v0$55:
+		_v0$57:
 		while (true) {
-			_v0$56:
+			_v0$58:
 			while (true) {
 				switch (msg.$) {
 					case 'MouseOn':
@@ -31862,6 +33980,10 @@ var $author$project$Main$update_DefaultMode = F2(
 							$elm$core$Platform$Cmd$batch(
 								_List_fromArray(
 									[copyCmd, removeCmd])));
+					case 'PenDown':
+						var e = msg.a;
+						return $author$project$Model$noCmd(
+							A2($author$project$Modes$Freehand$initialise, model, model.mousePos));
 					case 'AppliedProof':
 						var statement = msg.a.statement;
 						var script = msg.a.script;
@@ -31988,16 +34110,27 @@ var $author$project$Main$update_DefaultMode = F2(
 						}
 					case 'KeyChanged':
 						if (msg.a) {
-							if ((msg.c.$ === 'Character') && ('g' === msg.c.a.valueOf())) {
-								var pressTimeoutMs = 100;
-								return _Utils_Tuple2(
-									A3($author$project$Modes$Move$initialise, $author$project$Msg$defaultModifId, $author$project$Msg$UndefinedMove, model),
-									A2(
-										$elm$core$Task$attempt,
-										$elm$core$Basics$always($author$project$Msg$PressTimeout),
-										$elm$core$Process$sleep(pressTimeoutMs)));
+							if (msg.c.$ === 'Character') {
+								switch (msg.c.a.valueOf()) {
+									case 'd':
+										return $author$project$Model$noCmd(
+											A2($author$project$Modes$Freehand$initialise, model, model.mousePos));
+									case ',':
+										return $author$project$Model$noCmd(
+											A2($author$project$Modes$Delfreehand$initialise, model, model.mousePos));
+									case 'g':
+										var pressTimeoutMs = 100;
+										return _Utils_Tuple2(
+											A3($author$project$Modes$Move$initialise, $author$project$Msg$defaultModifId, $author$project$Msg$UndefinedMove, model),
+											A2(
+												$elm$core$Task$attempt,
+												$elm$core$Basics$always($author$project$Msg$PressTimeout),
+												$elm$core$Process$sleep(pressTimeoutMs)));
+									default:
+										break _v0$58;
+								}
 							} else {
-								break _v0$56;
+								break _v0$58;
 							}
 						} else {
 							if (msg.c.$ === 'Control') {
@@ -32010,7 +34143,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											model,
 											$author$project$GraphDefs$removeSelected(modelGraph));
 									default:
-										break _v0$55;
+										break _v0$57;
 								}
 							} else {
 								switch (msg.c.a.valueOf()) {
@@ -32041,9 +34174,6 @@ var $author$project$Main$update_DefaultMode = F2(
 									case 'b':
 										return $author$project$Model$noCmd(
 											$author$project$Modes$Bend$initialise(model));
-									case 'd':
-										return $author$project$Model$noCmd(
-											A2($author$project$Model$setMode, $author$project$Modes$DebugMode, model));
 									case 'i':
 										var _v2 = $author$project$GraphDefs$selectedEdges(modelGraph);
 										if (!_v2.b) {
@@ -32190,10 +34320,11 @@ var $author$project$Main$update_DefaultMode = F2(
 											});
 										return _Utils_Tuple2(model, cmd);
 									case 'V':
-										var s = A2(
+										var s = A3(
 											$author$project$Main$svgExport,
 											model,
-											$author$project$GraphDefs$selectedGraph(modelGraph));
+											$author$project$GraphDefs$selectedGraph(modelGraph),
+											$author$project$FreeHandDrawings$empty);
 										return _Utils_Tuple2(
 											model,
 											$author$project$Main$generateSvg(s));
@@ -32319,12 +34450,12 @@ var $author$project$Main$update_DefaultMode = F2(
 												$author$project$Msg$FocusPosition(
 													{pos: model.mousePos, selIds: selIds, tabId: model.graphInfo.activeTabId})));
 									default:
-										break _v0$55;
+										break _v0$57;
 								}
 							}
 						}
 					default:
-						break _v0$56;
+						break _v0$58;
 				}
 			}
 			return $author$project$Model$noCmd(model);
@@ -32994,6 +35125,12 @@ var $author$project$Main$update = F2(
 					case 'NewLine':
 						var state = _v6.a;
 						return A3($author$project$Modes$NewLine$update, state, msg, model);
+					case 'FreeHandMode':
+						var state = _v6.a;
+						return A3($author$project$Modes$Freehand$update, state, msg, model);
+					case 'DeleteFreeHandMode':
+						var state = _v6.a;
+						return A3($author$project$Modes$Delfreehand$update, state, msg, model);
 					case 'DefaultMode':
 						return A2($author$project$Main$update_DefaultMode, msg, model);
 					case 'RectSelect':
@@ -33098,6 +35235,10 @@ var $author$project$Msg$MouseMoveRaw = F2(
 	});
 var $author$project$Msg$MouseUp = {$: 'MouseUp'};
 var $author$project$Msg$OptimalGridSize = {$: 'OptimalGridSize'};
+var $author$project$Msg$PenDown = function (a) {
+	return {$: 'PenDown', a: a};
+};
+var $author$project$Msg$PenUp = {$: 'PenUp'};
 var $author$project$Msg$RulerMargin = function (a) {
 	return {$: 'RulerMargin', a: a};
 };
@@ -33109,6 +35250,9 @@ var $author$project$Msg$SizeGrid = function (a) {
 var $author$project$Msg$ToggleAutosave = {$: 'ToggleAutosave'};
 var $author$project$Msg$ToggleHideGrid = {$: 'ToggleHideGrid'};
 var $author$project$Msg$ToggleHideRuler = {$: 'ToggleHideRuler'};
+var $author$project$Msg$MouseOnHandFree = function (a) {
+	return {$: 'MouseOnHandFree', a: a};
+};
 var $author$project$String$Svg$class = $author$project$String$Html$attribute('class');
 var $author$project$Drawing$ofSvgs = F2(
 	function (z, l) {
@@ -33195,43 +35339,82 @@ var $author$project$Main$additionnalDrawing = function (m) {
 				return A2(drawSelPoint, m.mousePos, orig);
 			}
 		});
-	var _v0 = $author$project$Model$currentMode(m);
-	switch (_v0.$) {
-		case 'RectSelect':
-			var orig = _v0.a.orig;
-			return A2(drawSel, $author$project$InputPosition$InputPosMouse, orig);
-		case 'EnlargeMode':
-			var state = _v0.a;
-			var _v1 = _Utils_Tuple2(state.pos, state.direction);
-			_v1$2:
-			while (true) {
-				if (_v1.a.$ === 'InputPosMouse') {
-					switch (_v1.b.$) {
-						case 'Vertical':
-							var _v2 = _v1.a;
-							var _v3 = _v1.b;
-							return A2(
-								drawSelPoint,
-								_Utils_Tuple2(state.orig.a, m.mousePos.b),
-								state.orig);
-						case 'Horizontal':
-							var _v4 = _v1.a;
-							var _v5 = _v1.b;
-							return A2(
-								drawSelPoint,
-								_Utils_Tuple2(m.mousePos.a, state.orig.b),
-								state.orig);
-						default:
-							break _v1$2;
+	var freehandDrawingsPoints = function () {
+		var freehandDrawings = $author$project$Model$getActiveTab(m).freehandDrawings;
+		var _v7 = m.mode;
+		switch (_v7.$) {
+			case 'FreeHandMode':
+				var st = _v7.a;
+				return A2($author$project$FreeHandDrawings$add, freehandDrawings, st.points);
+			case 'DeleteFreeHandMode':
+				var st = _v7.a;
+				return A2($author$project$FreeHandDrawings$remove, freehandDrawings, st.ids);
+			default:
+				return freehandDrawings;
+		}
+	}();
+	var attrs = function () {
+		var _v6 = $author$project$Model$currentMode(m);
+		if (_v6.$ === 'DeleteFreeHandMode') {
+			return function (id) {
+				return _List_fromArray(
+					[
+						A2(
+						$author$project$HtmlDefs$simpleOn,
+						'mousemove',
+						$author$project$Msg$MouseOnHandFree(id)),
+						A2($elm$html$Html$Attributes$style, 'stroke-width', '10px')
+					]);
+			};
+		} else {
+			return function (id) {
+				return _List_Nil;
+			};
+		}
+	}();
+	var freehandDrawings = A2($author$project$Main$drawFreeHand, attrs, freehandDrawingsPoints);
+	var artefact = function () {
+		var _v0 = $author$project$Model$currentMode(m);
+		switch (_v0.$) {
+			case 'RectSelect':
+				var orig = _v0.a.orig;
+				return A2(drawSel, $author$project$InputPosition$InputPosMouse, orig);
+			case 'EnlargeMode':
+				var state = _v0.a;
+				var _v1 = _Utils_Tuple2(state.pos, state.direction);
+				_v1$2:
+				while (true) {
+					if (_v1.a.$ === 'InputPosMouse') {
+						switch (_v1.b.$) {
+							case 'Vertical':
+								var _v2 = _v1.a;
+								var _v3 = _v1.b;
+								return A2(
+									drawSelPoint,
+									_Utils_Tuple2(state.orig.a, m.mousePos.b),
+									state.orig);
+							case 'Horizontal':
+								var _v4 = _v1.a;
+								var _v5 = _v1.b;
+								return A2(
+									drawSelPoint,
+									_Utils_Tuple2(m.mousePos.a, state.orig.b),
+									state.orig);
+							default:
+								break _v1$2;
+						}
+					} else {
+						break _v1$2;
 					}
-				} else {
-					break _v1$2;
 				}
-			}
-			return A2(drawSel, state.pos, state.orig);
-		default:
-			return $author$project$Drawing$empty;
-	}
+				return A2(drawSel, state.pos, state.orig);
+			default:
+				return $author$project$Drawing$empty;
+		}
+	}();
+	return $author$project$Drawing$group(
+		_List_fromArray(
+			[artefact, freehandDrawings]));
 };
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $author$project$HtmlDefs$canvasId = 'canvas';
@@ -33327,6 +35510,20 @@ var $author$project$Modes$CutHead$graphDrawing = F2(
 		return $author$project$GraphDrawing$toDrawingGraph(
 			$author$project$Modes$Move$computeGraph(
 				A3($author$project$Modes$CutHead$makeGraph, false, state, m)));
+	});
+var $author$project$Modes$Delfreehand$graphDrawing = F2(
+	function (m, s) {
+		return A2(
+			$author$project$Model$collageGraphFromGraph,
+			m,
+			$author$project$Model$getActiveGraph(m));
+	});
+var $author$project$Modes$Freehand$graphDrawing = F2(
+	function (m, s) {
+		return A2(
+			$author$project$Model$collageGraphFromGraph,
+			m,
+			$author$project$Model$getActiveGraph(m));
 	});
 var $author$project$Modes$Move$graphDrawing = F2(
 	function (m, s) {
@@ -33520,6 +35717,12 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 		case 'NewLine':
 			var astate = _v0.a;
 			return A2($author$project$Modes$NewLine$graphDrawing, m, astate);
+		case 'FreeHandMode':
+			var astate = _v0.a;
+			return A2($author$project$Modes$Freehand$graphDrawing, m, astate);
+		case 'DeleteFreeHandMode':
+			var astate = _v0.a;
+			return A2($author$project$Modes$Delfreehand$graphDrawing, m, astate);
 		case 'NewArrow':
 			var astate = _v0.a;
 			return A2($author$project$Modes$NewArrow$graphDrawing, m, astate);
@@ -33628,6 +35831,7 @@ var $author$project$Modes$Customize$help = function (state) {
 	}();
 };
 var $author$project$Modes$CutHead$help = $author$project$HtmlDefs$overlayHelpMsg + (', [RET] or [click] to confirm, [ctrl] to merge. [ESC] to cancel. ' + ('[c] to switch between head/tail' + ', [d] to duplicate (or not) the arrow.'));
+var $author$project$Modes$Freehand$help = 'FreeHand mode. Move mouse to draw. Release [d] to finalise, [ESC] to cancel.';
 var $author$project$Modes$Move$help = function (s) {
 	return 'Mode Move. ' + ($author$project$HtmlDefs$overlayHelpMsg + ('. Use mouse or h,j,k,l. [f] to move by a multiple of the grid size' + (' [ctrl] to merge,' + (' Press [x] or [y] to restrict to horizontal / vertical directions, or let it free with [z]' + ('(currently, ' + (function () {
 		var _v0 = s.direction;
@@ -33652,7 +35856,7 @@ var $author$project$Modes$Move$help = function (s) {
 	}())))))));
 };
 var $author$project$Modes$NewArrow$help = function (s) {
-	var mainMsg = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard ' + ('([f] to move by a multiple of the grid size), ' + ('[ctrl] merge, [a] merge without renaming, toggle [m]erge preview, ' + ('[RET] or space to terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('shift [s]ource/targ[e]t, ' + ('[.] customise the marker' + ('[i]nvert arrow, ' + ('toggle [L]oop, ' + ('create a[d]junction arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + ($author$project$Drawing$Color$helpMsg + ', color [H]ead/[T]ail'))))))))))))))))));
+	var mainMsg = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard ' + ('([f] to move by a multiple of the grid size), ' + ('[ctrl] merge, [a] merge without renaming, toggle [m]erge preview, ' + ('[RET] or space to terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('shift [s]ource/targ[e]t, ' + ('[.] customise the marker' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + ($author$project$Drawing$Color$helpMsg + ', color [H]ead/[T]ail')))))))))))))))));
 	var _v0 = s.mode;
 	switch (_v0.$) {
 		case 'NewArrowMain':
@@ -33868,6 +36072,10 @@ var $author$project$Modes$toString = function (m) {
 			return 'Color';
 		case 'BendMode':
 			return 'Bend';
+		case 'FreeHandMode':
+			return 'FreeHand';
+		case 'DeleteFreeHandMode':
+			return 'DeleteFreeHand';
 		default:
 			return 'MakeSave';
 	}
@@ -33901,9 +36109,11 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = $author$project$Model$currentMode(model);
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-x] cut selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('new [p]oint ([m] to create a point snapped to grid)' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]ustomise arrow (color, shift)' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[.] customise arrow marker, ' + ('[\"bB][\"] to customize the pullback/pushout sign, ' + ('[i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [d]ebug mode' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + (', export selection to LaTe[X]/s[V]g' + ', [#] make the other user focus on the mouse position and share selection')))))))))))))))))))))))))))))))))))))))))))))))))))));
+			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-x] cut selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('[d]raw freehand (hold \'d\' and move mouse) or use pen' + (', hold [,] to erase existing freehand drawings' + (', new [p]oint ([m] to create a point snapped to grid)' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]ustomise arrow (color, shift)' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[.] customise arrow marker, ' + ('[\"bB][\"] to customize the pullback/pushout sign, ' + ('[i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + (', export selection to LaTe[X]/s[V]g' + ', [#] make the other user focus on the mouse position and share selection'))))))))))))))))))))))))))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return $elm$html$Html$text('Debug Mode. [ESC] to cancel and come back to the default mode. ' + '');
+		case 'FreeHandMode':
+			return msg($author$project$Modes$Freehand$help);
 		case 'NewArrow':
 			var s = _v0.a;
 			return msg(
@@ -36461,7 +38671,6 @@ var $hecrj$html_parser$Html$Parser$namedCharacterReference = A2(
 	},
 	$elm$parser$Parser$getChompedString(
 		$hecrj$html_parser$Html$Parser$chompOneOrMore($elm$core$Char$isAlpha)));
-var $elm$core$Char$fromCode = _Char_fromCode;
 var $rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 	function (position, chars, accumulated) {
 		fromStringHelp:
@@ -37209,6 +39418,83 @@ var $elm$html$Html$Events$onMouseUp = function (msg) {
 		'mouseup',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$PenType = {$: 'PenType'};
+var $author$project$HtmlDefs$isPenEvent = function (e) {
+	return _Utils_eq(e.pointerType, $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$PenType);
+};
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$Event = F5(
+	function (pointerType, pointer, pointerId, isPrimary, contactDetails) {
+		return {contactDetails: contactDetails, isPrimary: isPrimary, pointer: pointer, pointerId: pointerId, pointerType: pointerType};
+	});
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$ContactDetails = F5(
+	function (width, height, pressure, tiltX, tiltY) {
+		return {height: height, pressure: pressure, tiltX: tiltX, tiltY: tiltY, width: width};
+	});
+var $elm$json$Json$Decode$map5 = _Json_map5;
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$contactDetailsDecoder = A6(
+	$elm$json$Json$Decode$map5,
+	$mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$ContactDetails,
+	A2($elm$json$Json$Decode$field, 'width', $elm$json$Json$Decode$float),
+	A2($elm$json$Json$Decode$field, 'height', $elm$json$Json$Decode$float),
+	A2($elm$json$Json$Decode$field, 'pressure', $elm$json$Json$Decode$float),
+	A2($elm$json$Json$Decode$field, 'tiltX', $elm$json$Json$Decode$float),
+	A2($elm$json$Json$Decode$field, 'tiltY', $elm$json$Json$Decode$float));
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$MouseType = {$: 'MouseType'};
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$TouchType = {$: 'TouchType'};
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$stringToPointerType = function (str) {
+	switch (str) {
+		case 'pen':
+			return $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$PenType;
+		case 'touch':
+			return $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$TouchType;
+		default:
+			return $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$MouseType;
+	}
+};
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$pointerTypeDecoder = A2($elm$json$Json$Decode$map, $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$stringToPointerType, $elm$json$Json$Decode$string);
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$eventDecoder = A6(
+	$elm$json$Json$Decode$map5,
+	$mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$Event,
+	A2($elm$json$Json$Decode$field, 'pointerType', $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$pointerTypeDecoder),
+	$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder,
+	A2($elm$json$Json$Decode$field, 'pointerId', $elm$json$Json$Decode$int),
+	A2($elm$json$Json$Decode$field, 'isPrimary', $elm$json$Json$Decode$bool),
+	$mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$contactDetailsDecoder);
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$onWithOptions = F3(
+	function (event, options, tag) {
+		return A2(
+			$elm$html$Html$Events$custom,
+			event,
+			A2(
+				$elm$json$Json$Decode$map,
+				function (ev) {
+					return {
+						message: tag(ev),
+						preventDefault: options.preventDefault,
+						stopPropagation: options.stopPropagation
+					};
+				},
+				$mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$eventDecoder));
+	});
+var $author$project$HtmlDefs$onPenDown = F2(
+	function (_default, f) {
+		return A3(
+			$mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$onWithOptions,
+			'pointerdown',
+			{preventDefault: true, stopPropagation: true},
+			function (e) {
+				return $author$project$HtmlDefs$isPenEvent(e) ? f(e) : _default;
+			});
+	});
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$defaultOptions = {preventDefault: true, stopPropagation: false};
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$onUp = A2($mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$onWithOptions, 'pointerup', $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$defaultOptions);
+var $author$project$HtmlDefs$onPenUp = F2(
+	function (_default, f) {
+		return $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$onUp(
+			function (e) {
+				return $author$project$HtmlDefs$isPenEvent(e) ? f(e) : _default;
+			});
+	});
 var $author$project$Main$openDirectory = _Platform_outgoingPort(
 	'openDirectory',
 	function ($) {
@@ -37508,9 +39794,14 @@ var $author$project$Main$viewGraph = function (model) {
 				A2($elm$html$Html$Attributes$style, 'border-style', 'solid'),
 				A2(
 				$elm$html$Html$Events$on,
-				'mousemove',
+				'pointermove',
 				A3($elm$json$Json$Decode$map2, $author$project$Msg$MouseMoveRaw, $elm$json$Json$Decode$value, $author$project$HtmlDefs$keysDecoder)),
 				$elm$html$Html$Events$onMouseLeave($author$project$Msg$MouseLeaveCanvas),
+				A2($author$project$HtmlDefs$onPenDown, $author$project$Msg$noOp, $author$project$Msg$PenDown),
+				A2(
+				$author$project$HtmlDefs$onPenUp,
+				$author$project$Msg$noOp,
+				$elm$core$Basics$always($author$project$Msg$PenUp)),
 				A3(
 				$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions,
 				'mousedown',
