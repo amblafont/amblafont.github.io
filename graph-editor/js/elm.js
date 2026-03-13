@@ -39481,7 +39481,7 @@ var $author$project$HtmlDefs$onPenDown = F2(
 		return A3(
 			$mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$onWithOptions,
 			'pointerdown',
-			{preventDefault: true, stopPropagation: true},
+			{preventDefault: false, stopPropagation: false},
 			function (e) {
 				return $author$project$HtmlDefs$isPenEvent(e) ? f(e) : _default;
 			});
