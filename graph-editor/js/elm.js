@@ -14329,7 +14329,7 @@ var $author$project$Format$LastVersion$tabCodec = $author$project$Format$Version
 var $author$project$Format$GraphInfoCodec$defaultModifJS = {
 	graphModif: $author$project$Format$GraphInfoCodec$defaultGraphModifJS,
 	newFreeHand: $author$project$FreeHandDrawings$emptyDrawingJS,
-	removeFreeHand: _List_Nil,
+	removeFreeHand: 0,
 	size: 0,
 	string: '',
 	tab: A2(
@@ -15786,10 +15786,7 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																		},
 																																		A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))))));
 																												},
-																												A2(
-																													$elm$json$Json$Decode$field,
-																													'removeFreeHand',
-																													$elm$json$Json$Decode$list($elm$json$Json$Decode$int)));
+																												A2($elm$json$Json$Decode$field, 'removeFreeHand', $elm$json$Json$Decode$int));
 																										},
 																										A2($elm$json$Json$Decode$field, 'size', $elm$json$Json$Decode$int));
 																								},
@@ -16517,10 +16514,7 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																											},
 																											A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))))));
 																					},
-																					A2(
-																						$elm$json$Json$Decode$field,
-																						'removeFreeHand',
-																						$elm$json$Json$Decode$list($elm$json$Json$Decode$int)));
+																					A2($elm$json$Json$Decode$field, 'removeFreeHand', $elm$json$Json$Decode$int));
 																			},
 																			A2($elm$json$Json$Decode$field, 'size', $elm$json$Json$Decode$int));
 																	},
@@ -17894,17 +17888,6 @@ var $author$project$Format$GraphInfo$applyTabMove = F3(
 				undo: isRight ? $author$project$Format$GraphInfo$TabMoveLeft(id) : $author$project$Format$GraphInfo$TabMoveRight(id)
 			});
 	});
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
-		}
-	});
-var $elm$core$List$concat = function (lists) {
-	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
-};
 var $author$project$Format$GraphInfo$isActiveTab = F2(
 	function (gi, tab) {
 		return _Utils_eq(tab.id, gi.activeTabId);
@@ -18243,11 +18226,11 @@ var $author$project$GraphDefs$mergeFunctions = {
 		})
 };
 var $author$project$FreeHandDrawings$remove = F2(
-	function (fhd, ids) {
+	function (fhd, id) {
 		return _Utils_update(
 			fhd,
 			{
-				freehandDrawings: A2($author$project$IntDictExtra$removeList, ids, fhd.freehandDrawings)
+				freehandDrawings: A2($elm_community$intdict$IntDict$remove, id, fhd.freehandDrawings)
 			});
 	});
 var $author$project$Format$GraphInfo$applyModif = F2(
@@ -18434,16 +18417,12 @@ var $author$project$Format$GraphInfo$applyModif = F2(
 										{
 											freehandDrawings: A2($author$project$FreeHandDrawings$add, tab.freehandDrawings, points)
 										}),
-									undo: A2(
-										$author$project$Format$GraphInfo$FreehandRemove,
-										tabId,
-										_List_fromArray(
-											[idx]))
+									undo: A2($author$project$Format$GraphInfo$FreehandRemove, tabId, idx)
 								});
 						}));
 			default:
 				var tabId = modif.a;
-				var ids = modif.b;
+				var id = modif.b;
 				return A3(
 					$author$project$Format$GraphInfo$mapTabModifInfo,
 					gi,
@@ -18452,22 +18431,21 @@ var $author$project$Format$GraphInfo$applyModif = F2(
 						$elm$core$Basics$composeL,
 						retTabModif,
 						function (tab) {
-							var points = $elm$core$List$concat(
-								A2(
-									$elm$core$List$filterMap,
-									function (id) {
-										return A2($author$project$FreeHandDrawings$get, tab.freehandDrawings, id);
-									},
-									ids));
-							return _Utils_eq(points, _List_Nil) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(
-								{
-									next: _Utils_update(
-										tab,
-										{
-											freehandDrawings: A2($author$project$FreeHandDrawings$remove, tab.freehandDrawings, ids)
-										}),
-									undo: A2($author$project$Format$GraphInfo$FreehandAdd, tabId, points)
-								});
+							var _v3 = A2($author$project$FreeHandDrawings$get, tab.freehandDrawings, id);
+							if (_v3.$ === 'Nothing') {
+								return $elm$core$Maybe$Nothing;
+							} else {
+								var points = _v3.a;
+								return $elm$core$Maybe$Just(
+									{
+										next: _Utils_update(
+											tab,
+											{
+												freehandDrawings: A2($author$project$FreeHandDrawings$remove, tab.freehandDrawings, id)
+											}),
+										undo: A2($author$project$Format$GraphInfo$FreehandAdd, tabId, points)
+									});
+							}
 						}));
 		}
 	});
@@ -20044,8 +20022,6 @@ var $author$project$Command$fixModel = function (modeli) {
 				});
 		case 'LatexPreamble':
 			return model;
-		case 'FreeHandMode':
-			return defaultIfTabChanged;
 		default:
 			return defaultIfTabChanged;
 	}
@@ -20640,7 +20616,7 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																			}($.newFreeHand)),
 																			_Utils_Tuple2(
 																			'removeFreeHand',
-																			$elm$json$Json$Encode$list($elm$json$Json$Encode$int)($.removeFreeHand)),
+																			$elm$json$Json$Encode$int($.removeFreeHand)),
 																			_Utils_Tuple2(
 																			'size',
 																			$elm$json$Json$Encode$int($.size)),
@@ -21157,7 +21133,7 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																}($.newFreeHand)),
 																_Utils_Tuple2(
 																'removeFreeHand',
-																$elm$json$Json$Encode$list($elm$json$Json$Encode$int)($.removeFreeHand)),
+																$elm$json$Json$Encode$int($.removeFreeHand)),
 																_Utils_Tuple2(
 																'size',
 																$elm$json$Json$Encode$int($.size)),
@@ -21505,6 +21481,17 @@ var $author$project$FreeHandDrawings$getDrawings = function (_v0) {
 var $author$project$Drawing$Drawing = function (a) {
 	return {$: 'Drawing', a: a};
 };
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
 var $author$project$Drawing$group = function (l) {
 	return $author$project$Drawing$Drawing(
 		$elm$core$List$concat(
@@ -21538,7 +21525,7 @@ var $author$project$Drawing$singlePolyLine = F2(
 				}
 				]));
 	});
-var $author$project$Main$drawFreeHand = F2(
+var $author$project$FreeHandDrawings$draw = F2(
 	function (attrs, drawings) {
 		return $author$project$Drawing$group(
 			A2(
@@ -23388,7 +23375,7 @@ var $author$project$Main$allToTikz = F3(
 						[
 							d,
 							A2(
-							$author$project$Main$drawFreeHand,
+							$author$project$FreeHandDrawings$draw,
 							$elm$core$Basics$always(_List_Nil),
 							drawings)
 						])));
@@ -25830,7 +25817,7 @@ var $author$project$String$Svg$viewBox = function (_v0) {
 		f(a1) + (' ' + (f(b1) + (' ' + (f(a2 - a1) + (' ' + f(b2 - b1)))))));
 };
 var $author$project$Main$svgExport = F3(
-	function (model, graph, freehandDrawings) {
+	function (model, graph, drawings) {
 		var g = $author$project$GraphDefs$clearWeakSelection(
 			$author$project$GraphDefs$clearSelection(graph));
 		var box = $author$project$Geometry$rectFromPosDims(
@@ -25853,9 +25840,9 @@ var $author$project$Main$svgExport = F3(
 						model,
 						$author$project$GraphDrawing$toDrawingGraph(g)),
 						A2(
-						$author$project$Main$drawFreeHand,
+						$author$project$FreeHandDrawings$draw,
 						$elm$core$Basics$always(_List_Nil),
-						freehandDrawings)
+						drawings)
 					])));
 	});
 var $author$project$Main$makeExports = function (model) {
@@ -28676,75 +28663,92 @@ var $author$project$Modes$CutHead$update = F3(
 		}
 		return $author$project$Model$noCmd(m);
 	});
-var $author$project$Modes$DeleteFreeHandMode = function (a) {
-	return {$: 'DeleteFreeHandMode', a: a};
+var $author$project$Modes$Freehand$isDelete = function (model) {
+	return model.specialKeys.alt;
 };
+var $author$project$Modes$DownFreeHandState = function (a) {
+	return {$: 'DownFreeHandState', a: a};
+};
+var $author$project$Modes$FreeHandMode = function (a) {
+	return {$: 'FreeHandMode', a: a};
+};
+var $author$project$Modes$Freehand$setState = F2(
+	function (model, state) {
+		return A2(
+			$author$project$Model$setMode,
+			$author$project$Modes$FreeHandMode(state),
+			model);
+	});
+var $author$project$Modes$Freehand$switchDown = F2(
+	function (model, temporary) {
+		return A2(
+			$author$project$Modes$Freehand$setState,
+			model,
+			$author$project$Modes$DownFreeHandState(
+				{
+					points: _List_fromArray(
+						[model.mousePos]),
+					temporary: temporary
+				}));
+	});
 var $author$project$CommandCodec$updateModif = F2(
 	function (model, modif) {
 		return _Utils_Tuple2(
 			model,
 			A2($author$project$CommandCodec$protocolSendModif, $author$project$Msg$defaultModifId, modif));
 	});
-var $author$project$Modes$Delfreehand$update = F3(
-	function (state, msg, model) {
-		var finalise = function (_v2) {
-			var newModel = A2($author$project$Model$setMode, $author$project$Modes$DefaultMode, model);
-			var _v1 = state.ids;
-			if (!_v1.b) {
-				return $author$project$Model$noCmd(newModel);
-			} else {
-				return A2(
-					$author$project$CommandCodec$updateModif,
-					newModel,
-					A2($author$project$Format$GraphInfo$FreehandRemove, newModel.graphInfo.activeTabId, state.ids));
-			}
-		};
-		_v0$3:
+var $author$project$Modes$Freehand$update_defaultState = F2(
+	function (msg, model) {
+		_v0$5:
 		while (true) {
 			switch (msg.$) {
+				case 'MouseDown':
+					return $author$project$Model$noCmd(
+						A2($author$project$Modes$Freehand$switchDown, model, false));
+				case 'PenDown':
+					return $author$project$Model$noCmd(
+						A2($author$project$Modes$Freehand$switchDown, model, false));
 				case 'MouseOnHandFree':
 					var id = msg.a;
-					return $author$project$Model$noCmd(
-						A2(
-							$author$project$Model$setMode,
-							$author$project$Modes$DeleteFreeHandMode(
-								_Utils_update(
-									state,
-									{
-										ids: A2($elm$core$List$cons, id, state.ids)
-									})),
-							model));
+					return (!$author$project$Modes$Freehand$isDelete(model)) ? $author$project$Model$noCmd(model) : A2(
+						$author$project$CommandCodec$updateModif,
+						model,
+						A2($author$project$Format$GraphInfo$FreehandRemove, model.graphInfo.activeTabId, id));
 				case 'KeyChanged':
 					if (!msg.a) {
 						if (msg.c.$ === 'Control') {
 							if (msg.c.a === 'Escape') {
 								return $author$project$Model$switch_Default(model);
 							} else {
-								break _v0$3;
+								break _v0$5;
 							}
 						} else {
-							if (',' === msg.c.a.valueOf()) {
-								return finalise(_Utils_Tuple0);
+							if (' ' === msg.c.a.valueOf()) {
+								return $author$project$Model$switch_Default(model);
 							} else {
-								break _v0$3;
+								break _v0$5;
 							}
 						}
 					} else {
-						break _v0$3;
+						break _v0$5;
 					}
 				default:
-					break _v0$3;
+					break _v0$5;
 			}
 		}
 		return $author$project$Model$noCmd(model);
 	});
-var $author$project$Modes$FreeHandMode = function (a) {
-	return {$: 'FreeHandMode', a: a};
+var $author$project$Modes$DefaultFreeHandState = {$: 'DefaultFreeHandState'};
+var $author$project$Modes$Freehand$setDefault = function (model) {
+	return A2($author$project$Modes$Freehand$setState, model, $author$project$Modes$DefaultFreeHandState);
 };
-var $author$project$Modes$Freehand$update = F3(
+var $author$project$Modes$Freehand$update_downFreeHandState = F3(
 	function (state, msg, model) {
+		var nextModel = function (_v3) {
+			return state.temporary ? A2($author$project$Model$setMode, $author$project$Modes$DefaultMode, model) : $author$project$Modes$Freehand$setDefault(model);
+		};
 		var finalise = function (_v2) {
-			var newModel = A2($author$project$Model$setMode, $author$project$Modes$DefaultMode, model);
+			var newModel = nextModel(_Utils_Tuple0);
 			var _v1 = state.points;
 			if (!_v1.b) {
 				return $author$project$Model$noCmd(newModel);
@@ -28762,42 +28766,42 @@ var $author$project$Modes$Freehand$update = F3(
 		_v0$4:
 		while (true) {
 			switch (msg.$) {
+				case 'MouseUp':
+					return finalise(_Utils_Tuple0);
+				case 'PenUp':
+					return finalise(_Utils_Tuple0);
+				case 'KeyChanged':
+					if (((!msg.a) && (msg.c.$ === 'Control')) && (msg.c.a === 'Escape')) {
+						return $author$project$Model$noCmd(
+							nextModel(_Utils_Tuple0));
+					} else {
+						break _v0$4;
+					}
 				case 'MouseMove':
 					return $author$project$Model$noCmd(
 						A2(
-							$author$project$Model$setMode,
-							$author$project$Modes$FreeHandMode(
+							$author$project$Modes$Freehand$setState,
+							model,
+							$author$project$Modes$DownFreeHandState(
 								_Utils_update(
 									state,
 									{
 										points: A2($elm$core$List$cons, model.mousePos, state.points)
-									})),
-							model));
-				case 'KeyChanged':
-					if (!msg.a) {
-						if (msg.c.$ === 'Control') {
-							if (msg.c.a === 'Escape') {
-								return $author$project$Model$switch_Default(model);
-							} else {
-								break _v0$4;
-							}
-						} else {
-							if ('d' === msg.c.a.valueOf()) {
-								return finalise(_Utils_Tuple0);
-							} else {
-								break _v0$4;
-							}
-						}
-					} else {
-						break _v0$4;
-					}
-				case 'PenUp':
-					return finalise(_Utils_Tuple0);
+									}))));
 				default:
 					break _v0$4;
 			}
 		}
 		return $author$project$Model$noCmd(model);
+	});
+var $author$project$Modes$Freehand$update = F3(
+	function (state, msg, model) {
+		if (state.$ === 'DefaultFreeHandState') {
+			return A2($author$project$Modes$Freehand$update_defaultState, msg, model);
+		} else {
+			var st = state.a;
+			return A3($author$project$Modes$Freehand$update_downFreeHandState, st, msg, model);
+		}
 	});
 var $author$project$Modes$Horizontal = {$: 'Horizontal'};
 var $author$project$Modes$Vertical = {$: 'Vertical'};
@@ -32951,25 +32955,9 @@ var $author$project$Modes$CutHead$initialise = function (model) {
 			model);
 	}
 };
-var $author$project$Modes$Delfreehand$initialise = F2(
-	function (model, p) {
-		return A2(
-			$author$project$Model$setMode,
-			$author$project$Modes$DeleteFreeHandMode(
-				{ids: _List_Nil}),
-			model);
-	});
-var $author$project$Modes$Freehand$initialise = F2(
-	function (model, p) {
-		return A2(
-			$author$project$Model$setMode,
-			$author$project$Modes$FreeHandMode(
-				{
-					points: _List_fromArray(
-						[p])
-				}),
-			model);
-	});
+var $author$project$Modes$Freehand$initialise = function (model) {
+	return $author$project$Modes$Freehand$setDefault(model);
+};
 var $author$project$Modes$CreateArrow = function (a) {
 	return {$: 'CreateArrow', a: a};
 };
@@ -33106,6 +33094,9 @@ var $author$project$Main$initialiseEnlarge = function (model) {
 		$author$project$Modes$EnlargeMode(
 			{direction: $author$project$Modes$Free, orig: model.mousePos, pos: $author$project$InputPosition$InputPosMouse}),
 		model);
+};
+var $author$project$Modes$Freehand$initialiseTemporary = function (model) {
+	return A2($author$project$Modes$Freehand$switchDown, model, true);
 };
 var $author$project$Modes$ResizeMode = function (a) {
 	return {$: 'ResizeMode', a: a};
@@ -33902,9 +33893,9 @@ var $author$project$Main$update_DefaultMode = F2(
 						$author$project$Polygraph$newModif(modelGraph)));
 			}
 		};
-		_v0$57:
+		_v0$56:
 		while (true) {
-			_v0$58:
+			_v0$57:
 			while (true) {
 				switch (msg.$) {
 					case 'MouseOn':
@@ -33983,7 +33974,7 @@ var $author$project$Main$update_DefaultMode = F2(
 					case 'PenDown':
 						var e = msg.a;
 						return $author$project$Model$noCmd(
-							A2($author$project$Modes$Freehand$initialise, model, model.mousePos));
+							$author$project$Modes$Freehand$initialiseTemporary(model));
 					case 'AppliedProof':
 						var statement = msg.a.statement;
 						var script = msg.a.script;
@@ -34110,27 +34101,16 @@ var $author$project$Main$update_DefaultMode = F2(
 						}
 					case 'KeyChanged':
 						if (msg.a) {
-							if (msg.c.$ === 'Character') {
-								switch (msg.c.a.valueOf()) {
-									case 'd':
-										return $author$project$Model$noCmd(
-											A2($author$project$Modes$Freehand$initialise, model, model.mousePos));
-									case ',':
-										return $author$project$Model$noCmd(
-											A2($author$project$Modes$Delfreehand$initialise, model, model.mousePos));
-									case 'g':
-										var pressTimeoutMs = 100;
-										return _Utils_Tuple2(
-											A3($author$project$Modes$Move$initialise, $author$project$Msg$defaultModifId, $author$project$Msg$UndefinedMove, model),
-											A2(
-												$elm$core$Task$attempt,
-												$elm$core$Basics$always($author$project$Msg$PressTimeout),
-												$elm$core$Process$sleep(pressTimeoutMs)));
-									default:
-										break _v0$58;
-								}
+							if ((msg.c.$ === 'Character') && ('g' === msg.c.a.valueOf())) {
+								var pressTimeoutMs = 100;
+								return _Utils_Tuple2(
+									A3($author$project$Modes$Move$initialise, $author$project$Msg$defaultModifId, $author$project$Msg$UndefinedMove, model),
+									A2(
+										$elm$core$Task$attempt,
+										$elm$core$Basics$always($author$project$Msg$PressTimeout),
+										$elm$core$Process$sleep(pressTimeoutMs)));
 							} else {
-								break _v0$58;
+								break _v0$57;
 							}
 						} else {
 							if (msg.c.$ === 'Control') {
@@ -34143,7 +34123,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											model,
 											$author$project$GraphDefs$removeSelected(modelGraph));
 									default:
-										break _v0$57;
+										break _v0$56;
 								}
 							} else {
 								switch (msg.c.a.valueOf()) {
@@ -34174,6 +34154,9 @@ var $author$project$Main$update_DefaultMode = F2(
 									case 'b':
 										return $author$project$Model$noCmd(
 											$author$project$Modes$Bend$initialise(model));
+									case 'd':
+										return $author$project$Model$noCmd(
+											$author$project$Modes$Freehand$initialise(model));
 									case 'i':
 										var _v2 = $author$project$GraphDefs$selectedEdges(modelGraph);
 										if (!_v2.b) {
@@ -34450,12 +34433,12 @@ var $author$project$Main$update_DefaultMode = F2(
 												$author$project$Msg$FocusPosition(
 													{pos: model.mousePos, selIds: selIds, tabId: model.graphInfo.activeTabId})));
 									default:
-										break _v0$57;
+										break _v0$56;
 								}
 							}
 						}
 					default:
-						break _v0$58;
+						break _v0$57;
 				}
 			}
 			return $author$project$Model$noCmd(model);
@@ -35128,9 +35111,6 @@ var $author$project$Main$update = F2(
 					case 'FreeHandMode':
 						var state = _v6.a;
 						return A3($author$project$Modes$Freehand$update, state, msg, model);
-					case 'DeleteFreeHandMode':
-						var state = _v6.a;
-						return A3($author$project$Modes$Delfreehand$update, state, msg, model);
 					case 'DefaultMode':
 						return A2($author$project$Main$update_DefaultMode, msg, model);
 					case 'RectSelect':
@@ -35253,6 +35233,47 @@ var $author$project$Msg$ToggleHideRuler = {$: 'ToggleHideRuler'};
 var $author$project$Msg$MouseOnHandFree = function (a) {
 	return {$: 'MouseOnHandFree', a: a};
 };
+var $author$project$Modes$Freehand$freehandDrawings = F2(
+	function (m, state) {
+		if (state.$ === 'DefaultFreeHandState') {
+			var attrs = $author$project$Modes$Freehand$isDelete(m) ? function (id) {
+				return _List_fromArray(
+					[
+						A2(
+						$author$project$HtmlDefs$simpleOn,
+						'mousemove',
+						$author$project$Msg$MouseOnHandFree(id)),
+						A2($elm$html$Html$Attributes$style, 'stroke-width', '10px')
+					]);
+			} : function (_v1) {
+				return _List_Nil;
+			};
+			var drawings = $author$project$Model$getActiveTab(m).freehandDrawings;
+			return A2($author$project$FreeHandDrawings$draw, attrs, drawings);
+		} else {
+			var st = state.a;
+			return A2(
+				$author$project$FreeHandDrawings$draw,
+				$elm$core$Basics$always(_List_Nil),
+				A2(
+					$author$project$FreeHandDrawings$add,
+					$author$project$Model$getActiveTab(m).freehandDrawings,
+					st.points));
+		}
+	});
+var $author$project$Main$freehandDrawings = function (m) {
+	var _v0 = $author$project$Model$currentMode(m);
+	if (_v0.$ === 'FreeHandMode') {
+		var st = _v0.a;
+		return A2($author$project$Modes$Freehand$freehandDrawings, m, st);
+	} else {
+		var drawings = $author$project$Model$getActiveTab(m).freehandDrawings;
+		return A2(
+			$author$project$FreeHandDrawings$draw,
+			$elm$core$Basics$always(_List_Nil),
+			drawings);
+	}
+};
 var $author$project$String$Svg$class = $author$project$String$Html$attribute('class');
 var $author$project$Drawing$ofSvgs = F2(
 	function (z, l) {
@@ -35339,40 +35360,6 @@ var $author$project$Main$additionnalDrawing = function (m) {
 				return A2(drawSelPoint, m.mousePos, orig);
 			}
 		});
-	var freehandDrawingsPoints = function () {
-		var freehandDrawings = $author$project$Model$getActiveTab(m).freehandDrawings;
-		var _v7 = m.mode;
-		switch (_v7.$) {
-			case 'FreeHandMode':
-				var st = _v7.a;
-				return A2($author$project$FreeHandDrawings$add, freehandDrawings, st.points);
-			case 'DeleteFreeHandMode':
-				var st = _v7.a;
-				return A2($author$project$FreeHandDrawings$remove, freehandDrawings, st.ids);
-			default:
-				return freehandDrawings;
-		}
-	}();
-	var attrs = function () {
-		var _v6 = $author$project$Model$currentMode(m);
-		if (_v6.$ === 'DeleteFreeHandMode') {
-			return function (id) {
-				return _List_fromArray(
-					[
-						A2(
-						$author$project$HtmlDefs$simpleOn,
-						'mousemove',
-						$author$project$Msg$MouseOnHandFree(id)),
-						A2($elm$html$Html$Attributes$style, 'stroke-width', '10px')
-					]);
-			};
-		} else {
-			return function (id) {
-				return _List_Nil;
-			};
-		}
-	}();
-	var freehandDrawings = A2($author$project$Main$drawFreeHand, attrs, freehandDrawingsPoints);
 	var artefact = function () {
 		var _v0 = $author$project$Model$currentMode(m);
 		switch (_v0.$) {
@@ -35414,7 +35401,10 @@ var $author$project$Main$additionnalDrawing = function (m) {
 	}();
 	return $author$project$Drawing$group(
 		_List_fromArray(
-			[artefact, freehandDrawings]));
+			[
+				artefact,
+				$author$project$Main$freehandDrawings(m)
+			]));
 };
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $author$project$HtmlDefs$canvasId = 'canvas';
@@ -35510,13 +35500,6 @@ var $author$project$Modes$CutHead$graphDrawing = F2(
 		return $author$project$GraphDrawing$toDrawingGraph(
 			$author$project$Modes$Move$computeGraph(
 				A3($author$project$Modes$CutHead$makeGraph, false, state, m)));
-	});
-var $author$project$Modes$Delfreehand$graphDrawing = F2(
-	function (m, s) {
-		return A2(
-			$author$project$Model$collageGraphFromGraph,
-			m,
-			$author$project$Model$getActiveGraph(m));
 	});
 var $author$project$Modes$Freehand$graphDrawing = F2(
 	function (m, s) {
@@ -35720,9 +35703,6 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 		case 'FreeHandMode':
 			var astate = _v0.a;
 			return A2($author$project$Modes$Freehand$graphDrawing, m, astate);
-		case 'DeleteFreeHandMode':
-			var astate = _v0.a;
-			return A2($author$project$Modes$Delfreehand$graphDrawing, m, astate);
 		case 'NewArrow':
 			var astate = _v0.a;
 			return A2($author$project$Modes$NewArrow$graphDrawing, m, astate);
@@ -35831,7 +35811,9 @@ var $author$project$Modes$Customize$help = function (state) {
 	}();
 };
 var $author$project$Modes$CutHead$help = $author$project$HtmlDefs$overlayHelpMsg + (', [RET] or [click] to confirm, [ctrl] to merge. [ESC] to cancel. ' + ('[c] to switch between head/tail' + ', [d] to duplicate (or not) the arrow.'));
-var $author$project$Modes$Freehand$help = 'FreeHand mode. Move mouse to draw. Release [d] to finalise, [ESC] to cancel.';
+var $author$project$Modes$Freehand$help = function (state) {
+	return 'FreeHand mode. Drag the mouse to draw, hold [ALT] to delete freehand drawing by hovering them, [ESC], or [SPC] to return to the default mode.';
+};
 var $author$project$Modes$Move$help = function (s) {
 	return 'Mode Move. ' + ($author$project$HtmlDefs$overlayHelpMsg + ('. Use mouse or h,j,k,l. [f] to move by a multiple of the grid size' + (' [ctrl] to merge,' + (' Press [x] or [y] to restrict to horizontal / vertical directions, or let it free with [z]' + ('(currently, ' + (function () {
 		var _v0 = s.direction;
@@ -36074,8 +36056,6 @@ var $author$project$Modes$toString = function (m) {
 			return 'Bend';
 		case 'FreeHandMode':
 			return 'FreeHand';
-		case 'DeleteFreeHandMode':
-			return 'DeleteFreeHand';
 		default:
 			return 'MakeSave';
 	}
@@ -36109,11 +36089,13 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = $author$project$Model$currentMode(model);
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-x] cut selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('[d]raw freehand (hold \'d\' and move mouse) or use pen' + (', hold [,] to erase existing freehand drawings' + (', new [p]oint ([m] to create a point snapped to grid)' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]ustomise arrow (color, shift)' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[.] customise arrow marker, ' + ('[\"bB][\"] to customize the pullback/pushout sign, ' + ('[i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + (', export selection to LaTe[X]/s[V]g' + ', [#] make the other user focus on the mouse position and share selection'))))))))))))))))))))))))))))))))))))))))))))))))))))));
+			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-x] cut selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('[d]raw freehand mode (or use stylus)' + (', new [p]oint ([m] to create a point snapped to grid)' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]ustomise arrow (color, shift)' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[.] customise arrow marker, ' + ('[\"bB][\"] to customize the pullback/pushout sign, ' + ('[i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + (', export selection to LaTe[X]/s[V]g' + ', [#] make the other user focus on the mouse position and share selection')))))))))))))))))))))))))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return $elm$html$Html$text('Debug Mode. [ESC] to cancel and come back to the default mode. ' + '');
 		case 'FreeHandMode':
-			return msg($author$project$Modes$Freehand$help);
+			var st = _v0.a;
+			return msg(
+				$author$project$Modes$Freehand$help(st));
 		case 'NewArrow':
 			var s = _v0.a;
 			return msg(
