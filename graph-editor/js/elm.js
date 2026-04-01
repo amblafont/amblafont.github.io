@@ -19711,7 +19711,7 @@ var $author$project$GraphDefs$selectedEdge = function (g) {
 var $author$project$Modes$Bend$initialise_with_state = F2(
 	function (model, mayState) {
 		var modelGraph = $author$project$Model$getActiveGraph(model);
-		var failedRet = A2($author$project$Model$setMode, $author$project$Modes$DefaultMode, model);
+		var failedRet = $elm$core$Maybe$Nothing;
 		var _v0 = $author$project$GraphDefs$selectedEdge(modelGraph);
 		if (_v0.$ === 'Nothing') {
 			return failedRet;
@@ -19737,20 +19737,24 @@ var $author$project$Modes$Bend$initialise_with_state = F2(
 							return s.captureState.value;
 						}
 					}());
-				return A2(
-					$author$project$Model$setMode,
-					$author$project$Modes$BendMode(
-						{captureState: iniState, edge: e}),
-					model);
+				return $elm$core$Maybe$Just(
+					A2(
+						$author$project$Model$setMode,
+						$author$project$Modes$BendMode(
+							{captureState: iniState, edge: e}),
+						model));
 			}
 		}
 	});
 var $author$project$Modes$Bend$fixModel = F2(
 	function (m, state) {
 		return A2(
-			$author$project$Modes$Bend$initialise_with_state,
-			m,
-			$elm$core$Maybe$Just(state));
+			$elm$core$Maybe$withDefault,
+			A2($author$project$Model$setMode, $author$project$Modes$DefaultMode, m),
+			A2(
+				$author$project$Modes$Bend$initialise_with_state,
+				m,
+				$elm$core$Maybe$Just(state)));
 	});
 var $author$project$Modes$CustomizeMode = function (a) {
 	return {$: 'CustomizeMode', a: a};
@@ -33869,11 +33873,11 @@ var $author$project$Main$update_DefaultMode = F2(
 				return A3($author$project$Modes$CreatePoint$initialise, isMath, snapToGrid, model);
 			});
 		var increaseZBy = function (offset) {
-			var _v29 = $author$project$GraphDefs$selectedId(modelGraph);
-			if (_v29.$ === 'Nothing') {
+			var _v30 = $author$project$GraphDefs$selectedId(modelGraph);
+			if (_v30.$ === 'Nothing') {
 				return $author$project$Model$noCmd(model);
 			} else {
-				var id = _v29.a;
+				var id = _v30.a;
 				return A2(
 					$author$project$CommandCodec$updateModifHelper,
 					model,
@@ -33893,9 +33897,9 @@ var $author$project$Main$update_DefaultMode = F2(
 						$author$project$Polygraph$newModif(modelGraph)));
 			}
 		};
-		_v0$56:
+		_v0$55:
 		while (true) {
-			_v0$57:
+			_v0$56:
 			while (true) {
 				switch (msg.$) {
 					case 'MouseOn':
@@ -34110,7 +34114,7 @@ var $author$project$Main$update_DefaultMode = F2(
 										$elm$core$Basics$always($author$project$Msg$PressTimeout),
 										$elm$core$Process$sleep(pressTimeoutMs)));
 							} else {
-								break _v0$57;
+								break _v0$56;
 							}
 						} else {
 							if (msg.c.$ === 'Control') {
@@ -34123,7 +34127,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											model,
 											$author$project$GraphDefs$removeSelected(modelGraph));
 									default:
-										break _v0$56;
+										break _v0$55;
 								}
 							} else {
 								switch (msg.c.a.valueOf()) {
@@ -34151,9 +34155,6 @@ var $author$project$Main$update_DefaultMode = F2(
 												$author$project$Model$setActiveGraph,
 												model,
 												$author$project$GraphDefs$selectAll(modelGraph)));
-									case 'b':
-										return $author$project$Model$noCmd(
-											$author$project$Modes$Bend$initialise(model));
 									case 'd':
 										return $author$project$Model$noCmd(
 											$author$project$Modes$Freehand$initialise(model));
@@ -34433,39 +34434,48 @@ var $author$project$Main$update_DefaultMode = F2(
 												$author$project$Msg$FocusPosition(
 													{pos: model.mousePos, selIds: selIds, tabId: model.graphInfo.activeTabId})));
 									default:
-										break _v0$56;
+										break _v0$55;
 								}
 							}
 						}
 					default:
-						break _v0$57;
+						break _v0$56;
 				}
 			}
 			return $author$project$Model$noCmd(model);
 		}
 		var k = msg.c;
-		var edges = $author$project$GraphDefs$selectedEdges(modelGraph);
-		var updNormal = function (_v28) {
-			return A2(
-				$author$project$CommandCodec$updateModifHelper,
-				model,
-				A3(
-					$author$project$Model$returnUpdateStyle,
-					$author$project$ArrowStyle$keyMaybeUpdateStyle(k),
-					model,
-					edges));
-		};
-		var updPullshout = function (_v27) {
-			return A2(
-				$author$project$CommandCodec$updateModifHelper,
-				model,
-				A3($author$project$Model$returnUpdatePullshout, k, model, edges));
-		};
-		if (edges.b && (!edges.b.b)) {
-			var edge = edges.a;
-			return $author$project$GraphDefs$isPullshout(edge.label) ? updPullshout(_Utils_Tuple0) : updNormal(_Utils_Tuple0);
+		var _v26 = (!_Utils_eq(
+			k,
+			$author$project$HtmlDefs$Character(
+				_Utils_chr('b')))) ? $elm$core$Maybe$Nothing : $author$project$Modes$Bend$initialise(model);
+		if (_v26.$ === 'Just') {
+			var m = _v26.a;
+			return $author$project$Model$noCmd(m);
 		} else {
-			return updNormal(_Utils_Tuple0);
+			var edges = $author$project$GraphDefs$selectedEdges(modelGraph);
+			var updNormal = function (_v29) {
+				return A2(
+					$author$project$CommandCodec$updateModifHelper,
+					model,
+					A3(
+						$author$project$Model$returnUpdateStyle,
+						$author$project$ArrowStyle$keyMaybeUpdateStyle(k),
+						model,
+						edges));
+			};
+			var updPullshout = function (_v28) {
+				return A2(
+					$author$project$CommandCodec$updateModifHelper,
+					model,
+					A3($author$project$Model$returnUpdatePullshout, k, model, edges));
+			};
+			if (edges.b && (!edges.b.b)) {
+				var edge = edges.a;
+				return $author$project$GraphDefs$isPullshout(edge.label) ? updPullshout(_Utils_Tuple0) : updNormal(_Utils_Tuple0);
+			} else {
+				return updNormal(_Utils_Tuple0);
+			}
 		}
 	});
 var $author$project$Main$enlargeModif = F2(
