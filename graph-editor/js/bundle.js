@@ -92,6 +92,13 @@ var Bundle = (() => {
     return joinPath(config.baseDir, pathBasename(content) + "." + config.exportFormat);
   }
   async function getFilehandleFromPath(d, filePath, options) {
+    let handles = await getFilehandlesFromPath(d, filePath, options);
+    if (handles.length == 0) {
+      throw new Error("No file found for path " + filePath);
+    }
+    return handles[0];
+  }
+  async function getFilehandlesFromPath(d, filePath, options) {
     let parts = filePath.split("/");
     let currentHandle = d;
     while (parts.length > 1) {
@@ -100,7 +107,19 @@ var Bundle = (() => {
         continue;
       currentHandle = await currentHandle.getDirectoryHandle(part);
     }
-    return currentHandle.getFileHandle(parts[0], options);
+    let name = parts[0];
+    if (!name.includes("*"))
+      return currentHandle.getFileHandle(name, options).then((fh) => [fh]);
+    let regex = new RegExp("^" + name.split("*").map(escapeStringRegexp).join(".*") + "$");
+    let fileHandles = [];
+    for await (const [key, value] of currentHandle.entries()) {
+      if (regex.test(key)) {
+        console.log("matched " + key + " against " + regex);
+        let fh = await currentHandle.getFileHandle(key, options);
+        fileHandles.push(fh);
+      }
+    }
+    return fileHandles;
   }
   async function checkFileExistsFromPath(d, filePath) {
     try {
@@ -110,13 +129,19 @@ var Bundle = (() => {
       return false;
     }
   }
+  async function getTextFromFilehandle(fileHandle) {
+    let file = await fileHandle.getFile();
+    return file.text();
+  }
   async function getTextFromFilepath(d, filePath) {
     let filehandle = await getFilehandleFromPath(d, filePath);
-    let file = await filehandle.getFile();
-    return file.text();
+    return getTextFromFilehandle(filehandle);
   }
   function getLinesFromFilepath(d, filePath) {
     return getTextFromFilepath(d, filePath).then((text) => text.split("\n"));
+  }
+  function getLinesFromFilehandle(fileHandle) {
+    return getTextFromFilehandle(fileHandle).then((text) => text.split("\n"));
   }
   function readLine(s) {
     let line = s.shift();
@@ -264,14 +289,28 @@ var Bundle = (() => {
     let watchedFile = config.watchedFile;
     if (typeof watchedFile != "string")
       return void 0;
+    let fileHandles = await getFilehandlesFromPath(d, watchedFile);
+    for (let fileHandle of fileHandles) {
+      let res = await checkSingleFile(config, d, fileHandle);
+      if (res !== false) {
+        return res;
+      }
+    }
+    return false;
+  }
+  async function checkSingleFile(config, d, file) {
     let file_lines;
     try {
-      file_lines = await getLinesFromFilepath(d, watchedFile);
+      file_lines = await getLinesFromFilehandle(file);
     } catch (e) {
       alert("Unable to read " + config.watchedFile);
       console.log(e);
       return void 0;
     }
+    let relPath = await d.resolve(file);
+    let watchedFile = "";
+    if (relPath)
+      watchedFile = relPath.join("/");
     let remainder = [];
     let index = 0;
     let line = "";
