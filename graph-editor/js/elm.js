@@ -7676,6 +7676,12 @@ var $author$project$Format$Version18$HeadStyle = function (a) {
 var $author$project$Format$Version18$Kind = function (a) {
 	return {$: 'Kind', a: a};
 };
+var $author$project$Format$Version18$LoopAngle = function (a) {
+	return {$: 'LoopAngle', a: a};
+};
+var $author$project$Format$Version18$LoopRadius = function (a) {
+	return {$: 'LoopRadius', a: a};
+};
 var $author$project$Format$Version18$Marker = function (a) {
 	return {$: 'Marker', a: a};
 };
@@ -8062,7 +8068,7 @@ var $author$project$Codec$prefixVariant0 = F4(
 				setTag: c.setTag
 			});
 	});
-var $author$project$Format$Version18$prefixes = {adjunction: 'adjunction', alignment: 'alignment ', bend: 'bend ', color: 'color ', dashed: 'dashed', head: 'head ', headColor: 'headColor ', kind: 'kind ', marker: 'marker ', position: 'position ', pullshout: 'pullshout ', shiftSource: 'shiftSource ', shiftTarget: 'shiftTarget ', tail: 'tail ', tailColor: 'tailColor ', unrecognized: 'unrecognized', wavy: 'wavy'};
+var $author$project$Format$Version18$prefixes = {adjunction: 'adjunction', alignment: 'alignment ', bend: 'bend ', color: 'color ', dashed: 'dashed', head: 'head ', headColor: 'headColor ', kind: 'kind ', loopAngle: 'loopAngle ', loopRadius: 'loopRadius ', marker: 'marker ', position: 'position ', pullshout: 'pullshout ', shiftSource: 'shiftSource ', shiftTarget: 'shiftTarget ', tail: 'tail ', tailColor: 'tailColor ', unrecognized: 'unrecognized', wavy: 'wavy'};
 var $author$project$Format$Version18$pullshoutOffsetCodec = A2(
 	$author$project$Codec$build,
 	function (_v0) {
@@ -8147,57 +8153,67 @@ var $author$project$Format$Version18$edgeFlagCodec = function () {
 														return function (tailcolor) {
 															return function (shiftSource) {
 																return function (shiftTarget) {
-																	return function (unrecognized) {
-																		return function (v) {
-																			switch (v.$) {
-																				case 'Dashed':
-																					return dashed;
-																				case 'Marker':
-																					var s = v.a;
-																					return marker(s);
-																				case 'Pullshout':
-																					var r = v.a;
-																					return pullshout(r);
-																				case 'Bend':
-																					var f = v.a;
-																					return bend(f);
-																				case 'Position':
-																					var f = v.a;
-																					return position(f);
-																				case 'Adjunction':
-																					return adjunction;
-																				case 'Wavy':
-																					return wavy;
-																				case 'Kind':
-																					var k = v.a;
-																					return kind(k);
-																				case 'HeadStyle':
-																					var s = v.a;
-																					return headstyle(s);
-																				case 'TailStyle':
-																					var s = v.a;
-																					return tailstyle(s);
-																				case 'Alignment':
-																					var s = v.a;
-																					return alignment(s);
-																				case 'Unrecognized':
-																					return unrecognized;
-																				case 'Color':
-																					var c = v.a;
-																					return color(c);
-																				case 'HeadColor':
-																					var c = v.a;
-																					return headcolor(c);
-																				case 'TailColor':
-																					var c = v.a;
-																					return tailcolor(c);
-																				case 'ShiftSource':
-																					var c = v.a;
-																					return shiftSource(c);
-																				default:
-																					var c = v.a;
-																					return shiftTarget(c);
-																			}
+																	return function (loopRadius) {
+																		return function (loopAngle) {
+																			return function (unrecognized) {
+																				return function (v) {
+																					switch (v.$) {
+																						case 'Dashed':
+																							return dashed;
+																						case 'Marker':
+																							var s = v.a;
+																							return marker(s);
+																						case 'Pullshout':
+																							var r = v.a;
+																							return pullshout(r);
+																						case 'Bend':
+																							var f = v.a;
+																							return bend(f);
+																						case 'Position':
+																							var f = v.a;
+																							return position(f);
+																						case 'Adjunction':
+																							return adjunction;
+																						case 'Wavy':
+																							return wavy;
+																						case 'Kind':
+																							var k = v.a;
+																							return kind(k);
+																						case 'HeadStyle':
+																							var s = v.a;
+																							return headstyle(s);
+																						case 'TailStyle':
+																							var s = v.a;
+																							return tailstyle(s);
+																						case 'Alignment':
+																							var s = v.a;
+																							return alignment(s);
+																						case 'Unrecognized':
+																							return unrecognized;
+																						case 'Color':
+																							var c = v.a;
+																							return color(c);
+																						case 'HeadColor':
+																							var c = v.a;
+																							return headcolor(c);
+																						case 'TailColor':
+																							var c = v.a;
+																							return tailcolor(c);
+																						case 'ShiftSource':
+																							var c = v.a;
+																							return shiftSource(c);
+																						case 'ShiftTarget':
+																							var c = v.a;
+																							return shiftTarget(c);
+																						case 'LoopRadius':
+																							var c = v.a;
+																							return loopRadius(c);
+																						default:
+																							var c = v.a;
+																							return loopAngle(c);
+																					}
+																				};
+																			};
 																		};
 																	};
 																};
@@ -8225,82 +8241,92 @@ var $author$project$Format$Version18$edgeFlagCodec = function () {
 			$author$project$Format$Version18$Unrecognized,
 			A4(
 				$author$project$Codec$prefixVariant0,
-				$author$project$Format$Version18$prefixes.shiftTarget,
-				$author$project$Format$Version18$ShiftTarget,
+				$author$project$Format$Version18$prefixes.loopAngle,
+				$author$project$Format$Version18$LoopAngle,
 				$author$project$Format$Version18$floatCodec,
 				A4(
 					$author$project$Codec$prefixVariant0,
-					$author$project$Format$Version18$prefixes.shiftSource,
-					$author$project$Format$Version18$ShiftSource,
+					$author$project$Format$Version18$prefixes.loopRadius,
+					$author$project$Format$Version18$LoopRadius,
 					$author$project$Format$Version18$floatCodec,
 					A4(
 						$author$project$Codec$prefixVariant0,
-						$author$project$Format$Version18$prefixes.tailColor,
-						$author$project$Format$Version18$TailColor,
-						$author$project$Drawing$Color$codec,
+						$author$project$Format$Version18$prefixes.shiftTarget,
+						$author$project$Format$Version18$ShiftTarget,
+						$author$project$Format$Version18$floatCodec,
 						A4(
 							$author$project$Codec$prefixVariant0,
-							$author$project$Format$Version18$prefixes.headColor,
-							$author$project$Format$Version18$HeadColor,
-							$author$project$Drawing$Color$codec,
+							$author$project$Format$Version18$prefixes.shiftSource,
+							$author$project$Format$Version18$ShiftSource,
+							$author$project$Format$Version18$floatCodec,
 							A4(
 								$author$project$Codec$prefixVariant0,
-								$author$project$Format$Version18$prefixes.color,
-								$author$project$Format$Version18$Color,
+								$author$project$Format$Version18$prefixes.tailColor,
+								$author$project$Format$Version18$TailColor,
 								$author$project$Drawing$Color$codec,
 								A4(
 									$author$project$Codec$prefixVariant0,
-									$author$project$Format$Version18$prefixes.alignment,
-									$author$project$Format$Version18$Alignment,
-									$author$project$ArrowStyle$alignmentCodec,
+									$author$project$Format$Version18$prefixes.headColor,
+									$author$project$Format$Version18$HeadColor,
+									$author$project$Drawing$Color$codec,
 									A4(
 										$author$project$Codec$prefixVariant0,
-										$author$project$Format$Version18$prefixes.tail,
-										$author$project$Format$Version18$TailStyle,
-										$author$project$ArrowStyle$tailCodec,
+										$author$project$Format$Version18$prefixes.color,
+										$author$project$Format$Version18$Color,
+										$author$project$Drawing$Color$codec,
 										A4(
 											$author$project$Codec$prefixVariant0,
-											$author$project$Format$Version18$prefixes.head,
-											$author$project$Format$Version18$HeadStyle,
-											$author$project$ArrowStyle$headCodec,
+											$author$project$Format$Version18$prefixes.alignment,
+											$author$project$Format$Version18$Alignment,
+											$author$project$ArrowStyle$alignmentCodec,
 											A4(
 												$author$project$Codec$prefixVariant0,
-												$author$project$Format$Version18$prefixes.kind,
-												$author$project$Format$Version18$Kind,
-												$author$project$ArrowStyle$kindCodec,
-												A3(
-													$author$project$Codec$variant0,
-													$author$project$Format$Version18$prefixes.wavy,
-													$author$project$Format$Version18$Wavy,
-													A3(
-														$author$project$Codec$variant0,
-														$author$project$Format$Version18$prefixes.adjunction,
-														$author$project$Format$Version18$Adjunction,
-														A4(
-															$author$project$Codec$prefixVariant0,
-															$author$project$Format$Version18$prefixes.position,
-															$author$project$Format$Version18$Position,
-															$author$project$Format$Version18$floatCodec,
-															A4(
-																$author$project$Codec$prefixVariant0,
-																$author$project$Format$Version18$prefixes.bend,
-																$author$project$Format$Version18$Bend,
-																$author$project$Format$Version18$floatCodec,
+												$author$project$Format$Version18$prefixes.tail,
+												$author$project$Format$Version18$TailStyle,
+												$author$project$ArrowStyle$tailCodec,
+												A4(
+													$author$project$Codec$prefixVariant0,
+													$author$project$Format$Version18$prefixes.head,
+													$author$project$Format$Version18$HeadStyle,
+													$author$project$ArrowStyle$headCodec,
+													A4(
+														$author$project$Codec$prefixVariant0,
+														$author$project$Format$Version18$prefixes.kind,
+														$author$project$Format$Version18$Kind,
+														$author$project$ArrowStyle$kindCodec,
+														A3(
+															$author$project$Codec$variant0,
+															$author$project$Format$Version18$prefixes.wavy,
+															$author$project$Format$Version18$Wavy,
+															A3(
+																$author$project$Codec$variant0,
+																$author$project$Format$Version18$prefixes.adjunction,
+																$author$project$Format$Version18$Adjunction,
 																A4(
 																	$author$project$Codec$prefixVariant0,
-																	$author$project$Format$Version18$prefixes.pullshout,
-																	$author$project$Format$Version18$Pullshout,
-																	$author$project$Format$Version18$pullshoutOffsetCodec,
+																	$author$project$Format$Version18$prefixes.position,
+																	$author$project$Format$Version18$Position,
+																	$author$project$Format$Version18$floatCodec,
 																	A4(
 																		$author$project$Codec$prefixVariant0,
-																		$author$project$Format$Version18$prefixes.marker,
-																		$author$project$Format$Version18$Marker,
-																		$author$project$Codec$identity,
-																		A3(
-																			$author$project$Codec$variant0,
-																			$author$project$Format$Version18$prefixes.dashed,
-																			$author$project$Format$Version18$Dashed,
-																			$author$project$Codec$customEnum(split)))))))))))))))))));
+																		$author$project$Format$Version18$prefixes.bend,
+																		$author$project$Format$Version18$Bend,
+																		$author$project$Format$Version18$floatCodec,
+																		A4(
+																			$author$project$Codec$prefixVariant0,
+																			$author$project$Format$Version18$prefixes.pullshout,
+																			$author$project$Format$Version18$Pullshout,
+																			$author$project$Format$Version18$pullshoutOffsetCodec,
+																			A4(
+																				$author$project$Codec$prefixVariant0,
+																				$author$project$Format$Version18$prefixes.marker,
+																				$author$project$Format$Version18$Marker,
+																				$author$project$Codec$identity,
+																				A3(
+																					$author$project$Codec$variant0,
+																					$author$project$Format$Version18$prefixes.dashed,
+																					$author$project$Format$Version18$Dashed,
+																					$author$project$Codec$customEnum(split)))))))))))))))))))));
 }();
 var $author$project$Format$Version18$addFlag = F2(
 	function (flag, l) {
@@ -8370,7 +8396,7 @@ var $author$project$Format$Version18$alignmentFlag = A3(
 	});
 var $author$project$Format$Version18$bendFlag = A3(
 	$author$project$Format$Version18$edgeMaybeFlagCodec,
-	0.0,
+	0,
 	$author$project$Format$Version18$Bend,
 	function (flag) {
 		if (flag.$ === 'Bend') {
@@ -8499,6 +8525,31 @@ var $author$project$Format$Version18$kindFlag = function () {
 					A2($elm_community$list_extra$List$Extra$findMap, dec, bs));
 			}));
 }();
+var $author$project$Format$Version18$loopAngleFlag = A3(
+	$author$project$Format$Version18$edgeMaybeFlagCodec,
+	0,
+	$author$project$Format$Version18$LoopAngle,
+	function (flag) {
+		if (flag.$ === 'LoopAngle') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$ArrowStyle$defaultLoopRadius = 20;
+var $author$project$Format$Version18$loopRadiusFlag = A3(
+	$author$project$Format$Version18$edgeMaybeFlagCodec,
+	$author$project$ArrowStyle$defaultLoopRadius,
+	$author$project$Format$Version18$LoopRadius,
+	function (flag) {
+		if (flag.$ === 'LoopRadius') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
 var $author$project$Format$Version18$markerFlag = A3(
 	$author$project$Format$Version18$edgeMaybeFlagCodec,
 	'',
@@ -8581,138 +8632,111 @@ var $author$project$Format$Version18$arrowStyleCodec = function () {
 		A3(
 			flagField,
 			function ($) {
-				return $.wavy;
+				return $.loopAngle;
 			},
-			$author$project$Format$Version18$wavyFlag,
+			$author$project$Format$Version18$loopAngleFlag,
 			A3(
 				flagField,
 				function ($) {
-					return $.marker;
+					return $.loopRadius;
 				},
-				$author$project$Format$Version18$markerFlag,
+				$author$project$Format$Version18$loopRadiusFlag,
 				A3(
 					flagField,
-					function (_v0) {
-						var color = _v0.color;
-						var headColor = _v0.headColor;
-						var tailColor = _v0.tailColor;
-						return {head: headColor, main: color, tail: tailColor};
+					function ($) {
+						return $.wavy;
 					},
-					$author$project$Format$Version18$colorsFlag,
+					$author$project$Format$Version18$wavyFlag,
 					A3(
 						flagField,
 						function ($) {
-							return $.shiftTarget;
+							return $.marker;
 						},
-						$author$project$Format$Version18$shiftTargetFlag,
+						$author$project$Format$Version18$markerFlag,
 						A3(
 							flagField,
-							function ($) {
-								return $.shiftSource;
+							function (_v0) {
+								var color = _v0.color;
+								var headColor = _v0.headColor;
+								var tailColor = _v0.tailColor;
+								return {head: headColor, main: color, tail: tailColor};
 							},
-							$author$project$Format$Version18$shiftSourceFlag,
+							$author$project$Format$Version18$colorsFlag,
 							A3(
 								flagField,
 								function ($) {
-									return $.labelPosition;
+									return $.shiftTarget;
 								},
-								$author$project$Format$Version18$positionFlag,
+								$author$project$Format$Version18$shiftTargetFlag,
 								A3(
 									flagField,
 									function ($) {
-										return $.labelAlignment;
+										return $.shiftSource;
 									},
-									$author$project$Format$Version18$alignmentFlag,
+									$author$project$Format$Version18$shiftSourceFlag,
 									A3(
 										flagField,
 										function ($) {
-											return $.bend;
+											return $.labelPosition;
 										},
-										$author$project$Format$Version18$bendFlag,
+										$author$project$Format$Version18$positionFlag,
 										A3(
 											flagField,
 											function ($) {
-												return $.dashed;
+												return $.labelAlignment;
 											},
-											$author$project$Format$Version18$dashedFlag,
+											$author$project$Format$Version18$alignmentFlag,
 											A3(
 												flagField,
 												function ($) {
-													return $.kind;
+													return $.bend;
 												},
-												$author$project$Format$Version18$kindFlag,
+												$author$project$Format$Version18$bendFlag,
 												A3(
 													flagField,
 													function ($) {
-														return $.head;
+														return $.dashed;
 													},
-													$author$project$Format$Version18$headFlag,
+													$author$project$Format$Version18$dashedFlag,
 													A3(
 														flagField,
 														function ($) {
-															return $.tail;
+															return $.kind;
 														},
-														$author$project$Format$Version18$tailFlag,
-														A2(
-															$author$project$Codec$object,
-															function (tail) {
-																return function (head) {
-																	return function (kind) {
-																		return function (dashed) {
-																			return function (bend) {
-																				return function (alignment) {
-																					return function (position) {
-																						return function (shiftSource) {
-																							return function (shiftTarget) {
-																								return function (colors) {
-																									return function (marker) {
-																										return function (wavy) {
-																											return {bend: bend, color: colors.main, dashed: dashed, head: head, headColor: colors.head, kind: kind, labelAlignment: alignment, labelPosition: position, marker: marker, shiftSource: shiftSource, shiftTarget: shiftTarget, tail: tail, tailColor: colors.tail, wavy: wavy};
-																										};
-																									};
-																								};
-																							};
-																						};
-																					};
-																				};
-																			};
-																		};
-																	};
-																};
+														$author$project$Format$Version18$kindFlag,
+														A3(
+															flagField,
+															function ($) {
+																return $.head;
 															},
-															function (tail) {
-																return function (head) {
-																	return function (kind) {
-																		return function (dashed) {
-																			return function (bend) {
-																				return function (alignment) {
-																					return function (position) {
-																						return function (shiftSource) {
-																							return function (shiftTarget) {
-																								return function (colors) {
-																									return function (marker) {
-																										return function (wavy) {
-																											return _Utils_ap(
-																												shiftSource,
-																												_Utils_ap(
-																													shiftTarget,
-																													_Utils_ap(
-																														position,
-																														_Utils_ap(
-																															bend,
-																															_Utils_ap(
-																																marker,
-																																_Utils_ap(
-																																	colors,
-																																	_Utils_ap(
-																																		dashed,
-																																		_Utils_ap(
-																																			alignment,
-																																			_Utils_ap(
-																																				tail,
-																																				_Utils_ap(
-																																					head,
-																																					_Utils_ap(kind, wavy)))))))))));
+															$author$project$Format$Version18$headFlag,
+															A3(
+																flagField,
+																function ($) {
+																	return $.tail;
+																},
+																$author$project$Format$Version18$tailFlag,
+																A2(
+																	$author$project$Codec$object,
+																	function (tail) {
+																		return function (head) {
+																			return function (kind) {
+																				return function (dashed) {
+																					return function (bend) {
+																						return function (alignment) {
+																							return function (position) {
+																								return function (shiftSource) {
+																									return function (shiftTarget) {
+																										return function (colors) {
+																											return function (marker) {
+																												return function (wavy) {
+																													return function (loopRadius) {
+																														return function (loopAngle) {
+																															return {bend: bend, color: colors.main, dashed: dashed, head: head, headColor: colors.head, kind: kind, labelAlignment: alignment, labelPosition: position, loopAngle: loopAngle, loopRadius: loopRadius, marker: marker, shiftSource: shiftSource, shiftTarget: shiftTarget, tail: tail, tailColor: colors.tail, wavy: wavy};
+																														};
+																													};
+																												};
+																											};
 																										};
 																									};
 																								};
@@ -8722,9 +8746,60 @@ var $author$project$Format$Version18$arrowStyleCodec = function () {
 																				};
 																			};
 																		};
-																	};
-																};
-															}))))))))))))));
+																	},
+																	function (tail) {
+																		return function (head) {
+																			return function (kind) {
+																				return function (dashed) {
+																					return function (bend) {
+																						return function (alignment) {
+																							return function (position) {
+																								return function (shiftSource) {
+																									return function (shiftTarget) {
+																										return function (colors) {
+																											return function (marker) {
+																												return function (wavy) {
+																													return function (loopRadius) {
+																														return function (loopAngle) {
+																															return _Utils_ap(
+																																shiftSource,
+																																_Utils_ap(
+																																	shiftTarget,
+																																	_Utils_ap(
+																																		position,
+																																		_Utils_ap(
+																																			bend,
+																																			_Utils_ap(
+																																				marker,
+																																				_Utils_ap(
+																																					colors,
+																																					_Utils_ap(
+																																						dashed,
+																																						_Utils_ap(
+																																							alignment,
+																																							_Utils_ap(
+																																								tail,
+																																								_Utils_ap(
+																																									head,
+																																									_Utils_ap(
+																																										kind,
+																																										_Utils_ap(
+																																											wavy,
+																																											_Utils_ap(loopRadius, loopAngle)))))))))))));
+																														};
+																													};
+																												};
+																											};
+																										};
+																									};
+																								};
+																							};
+																						};
+																					};
+																				};
+																			};
+																		};
+																	}))))))))))))))));
 }();
 var $author$project$ArrowStyle$getStyle = function (_v0) {
 	var style = _v0.style;
@@ -19109,14 +19184,21 @@ var $author$project$Model$activateFirstTab = function (m) {
 var $author$project$Modes$BendMode = function (a) {
 	return {$: 'BendMode', a: a};
 };
-var $author$project$EdgeShape$Bezier = function (a) {
-	return {$: 'Bezier', a: a};
+var $author$project$EdgeShape$ArrowShape = function (a) {
+	return {$: 'ArrowShape', a: a};
+};
+var $author$project$Geometry$Curve$CurveArc = function (a) {
+	return {$: 'CurveArc', a: a};
+};
+var $author$project$Geometry$Curve$CurveBezier = function (a) {
+	return {$: 'CurveBezier', a: a};
 };
 var $author$project$EdgeShape$HatShape = function (a) {
 	return {$: 'HatShape', a: a};
 };
 var $author$project$ArrowStyle$Head = {$: 'Head'};
 var $author$project$ArrowStyle$Tail = {$: 'Tail'};
+var $elm$core$Basics$cos = _Basics_cos;
 var $author$project$GraphDefs$defaultDims = function (s) {
 	var height = 16;
 	var size = 1;
@@ -19168,18 +19250,12 @@ var $author$project$Geometry$QuadraticBezier$middle = function (_v0) {
 		controlPoint,
 		A2($author$project$Geometry$Point$middle, from, to));
 };
-var $author$project$Geometry$pad = F2(
-	function (n, _v0) {
-		var pos = _v0.pos;
-		var dims = _v0.dims;
-		var n2 = n * 2;
-		return {
-			dims: A2(
-				$author$project$Geometry$Point$add,
-				dims,
-				_Utils_Tuple2(n2, n2)),
-			pos: pos
-		};
+var $elm$core$Basics$sin = _Basics_sin;
+var $author$project$Geometry$Point$fromPolar = F2(
+	function (r, a) {
+		return _Utils_Tuple2(
+			r * $elm$core$Basics$cos(a),
+			r * $elm$core$Basics$sin(a));
 	});
 var $author$project$Geometry$Point$lerp = F3(
 	function (_this, other, t) {
@@ -19200,13 +19276,8 @@ var $author$project$Geometry$QuadraticBezier$point = F2(
 		var p1 = A3($author$project$Geometry$Point$lerp, controlPoint, to, t);
 		return A3($author$project$Geometry$Point$lerp, p0, p1, t);
 	});
-var $author$project$Geometry$Point$diamondPave = F3(
-	function (p1, p2, p3) {
-		return A2(
-			$author$project$Geometry$Point$add,
-			p1,
-			A2($author$project$Geometry$Point$subtract, p3, p2));
-	});
+var $elm$core$Basics$atan = _Basics_atan;
+var $elm$core$Basics$pi = _Basics_pi;
 var $author$project$Geometry$Point$scalarProduct = F2(
 	function (_v0, _v1) {
 		var x1 = _v0.a;
@@ -19219,6 +19290,69 @@ var $elm$core$Basics$sqrt = _Basics_sqrt;
 var $author$project$Geometry$Point$radius = function (p) {
 	return $elm$core$Basics$sqrt(
 		A2($author$project$Geometry$Point$scalarProduct, p, p));
+};
+var $author$project$Geometry$Point$pointToAngle = function (_v0) {
+	var x = _v0.a;
+	var y = _v0.b;
+	return ((!y) && (x <= 0)) ? $elm$core$Basics$pi : (2 * $elm$core$Basics$atan(
+		y / (x + $author$project$Geometry$Point$radius(
+			_Utils_Tuple2(x, y)))));
+};
+var $author$project$Geometry$Curve$point = F2(
+	function (q, t) {
+		if (q.$ === 'CurveBezier') {
+			var b = q.a;
+			return A2($author$project$Geometry$QuadraticBezier$point, b, t);
+		} else {
+			var a = q.a;
+			var angleFrom = $author$project$Geometry$Point$pointToAngle(
+				A2($author$project$Geometry$Point$subtract, a.center, a.from));
+			var angleTo = $author$project$Geometry$Point$pointToAngle(
+				A2($author$project$Geometry$Point$subtract, a.center, a.to));
+			var angle = angleFrom + (t * (angleTo - angleFrom));
+			return A2(
+				$author$project$Geometry$Point$add,
+				a.center,
+				A2($author$project$Geometry$Point$fromPolar, a.r, angle));
+		}
+	});
+var $author$project$Geometry$Curve$middle = function (q) {
+	if (q.$ === 'CurveBezier') {
+		var b = q.a;
+		return $author$project$Geometry$QuadraticBezier$middle(b);
+	} else {
+		var a = q.a;
+		return A2($author$project$Geometry$Curve$point, q, 0.5);
+	}
+};
+var $author$project$Geometry$pad = F2(
+	function (n, _v0) {
+		var pos = _v0.pos;
+		var dims = _v0.dims;
+		var n2 = n * 2;
+		return {
+			dims: A2(
+				$author$project$Geometry$Point$add,
+				dims,
+				_Utils_Tuple2(n2, n2)),
+			pos: pos
+		};
+	});
+var $author$project$Geometry$Point$diamondPave = F3(
+	function (p1, p2, p3) {
+		return A2(
+			$author$project$Geometry$Point$add,
+			p1,
+			A2($author$project$Geometry$Point$subtract, p3, p2));
+	});
+var $author$project$Geometry$Curve$from = function (c) {
+	if (c.$ === 'CurveBezier') {
+		var q = c.a;
+		return q.from;
+	} else {
+		var a = c.a;
+		return a.from;
+	}
 };
 var $author$project$Geometry$Point$distance = F2(
 	function (x, y) {
@@ -19267,6 +19401,21 @@ var $author$project$Geometry$QuadraticBezier$shiftFrom = F2(
 			controlPoint,
 			shift);
 	});
+var $author$project$Geometry$Curve$shiftFrom = F2(
+	function (c, shift) {
+		if (c.$ === 'CurveBezier') {
+			var q = c.a;
+			return A2($author$project$Geometry$QuadraticBezier$shiftFrom, q, shift);
+		} else {
+			var a = c.a;
+			return A4(
+				$author$project$Geometry$Point$towardsBentDiagonal,
+				a.from,
+				A2($author$project$Geometry$Point$middle, a.from, a.to),
+				a.center,
+				shift);
+		}
+	});
 var $author$project$Geometry$QuadraticBezier$shiftTo = F2(
 	function (q, shift) {
 		var to = q.to;
@@ -19278,21 +19427,51 @@ var $author$project$Geometry$QuadraticBezier$shiftTo = F2(
 			controlPoint,
 			shift);
 	});
+var $author$project$Geometry$Curve$shiftTo = F2(
+	function (c, shift) {
+		if (c.$ === 'CurveBezier') {
+			var q = c.a;
+			return A2($author$project$Geometry$QuadraticBezier$shiftTo, q, shift);
+		} else {
+			var a = c.a;
+			return A4(
+				$author$project$Geometry$Point$towardsBentDiagonal,
+				a.to,
+				A2($author$project$Geometry$Point$middle, a.from, a.to),
+				a.center,
+				shift);
+		}
+	});
+var $author$project$Geometry$Curve$to = function (c) {
+	if (c.$ === 'CurveBezier') {
+		var q = c.a;
+		return q.to;
+	} else {
+		var a = c.a;
+		return a.to;
+	}
+};
 var $author$project$EdgeShape$pullshoutHat = F4(
 	function (shift1, shift2, e1, e2) {
 		var _v0 = _Utils_eq(e1.fromId, e2.fromId) ? _Utils_Tuple2(
-			_Utils_Tuple3(e1.fromPos, e1.bez.from, e2.bez.from),
-			$author$project$Geometry$QuadraticBezier$shiftFrom) : _Utils_Tuple2(
-			_Utils_Tuple3(e1.toPos, e1.bez.to, e2.bez.to),
-			$author$project$Geometry$QuadraticBezier$shiftTo);
+			_Utils_Tuple3(
+				e1.fromPos,
+				$author$project$Geometry$Curve$from(e1.curve),
+				$author$project$Geometry$Curve$from(e2.curve)),
+			$author$project$Geometry$Curve$shiftFrom) : _Utils_Tuple2(
+			_Utils_Tuple3(
+				e1.toPos,
+				$author$project$Geometry$Curve$to(e1.curve),
+				$author$project$Geometry$Curve$to(e2.curve)),
+			$author$project$Geometry$Curve$shiftTo);
 		var _v1 = _v0.a;
 		var vertex = _v1.a;
 		var vertex1 = _v1.b;
 		var vertex2 = _v1.c;
 		var shift = _v0.b;
 		var smallshift = 5;
-		var r2 = A2(shift, e2.bez, shift2);
-		var r1 = A2(shift, e1.bez, shift1);
+		var r2 = A2(shift, e2.curve, shift2);
+		var r1 = A2(shift, e1.curve, shift1);
 		var extrem = A3($author$project$Geometry$Point$diamondPave, r1, vertex, r2);
 		var s2 = A3($author$project$Geometry$Point$towards, r2, extrem, smallshift);
 		var s1 = A3($author$project$Geometry$Point$towards, r1, extrem, smallshift);
@@ -19466,7 +19645,13 @@ var $author$project$Geometry$segmentRectBent = F3(
 				var new_w = function (w) {
 					return 2;
 				};
-				var newBent = (-40) / offset;
+				var radius = 40 - (bent * 20);
+				var sign = (radius >= 0) ? (-1) : 1;
+				var hBez = A2(
+					$elm$core$Basics$max,
+					10,
+					$elm$core$Basics$abs(radius) * 2);
+				var newBent = (sign * hBez) / (2 * offset);
 				return _Utils_Tuple3(
 					{
 						dims: _Utils_Tuple2(
@@ -19504,13 +19689,14 @@ var $author$project$ArrowStyle$shiftRatioFromPart = F2(
 	});
 var $author$project$GraphDefs$posGraph = function (g) {
 	var padding = 5;
-	var dummyBez = {
-		controlPoint: _Utils_Tuple2(1, 1),
-		from: _Utils_Tuple2(0, 0),
-		to: _Utils_Tuple2(2, 2)
-	};
+	var dummyCurve = $author$project$Geometry$Curve$CurveBezier(
+		{
+			controlPoint: _Utils_Tuple2(1, 1),
+			from: _Utils_Tuple2(0, 0),
+			to: _Utils_Tuple2(2, 2)
+		});
 	var dummyExtrem = {
-		bez: dummyBez,
+		curve: dummyCurve,
 		fromId: 0,
 		fromPos: _Utils_Tuple2(0, 0),
 		toPos: _Utils_Tuple2(2, 2)
@@ -19542,9 +19728,9 @@ var $author$project$GraphDefs$posGraph = function (g) {
 			} else {
 				var l = _v4.a;
 				var computePosDims = function (isSource) {
-					var _v5 = isSource ? _Utils_Tuple2(n1, $author$project$ArrowStyle$Tail) : _Utils_Tuple2(n2, $author$project$ArrowStyle$Head);
-					var n = _v5.a;
-					var part = _v5.b;
+					var _v6 = isSource ? _Utils_Tuple2(n1, $author$project$ArrowStyle$Tail) : _Utils_Tuple2(n2, $author$project$ArrowStyle$Head);
+					var n = _v6.a;
+					var part = _v6.b;
 					if (!n.isArrow) {
 						return n.posDims;
 					} else {
@@ -19553,20 +19739,66 @@ var $author$project$GraphDefs$posGraph = function (g) {
 							oldPosDims,
 							{
 								pos: A2(
-									$author$project$Geometry$QuadraticBezier$point,
-									n.extrems.bez,
+									$author$project$Geometry$Curve$point,
+									n.extrems.curve,
 									A2($author$project$ArrowStyle$shiftRatioFromPart, l.style, part))
 							});
 					}
 				};
-				var q = A3(
-					$author$project$Geometry$segmentRectBent,
-					computePosDims(true),
-					computePosDims(false),
-					l.style.bend);
+				var isLoop = _Utils_eq(n1.id, n2.id);
+				var curve = function () {
+					if (isLoop) {
+						var radius = l.style.loopRadius;
+						var nodeCenter = computePosDims(true).pos;
+						var angle = l.style.loopAngle;
+						var center = A2(
+							$author$project$Geometry$Point$add,
+							nodeCenter,
+							_Utils_Tuple2(
+								$elm$core$Basics$abs(radius) * $elm$core$Basics$cos(angle),
+								$elm$core$Basics$abs(radius) * $elm$core$Basics$sin(angle)));
+						var apex = A2(
+							$author$project$Geometry$Point$add,
+							center,
+							_Utils_Tuple2(
+								$elm$core$Basics$abs(radius) * $elm$core$Basics$cos(angle),
+								$elm$core$Basics$abs(radius) * $elm$core$Basics$sin(angle)));
+						var fromAngle = angle - 0.5;
+						var toAngle = angle + 0.5;
+						var _v5 = (radius < 0) ? _Utils_Tuple2(toAngle, fromAngle) : _Utils_Tuple2(fromAngle, toAngle);
+						var actualFromAngle = _v5.a;
+						var actualToAngle = _v5.b;
+						var p1 = A2(
+							$author$project$Geometry$Point$add,
+							nodeCenter,
+							_Utils_Tuple2(
+								20 * $elm$core$Basics$cos(actualFromAngle),
+								20 * $elm$core$Basics$sin(actualFromAngle)));
+						var p2 = A2(
+							$author$project$Geometry$Point$add,
+							nodeCenter,
+							_Utils_Tuple2(
+								20 * $elm$core$Basics$cos(actualToAngle),
+								20 * $elm$core$Basics$sin(actualToAngle)));
+						var p1p2mid = A2($author$project$Geometry$Point$middle, p1, p2);
+						var controlPoint = A2(
+							$author$project$Geometry$Point$add,
+							apex,
+							A2($author$project$Geometry$Point$subtract, apex, p1p2mid));
+						return $author$project$Geometry$Curve$CurveArc(
+							{center: center, from: p1, r: radius, to: p2});
+					} else {
+						var q = A3(
+							$author$project$Geometry$segmentRectBent,
+							computePosDims(true),
+							computePosDims(false),
+							l.style.bend);
+						return $author$project$Geometry$Curve$CurveBezier(q);
+					}
+				}();
 				return {
 					acc: {
-						extrems: {bez: q, fromId: n1.id, fromPos: n1.posDims.pos, toPos: n2.posDims.pos},
+						extrems: {curve: curve, fromId: n1.id, fromPos: n1.posDims.pos, toPos: n2.posDims.pos},
 						id: id,
 						isArrow: true,
 						posDims: {
@@ -19574,11 +19806,11 @@ var $author$project$GraphDefs$posGraph = function (g) {
 								$author$project$Geometry$Point$resize,
 								4,
 								_Utils_Tuple2(padding, padding)),
-							pos: $author$project$Geometry$QuadraticBezier$middle(q)
+							pos: $author$project$Geometry$Curve$middle(curve)
 						}
 					},
 					label: e,
-					shape: $author$project$EdgeShape$Bezier(q)
+					shape: $author$project$EdgeShape$ArrowShape(curve)
 				};
 			}
 		});
@@ -19806,6 +20038,62 @@ var $author$project$Modes$CutHead$fixModel = F2(
 				model);
 		}
 	});
+var $author$project$Modes$LoopMode = function (a) {
+	return {$: 'LoopMode', a: a};
+};
+var $author$project$Modes$Loop$initialise_with_state = F2(
+	function (model, mayState) {
+		var modelGraph = $author$project$Model$getActiveGraph(model);
+		var failedRet = $elm$core$Maybe$Nothing;
+		var _v0 = $author$project$GraphDefs$selectedEdge(modelGraph);
+		if (_v0.$ === 'Nothing') {
+			return failedRet;
+		} else {
+			var e = _v0.a;
+			if (!_Utils_eq(e.from, e.to)) {
+				return failedRet;
+			} else {
+				var _v1 = e.label.details;
+				if (_v1.$ === 'PullshoutEdge') {
+					return failedRet;
+				} else {
+					var l = _v1.a;
+					var posGraph = $author$project$GraphDefs$posGraph(modelGraph);
+					var _v2 = A4(
+						$author$project$Polygraph$get,
+						e.from,
+						function ($) {
+							return $.pos;
+						},
+						function ($) {
+							return $.pos;
+						},
+						posGraph);
+					if (_v2.$ === 'Nothing') {
+						return failedRet;
+					} else {
+						var pos = _v2.a;
+						return $elm$core$Maybe$Just(
+							A2(
+								$author$project$Model$setMode,
+								$author$project$Modes$LoopMode(
+									{id: e.id, initialPos: pos}),
+								model));
+					}
+				}
+			}
+		}
+	});
+var $author$project$Modes$Loop$fixModel = F2(
+	function (m, state) {
+		return A2(
+			$elm$core$Maybe$withDefault,
+			A2($author$project$Model$setMode, $author$project$Modes$DefaultMode, m),
+			A2(
+				$author$project$Modes$Loop$initialise_with_state,
+				m,
+				$elm$core$Maybe$Just(state)));
+	});
 var $author$project$Modes$NewArrow = function (a) {
 	return {$: 'NewArrow', a: a};
 };
@@ -20023,6 +20311,12 @@ var $author$project$Command$fixModel = function (modeli) {
 			return ifTabChanged(
 				function (_v8) {
 					return A2($author$project$Modes$Square$fixModel, model, state);
+				});
+		case 'LoopMode':
+			var state = _v1.a;
+			return ifTabChanged(
+				function (_v9) {
+					return A2($author$project$Modes$Loop$fixModel, model, state);
 				});
 		case 'LatexPreamble':
 			return model;
@@ -21608,6 +21902,7 @@ var $author$project$Drawing$keyPartition = function (_v0) {
 	var keyedList = _v1.b;
 	return _Utils_Tuple2(unkeyedList, keyedList);
 };
+var $elm$core$Basics$atan2 = _Basics_atan2;
 var $author$project$Drawing$dimToTikz = function (d) {
 	return $elm$core$String$fromFloat(d / (16 * 1.2)) + 'em';
 };
@@ -21688,14 +21983,37 @@ var $author$project$Geometry$QuadraticBezier$toCubic = function (_v0) {
 	return {controlPoint1: q1, controlPoint2: q2, from: from, to: to};
 };
 var $author$project$Drawing$arrowToTikz = function (args) {
-	var width = (args.strokeWidth === 1) ? '' : ('line width=' + $author$project$Drawing$dimToTikz(args.strokeWidth));
-	var bez = $author$project$Geometry$QuadraticBezier$toCubic(args.bezier);
-	return '\\draw[' + ($author$project$ArrowStyle$tikzStyle(args.style) + (width + ('] ' + ($author$project$Drawing$pointToTikz(bez.from) + (' .. controls ' + ($author$project$Drawing$pointToTikz(bez.controlPoint1) + (' and ' + ($author$project$Drawing$pointToTikz(bez.controlPoint2) + (' .. ' + ($author$project$Drawing$pointToTikz(bez.to) + ';'))))))))));
+	var _v0 = args.curve;
+	if (_v0.$ === 'CurveBezier') {
+		var bezier = _v0.a;
+		var width = (args.strokeWidth === 1) ? '' : ('line width=' + $author$project$Drawing$dimToTikz(args.strokeWidth));
+		var bez = $author$project$Geometry$QuadraticBezier$toCubic(bezier);
+		return '\\draw[' + ($author$project$ArrowStyle$tikzStyle(args.style) + (width + ('] ' + ($author$project$Drawing$pointToTikz(bez.from) + (' .. controls ' + ($author$project$Drawing$pointToTikz(bez.controlPoint1) + (' and ' + ($author$project$Drawing$pointToTikz(bez.controlPoint2) + (' .. ' + ($author$project$Drawing$pointToTikz(bez.to) + ';'))))))))));
+	} else {
+		var loop = _v0.a;
+		var width = (args.strokeWidth === 1) ? '' : ('line width=' + $author$project$Drawing$dimToTikz(args.strokeWidth));
+		var _v1 = loop.from;
+		var x1 = _v1.a;
+		var y1 = _v1.b;
+		var _v2 = loop.to;
+		var x2 = _v2.a;
+		var y2 = _v2.b;
+		var r = $elm$core$Basics$abs(loop.r);
+		var _v3 = loop.center;
+		var cx = _v3.a;
+		var cy = _v3.b;
+		var my1 = -y1;
+		var my2 = -y2;
+		var mcy = -cy;
+		var startAngle = (A2($elm$core$Basics$atan2, my1 - mcy, x1 - cx) * 180) / $elm$core$Basics$pi;
+		var endAngleRaw = (A2($elm$core$Basics$atan2, my2 - mcy, x2 - cx) * 180) / $elm$core$Basics$pi;
+		var endAngle = (loop.r > 0) ? ((_Utils_cmp(endAngleRaw, startAngle) > 0) ? (endAngleRaw - 360) : endAngleRaw) : ((_Utils_cmp(endAngleRaw, startAngle) < 0) ? (endAngleRaw + 360) : endAngleRaw);
+		return '\\draw[' + ($author$project$ArrowStyle$tikzStyle(args.style) + (width + ('] ' + ($author$project$Drawing$pointToTikz(loop.from) + (' arc [start angle=' + ($elm$core$String$fromFloat(startAngle) + (', end angle=' + ($elm$core$String$fromFloat(endAngle) + (', radius=' + ($author$project$Drawing$dimToTikz(r) + '];'))))))))));
+	}
 };
 var $author$project$Drawing$lineToTikz = function (arg) {
 	return '\\draw[' + ($author$project$Drawing$Color$toString(arg.color) + ('] ' + ($author$project$Drawing$pointToTikz(arg.from) + (' -- ' + ($author$project$Drawing$pointToTikz(arg.to) + ';')))));
 };
-var $elm$core$Basics$pi = _Basics_pi;
 var $author$project$Drawing$nodeToTikz = function (arg) {
 	var _v0 = arg.pos;
 	var x = _v0.a;
@@ -22025,15 +22343,13 @@ var $author$project$HtmlDefs$dimsAttribute = function (_v0) {
 			$elm$core$String$fromFloat(height))
 		]);
 };
-var $elm$core$String$endsWith = _String_endsWith;
-var $author$project$Verbatim$verbatimCmd = '\\coqverb';
+var $author$project$Verbatim$verbatimCmd = '%verb ';
 var $author$project$Verbatim$extractVerbatim = function (s) {
-	var prefix = $author$project$Verbatim$verbatimCmd + '{';
-	return (A2($elm$core$String$startsWith, prefix, s) && A2($elm$core$String$endsWith, '}', s)) ? $elm$core$Maybe$Just(
-		A3(
-			$elm$core$String$slice,
+	var prefix = $author$project$Verbatim$verbatimCmd;
+	return A2($elm$core$String$startsWith, prefix, s) ? $elm$core$Maybe$Just(
+		A2(
+			$elm$core$String$dropLeft,
 			$elm$core$String$length(prefix),
-			-1,
 			s)) : $elm$core$Maybe$Nothing;
 };
 var $author$project$GraphDrawing$idToKey = A2($elm$core$Basics$composeR, $elm$core$String$fromInt, $elm$core$Maybe$Just);
@@ -22052,6 +22368,7 @@ var $author$project$Drawing$makeLatex = F2(
 				$author$project$Drawing$Node(
 					{angle: arg.angle, dims: arg.dims, label: arg.label, pos: arg.pos, preamble: arg.preamble, scale: arg.scale})));
 	});
+var $elm$core$String$filter = _String_filter;
 var $author$project$Drawing$makeVerbatimString = function (s) {
 	var verbatimDelimiters = _List_fromArray(
 		[
@@ -22076,7 +22393,11 @@ var $author$project$Drawing$makeVerbatimString = function (s) {
 		return '\\text{Err: unable to find a verbatim delimiter}';
 	} else {
 		var d = _v0.a;
-		return '\\verb' + (d + (s + d));
+		return '\\verb' + (d + (A2(
+			$elm$core$String$filter,
+			$elm$core$Basics$neq(
+				_Utils_chr('\n')),
+			s) + d));
 	}
 };
 var $author$project$Drawing$makeVerbatim = F2(
@@ -22406,9 +22727,9 @@ var $author$project$ArrowStyle$shadow = function (st) {
 };
 var $author$project$Drawing$arrow = F2(
 	function (args, attrs0) {
-		var normalArg = {bezier: args.bezier, strokeWidth: 1, style: args.style};
+		var normalArg = {curve: args.curve, strokeWidth: 1, style: args.style};
 		var shadowArg = {
-			bezier: args.bezier,
+			curve: args.curve,
 			strokeWidth: $author$project$Drawing$shadowWidth,
 			style: $author$project$ArrowStyle$shadow(args.style)
 		};
@@ -22429,19 +22750,14 @@ var $author$project$Drawing$arrow = F2(
 				]));
 	});
 var $author$project$GraphDefs$edgeScaleFactor = 0.7;
-var $elm$core$Basics$atan = _Basics_atan;
-var $author$project$Geometry$Point$pointToAngle = function (_v0) {
-	var x = _v0.a;
-	var y = _v0.b;
-	return ((!y) && (x <= 0)) ? $elm$core$Basics$pi : (2 * $elm$core$Basics$atan(
-		y / (x + $author$project$Geometry$Point$radius(
-			_Utils_Tuple2(x, y)))));
-};
 var $author$project$GraphDrawing$drawStringMarker = F3(
 	function (color, marker, q) {
-		var pos = $author$project$Geometry$QuadraticBezier$middle(q);
+		var pos = $author$project$Geometry$Curve$middle(q);
 		var angle = $author$project$Geometry$Point$pointToAngle(
-			A2($author$project$Geometry$Point$subtract, q.to, q.from));
+			A2(
+				$author$project$Geometry$Point$subtract,
+				$author$project$Geometry$Curve$to(q),
+				$author$project$Geometry$Curve$from(q)));
 		return A2(
 			$author$project$Drawing$makeLatex,
 			{
@@ -22461,14 +22777,6 @@ var $author$project$GraphDrawing$drawMarker = F3(
 		return (marker === '') ? $author$project$Drawing$empty : A3($author$project$GraphDrawing$drawStringMarker, color, marker, q);
 	});
 var $author$project$GraphDrawing$onDoubleClick = $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDoubleClick;
-var $author$project$Msg$EdgeLabelEdit = F2(
-	function (a, b) {
-		return {$: 'EdgeLabelEdit', a: a, b: b};
-	});
-var $author$project$Msg$EdgeRendered = F2(
-	function (a, b) {
-		return {$: 'EdgeRendered', a: a, b: b};
-	});
 var $author$project$Geometry$RoundedRectangle$RoundedRectangle = F3(
 	function (centre, size, radius) {
 		return {centre: centre, radius: radius, size: size};
@@ -22574,8 +22882,6 @@ var $author$project$Geometry$Point$name = function (_v0) {
 	var y = _v0.b;
 	return {x: x, y: y};
 };
-var $elm$core$Basics$cos = _Basics_cos;
-var $elm$core$Basics$sin = _Basics_sin;
 var $author$project$Geometry$Point$lendir = F2(
 	function (length, direction) {
 		return _Utils_Tuple2(
@@ -23051,25 +23357,28 @@ var $author$project$ArrowStyle$isDouble = function (_v0) {
 var $author$project$ArrowStyle$isMarker = function (marker) {
 	return marker !== '';
 };
-var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onMove = A2($mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions, 'mousemove', $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$defaultOptions);
-var $author$project$GraphDrawing$segmentLabel = F7(
-	function (cfg, q, edgeId, activity, label, marker, curve) {
-		var offset = $author$project$ArrowStyle$isDouble(label.style) ? (2 * $author$project$ArrowStyle$doubleSize) : ($author$project$ArrowStyle$isMarker(marker) ? 5 : 0);
-		var edge_width = 2 + offset;
-		var labelpos = function () {
-			var diffP = A2($author$project$Geometry$Point$subtract, q.to, q.from);
-			var angle = $author$project$Geometry$Point$pointToAngle(diffP);
+var $author$project$GraphDrawing$computeLabelPos = F4(
+	function (q, label, marker, curve) {
+		if (q.$ === 'CurveBezier') {
+			var b = q.a;
+			var offset = $author$project$ArrowStyle$isDouble(label.style) ? (2 * $author$project$ArrowStyle$doubleSize) : ($author$project$ArrowStyle$isMarker(marker) ? 5 : 0);
+			var edge_width = 2 + offset;
+			var diffP = A2(
+				$author$project$Geometry$Point$subtract,
+				$author$project$Geometry$Curve$to(q),
+				$author$project$Geometry$Curve$from(q));
+			var baseAngle = $author$project$Geometry$Point$pointToAngle(diffP);
 			var length = $author$project$Geometry$Point$radius(diffP);
 			return A2(
 				$author$project$Geometry$Point$add,
-				q.from,
+				$author$project$Geometry$Curve$from(q),
 				A2(
 					$author$project$Geometry$Point$rotate,
-					angle,
+					baseAngle,
 					A9(
 						$author$project$Geometry$determine_label_position,
 						length,
-						angle,
+						baseAngle,
 						edge_width,
 						0,
 						1,
@@ -23077,7 +23386,67 @@ var $author$project$GraphDrawing$segmentLabel = F7(
 						label.style.labelPosition,
 						label.style.labelAlignment,
 						label.editable ? _Utils_Tuple2(2, 2) : label.dims)));
-		}();
+		} else {
+			var loop = q.a;
+			var t = label.style.labelPosition;
+			var _v1 = loop.from;
+			var x1 = _v1.a;
+			var y1 = _v1.b;
+			var _v2 = loop.to;
+			var x2 = _v2.a;
+			var y2 = _v2.b;
+			var _v3 = A2($author$project$Geometry$Point$middle, loop.from, loop.to);
+			var mx = _v3.a;
+			var my = _v3.b;
+			var _v4 = A2($author$project$Geometry$Point$subtract, loop.from, loop.to);
+			var hdx = _v4.a;
+			var hdy = _v4.b;
+			var d_sq = (hdx * hdx) + (hdy * hdy);
+			var r = $elm$core$Basics$abs(loop.r);
+			var signCenter = (loop.r >= 0) ? (-1) : 1;
+			var factor = signCenter * $elm$core$Basics$sqrt(
+				A2($elm$core$Basics$max, 0, ((r * r) - d_sq) / d_sq));
+			var svgCenter = _Utils_Tuple2((factor * hdy) + mx, ((-factor) * hdx) + my);
+			var angle1 = $author$project$Geometry$Point$pointToAngle(
+				A2($author$project$Geometry$Point$subtract, loop.from, svgCenter));
+			var angle2 = $author$project$Geometry$Point$pointToAngle(
+				A2($author$project$Geometry$Point$subtract, loop.to, svgCenter));
+			var spanShort = A2($author$project$Geometry$Point$distanceAngleSigned, angle1, angle2);
+			var span = (spanShort >= 0) ? (spanShort - (2 * $elm$core$Basics$pi)) : (spanShort + (2 * $elm$core$Basics$pi));
+			var theta = angle1 + (t * span);
+			var outward = _Utils_Tuple2(
+				$elm$core$Basics$cos(theta),
+				$elm$core$Basics$sin(theta));
+			var curvePos = A2(
+				$author$project$Geometry$Point$add,
+				svgCenter,
+				A2($author$project$Geometry$Point$resize, r, outward));
+			var _v5 = label.editable ? _Utils_Tuple2(20, 20) : label.dims;
+			var dw = _v5.a;
+			var dh = _v5.b;
+			var _v6 = outward;
+			var ox = _v6.a;
+			var oy = _v6.b;
+			var halfExtent = ((dw / 2) * $elm$core$Basics$abs(ox)) + ((dh / 2) * $elm$core$Basics$abs(oy));
+			var pushDist = 5 + halfExtent;
+			var labelpos = A2(
+				$author$project$Geometry$Point$add,
+				curvePos,
+				A2($author$project$Geometry$Point$resize, pushDist, outward));
+			return labelpos;
+		}
+	});
+var $author$project$Msg$EdgeLabelEdit = F2(
+	function (a, b) {
+		return {$: 'EdgeLabelEdit', a: a, b: b};
+	});
+var $author$project$Msg$EdgeRendered = F2(
+	function (a, b) {
+		return {$: 'EdgeRendered', a: a, b: b};
+	});
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onMove = A2($mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions, 'mousemove', $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$defaultOptions);
+var $author$project$GraphDrawing$drawLabelAt = F6(
+	function (cfg, edgeId, activity, label, labelpos, angle) {
 		if (label.editable) {
 			return A4(
 				$author$project$GraphDrawing$make_input,
@@ -23090,8 +23459,6 @@ var $author$project$GraphDrawing$segmentLabel = F7(
 				return $author$project$Drawing$empty;
 			} else {
 				var finalLabel = label.label;
-				var angle = _Utils_eq(label.style.labelAlignment, $author$project$Geometry$Over) ? $author$project$Geometry$Point$pointToAngle(
-					A2($author$project$Geometry$Point$subtract, q.to, q.from)) : 0;
 				var attrs = _Utils_ap(
 					_List_fromArray(
 						[
@@ -23145,6 +23512,17 @@ var $author$project$GraphDrawing$segmentLabel = F7(
 			}
 		}
 	});
+var $author$project$GraphDrawing$segmentLabel = F7(
+	function (cfg, q, edgeId, activity, label, marker, curve) {
+		var baseAngle = $author$project$Geometry$Point$pointToAngle(
+			A2(
+				$author$project$Geometry$Point$subtract,
+				$author$project$Geometry$Curve$to(q),
+				$author$project$Geometry$Curve$from(q)));
+		var labelpos = A4($author$project$GraphDrawing$computeLabelPos, q, label, marker, curve);
+		var angle = _Utils_eq(label.style.labelAlignment, $author$project$Geometry$Over) ? baseAngle : 0;
+		return A6($author$project$GraphDrawing$drawLabelAt, cfg, edgeId, activity, label, labelpos, angle);
+	});
 var $author$project$HtmlDefs$simpleOn = function (event) {
 	return A2(
 		$elm$core$Basics$composeR,
@@ -23174,7 +23552,7 @@ var $author$project$GraphDrawing$normalEdgeDrawing = F7(
 				[
 					A2(
 					$author$project$Drawing$arrow,
-					{bezier: q, style: style, zindex: z},
+					{curve: q, style: style, zindex: z},
 					attrs),
 					A7($author$project$GraphDrawing$segmentLabel, cfg, q, edgeId, activity, label, style.marker, curve),
 					A3($author$project$GraphDrawing$drawMarker, style.color, style.marker, q)
@@ -23196,7 +23574,7 @@ var $author$project$GraphDrawing$graphDrawing = F2(
 							break _v0$2;
 						}
 					} else {
-						if (_v0.b.$ === 'Bezier') {
+						if (_v0.b.$ === 'ArrowShape') {
 							var l = _v0.a.a;
 							var q = _v0.b.a;
 							return A7($author$project$GraphDrawing$normalEdgeDrawing, cfg, id, e.isActive, e.zindex, l, q, l.style.bend);
@@ -24265,9 +24643,9 @@ var $author$project$GraphDefs$toProofGraph = A2(
 					var _v0 = _Utils_Tuple2(
 						$author$project$GraphDefs$filterLabelNormal(e.label),
 						e.shape);
-					if ((_v0.a.$ === 'Just') && (_v0.b.$ === 'Bezier')) {
+					if (((_v0.a.$ === 'Just') && (_v0.b.$ === 'ArrowShape')) && (_v0.b.a.$ === 'CurveBezier')) {
 						var l = _v0.a.a;
-						var b = _v0.b.a;
+						var b = _v0.b.a.a;
 						return $elm$core$Maybe$Just(
 							{bezier: b, details: l.details});
 					} else {
@@ -24406,6 +24784,16 @@ var $author$project$GraphDefs$rectEnveloppe = function (g) {
 		$author$project$Polygraph$nodes(g));
 	return $author$project$Geometry$rectEnveloppe(points);
 };
+var $author$project$String$Svg$d = $author$project$String$Html$attribute('d');
+var $author$project$ArrowStyle$dashedStr = '7, 3';
+var $author$project$String$Svg$strokeDasharray = $author$project$String$Html$attribute('stroke-dasharray');
+var $author$project$Drawing$dashedToAttrs = function (dashed) {
+	return dashed ? _List_fromArray(
+		[
+			$author$project$String$Svg$strokeDasharray($author$project$ArrowStyle$dashedStr)
+		]) : _List_Nil;
+};
+var $author$project$String$Svg$fill = $author$project$String$Html$attribute('fill');
 var $author$project$String$Svg$g = $author$project$String$Svg$node('g');
 var $author$project$String$Html$GhostAttribute = function (a) {
 	return {$: 'GhostAttribute', a: a};
@@ -24417,8 +24805,6 @@ var $author$project$ArrowStyle$isNone = function (_v0) {
 };
 var $author$project$Drawing$ArrowStyle$imgHeadWidth = 9.764;
 var $author$project$Drawing$ArrowStyle$imgTailWidth = 3.089 * 2;
-var $author$project$String$Svg$d = $author$project$String$Html$attribute('d');
-var $author$project$String$Svg$fill = $author$project$String$Html$attribute('fill');
 var $author$project$String$Svg$path = $author$project$String$Svg$node('path');
 var $author$project$String$Svg$stroke = $author$project$String$Html$attribute('stroke');
 var $author$project$String$Svg$strokeFromColor = A2($elm$core$Basics$composeL, $author$project$String$Svg$stroke, $author$project$Drawing$Color$toString);
@@ -24932,14 +25318,24 @@ var $author$project$Drawing$ArrowStyle$makeHeadTailImgs = F2(
 				$author$project$ArrowStyle$makeTailShape(style))
 			]);
 	});
-var $author$project$ArrowStyle$dashedStr = '7, 3';
-var $author$project$String$Svg$strokeDasharray = $author$project$String$Html$attribute('stroke-dasharray');
-var $author$project$Drawing$dashedToAttrs = function (dashed) {
-	return dashed ? _List_fromArray(
-		[
-			$author$project$String$Svg$strokeDasharray($author$project$ArrowStyle$dashedStr)
-		]) : _List_Nil;
-};
+var $author$project$Drawing$ArrowStyle$makeHeadTailImgsWithAngles = F5(
+	function (from, to, angleFrom, angleTo, style) {
+		return _List_fromArray(
+			[
+				A4(
+				$author$project$Drawing$ArrowStyle$makeTheImg,
+				to,
+				angleTo,
+				$author$project$Drawing$ArrowStyle$imgHeadWidth,
+				$author$project$ArrowStyle$makeHeadShape(style)),
+				A4(
+				$author$project$Drawing$ArrowStyle$makeTheImg,
+				from,
+				angleFrom,
+				$author$project$Drawing$ArrowStyle$imgTailWidth,
+				$author$project$ArrowStyle$makeTailShape(style))
+			]);
+	});
 var $author$project$Drawing$qBezToPath = function (_v0) {
 	var from = _v0.from;
 	var to = _v0.to;
@@ -25068,34 +25464,98 @@ var $author$project$Drawing$mkPath = F3(
 var $author$project$Drawing$arrowToSvg = F2(
 	function (args, attrs0) {
 		var arrowStyle = args.style;
-		var q = args.bezier;
 		var attrs = A2($elm$core$List$map, $author$project$String$Html$ghostAttribute, attrs0);
 		if ($author$project$ArrowStyle$isNone(arrowStyle)) {
 			return A2($author$project$String$Svg$g, _List_Nil, _List_Nil);
 		} else {
-			var imgs = A2($author$project$Drawing$ArrowStyle$makeHeadTailImgs, q, arrowStyle);
-			var mkgen = function (l) {
-				return A2(
-					$author$project$Drawing$mkPath,
-					{color: arrowStyle.color, dashed: arrowStyle.dashed, strokeWidth: args.strokeWidth, wavy: arrowStyle.wavy},
-					_Utils_ap(l, attrs));
-			};
-			var mkl = mkgen(_List_Nil);
-			var mkall = function (l) {
-				return A2($elm$core$List$map, mkl, l);
-			};
-			var lines = $author$project$ArrowStyle$isDouble(arrowStyle) ? mkall(
-				_List_fromArray(
+			var _v0 = args.curve;
+			if (_v0.$ === 'CurveBezier') {
+				var q = _v0.a;
+				var imgs = A2($author$project$Drawing$ArrowStyle$makeHeadTailImgs, q, arrowStyle);
+				var mkgen = function (l) {
+					return A2(
+						$author$project$Drawing$mkPath,
+						{color: arrowStyle.color, dashed: arrowStyle.dashed, strokeWidth: args.strokeWidth, wavy: arrowStyle.wavy},
+						_Utils_ap(l, attrs));
+				};
+				var mkl = mkgen(_List_Nil);
+				var mkall = function (l) {
+					return A2($elm$core$List$map, mkl, l);
+				};
+				var lines = $author$project$ArrowStyle$isDouble(arrowStyle) ? _List_fromArray(
 					[
 						A2($author$project$Geometry$QuadraticBezier$orthoVectPx, 0 - $author$project$ArrowStyle$doubleSize, q),
 						A2($author$project$Geometry$QuadraticBezier$orthoVectPx, $author$project$ArrowStyle$doubleSize, q)
-					])) : mkall(
-				_List_fromArray(
-					[q]));
-			return A2(
-				$author$project$String$Svg$g,
-				_List_Nil,
-				_Utils_ap(lines, imgs));
+					]) : _List_fromArray(
+					[q]);
+				return A2(
+					$author$project$String$Svg$g,
+					_List_Nil,
+					_Utils_ap(
+						mkall(lines),
+						_List_fromArray(
+							[
+								A2($author$project$String$Svg$g, attrs, imgs)
+							])));
+			} else {
+				var loop = _v0.a;
+				var _v1 = loop.from;
+				var x1 = _v1.a;
+				var y1 = _v1.b;
+				var _v2 = loop.to;
+				var x2 = _v2.a;
+				var y2 = _v2.b;
+				var dx = x2 - x1;
+				var dy = y2 - y1;
+				var d = $elm$core$Basics$sqrt((dx * dx) + (dy * dy));
+				var r = $elm$core$Basics$abs(loop.r);
+				var sweepFlag = (loop.r < 0) ? '0' : '1';
+				var largeArcFlag = '1';
+				var _v3 = loop.center;
+				var cx = _v3.a;
+				var cy = _v3.b;
+				var sign = (loop.r < 0) ? (-1) : 1;
+				var angleFrom = ($author$project$Geometry$Point$pointToAngle(
+					_Utils_Tuple2((-sign) * (y1 - cy), sign * (x1 - cx))) * 180) / $elm$core$Basics$pi;
+				var angleTo = ($author$project$Geometry$Point$pointToAngle(
+					_Utils_Tuple2((-sign) * (y2 - cy), sign * (x2 - cx))) * 180) / $elm$core$Basics$pi;
+				var imgs = A5($author$project$Drawing$ArrowStyle$makeHeadTailImgsWithAngles, loop.from, loop.to, angleFrom, angleTo, arrowStyle);
+				var mkgen = function (l) {
+					var dAttr = $author$project$String$Svg$d(
+						'M ' + ($elm$core$String$fromFloat(x1) + (' ' + ($elm$core$String$fromFloat(y1) + (' A ' + ($elm$core$String$fromFloat(r) + (' ' + ($elm$core$String$fromFloat(r) + (' 0 ' + (largeArcFlag + (' ' + (sweepFlag + (' ' + ($elm$core$String$fromFloat(x2) + (' ' + $elm$core$String$fromFloat(y2))))))))))))))));
+					return A2(
+						$author$project$String$Svg$path,
+						A2(
+							$elm$core$List$cons,
+							dAttr,
+							A2(
+								$elm$core$List$cons,
+								$author$project$String$Svg$fill('none'),
+								A2(
+									$elm$core$List$cons,
+									$author$project$String$Svg$strokeFromColor(arrowStyle.color),
+									_Utils_ap(
+										l,
+										_Utils_ap(
+											attrs,
+											_Utils_ap(
+												$author$project$Drawing$dashedToAttrs(arrowStyle.dashed),
+												(args.strokeWidth !== 1) ? _List_fromArray(
+													[
+														$author$project$String$Svg$strokeWidthPx(args.strokeWidth)
+													]) : _List_Nil)))))),
+						_List_Nil);
+				};
+				var mkl = mkgen(_List_Nil);
+				return A2(
+					$author$project$String$Svg$g,
+					_List_Nil,
+					_List_fromArray(
+						[
+							mkl,
+							A2($author$project$String$Svg$g, attrs, imgs)
+						]));
+			}
 		}
 	});
 var $author$project$String$Svg$line = $author$project$String$Svg$node('line');
@@ -26935,10 +27395,10 @@ var $author$project$QuickInput$equalityParser = A2(
 			$elm$parser$Parser$spaces)),
 	$author$project$QuickInput$handSideParser);
 var $author$project$ArrowStyle$noMarker = '';
-var $author$project$ArrowStyle$empty = {bend: 0, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$DefaultHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0.5, shiftTarget: 0.5, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
+var $author$project$ArrowStyle$empty = {bend: 0, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$DefaultHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, loopAngle: 0, loopRadius: $author$project$ArrowStyle$defaultLoopRadius, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0.5, shiftTarget: 0.5, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
 var $author$project$Verbatim$makeVerbatimLabel = F2(
 	function (isVerbatim, s) {
-		return isVerbatim ? ($author$project$Verbatim$verbatimCmd + ('{' + (s + '}'))) : s;
+		return isVerbatim ? _Utils_ap($author$project$Verbatim$verbatimCmd, s) : s;
 	});
 var $author$project$Polygraph$md_graph = function (_v0) {
 	var graph = _v0.a.graph;
@@ -27483,13 +27943,10 @@ var $author$project$CommandCodec$updateModifHelper = F2(
 	function (model, modif) {
 		return A3($author$project$CommandCodec$updateModifHelperWithId, model, $author$project$Msg$defaultModifId, modif);
 	});
-var $author$project$Modes$Lib$makeApi = function (f) {
+var $author$project$Modes$Lib$makeModelApi = function (f) {
 	var finaliseModif = F2(
 		function (m, state) {
-			return A2(
-				f,
-				$author$project$Model$getActiveGraph(m),
-				state);
+			return A2(f, m, state);
 		});
 	return {
 		finalise: F2(
@@ -27508,6 +27965,13 @@ var $author$project$Modes$Lib$makeApi = function (f) {
 					$author$project$Polygraph$applyModifHelper(modif));
 			})
 	};
+};
+var $author$project$Modes$Lib$makeApi = function (f) {
+	return $author$project$Modes$Lib$makeModelApi(
+		function (model) {
+			return f(
+				$author$project$Model$getActiveGraph(model));
+		});
 };
 var $author$project$Modes$Bend$api = $author$project$Modes$Lib$makeApi($author$project$Modes$Bend$createModif);
 var $author$project$Model$switch_Default = function (m) {
@@ -28334,23 +28798,43 @@ var $author$project$Polygraph$md_getObj = F2(
 				$author$project$Polygraph$graphRep(
 					$author$project$Polygraph$md_graph(m))));
 	});
-var $author$project$Polygraph$md_removeLoops = function (_v0) {
+var $author$project$Polygraph$md_loopIds = function (_v0) {
 	var m = _v0.a;
-	var loops = $author$project$Polygraph$loopsIds(
+	return $author$project$Polygraph$loopsIds(
 		$author$project$Polygraph$graphRep(m.graph));
-	return $author$project$Polygraph$ModifHelper(
-		_Utils_update(
-			m,
-			{
-				graph: A2($author$project$Polygraph$removeList, loops, m.graph),
-				removeIds: _Utils_ap(loops, m.removeIds)
-			}));
 };
+var $author$project$Polygraph$md_removeList = F2(
+	function (l, _v0) {
+		var m = _v0.a;
+		return $author$project$Polygraph$ModifHelper(
+			_Utils_update(
+				m,
+				{
+					graph: A2($author$project$Polygraph$removeList, l, m.graph),
+					removeIds: _Utils_ap(l, m.removeIds)
+				}));
+	});
+var $author$project$ListExtraExtra$subtract = F2(
+	function (l1, l2) {
+		return A2(
+			$elm$core$List$filter,
+			function (x) {
+				return !A2($elm$core$List$member, x, l2);
+			},
+			l1);
+	});
 var $author$project$Polygraph$md_recursiveMerge = F3(
 	function (i1, i2, g) {
-		return _Utils_eq(i1, i2) ? g : $author$project$Polygraph$md_sanitise(
-			$author$project$Polygraph$md_removeLoops(
-				A3($author$project$Polygraph$md_recursiveMergeAux, i1, i2, g)));
+		if (_Utils_eq(i1, i2)) {
+			return g;
+		} else {
+			var loops = $author$project$Polygraph$md_loopIds(g);
+			var g2 = A3($author$project$Polygraph$md_recursiveMergeAux, i1, i2, g);
+			var loops2 = $author$project$Polygraph$md_loopIds(g2);
+			var newLoops = A2($author$project$ListExtraExtra$subtract, loops2, loops);
+			return $author$project$Polygraph$md_sanitise(
+				A2($author$project$Polygraph$md_removeList, newLoops, g2));
+		}
 	});
 var $author$project$Polygraph$md_recursiveMergeAux = F3(
 	function (i1, i2, g) {
@@ -28807,6 +29291,69 @@ var $author$project$Modes$Freehand$update = F3(
 			return A3($author$project$Modes$Freehand$update_downFreeHandState, st, msg, model);
 		}
 	});
+var $author$project$Modes$Loop$updateLoopStyle = F3(
+	function (model, pos, oldStyle) {
+		var diff = A2($author$project$Geometry$Point$subtract, model.mousePos, pos);
+		var angle = $author$project$Geometry$Point$pointToAngle(diff);
+		var radius = A2(
+			$author$project$Geometry$Point$distance,
+			_Utils_Tuple2(0, 0),
+			diff) / 2;
+		return _Utils_update(
+			oldStyle,
+			{loopAngle: angle, loopRadius: radius});
+	});
+var $author$project$Modes$Loop$createModif = F2(
+	function (model, state) {
+		var modelGraph = $author$project$Model$getActiveGraph(model);
+		return A3(
+			$author$project$GraphDefs$md_updateNormalEdge,
+			state.id,
+			function (l) {
+				return _Utils_update(
+					l,
+					{
+						style: A3($author$project$Modes$Loop$updateLoopStyle, model, state.initialPos, l.style)
+					});
+			},
+			$author$project$Polygraph$newModif(modelGraph));
+	});
+var $author$project$Modes$Loop$api = $author$project$Modes$Lib$makeModelApi($author$project$Modes$Loop$createModif);
+var $author$project$Modes$Loop$update = F3(
+	function (state, msg, m) {
+		_v0$4:
+		while (true) {
+			switch (msg.$) {
+				case 'MouseClick':
+					return A2($author$project$Modes$Loop$api.finalise, m, state);
+				case 'KeyChanged':
+					if (!msg.a) {
+						if (msg.c.$ === 'Control') {
+							if (msg.c.a === 'Escape') {
+								return $author$project$Model$switch_Default(m);
+							} else {
+								break _v0$4;
+							}
+						} else {
+							switch (msg.c.a.valueOf()) {
+								case ' ':
+									return A2($author$project$Modes$Loop$api.finalise, m, state);
+								case '?':
+									return $author$project$Model$noCmd(
+										$author$project$Model$toggleHelpOverlay(m));
+								default:
+									break _v0$4;
+							}
+						}
+					} else {
+						break _v0$4;
+					}
+				default:
+					break _v0$4;
+			}
+		}
+		return $author$project$Model$noCmd(m);
+	});
 var $author$project$Modes$Horizontal = {$: 'Horizontal'};
 var $author$project$Modes$Vertical = {$: 'Vertical'};
 var $author$project$Polygraph$drop = F2(
@@ -29114,6 +29661,9 @@ var $author$project$ArrowStyle$keyMaybeUpdateColor = F3(
 				A2($author$project$ArrowStyle$getEdgeColor, p, s),
 				k));
 	});
+var $author$project$Modes$CreateLoop = function (a) {
+	return {$: 'CreateLoop', a: a};
+};
 var $author$project$Modes$NewArrowPart = function (a) {
 	return {$: 'NewArrowPart', a: a};
 };
@@ -29491,9 +30041,19 @@ var $author$project$Modes$NewArrow$nextPossibleKind = function (s) {
 			return $elm$core$Maybe$Nothing;
 		case 'CreateCylinder':
 			return $elm$core$Maybe$Just($author$project$Modes$CreateCone);
+		case 'CreateLoop':
+			return $elm$core$Maybe$Nothing;
 		default:
 			return $elm$core$List$isEmpty(
 				$author$project$Polygraph$edges(s.chosen)) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just($author$project$Modes$CreateCylinder);
+	}
+};
+var $author$project$Modes$NewArrow$isLoop = function (state) {
+	var _v0 = state.kind;
+	if (_v0.$ === 'CreateLoop') {
+		return true;
+	} else {
+		return false;
 	}
 };
 var $author$project$Modes$NewArrow$getStyle = function (state) {
@@ -29550,6 +30110,17 @@ var $author$project$Modes$NewArrow$moveNodeInfo = F4(
 	function (merge, emptyLabel, model, state) {
 		var modelGraph = $author$project$Model$getActiveGraph(model);
 		var style = $author$project$Modes$NewArrow$getStyle(state);
+		var updateLoopStyle = F3(
+			function (angle, radius, l) {
+				var oldStyle = l.style;
+				return _Utils_update(
+					l,
+					{
+						style: _Utils_update(
+							oldStyle,
+							{loopAngle: angle, loopRadius: radius})
+					});
+			});
 		var edgeLabel = A3(
 			$author$project$GraphDefs$newEdgeLabelAdj,
 			state.isAdjunction ? '\\vdash' : (emptyLabel ? '' : '-'),
@@ -29559,41 +30130,79 @@ var $author$project$Modes$NewArrow$moveNodeInfo = F4(
 			$author$project$Polygraph$nodes(state.chosen));
 		var nodeLabel = A4($author$project$GraphDefs$newNodeLabel, nodePos, '', true, $author$project$Zindex$defaultZ);
 		var modifGraph = $author$project$Polygraph$newModif(modelGraph);
-		var extendedGraph = function () {
-			var _v0 = state.kind;
-			switch (_v0.$) {
-				case 'CreateCylinder':
-					return A4($author$project$Polygraph$md_makeCylinder, modifGraph, state.chosen, edgeLabel, state.inverted);
-				case 'CreateCone':
-					return A5(
-						$author$project$Polygraph$md_makeCone,
-						modifGraph,
-						$author$project$Polygraph$nodeIds(state.chosen),
-						nodeLabel,
-						edgeLabel,
-						state.inverted);
-				default:
-					var id = _v0.a;
-					return A5(
-						$author$project$Polygraph$md_makeCone,
-						modifGraph,
-						_List_fromArray(
-							[id]),
-						nodeLabel,
-						edgeLabel,
-						state.inverted);
-			}
-		}();
-		var moveInfo = A7($author$project$Modes$Move$mkGraph, model, state.pos, $author$project$Modes$Free, merge, extendedGraph.extendedGraph, modelGraph, extendedGraph.newSubGraph);
-		var selectable = $author$project$Polygraph$allIds(extendedGraph.newSubGraph);
-		return {
-			graph: moveInfo.graph,
-			renamable: _Utils_ap(
-				moveInfo.merged ? _List_Nil : selectable,
-				state.isAdjunction ? _List_Nil : extendedGraph.edgeIds),
-			selectable: selectable,
-			weaklySelection: moveInfo.weaklySelection
-		};
+		if ($author$project$Modes$NewArrow$isLoop(state)) {
+			var _v0 = function () {
+				var _v1 = state.kind;
+				if (_v1.$ === 'CreateLoop') {
+					var loop = _v1.a;
+					return _Utils_Tuple2(loop.id, loop.pos);
+				} else {
+					return _Utils_Tuple2(
+						0,
+						_Utils_Tuple2(0, 0));
+				}
+			}();
+			var id = _v0.a;
+			var pos = _v0.b;
+			var newLabel = A2(
+				$author$project$GraphDefs$mapNormalEdge,
+				function (l) {
+					return _Utils_update(
+						l,
+						{
+							style: A3($author$project$Modes$Loop$updateLoopStyle, model, pos, l.style)
+						});
+				},
+				edgeLabel);
+			var _v2 = A4($author$project$Polygraph$md_newEdge, modifGraph, id, id, newLabel);
+			var m2 = _v2.a;
+			var edgeId = _v2.b;
+			return {
+				graph: m2,
+				renamable: _List_fromArray(
+					[edgeId]),
+				selectable: _List_Nil,
+				weaklySelection: $elm$core$Maybe$Nothing
+			};
+		} else {
+			var extendedGraph = function () {
+				var _v3 = state.kind;
+				switch (_v3.$) {
+					case 'CreateCylinder':
+						return A4($author$project$Polygraph$md_makeCylinder, modifGraph, state.chosen, edgeLabel, state.inverted);
+					case 'CreateCone':
+						return A5(
+							$author$project$Polygraph$md_makeCone,
+							modifGraph,
+							$author$project$Polygraph$nodeIds(state.chosen),
+							nodeLabel,
+							edgeLabel,
+							state.inverted);
+					case 'CreateArrow':
+						var id = _v3.a;
+						return A5(
+							$author$project$Polygraph$md_makeCone,
+							modifGraph,
+							_List_fromArray(
+								[id]),
+							nodeLabel,
+							edgeLabel,
+							state.inverted);
+					default:
+						return A5($author$project$Polygraph$md_makeCone, modifGraph, _List_Nil, nodeLabel, edgeLabel, state.inverted);
+				}
+			}();
+			var moveInfo = A7($author$project$Modes$Move$mkGraph, model, state.pos, $author$project$Modes$Free, merge, extendedGraph.extendedGraph, modelGraph, extendedGraph.newSubGraph);
+			var selectable = $author$project$Polygraph$allIds(extendedGraph.newSubGraph);
+			return {
+				graph: moveInfo.graph,
+				renamable: _Utils_ap(
+					moveInfo.merged ? _List_Nil : selectable,
+					state.isAdjunction ? _List_Nil : extendedGraph.edgeIds),
+				selectable: selectable,
+				weaklySelection: moveInfo.weaklySelection
+			};
+		}
 	});
 var $author$project$Msg$trueModifId = $author$project$Msg$TrueModifId;
 var $author$project$Model$popIdModif = function (m) {
@@ -29609,7 +30218,7 @@ var $author$project$Modes$NewArrow$nextStep = F3(
 		var merge = _v0.merge;
 		var info = A4($author$project$Modes$NewArrow$moveNodeInfo, merge, true, model, state);
 		var modif = A2($author$project$Format$GraphInfo$activeGraphModifHelper, model.graphInfo, info.graph);
-		var selIds = A3($elm_community$intdict$IntDict$insert, model.graphInfo.activeTabId, info.selectable, $elm_community$intdict$IntDict$empty);
+		var selIds = $author$project$Modes$NewArrow$isLoop(state) ? $elm_community$intdict$IntDict$empty : A3($elm_community$intdict$IntDict$insert, model.graphInfo.activeTabId, info.selectable, $elm_community$intdict$IntDict$empty);
 		if (finish) {
 			return _Utils_Tuple2(
 				A2($author$project$Model$setMode, $author$project$Modes$DefaultMode, model),
@@ -29737,9 +30346,9 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 		var pullshoutMode = function (k) {
 			return $author$project$Model$noCmd(
 				function () {
-					var _v3 = state.kind;
-					if (_v3.$ === 'CreateArrow') {
-						var id = _v3.a;
+					var _v5 = state.kind;
+					if (_v5.$ === 'CreateArrow') {
+						var id = _v5.a;
 						return A2(
 							$author$project$Model$setMode,
 							A2(
@@ -29766,7 +30375,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 							mode: $author$project$Modes$NewArrowPart(m)
 						}))) : $author$project$Model$noCmd(model);
 		};
-		_v0$23:
+		_v0$24:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseClick':
@@ -29792,7 +30401,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 							return next(
 								{finish: false, merge: true});
 						} else {
-							break _v0$23;
+							break _v0$24;
 						}
 					} else {
 						if (msg.c.$ === 'Control') {
@@ -29806,7 +30415,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 									return next(
 										{finish: false, merge: state.merge || state.isAdjunction});
 								default:
-									break _v0$23;
+									break _v0$24;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -29828,6 +30437,39 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 									return _Utils_Tuple2(
 										model,
 										$author$project$Modes$NewArrow$requestMarkerDefault(state.style.marker));
+								case '0':
+									var _v1 = state.kind;
+									if (_v1.$ === 'CreateArrow') {
+										var id = _v1.a;
+										var posGraph = $author$project$GraphDefs$posGraph(modelGraph);
+										var _v2 = A4(
+											$author$project$Polygraph$get,
+											id,
+											function ($) {
+												return $.pos;
+											},
+											function ($) {
+												return $.pos;
+											},
+											posGraph);
+										if (_v2.$ === 'Nothing') {
+											return $author$project$Model$noCmd(model);
+										} else {
+											var pos = _v2.a;
+											return $author$project$Model$noCmd(
+												A2(
+													$author$project$Modes$NewArrow$updateState,
+													model,
+													_Utils_update(
+														state,
+														{
+															kind: $author$project$Modes$CreateLoop(
+																{id: id, pos: pos})
+														})));
+										}
+									} else {
+										return $author$project$Model$noCmd(model);
+									}
 								case 'a':
 									return next(
 										{finish: true, merge: true});
@@ -29895,17 +30537,17 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 												state,
 												{kind: kind})));
 								default:
-									break _v0$23;
+									break _v0$24;
 							}
 						}
 					}
 				default:
-					break _v0$23;
+					break _v0$24;
 			}
 		}
-		var _v1 = A3($author$project$Modes$NewArrow$updateCapture, state, msg, model);
-		if (_v1.$ === 'Just') {
-			var res = _v1.a;
+		var _v3 = A3($author$project$Modes$NewArrow$updateCapture, state, msg, model);
+		if (_v3.$ === 'Just') {
+			var res = _v3.a;
 			return res;
 		} else {
 			var newStyle = function () {
@@ -30004,7 +30646,7 @@ var $author$project$GraphDefs$newEdgeLabel = F2(
 		return A3($author$project$GraphDefs$newEdgeLabelAdj, s, style, false);
 	});
 var $author$project$ArrowStyle$simpleLineStyle = function (bend) {
-	return {bend: bend, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$NoHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0.5, shiftTarget: 0.5, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
+	return {bend: bend, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$NoHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, loopAngle: 0, loopRadius: $author$project$ArrowStyle$defaultLoopRadius, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0.5, shiftTarget: 0.5, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
 };
 var $author$project$Modes$NewLine$makeGraph = F2(
 	function (m, s) {
@@ -32962,6 +33604,9 @@ var $author$project$Modes$CutHead$initialise = function (model) {
 var $author$project$Modes$Freehand$initialise = function (model) {
 	return $author$project$Modes$Freehand$setDefault(model);
 };
+var $author$project$Modes$Loop$initialise = function (model) {
+	return A2($author$project$Modes$Loop$initialise_with_state, model, $elm$core$Maybe$Nothing);
+};
 var $author$project$Modes$CreateArrow = function (a) {
 	return {$: 'CreateArrow', a: a};
 };
@@ -33873,11 +34518,11 @@ var $author$project$Main$update_DefaultMode = F2(
 				return A3($author$project$Modes$CreatePoint$initialise, isMath, snapToGrid, model);
 			});
 		var increaseZBy = function (offset) {
-			var _v30 = $author$project$GraphDefs$selectedId(modelGraph);
-			if (_v30.$ === 'Nothing') {
+			var _v31 = $author$project$GraphDefs$selectedId(modelGraph);
+			if (_v31.$ === 'Nothing') {
 				return $author$project$Model$noCmd(model);
 			} else {
-				var id = _v30.a;
+				var id = _v31.a;
 				return A2(
 					$author$project$CommandCodec$updateModifHelper,
 					model,
@@ -34445,16 +35090,28 @@ var $author$project$Main$update_DefaultMode = F2(
 			return $author$project$Model$noCmd(model);
 		}
 		var k = msg.c;
-		var _v26 = (!_Utils_eq(
-			k,
-			$author$project$HtmlDefs$Character(
-				_Utils_chr('b')))) ? $elm$core$Maybe$Nothing : $author$project$Modes$Bend$initialise(model);
+		var _v26 = function () {
+			if (!_Utils_eq(
+				k,
+				$author$project$HtmlDefs$Character(
+					_Utils_chr('b')))) {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var _v27 = $author$project$Modes$Loop$initialise(model);
+				if (_v27.$ === 'Just') {
+					var m = _v27.a;
+					return $elm$core$Maybe$Just(m);
+				} else {
+					return $author$project$Modes$Bend$initialise(model);
+				}
+			}
+		}();
 		if (_v26.$ === 'Just') {
 			var m = _v26.a;
 			return $author$project$Model$noCmd(m);
 		} else {
 			var edges = $author$project$GraphDefs$selectedEdges(modelGraph);
-			var updNormal = function (_v29) {
+			var updNormal = function (_v30) {
 				return A2(
 					$author$project$CommandCodec$updateModifHelper,
 					model,
@@ -34464,7 +35121,7 @@ var $author$project$Main$update_DefaultMode = F2(
 						model,
 						edges));
 			};
-			var updPullshout = function (_v28) {
+			var updPullshout = function (_v29) {
 				return A2(
 					$author$project$CommandCodec$updateModifHelper,
 					model,
@@ -35161,6 +35818,9 @@ var $author$project$Main$update = F2(
 					case 'BendMode':
 						var state = _v6.a;
 						return A3($author$project$Modes$Bend$update, state, msg, model);
+					case 'LoopMode':
+						var state = _v6.a;
+						return A3($author$project$Modes$Loop$update, state, msg, model);
 					default:
 						var s = _v6.a;
 						return A3($author$project$Main$update_LatexPreamble, s, msg, model);
@@ -35518,6 +36178,7 @@ var $author$project$Modes$Freehand$graphDrawing = F2(
 			m,
 			$author$project$Model$getActiveGraph(m));
 	});
+var $author$project$Modes$Loop$graphDrawing = $author$project$Modes$Loop$api.graphDrawing;
 var $author$project$Modes$Move$graphDrawing = F2(
 	function (m, s) {
 		return A2(
@@ -35736,6 +36397,9 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 		case 'BendMode':
 			var state = _v0.a;
 			return A2($author$project$Modes$Bend$graphDrawing, m, state);
+		case 'LoopMode':
+			var state = _v0.a;
+			return A2($author$project$Modes$Loop$graphDrawing, m, state);
 		default:
 			return A2($author$project$Model$collageGraphFromGraph, m, modelGraph);
 	}
@@ -35848,7 +36512,7 @@ var $author$project$Modes$Move$help = function (s) {
 	}())))))));
 };
 var $author$project$Modes$NewArrow$help = function (s) {
-	var mainMsg = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard ' + ('([f] to move by a multiple of the grid size), ' + ('[ctrl] merge, [a] merge without renaming, toggle [m]erge preview, ' + ('[RET] or space to terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('shift [s]ource/targ[e]t, ' + ('[.] customise the marker' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + ($author$project$Drawing$Color$helpMsg + ', color [H]ead/[T]ail')))))))))))))))));
+	var mainMsg = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard ' + ('([f] to move by a multiple of the grid size), ' + ('[ctrl] merge, [a] merge without renaming, toggle [m]erge preview, ' + ('[0] switch to loop creation, ' + ('[RET] or space to terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('shift [s]ource/targ[e]t, ' + ('[.] customise the marker' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + ($author$project$Drawing$Color$helpMsg + ', color [H]ead/[T]ail'))))))))))))))))));
 	var _v0 = s.mode;
 	switch (_v0.$) {
 		case 'NewArrowMain':
@@ -36066,6 +36730,8 @@ var $author$project$Modes$toString = function (m) {
 			return 'Bend';
 		case 'FreeHandMode':
 			return 'FreeHand';
+		case 'LoopMode':
+			return 'Loop';
 		default:
 			return 'MakeSave';
 	}
@@ -36099,7 +36765,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = $author$project$Model$currentMode(model);
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-x] cut selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('[d]raw freehand mode (or use stylus)' + (', new [p]oint ([m] to create a point snapped to grid)' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]ustomise arrow (color, shift)' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[.] customise arrow marker, ' + ('[\"bB][\"] to customize the pullback/pushout sign, ' + ('[i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + (', export selection to LaTe[X]/s[V]g' + ', [#] make the other user focus on the mouse position and share selection')))))))))))))))))))))))))))))))))))))))))))))))))))));
+			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-x] cut selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('[d]raw freehand mode (or use stylus)' + (', new [p]oint ([m] to create a point snapped to grid)' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]ustomise arrow (color, shift)' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[b] bend arrow/reshape looping arrow, ' + ('[.] customise arrow marker, ' + ('[\"bB][\"] to customize the pullback/pushout sign, ' + ('[i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + (', export selection to LaTe[X]/s[V]g' + ', [#] make the other user focus on the mouse position and share selection'))))))))))))))))))))))))))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return $elm$html$Html$text('Debug Mode. [ESC] to cancel and come back to the default mode. ' + '');
 		case 'FreeHandMode':
