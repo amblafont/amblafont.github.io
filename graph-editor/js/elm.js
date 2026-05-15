@@ -7656,58 +7656,1069 @@ var $author$project$Codec$compose = F2(
 					$author$project$Codec$encoder(dec))
 			});
 	});
-var $author$project$Format$Version18$Adjunction = {$: 'Adjunction'};
-var $author$project$Format$Version18$Alignment = function (a) {
+var $author$project$Format$Version19$Adjunction = {$: 'Adjunction'};
+var $author$project$Format$Version19$Alignment = function (a) {
 	return {$: 'Alignment', a: a};
 };
-var $author$project$Format$Version18$Bend = function (a) {
+var $author$project$Geometry$Left = {$: 'Left'};
+var $elm_community$list_extra$List$Extra$findMap = F2(
+	function (f, list) {
+		findMap:
+		while (true) {
+			if (!list.b) {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var a = list.a;
+				var tail = list.b;
+				var _v1 = f(a);
+				if (_v1.$ === 'Just') {
+					var b = _v1.a;
+					return $elm$core$Maybe$Just(b);
+				} else {
+					var $temp$f = f,
+						$temp$list = tail;
+					f = $temp$f;
+					list = $temp$list;
+					continue findMap;
+				}
+			}
+		}
+	});
+var $author$project$Codec$maybeList = F3(
+	function (defaultA, enc, dec) {
+		return A2(
+			$author$project$Codec$build,
+			function (a) {
+				return _Utils_eq(a, defaultA) ? _List_Nil : _List_fromArray(
+					[
+						enc(a)
+					]);
+			},
+			function (bs) {
+				return A2(
+					$elm$core$Maybe$withDefault,
+					defaultA,
+					A2($elm_community$list_extra$List$Extra$findMap, dec, bs));
+			});
+	});
+var $author$project$Format$Version19$edgeMaybeFlagCodec = F3(
+	function (_default, constr, destr) {
+		return A3($author$project$Codec$maybeList, _default, constr, destr);
+	});
+var $author$project$Format$Version19$alignmentFlag = A3(
+	$author$project$Format$Version19$edgeMaybeFlagCodec,
+	$author$project$Geometry$Left,
+	$author$project$Format$Version19$Alignment,
+	function (flag) {
+		if (flag.$ === 'Alignment') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Version19$Bend = function (a) {
 	return {$: 'Bend', a: a};
 };
-var $author$project$Format$Version18$Color = function (a) {
+var $author$project$Format$Version19$bendFlag = A3(
+	$author$project$Format$Version19$edgeMaybeFlagCodec,
+	0,
+	$author$project$Format$Version19$Bend,
+	function (flag) {
+		if (flag.$ === 'Bend') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Version19$Color = function (a) {
 	return {$: 'Color', a: a};
 };
-var $author$project$Format$Version18$Dashed = {$: 'Dashed'};
-var $author$project$Format$Version18$HeadColor = function (a) {
+var $author$project$Format$Version19$HeadColor = function (a) {
 	return {$: 'HeadColor', a: a};
 };
-var $author$project$Format$Version18$HeadStyle = function (a) {
-	return {$: 'HeadStyle', a: a};
-};
-var $author$project$Format$Version18$Kind = function (a) {
-	return {$: 'Kind', a: a};
-};
-var $author$project$Format$Version18$LoopAngle = function (a) {
-	return {$: 'LoopAngle', a: a};
-};
-var $author$project$Format$Version18$LoopRadius = function (a) {
-	return {$: 'LoopRadius', a: a};
-};
-var $author$project$Format$Version18$Marker = function (a) {
-	return {$: 'Marker', a: a};
-};
-var $author$project$Format$Version18$Position = function (a) {
-	return {$: 'Position', a: a};
-};
-var $author$project$Format$Version18$Pullshout = function (a) {
-	return {$: 'Pullshout', a: a};
-};
-var $author$project$Format$Version18$ShiftSource = function (a) {
-	return {$: 'ShiftSource', a: a};
-};
-var $author$project$Format$Version18$ShiftTarget = function (a) {
-	return {$: 'ShiftTarget', a: a};
-};
-var $author$project$Format$Version18$TailColor = function (a) {
+var $author$project$Format$Version19$TailColor = function (a) {
 	return {$: 'TailColor', a: a};
 };
-var $author$project$Format$Version18$TailStyle = function (a) {
+var $author$project$Drawing$Color$Black = {$: 'Black'};
+var $author$project$Drawing$Color$black = $author$project$Drawing$Color$Black;
+var $author$project$Format$Version19$colorsFlag = A2(
+	$author$project$Codec$build,
+	function (_v0) {
+		var main = _v0.main;
+		var head = _v0.head;
+		var tail = _v0.tail;
+		return _Utils_ap(
+			_Utils_eq(main, $author$project$Drawing$Color$black) ? _List_Nil : _List_fromArray(
+				[
+					$author$project$Format$Version19$Color(main)
+				]),
+			_Utils_ap(
+				_Utils_eq(head, main) ? _List_Nil : _List_fromArray(
+					[
+						$author$project$Format$Version19$HeadColor(head)
+					]),
+				_Utils_eq(tail, main) ? _List_Nil : _List_fromArray(
+					[
+						$author$project$Format$Version19$TailColor(tail)
+					])));
+	},
+	function (l) {
+		var _v1 = _Utils_Tuple3(
+			A2(
+				$elm_community$list_extra$List$Extra$findMap,
+				function (v) {
+					if (v.$ === 'Color') {
+						var c = v.a;
+						return $elm$core$Maybe$Just(c);
+					} else {
+						return $elm$core$Maybe$Nothing;
+					}
+				},
+				l),
+			A2(
+				$elm_community$list_extra$List$Extra$findMap,
+				function (v) {
+					if (v.$ === 'HeadColor') {
+						var c = v.a;
+						return $elm$core$Maybe$Just(c);
+					} else {
+						return $elm$core$Maybe$Nothing;
+					}
+				},
+				l),
+			A2(
+				$elm_community$list_extra$List$Extra$findMap,
+				function (v) {
+					if (v.$ === 'TailColor') {
+						var c = v.a;
+						return $elm$core$Maybe$Just(c);
+					} else {
+						return $elm$core$Maybe$Nothing;
+					}
+				},
+				l));
+		var mc = _v1.a;
+		var hc = _v1.b;
+		var tc = _v1.c;
+		var c = A2($elm$core$Maybe$withDefault, $author$project$Drawing$Color$black, mc);
+		return {
+			head: A2($elm$core$Maybe$withDefault, c, hc),
+			main: c,
+			tail: A2($elm$core$Maybe$withDefault, c, tc)
+		};
+	});
+var $author$project$Format$Version19$Dashed = {$: 'Dashed'};
+var $author$project$Codec$boolList = function (b) {
+	return A3(
+		$author$project$Codec$maybeList,
+		false,
+		$elm$core$Basics$always(b),
+		function (b2) {
+			return _Utils_eq(b, b2) ? $elm$core$Maybe$Just(true) : $elm$core$Maybe$Nothing;
+		});
+};
+var $author$project$Format$Version19$edgeMaybeFlagCodecFalse = function (flag) {
+	return $author$project$Codec$boolList(flag);
+};
+var $author$project$Format$Version19$dashedFlag = $author$project$Format$Version19$edgeMaybeFlagCodecFalse($author$project$Format$Version19$Dashed);
+var $author$project$ArrowStyle$DefaultHead = {$: 'DefaultHead'};
+var $author$project$Format$Version19$HeadStyle = function (a) {
+	return {$: 'HeadStyle', a: a};
+};
+var $author$project$Format$Version19$headFlag = A3(
+	$author$project$Format$Version19$edgeMaybeFlagCodec,
+	$author$project$ArrowStyle$DefaultHead,
+	$author$project$Format$Version19$HeadStyle,
+	function (flag) {
+		if (flag.$ === 'HeadStyle') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Version19$Kind = function (a) {
+	return {$: 'Kind', a: a};
+};
+var $author$project$ArrowStyle$NormalArrow = {$: 'NormalArrow'};
+var $author$project$Format$Version19$kindFlag = function () {
+	var dec = function (flag) {
+		if (flag.$ === 'Kind') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	};
+	return A2(
+		$author$project$Codec$build,
+		function (a) {
+			return _Utils_eq(a, $author$project$ArrowStyle$NormalArrow) ? _List_Nil : _List_fromArray(
+				[
+					$author$project$Format$Version19$Kind(a)
+				]);
+		},
+		function (bs) {
+			return A2(
+				$elm$core$Maybe$withDefault,
+				$author$project$ArrowStyle$NormalArrow,
+				A2($elm_community$list_extra$List$Extra$findMap, dec, bs));
+		});
+}();
+var $author$project$Format$Version19$LoopAngle = function (a) {
+	return {$: 'LoopAngle', a: a};
+};
+var $author$project$Format$Version19$loopAngleFlag = A3(
+	$author$project$Format$Version19$edgeMaybeFlagCodec,
+	0,
+	$author$project$Format$Version19$LoopAngle,
+	function (flag) {
+		if (flag.$ === 'LoopAngle') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Version19$LoopRadius = function (a) {
+	return {$: 'LoopRadius', a: a};
+};
+var $author$project$ArrowStyle$defaultLoopRadius = 20;
+var $author$project$Format$Version19$loopRadiusFlag = A3(
+	$author$project$Format$Version19$edgeMaybeFlagCodec,
+	$author$project$ArrowStyle$defaultLoopRadius,
+	$author$project$Format$Version19$LoopRadius,
+	function (flag) {
+		if (flag.$ === 'LoopRadius') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Version19$Marker = function (a) {
+	return {$: 'Marker', a: a};
+};
+var $author$project$Format$Version19$markerFlag = A3(
+	$author$project$Format$Version19$edgeMaybeFlagCodec,
+	'',
+	$author$project$Format$Version19$Marker,
+	function (flag) {
+		if (flag.$ === 'Marker') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Version19$Position = function (a) {
+	return {$: 'Position', a: a};
+};
+var $elm$core$Basics$min = F2(
+	function (x, y) {
+		return (_Utils_cmp(x, y) < 0) ? x : y;
+	});
+var $author$project$Format$Version19$positionFlag = A3(
+	$author$project$Format$Version19$edgeMaybeFlagCodec,
+	0.5,
+	$author$project$Format$Version19$Position,
+	function (flag) {
+		if (flag.$ === 'Position') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(
+				A2(
+					$elm$core$Basics$max,
+					0.1,
+					A2($elm$core$Basics$min, 0.9, a)));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Version19$ShiftSource = function (a) {
+	return {$: 'ShiftSource', a: a};
+};
+var $author$project$Format$Version19$shiftSourceFlag = A3(
+	$author$project$Format$Version19$edgeMaybeFlagCodec,
+	0.5,
+	function (x) {
+		return $author$project$Format$Version19$ShiftSource((x - 0.5) * 10);
+	},
+	function (flag) {
+		if (flag.$ === 'ShiftSource') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just((a + 5) / 10);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Version19$ShiftTarget = function (a) {
+	return {$: 'ShiftTarget', a: a};
+};
+var $author$project$Format$Version19$shiftTargetFlag = A3(
+	$author$project$Format$Version19$edgeMaybeFlagCodec,
+	0.5,
+	function (x) {
+		return $author$project$Format$Version19$ShiftTarget((x - 0.5) * 10);
+	},
+	function (flag) {
+		if (flag.$ === 'ShiftTarget') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just((a + 5) / 10);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$ArrowStyle$DefaultTail = {$: 'DefaultTail'};
+var $author$project$Format$Version19$TailStyle = function (a) {
 	return {$: 'TailStyle', a: a};
 };
-var $author$project$Format$Version18$Unrecognized = {$: 'Unrecognized'};
-var $author$project$Format$Version18$Wavy = {$: 'Wavy'};
-var $author$project$Geometry$Centre = {$: 'Centre'};
-var $author$project$Geometry$Left = {$: 'Left'};
+var $author$project$Format$Version19$tailFlag = A3(
+	$author$project$Format$Version19$edgeMaybeFlagCodec,
+	$author$project$ArrowStyle$DefaultTail,
+	$author$project$Format$Version19$TailStyle,
+	function (flag) {
+		if (flag.$ === 'TailStyle') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Version19$Wavy = {$: 'Wavy'};
+var $author$project$Format$Version19$wavyFlag = $author$project$Format$Version19$edgeMaybeFlagCodecFalse($author$project$Format$Version19$Wavy);
+var $author$project$Format$Version19$arrowStyleCodec = function () {
+	var flagField = F2(
+		function (f1, codec) {
+			return A3($author$project$Codec$fields, f1, $elm$core$Basics$identity, codec);
+		});
+	return $author$project$Codec$buildObject(
+		A3(
+			flagField,
+			function ($) {
+				return $.loopAngle;
+			},
+			$author$project$Format$Version19$loopAngleFlag,
+			A3(
+				flagField,
+				function ($) {
+					return $.loopRadius;
+				},
+				$author$project$Format$Version19$loopRadiusFlag,
+				A3(
+					flagField,
+					function ($) {
+						return $.wavy;
+					},
+					$author$project$Format$Version19$wavyFlag,
+					A3(
+						flagField,
+						function ($) {
+							return $.marker;
+						},
+						$author$project$Format$Version19$markerFlag,
+						A3(
+							flagField,
+							function (_v0) {
+								var color = _v0.color;
+								var headColor = _v0.headColor;
+								var tailColor = _v0.tailColor;
+								return {head: headColor, main: color, tail: tailColor};
+							},
+							$author$project$Format$Version19$colorsFlag,
+							A3(
+								flagField,
+								function ($) {
+									return $.shiftTarget;
+								},
+								$author$project$Format$Version19$shiftTargetFlag,
+								A3(
+									flagField,
+									function ($) {
+										return $.shiftSource;
+									},
+									$author$project$Format$Version19$shiftSourceFlag,
+									A3(
+										flagField,
+										function ($) {
+											return $.labelPosition;
+										},
+										$author$project$Format$Version19$positionFlag,
+										A3(
+											flagField,
+											function ($) {
+												return $.labelAlignment;
+											},
+											$author$project$Format$Version19$alignmentFlag,
+											A3(
+												flagField,
+												function ($) {
+													return $.bend;
+												},
+												$author$project$Format$Version19$bendFlag,
+												A3(
+													flagField,
+													function ($) {
+														return $.dashed;
+													},
+													$author$project$Format$Version19$dashedFlag,
+													A3(
+														flagField,
+														function ($) {
+															return $.kind;
+														},
+														$author$project$Format$Version19$kindFlag,
+														A3(
+															flagField,
+															function ($) {
+																return $.head;
+															},
+															$author$project$Format$Version19$headFlag,
+															A3(
+																flagField,
+																function ($) {
+																	return $.tail;
+																},
+																$author$project$Format$Version19$tailFlag,
+																A2(
+																	$author$project$Codec$object,
+																	function (tail) {
+																		return function (head) {
+																			return function (kind) {
+																				return function (dashed) {
+																					return function (bend) {
+																						return function (alignment) {
+																							return function (position) {
+																								return function (shiftSource) {
+																									return function (shiftTarget) {
+																										return function (colors) {
+																											return function (marker) {
+																												return function (wavy) {
+																													return function (loopRadius) {
+																														return function (loopAngle) {
+																															return {bend: bend, color: colors.main, dashed: dashed, head: head, headColor: colors.head, kind: kind, labelAlignment: alignment, labelPosition: position, loopAngle: loopAngle, loopRadius: loopRadius, marker: marker, shiftSource: shiftSource, shiftTarget: shiftTarget, tail: tail, tailColor: colors.tail, wavy: wavy};
+																														};
+																													};
+																												};
+																											};
+																										};
+																									};
+																								};
+																							};
+																						};
+																					};
+																				};
+																			};
+																		};
+																	},
+																	function (tail) {
+																		return function (head) {
+																			return function (kind) {
+																				return function (dashed) {
+																					return function (bend) {
+																						return function (alignment) {
+																							return function (position) {
+																								return function (shiftSource) {
+																									return function (shiftTarget) {
+																										return function (colors) {
+																											return function (marker) {
+																												return function (wavy) {
+																													return function (loopRadius) {
+																														return function (loopAngle) {
+																															return _Utils_ap(
+																																shiftSource,
+																																_Utils_ap(
+																																	shiftTarget,
+																																	_Utils_ap(
+																																		position,
+																																		_Utils_ap(
+																																			bend,
+																																			_Utils_ap(
+																																				marker,
+																																				_Utils_ap(
+																																					colors,
+																																					_Utils_ap(
+																																						dashed,
+																																						_Utils_ap(
+																																							alignment,
+																																							_Utils_ap(
+																																								tail,
+																																								_Utils_ap(
+																																									head,
+																																									_Utils_ap(
+																																										kind,
+																																										_Utils_ap(
+																																											wavy,
+																																											_Utils_ap(loopRadius, loopAngle)))))))))))));
+																														};
+																													};
+																												};
+																											};
+																										};
+																									};
+																								};
+																							};
+																						};
+																					};
+																				};
+																			};
+																		};
+																	}))))))))))))))));
+}();
+var $author$project$ArrowStyle$NoHead = {$: 'NoHead'};
+var $author$project$ArrowStyle$NoneArrow = {$: 'NoneArrow'};
 var $author$project$Geometry$Over = {$: 'Over'};
+var $author$project$ArrowStyle$getStyle = function (_v0) {
+	var style = _v0.style;
+	var isAdjunction = _v0.isAdjunction;
+	return isAdjunction ? _Utils_update(
+		style,
+		{head: $author$project$ArrowStyle$NoHead, kind: $author$project$ArrowStyle$NoneArrow, labelAlignment: $author$project$Geometry$Over, tail: $author$project$ArrowStyle$DefaultTail}) : style;
+};
+var $author$project$Format$Version19$Edgeo = F3(
+	function (label, options, zindex) {
+		return {label: label, options: options, zindex: zindex};
+	});
+var $author$project$Format$Version19$Pullshout = function (a) {
+	return {$: 'Pullshout', a: a};
+};
+var $author$project$Format$Version19$pullshoutStyle = function (_v0) {
+	var color = _v0.color;
+	var offset1 = _v0.offset1;
+	var offset2 = _v0.offset2;
+	return A2(
+		$elm$core$List$cons,
+		$author$project$Format$Version19$Pullshout(
+			{offset1: offset1, offset2: offset2}),
+		A2(
+			$author$project$Codec$encoder,
+			$author$project$Format$Version19$colorsFlag,
+			{head: color, main: color, tail: color}));
+};
+var $author$project$Format$Version19$pullshoutEdge = F2(
+	function (z, label) {
+		return A3(
+			$author$project$Format$Version19$Edgeo,
+			'',
+			$author$project$Format$Version19$pullshoutStyle(label),
+			z);
+	});
+var $author$project$Format$Version19$fromEdgeLabel = function (e) {
+	var _v0 = e.details;
+	if (_v0.$ === 'PullshoutEdge') {
+		var l = _v0.a;
+		return A2($author$project$Format$Version19$pullshoutEdge, e.zindex, l);
+	} else {
+		var l = _v0.a;
+		var label = l.label;
+		var isAdjunction = l.isAdjunction;
+		var style = $author$project$ArrowStyle$getStyle(l);
+		return {
+			label: label,
+			options: function () {
+				var convertedStyle = A2($author$project$Codec$encoder, $author$project$Format$Version19$arrowStyleCodec, style);
+				return isAdjunction ? A2($elm$core$List$cons, $author$project$Format$Version19$Adjunction, convertedStyle) : convertedStyle;
+			}(),
+			zindex: e.zindex
+		};
+	}
+};
+var $author$project$GraphDefs$NormalEdge = function (a) {
+	return {$: 'NormalEdge', a: a};
+};
+var $author$project$GraphDefs$PullshoutEdge = function (a) {
+	return {$: 'PullshoutEdge', a: a};
+};
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			$elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
+	});
+var $elm$core$List$singleton = function (value) {
+	return _List_fromArray(
+		[value]);
+};
+var $author$project$Format$Version19$pullshoutFlag = A2(
+	$author$project$Codec$build,
+	A2(
+		$elm$core$Basics$composeR,
+		$elm$core$Maybe$map(
+			A2($elm$core$Basics$composeR, $author$project$Format$Version19$Pullshout, $elm$core$List$singleton)),
+		$elm$core$Maybe$withDefault(_List_Nil)),
+	$elm_community$list_extra$List$Extra$findMap(
+		function (flag) {
+			if (flag.$ === 'Pullshout') {
+				var a = flag.a;
+				return $elm$core$Maybe$Just(a);
+			} else {
+				return $elm$core$Maybe$Nothing;
+			}
+		}));
+var $author$project$Format$Version19$toEdgeLabel = function (_v0) {
+	var label = _v0.label;
+	var options = _v0.options;
+	var zindex = _v0.zindex;
+	var dec = function (codec) {
+		return A2($author$project$Codec$decoder, codec, options);
+	};
+	return {
+		details: function () {
+			var _v1 = dec($author$project$Format$Version19$pullshoutFlag);
+			if (_v1.$ === 'Just') {
+				var offset1 = _v1.a.offset1;
+				var offset2 = _v1.a.offset2;
+				return $author$project$GraphDefs$PullshoutEdge(
+					{
+						color: dec($author$project$Format$Version19$colorsFlag).main,
+						offset1: offset1,
+						offset2: offset2
+					});
+			} else {
+				return $author$project$GraphDefs$NormalEdge(
+					{
+						dims: $elm$core$Maybe$Nothing,
+						isAdjunction: A2($elm$core$List$member, $author$project$Format$Version19$Adjunction, options),
+						label: label,
+						style: A2($author$project$Codec$decoder, $author$project$Format$Version19$arrowStyleCodec, options)
+					});
+			}
+		}(),
+		selected: false,
+		weaklySelected: false,
+		zindex: zindex
+	};
+};
+var $author$project$Format$Version19$edgeFCodec = A2($author$project$Codec$build, $author$project$Format$Version19$fromEdgeLabel, $author$project$Format$Version19$toEdgeLabel);
+var $elm_community$intdict$IntDict$map = F2(
+	function (f, dict) {
+		switch (dict.$) {
+			case 'Empty':
+				return $elm_community$intdict$IntDict$empty;
+			case 'Leaf':
+				var l = dict.a;
+				return A2(
+					$elm_community$intdict$IntDict$leaf,
+					l.key,
+					A2(f, l.key, l.value));
+			default:
+				var i = dict.a;
+				return A3(
+					$elm_community$intdict$IntDict$inner,
+					i.prefix,
+					A2($elm_community$intdict$IntDict$map, f, i.left),
+					A2($elm_community$intdict$IntDict$map, f, i.right));
+		}
+	});
+var $author$project$Polygraph$mapObj = F3(
+	function (fn, fe, o) {
+		if (o.$ === 'NodeObj') {
+			var n = o.a;
+			return $author$project$Polygraph$NodeObj(
+				fn(n));
+		} else {
+			var i1 = o.a;
+			var i2 = o.b;
+			var e = o.c;
+			return A3(
+				$author$project$Polygraph$EdgeObj,
+				i1,
+				i2,
+				fe(e));
+		}
+	});
+var $author$project$Polygraph$mapGraphRep = F2(
+	function (fn, fe) {
+		return $elm_community$intdict$IntDict$map(
+			function (i) {
+				return A2(
+					$author$project$Polygraph$mapObj,
+					fn(i),
+					fe(i));
+			});
+	});
+var $author$project$Polygraph$setGraphRep = F2(
+	function (_v0, g) {
+		var g0 = _v0.a;
+		return $author$project$Polygraph$Graph(
+			{graph: g, nextId: g0.nextId});
+	});
+var $author$project$Polygraph$mapRep = F2(
+	function (f, g) {
+		return A2(
+			$author$project$Polygraph$setGraphRep,
+			g,
+			f(
+				$author$project$Polygraph$graphRep(g)));
+	});
+var $author$project$Polygraph$map = F2(
+	function (fn, fe) {
+		return $author$project$Polygraph$mapRep(
+			A2($author$project$Polygraph$mapGraphRep, fn, fe));
+	});
+var $author$project$Polygraph$mapCodec = F2(
+	function (c1, c2) {
+		return A2(
+			$author$project$Codec$build,
+			A2(
+				$author$project$Polygraph$map,
+				$elm$core$Basics$always(
+					$author$project$Codec$encoder(c1)),
+				$elm$core$Basics$always(
+					$author$project$Codec$encoder(c2))),
+			A2(
+				$author$project$Polygraph$map,
+				$elm$core$Basics$always(
+					$author$project$Codec$decoder(c1)),
+				$elm$core$Basics$always(
+					$author$project$Codec$decoder(c2))));
+	});
+var $author$project$Format$Version19$CoqValidated = {$: 'CoqValidated'};
+var $author$project$Format$Version19$nodeMaybeFlagCodecFalse = function (flag) {
+	return $author$project$Codec$boolList(flag);
+};
+var $author$project$Format$Version19$coqValidatedFlag = $author$project$Format$Version19$nodeMaybeFlagCodecFalse($author$project$Format$Version19$CoqValidated);
+var $elm$core$Basics$not = _Basics_not;
+var $author$project$Format$Version19$Text = {$: 'Text'};
+var $author$project$Format$Version19$textFlag = $author$project$Format$Version19$nodeMaybeFlagCodecFalse($author$project$Format$Version19$Text);
+var $author$project$Format$Version19$nodeFCodec = $author$project$Codec$buildObject(
+	A4(
+		$author$project$Codec$fields,
+		function ($) {
+			return $.isCoqValidated;
+		},
+		function ($) {
+			return $.options;
+		},
+		$author$project$Format$Version19$coqValidatedFlag,
+		A4(
+			$author$project$Codec$fields,
+			function ($) {
+				return $.zindex;
+			},
+			function ($) {
+				return $.zindex;
+			},
+			$author$project$Codec$identity,
+			A4(
+				$author$project$Codec$fields,
+				A2(
+					$elm$core$Basics$composeR,
+					function ($) {
+						return $.isMath;
+					},
+					$elm$core$Basics$not),
+				function ($) {
+					return $.options;
+				},
+				$author$project$Format$Version19$textFlag,
+				A4(
+					$author$project$Codec$fields,
+					function ($) {
+						return $.label;
+					},
+					function ($) {
+						return $.label;
+					},
+					$author$project$Codec$identity,
+					A4(
+						$author$project$Codec$fields,
+						function ($) {
+							return $.pos;
+						},
+						function ($) {
+							return $.pos;
+						},
+						$author$project$Codec$identity,
+						A2(
+							$author$project$Codec$object,
+							F5(
+								function (pos, label, isText, zindex, isCoqValidated) {
+									return {dims: $elm$core$Maybe$Nothing, isCoqValidated: isCoqValidated, isMath: !isText, label: label, pos: pos, selected: false, weaklySelected: false, zindex: zindex};
+								}),
+							F5(
+								function (pos, label, isText, zindex, isCoqValidated) {
+									return {
+										label: label,
+										options: _Utils_ap(isText, isCoqValidated),
+										pos: pos,
+										zindex: zindex
+									};
+								}))))))));
+var $author$project$Format$Version19$tabFlagsCodec = $author$project$Codec$buildObject(
+	A4(
+		$author$project$Codec$fields,
+		function ($) {
+			return $.freehandDrawings;
+		},
+		function ($) {
+			return $.freehandDrawings;
+		},
+		$author$project$FreeHandDrawings$codec,
+		A4(
+			$author$project$Codec$fields,
+			function ($) {
+				return $.id;
+			},
+			function ($) {
+				return $.id;
+			},
+			$author$project$Codec$identity,
+			A4(
+				$author$project$Codec$fields,
+				function ($) {
+					return $.sizeGrid;
+				},
+				function ($) {
+					return $.sizeGrid;
+				},
+				$author$project$Codec$identity,
+				A4(
+					$author$project$Codec$fields,
+					function ($) {
+						return $.title;
+					},
+					function ($) {
+						return $.title;
+					},
+					$author$project$Codec$identity,
+					A4(
+						$author$project$Codec$fields,
+						function ($) {
+							return $.graph;
+						},
+						function (e) {
+							return {edges: e.edges, nextId: e.nextGraphId, nodes: e.nodes};
+						},
+						A2(
+							$author$project$Codec$compose,
+							$author$project$Polygraph$codec,
+							A2($author$project$Polygraph$mapCodec, $author$project$Format$Version19$nodeFCodec, $author$project$Format$Version19$edgeFCodec)),
+						A2(
+							$author$project$Codec$object,
+							F5(
+								function (graph, title, sizeGrid, tabId, freehandDrawings) {
+									return {freehandDrawings: freehandDrawings, graph: graph, id: tabId, sizeGrid: sizeGrid, title: title};
+								}),
+							F5(
+								function (graph, title, sizeGrid, tabId, freehandDrawings) {
+									return {edges: graph.edges, freehandDrawings: freehandDrawings, id: tabId, nextGraphId: graph.nextId, nodes: graph.nodes, sizeGrid: sizeGrid, title: title};
+								}))))))));
+var $author$project$Format$Version19$graphInfoCodecFlags = $author$project$Codec$buildObject(
+	A4(
+		$author$project$Codec$fields,
+		function ($) {
+			return $.activeTabId;
+		},
+		function ($) {
+			return $.activeTabId;
+		},
+		$author$project$Codec$identity,
+		A4(
+			$author$project$Codec$fields,
+			function ($) {
+				return $.latexPreamble;
+			},
+			function ($) {
+				return $.latexPreamble;
+			},
+			$author$project$Codec$identity,
+			A4(
+				$author$project$Codec$fields,
+				function ($) {
+					return $.nextTabId;
+				},
+				function ($) {
+					return $.nextTabId;
+				},
+				$author$project$Codec$identity,
+				A4(
+					$author$project$Codec$fields,
+					function ($) {
+						return $.tabs;
+					},
+					function ($) {
+						return $.tabs;
+					},
+					$author$project$Codec$list($author$project$Format$Version19$tabFlagsCodec),
+					A2(
+						$author$project$Codec$object,
+						F4(
+							function (tabs, nextTabId, latexPreamble, activeTabId) {
+								return {activeTabId: activeTabId, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs};
+							}),
+						F4(
+							function (tabs, nextTabId, latexPreamble, activeTabId) {
+								return {activeTabId: activeTabId, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs};
+							})))))));
+var $author$project$Format$Version19$fromJSGraphFlags = function (g) {
+	return A2($author$project$Codec$decoder, $author$project$Format$Version19$graphInfoCodecFlags, g);
+};
+var $author$project$Polygraph$edgeMap = F2(
+	function (f, _v0) {
+		var id = _v0.id;
+		var from = _v0.from;
+		var to = _v0.to;
+		var label = _v0.label;
+		return {
+			from: from,
+			id: id,
+			label: f(label),
+			to: to
+		};
+	});
+var $author$project$Polygraph$nodeMap = F2(
+	function (f, _v0) {
+		var id = _v0.id;
+		var label = _v0.label;
+		return {
+			id: id,
+			label: f(label)
+		};
+	});
+var $author$project$Format$Version18$toNextEdgeFlags = function (_v0) {
+	var label = _v0.label;
+	var style = _v0.style;
+	var zindex = _v0.zindex;
+	return {label: label, options: style, zindex: zindex};
+};
+var $author$project$Format$Version18$toNextNodeFlags = function (_v0) {
+	var pos = _v0.pos;
+	var label = _v0.label;
+	var zindex = _v0.zindex;
+	var flags = _v0.flags;
+	return {label: label, options: flags, pos: pos, zindex: zindex};
+};
+var $author$project$Format$Version18$toNextTabFlags = function (_v0) {
+	var id = _v0.id;
+	var title = _v0.title;
+	var sizeGrid = _v0.sizeGrid;
+	var nodes = _v0.nodes;
+	var edges = _v0.edges;
+	var nextGraphId = _v0.nextGraphId;
+	var freehandDrawings = _v0.freehandDrawings;
+	return {
+		edges: A2(
+			$elm$core$List$map,
+			$author$project$Polygraph$edgeMap($author$project$Format$Version18$toNextEdgeFlags),
+			edges),
+		freehandDrawings: freehandDrawings,
+		id: id,
+		nextGraphId: nextGraphId,
+		nodes: A2(
+			$elm$core$List$map,
+			$author$project$Polygraph$nodeMap($author$project$Format$Version18$toNextNodeFlags),
+			nodes),
+		sizeGrid: sizeGrid,
+		title: title
+	};
+};
+var $author$project$Format$Version18$toNextGraphFlags = function (g) {
+	return {
+		activeTabId: g.activeTabId,
+		latexPreamble: g.latexPreamble,
+		nextTabId: g.nextTabId,
+		tabs: A2($elm$core$List$map, $author$project$Format$Version18$toNextTabFlags, g.tabs)
+	};
+};
+var $author$project$Format$Version18$fromJSGraphFlags = function (g) {
+	return $author$project$Format$Version19$fromJSGraphFlags(
+		$author$project$Format$Version18$toNextGraphFlags(g));
+};
+var $author$project$Format$Version18$edgeoMap = F2(
+	function (fnEdge, _v0) {
+		var label = _v0.label;
+		var style = _v0.style;
+		var zindex = _v0.zindex;
+		return {
+			label: label,
+			style: A2($elm$core$List$map, fnEdge, style),
+			zindex: zindex
+		};
+	});
+var $author$project$Format$Version18$nodeoMap = F2(
+	function (fnNode, _v0) {
+		var pos = _v0.pos;
+		var label = _v0.label;
+		var zindex = _v0.zindex;
+		var flags = _v0.flags;
+		return {
+			flags: A2($elm$core$List$map, fnNode, flags),
+			label: label,
+			pos: pos,
+			zindex: zindex
+		};
+	});
+var $author$project$Format$Version18$taboMap = F3(
+	function (fnNode, fnEdge, _v0) {
+		var title = _v0.title;
+		var sizeGrid = _v0.sizeGrid;
+		var id = _v0.id;
+		var nodes = _v0.nodes;
+		var edges = _v0.edges;
+		var nextGraphId = _v0.nextGraphId;
+		var freehandDrawings = _v0.freehandDrawings;
+		return {
+			edges: A2(
+				$elm$core$List$map,
+				$author$project$Polygraph$edgeMap(
+					$author$project$Format$Version18$edgeoMap(fnEdge)),
+				edges),
+			freehandDrawings: freehandDrawings,
+			id: id,
+			nextGraphId: nextGraphId,
+			nodes: A2(
+				$elm$core$List$map,
+				$author$project$Polygraph$nodeMap(
+					$author$project$Format$Version18$nodeoMap(fnNode)),
+				nodes),
+			sizeGrid: sizeGrid,
+			title: title
+		};
+	});
+var $author$project$Format$Version18$graphoMap = F3(
+	function (fnNode, fnEdge, _v0) {
+		var tabs = _v0.tabs;
+		var latexPreamble = _v0.latexPreamble;
+		var nextTabId = _v0.nextTabId;
+		var activeTabId = _v0.activeTabId;
+		return {
+			activeTabId: activeTabId,
+			latexPreamble: latexPreamble,
+			nextTabId: nextTabId,
+			tabs: A2(
+				$elm$core$List$map,
+				A2($author$project$Format$Version18$taboMap, fnNode, fnEdge),
+				tabs)
+		};
+	});
+var $author$project$Format$Version19$Unrecognized = {$: 'Unrecognized'};
+var $author$project$Geometry$Centre = {$: 'Centre'};
 var $author$project$Geometry$Right = {$: 'Right'};
 var $author$project$Codec$buildVariant = F2(
 	function (_default, _v0) {
@@ -7846,7 +8857,6 @@ var $author$project$ArrowStyle$alignmentCodec = function () {
 						$author$project$Geometry$Centre,
 						$author$project$Codec$customEnum(split))))));
 }();
-var $author$project$Drawing$Color$Black = {$: 'Black'};
 var $author$project$Drawing$Color$Blue = {$: 'Blue'};
 var $author$project$Drawing$Color$Gray = {$: 'Gray'};
 var $author$project$Drawing$Color$Green = {$: 'Green'};
@@ -7972,8 +8982,6 @@ var $author$project$Format$Version18$floatCodec = A2(
 		$elm$core$Basics$composeR,
 		$author$project$Format$Version18$myStringToFloat,
 		$elm$core$Maybe$withDefault(0)));
-var $author$project$ArrowStyle$DefaultHead = {$: 'DefaultHead'};
-var $author$project$ArrowStyle$NoHead = {$: 'NoHead'};
 var $author$project$ArrowStyle$TwoHeads = {$: 'TwoHeads'};
 var $author$project$ArrowStyle$headCodec = function () {
 	var split = F4(
@@ -8005,8 +9013,6 @@ var $author$project$ArrowStyle$headCodec = function () {
 					$author$project$Codec$customEnum(split)))));
 }();
 var $author$project$ArrowStyle$DoubleArrow = {$: 'DoubleArrow'};
-var $author$project$ArrowStyle$NoneArrow = {$: 'NoneArrow'};
-var $author$project$ArrowStyle$NormalArrow = {$: 'NormalArrow'};
 var $author$project$ArrowStyle$kindCodec = function () {
 	var split = F4(
 		function (none, _double, normal, v) {
@@ -8036,7 +9042,6 @@ var $author$project$ArrowStyle$kindCodec = function () {
 					$author$project$ArrowStyle$NoneArrow,
 					$author$project$Codec$customEnum(split)))));
 }();
-var $elm$core$Basics$not = _Basics_not;
 var $author$project$Codec$prefixVariant0 = F4(
 	function (prefixStr, constr, codec, _v0) {
 		var c = _v0.a;
@@ -8097,7 +9102,6 @@ var $author$project$Format$Version18$pullshoutOffsetCodec = A2(
 			return _default;
 		}
 	});
-var $author$project$ArrowStyle$DefaultTail = {$: 'DefaultTail'};
 var $author$project$ArrowStyle$Hook = {$: 'Hook'};
 var $author$project$ArrowStyle$HookAlt = {$: 'HookAlt'};
 var $author$project$ArrowStyle$Mapsto = {$: 'Mapsto'};
@@ -8234,823 +9238,117 @@ var $author$project$Format$Version18$edgeFlagCodec = function () {
 	};
 	return A2(
 		$author$project$Codec$buildVariant,
-		$elm$core$Basics$always($author$project$Format$Version18$Unrecognized),
+		$elm$core$Basics$always($author$project$Format$Version19$Unrecognized),
 		A3(
 			$author$project$Codec$variant0,
 			$author$project$Format$Version18$prefixes.unrecognized,
-			$author$project$Format$Version18$Unrecognized,
+			$author$project$Format$Version19$Unrecognized,
 			A4(
 				$author$project$Codec$prefixVariant0,
 				$author$project$Format$Version18$prefixes.loopAngle,
-				$author$project$Format$Version18$LoopAngle,
+				$author$project$Format$Version19$LoopAngle,
 				$author$project$Format$Version18$floatCodec,
 				A4(
 					$author$project$Codec$prefixVariant0,
 					$author$project$Format$Version18$prefixes.loopRadius,
-					$author$project$Format$Version18$LoopRadius,
+					$author$project$Format$Version19$LoopRadius,
 					$author$project$Format$Version18$floatCodec,
 					A4(
 						$author$project$Codec$prefixVariant0,
 						$author$project$Format$Version18$prefixes.shiftTarget,
-						$author$project$Format$Version18$ShiftTarget,
+						$author$project$Format$Version19$ShiftTarget,
 						$author$project$Format$Version18$floatCodec,
 						A4(
 							$author$project$Codec$prefixVariant0,
 							$author$project$Format$Version18$prefixes.shiftSource,
-							$author$project$Format$Version18$ShiftSource,
+							$author$project$Format$Version19$ShiftSource,
 							$author$project$Format$Version18$floatCodec,
 							A4(
 								$author$project$Codec$prefixVariant0,
 								$author$project$Format$Version18$prefixes.tailColor,
-								$author$project$Format$Version18$TailColor,
+								$author$project$Format$Version19$TailColor,
 								$author$project$Drawing$Color$codec,
 								A4(
 									$author$project$Codec$prefixVariant0,
 									$author$project$Format$Version18$prefixes.headColor,
-									$author$project$Format$Version18$HeadColor,
+									$author$project$Format$Version19$HeadColor,
 									$author$project$Drawing$Color$codec,
 									A4(
 										$author$project$Codec$prefixVariant0,
 										$author$project$Format$Version18$prefixes.color,
-										$author$project$Format$Version18$Color,
+										$author$project$Format$Version19$Color,
 										$author$project$Drawing$Color$codec,
 										A4(
 											$author$project$Codec$prefixVariant0,
 											$author$project$Format$Version18$prefixes.alignment,
-											$author$project$Format$Version18$Alignment,
+											$author$project$Format$Version19$Alignment,
 											$author$project$ArrowStyle$alignmentCodec,
 											A4(
 												$author$project$Codec$prefixVariant0,
 												$author$project$Format$Version18$prefixes.tail,
-												$author$project$Format$Version18$TailStyle,
+												$author$project$Format$Version19$TailStyle,
 												$author$project$ArrowStyle$tailCodec,
 												A4(
 													$author$project$Codec$prefixVariant0,
 													$author$project$Format$Version18$prefixes.head,
-													$author$project$Format$Version18$HeadStyle,
+													$author$project$Format$Version19$HeadStyle,
 													$author$project$ArrowStyle$headCodec,
 													A4(
 														$author$project$Codec$prefixVariant0,
 														$author$project$Format$Version18$prefixes.kind,
-														$author$project$Format$Version18$Kind,
+														$author$project$Format$Version19$Kind,
 														$author$project$ArrowStyle$kindCodec,
 														A3(
 															$author$project$Codec$variant0,
 															$author$project$Format$Version18$prefixes.wavy,
-															$author$project$Format$Version18$Wavy,
+															$author$project$Format$Version19$Wavy,
 															A3(
 																$author$project$Codec$variant0,
 																$author$project$Format$Version18$prefixes.adjunction,
-																$author$project$Format$Version18$Adjunction,
+																$author$project$Format$Version19$Adjunction,
 																A4(
 																	$author$project$Codec$prefixVariant0,
 																	$author$project$Format$Version18$prefixes.position,
-																	$author$project$Format$Version18$Position,
+																	$author$project$Format$Version19$Position,
 																	$author$project$Format$Version18$floatCodec,
 																	A4(
 																		$author$project$Codec$prefixVariant0,
 																		$author$project$Format$Version18$prefixes.bend,
-																		$author$project$Format$Version18$Bend,
+																		$author$project$Format$Version19$Bend,
 																		$author$project$Format$Version18$floatCodec,
 																		A4(
 																			$author$project$Codec$prefixVariant0,
 																			$author$project$Format$Version18$prefixes.pullshout,
-																			$author$project$Format$Version18$Pullshout,
+																			$author$project$Format$Version19$Pullshout,
 																			$author$project$Format$Version18$pullshoutOffsetCodec,
 																			A4(
 																				$author$project$Codec$prefixVariant0,
 																				$author$project$Format$Version18$prefixes.marker,
-																				$author$project$Format$Version18$Marker,
+																				$author$project$Format$Version19$Marker,
 																				$author$project$Codec$identity,
 																				A3(
 																					$author$project$Codec$variant0,
 																					$author$project$Format$Version18$prefixes.dashed,
-																					$author$project$Format$Version18$Dashed,
+																					$author$project$Format$Version19$Dashed,
 																					$author$project$Codec$customEnum(split)))))))))))))))))))));
 }();
-var $author$project$Format$Version18$addFlag = F2(
-	function (flag, l) {
-		return A2(
-			$elm$core$List$cons,
-			A2($author$project$Codec$encoder, $author$project$Format$Version18$edgeFlagCodec, flag),
-			l);
-	});
-var $author$project$Format$Version18$edgeFlagsCodec = $author$project$Codec$compose(
-	$author$project$Codec$list($author$project$Format$Version18$edgeFlagCodec));
-var $elm_community$list_extra$List$Extra$findMap = F2(
-	function (f, list) {
-		findMap:
-		while (true) {
-			if (!list.b) {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var a = list.a;
-				var tail = list.b;
-				var _v1 = f(a);
-				if (_v1.$ === 'Just') {
-					var b = _v1.a;
-					return $elm$core$Maybe$Just(b);
-				} else {
-					var $temp$f = f,
-						$temp$list = tail;
-					f = $temp$f;
-					list = $temp$list;
-					continue findMap;
-				}
-			}
-		}
-	});
-var $author$project$Codec$maybeList = F3(
-	function (defaultA, enc, dec) {
-		return A2(
-			$author$project$Codec$build,
-			function (a) {
-				return _Utils_eq(a, defaultA) ? _List_Nil : _List_fromArray(
-					[
-						enc(a)
-					]);
-			},
-			function (bs) {
-				return A2(
-					$elm$core$Maybe$withDefault,
-					defaultA,
-					A2($elm_community$list_extra$List$Extra$findMap, dec, bs));
-			});
-	});
-var $author$project$Format$Version18$edgeMaybeFlagCodec = F3(
-	function (_default, constr, destr) {
-		return $author$project$Format$Version18$edgeFlagsCodec(
-			A3($author$project$Codec$maybeList, _default, constr, destr));
-	});
-var $author$project$Format$Version18$alignmentFlag = A3(
-	$author$project$Format$Version18$edgeMaybeFlagCodec,
-	$author$project$Geometry$Left,
-	$author$project$Format$Version18$Alignment,
-	function (flag) {
-		if (flag.$ === 'Alignment') {
-			var a = flag.a;
-			return $elm$core$Maybe$Just(a);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $author$project$Format$Version18$bendFlag = A3(
-	$author$project$Format$Version18$edgeMaybeFlagCodec,
-	0,
-	$author$project$Format$Version18$Bend,
-	function (flag) {
-		if (flag.$ === 'Bend') {
-			var a = flag.a;
-			return $elm$core$Maybe$Just(a);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $author$project$Drawing$Color$black = $author$project$Drawing$Color$Black;
-var $author$project$Format$Version18$colorsFlag = $author$project$Format$Version18$edgeFlagsCodec(
-	A2(
-		$author$project$Codec$build,
-		function (_v0) {
-			var main = _v0.main;
-			var head = _v0.head;
-			var tail = _v0.tail;
-			return _Utils_ap(
-				_Utils_eq(main, $author$project$Drawing$Color$black) ? _List_Nil : _List_fromArray(
-					[
-						$author$project$Format$Version18$Color(main)
-					]),
-				_Utils_ap(
-					_Utils_eq(head, main) ? _List_Nil : _List_fromArray(
-						[
-							$author$project$Format$Version18$HeadColor(head)
-						]),
-					_Utils_eq(tail, main) ? _List_Nil : _List_fromArray(
-						[
-							$author$project$Format$Version18$TailColor(tail)
-						])));
-		},
-		function (l) {
-			var _v1 = _Utils_Tuple3(
-				A2(
-					$elm_community$list_extra$List$Extra$findMap,
-					function (v) {
-						if (v.$ === 'Color') {
-							var c = v.a;
-							return $elm$core$Maybe$Just(c);
-						} else {
-							return $elm$core$Maybe$Nothing;
-						}
-					},
-					l),
-				A2(
-					$elm_community$list_extra$List$Extra$findMap,
-					function (v) {
-						if (v.$ === 'HeadColor') {
-							var c = v.a;
-							return $elm$core$Maybe$Just(c);
-						} else {
-							return $elm$core$Maybe$Nothing;
-						}
-					},
-					l),
-				A2(
-					$elm_community$list_extra$List$Extra$findMap,
-					function (v) {
-						if (v.$ === 'TailColor') {
-							var c = v.a;
-							return $elm$core$Maybe$Just(c);
-						} else {
-							return $elm$core$Maybe$Nothing;
-						}
-					},
-					l));
-			var mc = _v1.a;
-			var hc = _v1.b;
-			var tc = _v1.c;
-			var c = A2($elm$core$Maybe$withDefault, $author$project$Drawing$Color$black, mc);
-			return {
-				head: A2($elm$core$Maybe$withDefault, c, hc),
-				main: c,
-				tail: A2($elm$core$Maybe$withDefault, c, tc)
-			};
-		}));
-var $author$project$Codec$boolList = function (b) {
-	return A3(
-		$author$project$Codec$maybeList,
-		false,
-		$elm$core$Basics$always(b),
-		function (b2) {
-			return _Utils_eq(b, b2) ? $elm$core$Maybe$Just(true) : $elm$core$Maybe$Nothing;
-		});
-};
-var $author$project$Format$Version18$edgeMaybeFlagCodecFalse = function (flag) {
-	return $author$project$Format$Version18$edgeFlagsCodec(
-		$author$project$Codec$boolList(flag));
-};
-var $author$project$Format$Version18$dashedFlag = $author$project$Format$Version18$edgeMaybeFlagCodecFalse($author$project$Format$Version18$Dashed);
-var $author$project$Format$Version18$headFlag = A3(
-	$author$project$Format$Version18$edgeMaybeFlagCodec,
-	$author$project$ArrowStyle$DefaultHead,
-	$author$project$Format$Version18$HeadStyle,
-	function (flag) {
-		if (flag.$ === 'HeadStyle') {
-			var a = flag.a;
-			return $elm$core$Maybe$Just(a);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $author$project$Format$Version18$kindFlag = function () {
-	var dec = function (flag) {
-		if (flag.$ === 'Kind') {
-			var a = flag.a;
-			return $elm$core$Maybe$Just(a);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	};
-	return $author$project$Format$Version18$edgeFlagsCodec(
-		A2(
-			$author$project$Codec$build,
-			function (a) {
-				return _Utils_eq(a, $author$project$ArrowStyle$NormalArrow) ? _List_Nil : _List_fromArray(
-					[
-						$author$project$Format$Version18$Kind(a)
-					]);
-			},
-			function (bs) {
-				return A2(
-					$elm$core$Maybe$withDefault,
-					$author$project$ArrowStyle$NormalArrow,
-					A2($elm_community$list_extra$List$Extra$findMap, dec, bs));
-			}));
-}();
-var $author$project$Format$Version18$loopAngleFlag = A3(
-	$author$project$Format$Version18$edgeMaybeFlagCodec,
-	0,
-	$author$project$Format$Version18$LoopAngle,
-	function (flag) {
-		if (flag.$ === 'LoopAngle') {
-			var a = flag.a;
-			return $elm$core$Maybe$Just(a);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $author$project$ArrowStyle$defaultLoopRadius = 20;
-var $author$project$Format$Version18$loopRadiusFlag = A3(
-	$author$project$Format$Version18$edgeMaybeFlagCodec,
-	$author$project$ArrowStyle$defaultLoopRadius,
-	$author$project$Format$Version18$LoopRadius,
-	function (flag) {
-		if (flag.$ === 'LoopRadius') {
-			var a = flag.a;
-			return $elm$core$Maybe$Just(a);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $author$project$Format$Version18$markerFlag = A3(
-	$author$project$Format$Version18$edgeMaybeFlagCodec,
-	'',
-	$author$project$Format$Version18$Marker,
-	function (flag) {
-		if (flag.$ === 'Marker') {
-			var a = flag.a;
-			return $elm$core$Maybe$Just(a);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $elm$core$Basics$min = F2(
-	function (x, y) {
-		return (_Utils_cmp(x, y) < 0) ? x : y;
-	});
-var $author$project$Format$Version18$positionFlag = A3(
-	$author$project$Format$Version18$edgeMaybeFlagCodec,
-	0.5,
-	$author$project$Format$Version18$Position,
-	function (flag) {
-		if (flag.$ === 'Position') {
-			var a = flag.a;
-			return $elm$core$Maybe$Just(
-				A2(
-					$elm$core$Basics$max,
-					0.1,
-					A2($elm$core$Basics$min, 0.9, a)));
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $author$project$Format$Version18$shiftSourceFlag = A3(
-	$author$project$Format$Version18$edgeMaybeFlagCodec,
-	0.5,
-	function (x) {
-		return $author$project$Format$Version18$ShiftSource((x - 0.5) * 10);
-	},
-	function (flag) {
-		if (flag.$ === 'ShiftSource') {
-			var a = flag.a;
-			return $elm$core$Maybe$Just((a + 5) / 10);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $author$project$Format$Version18$shiftTargetFlag = A3(
-	$author$project$Format$Version18$edgeMaybeFlagCodec,
-	0.5,
-	function (x) {
-		return $author$project$Format$Version18$ShiftTarget((x - 0.5) * 10);
-	},
-	function (flag) {
-		if (flag.$ === 'ShiftTarget') {
-			var a = flag.a;
-			return $elm$core$Maybe$Just((a + 5) / 10);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $author$project$Format$Version18$tailFlag = A3(
-	$author$project$Format$Version18$edgeMaybeFlagCodec,
-	$author$project$ArrowStyle$DefaultTail,
-	$author$project$Format$Version18$TailStyle,
-	function (flag) {
-		if (flag.$ === 'TailStyle') {
-			var a = flag.a;
-			return $elm$core$Maybe$Just(a);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $author$project$Format$Version18$wavyFlag = $author$project$Format$Version18$edgeMaybeFlagCodecFalse($author$project$Format$Version18$Wavy);
-var $author$project$Format$Version18$arrowStyleCodec = function () {
-	var flagField = F2(
-		function (f1, codec) {
-			return A3($author$project$Codec$fields, f1, $elm$core$Basics$identity, codec);
-		});
-	return $author$project$Codec$buildObject(
-		A3(
-			flagField,
-			function ($) {
-				return $.loopAngle;
-			},
-			$author$project$Format$Version18$loopAngleFlag,
-			A3(
-				flagField,
-				function ($) {
-					return $.loopRadius;
-				},
-				$author$project$Format$Version18$loopRadiusFlag,
-				A3(
-					flagField,
-					function ($) {
-						return $.wavy;
-					},
-					$author$project$Format$Version18$wavyFlag,
-					A3(
-						flagField,
-						function ($) {
-							return $.marker;
-						},
-						$author$project$Format$Version18$markerFlag,
-						A3(
-							flagField,
-							function (_v0) {
-								var color = _v0.color;
-								var headColor = _v0.headColor;
-								var tailColor = _v0.tailColor;
-								return {head: headColor, main: color, tail: tailColor};
-							},
-							$author$project$Format$Version18$colorsFlag,
-							A3(
-								flagField,
-								function ($) {
-									return $.shiftTarget;
-								},
-								$author$project$Format$Version18$shiftTargetFlag,
-								A3(
-									flagField,
-									function ($) {
-										return $.shiftSource;
-									},
-									$author$project$Format$Version18$shiftSourceFlag,
-									A3(
-										flagField,
-										function ($) {
-											return $.labelPosition;
-										},
-										$author$project$Format$Version18$positionFlag,
-										A3(
-											flagField,
-											function ($) {
-												return $.labelAlignment;
-											},
-											$author$project$Format$Version18$alignmentFlag,
-											A3(
-												flagField,
-												function ($) {
-													return $.bend;
-												},
-												$author$project$Format$Version18$bendFlag,
-												A3(
-													flagField,
-													function ($) {
-														return $.dashed;
-													},
-													$author$project$Format$Version18$dashedFlag,
-													A3(
-														flagField,
-														function ($) {
-															return $.kind;
-														},
-														$author$project$Format$Version18$kindFlag,
-														A3(
-															flagField,
-															function ($) {
-																return $.head;
-															},
-															$author$project$Format$Version18$headFlag,
-															A3(
-																flagField,
-																function ($) {
-																	return $.tail;
-																},
-																$author$project$Format$Version18$tailFlag,
-																A2(
-																	$author$project$Codec$object,
-																	function (tail) {
-																		return function (head) {
-																			return function (kind) {
-																				return function (dashed) {
-																					return function (bend) {
-																						return function (alignment) {
-																							return function (position) {
-																								return function (shiftSource) {
-																									return function (shiftTarget) {
-																										return function (colors) {
-																											return function (marker) {
-																												return function (wavy) {
-																													return function (loopRadius) {
-																														return function (loopAngle) {
-																															return {bend: bend, color: colors.main, dashed: dashed, head: head, headColor: colors.head, kind: kind, labelAlignment: alignment, labelPosition: position, loopAngle: loopAngle, loopRadius: loopRadius, marker: marker, shiftSource: shiftSource, shiftTarget: shiftTarget, tail: tail, tailColor: colors.tail, wavy: wavy};
-																														};
-																													};
-																												};
-																											};
-																										};
-																									};
-																								};
-																							};
-																						};
-																					};
-																				};
-																			};
-																		};
-																	},
-																	function (tail) {
-																		return function (head) {
-																			return function (kind) {
-																				return function (dashed) {
-																					return function (bend) {
-																						return function (alignment) {
-																							return function (position) {
-																								return function (shiftSource) {
-																									return function (shiftTarget) {
-																										return function (colors) {
-																											return function (marker) {
-																												return function (wavy) {
-																													return function (loopRadius) {
-																														return function (loopAngle) {
-																															return _Utils_ap(
-																																shiftSource,
-																																_Utils_ap(
-																																	shiftTarget,
-																																	_Utils_ap(
-																																		position,
-																																		_Utils_ap(
-																																			bend,
-																																			_Utils_ap(
-																																				marker,
-																																				_Utils_ap(
-																																					colors,
-																																					_Utils_ap(
-																																						dashed,
-																																						_Utils_ap(
-																																							alignment,
-																																							_Utils_ap(
-																																								tail,
-																																								_Utils_ap(
-																																									head,
-																																									_Utils_ap(
-																																										kind,
-																																										_Utils_ap(
-																																											wavy,
-																																											_Utils_ap(loopRadius, loopAngle)))))))))))));
-																														};
-																													};
-																												};
-																											};
-																										};
-																									};
-																								};
-																							};
-																						};
-																					};
-																				};
-																			};
-																		};
-																	}))))))))))))))));
-}();
-var $author$project$ArrowStyle$getStyle = function (_v0) {
-	var style = _v0.style;
-	var isAdjunction = _v0.isAdjunction;
-	return isAdjunction ? _Utils_update(
-		style,
-		{head: $author$project$ArrowStyle$NoHead, kind: $author$project$ArrowStyle$NoneArrow, labelAlignment: $author$project$Geometry$Over, tail: $author$project$ArrowStyle$DefaultTail}) : style;
-};
-var $author$project$Format$Version18$Edge = F3(
-	function (label, style, zindex) {
-		return {label: label, style: style, zindex: zindex};
-	});
-var $author$project$Format$Version18$pullshoutStyle = function (_v0) {
-	var color = _v0.color;
-	var offset1 = _v0.offset1;
-	var offset2 = _v0.offset2;
-	return A2(
-		$elm$core$List$cons,
-		A2(
-			$author$project$Codec$encoder,
-			$author$project$Format$Version18$edgeFlagCodec,
-			$author$project$Format$Version18$Pullshout(
-				{offset1: offset1, offset2: offset2})),
-		A2(
-			$author$project$Codec$encoder,
-			$author$project$Format$Version18$colorsFlag,
-			{head: color, main: color, tail: color}));
-};
-var $author$project$Format$Version18$pullshoutEdge = F2(
-	function (z, label) {
-		return A3(
-			$author$project$Format$Version18$Edge,
-			'',
-			$author$project$Format$Version18$pullshoutStyle(label),
-			z);
-	});
-var $author$project$Format$Version18$fromEdgeLabel = function (e) {
-	var _v0 = e.details;
-	if (_v0.$ === 'PullshoutEdge') {
-		var l = _v0.a;
-		return A2($author$project$Format$Version18$pullshoutEdge, e.zindex, l);
-	} else {
-		var l = _v0.a;
-		var label = l.label;
-		var isAdjunction = l.isAdjunction;
-		var style = $author$project$ArrowStyle$getStyle(l);
-		return {
-			label: label,
-			style: function () {
-				var convertedStyle = A2($author$project$Codec$encoder, $author$project$Format$Version18$arrowStyleCodec, style);
-				return isAdjunction ? A2($author$project$Format$Version18$addFlag, $author$project$Format$Version18$Adjunction, convertedStyle) : convertedStyle;
-			}(),
-			zindex: e.zindex
-		};
-	}
-};
-var $author$project$GraphDefs$NormalEdge = function (a) {
-	return {$: 'NormalEdge', a: a};
-};
-var $author$project$GraphDefs$PullshoutEdge = function (a) {
-	return {$: 'PullshoutEdge', a: a};
-};
-var $elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
-	});
-var $elm$core$List$member = F2(
-	function (x, xs) {
-		return A2(
-			$elm$core$List$any,
-			function (a) {
-				return _Utils_eq(a, x);
-			},
-			xs);
-	});
-var $author$project$Format$Version18$getFlag = F2(
-	function (flag, l) {
-		return A2(
-			$elm$core$List$member,
-			A2($author$project$Codec$encoder, $author$project$Format$Version18$edgeFlagCodec, flag),
-			l);
-	});
-var $author$project$Format$Version18$pullshoutFlag = A3(
-	$author$project$Format$Version18$edgeMaybeFlagCodec,
-	$elm$core$Maybe$Nothing,
-	A2(
-		$elm$core$Basics$composeR,
-		$elm$core$Maybe$map($author$project$Format$Version18$Pullshout),
-		$elm$core$Maybe$withDefault($author$project$Format$Version18$Unrecognized)),
-	function (flag) {
-		if (flag.$ === 'Pullshout') {
-			var a = flag.a;
-			return $elm$core$Maybe$Just(
-				$elm$core$Maybe$Just(a));
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $author$project$Format$Version18$toEdgeLabel = function (_v0) {
-	var label = _v0.label;
-	var style = _v0.style;
-	var zindex = _v0.zindex;
-	var dec = function (codec) {
-		return A2($author$project$Codec$decoder, codec, style);
-	};
-	return {
-		details: function () {
-			var _v1 = dec($author$project$Format$Version18$pullshoutFlag);
-			if (_v1.$ === 'Just') {
-				var offset1 = _v1.a.offset1;
-				var offset2 = _v1.a.offset2;
-				return $author$project$GraphDefs$PullshoutEdge(
-					{
-						color: dec($author$project$Format$Version18$colorsFlag).main,
-						offset1: offset1,
-						offset2: offset2
-					});
-			} else {
-				return $author$project$GraphDefs$NormalEdge(
-					{
-						dims: $elm$core$Maybe$Nothing,
-						isAdjunction: A2($author$project$Format$Version18$getFlag, $author$project$Format$Version18$Adjunction, style),
-						label: label,
-						style: A2($author$project$Codec$decoder, $author$project$Format$Version18$arrowStyleCodec, style)
-					});
-			}
-		}(),
-		selected: false,
-		weaklySelected: false,
-		zindex: zindex
-	};
-};
-var $author$project$Format$Version18$edgeCodec = A2($author$project$Codec$build, $author$project$Format$Version18$fromEdgeLabel, $author$project$Format$Version18$toEdgeLabel);
-var $elm_community$intdict$IntDict$map = F2(
-	function (f, dict) {
-		switch (dict.$) {
-			case 'Empty':
-				return $elm_community$intdict$IntDict$empty;
-			case 'Leaf':
-				var l = dict.a;
-				return A2(
-					$elm_community$intdict$IntDict$leaf,
-					l.key,
-					A2(f, l.key, l.value));
-			default:
-				var i = dict.a;
-				return A3(
-					$elm_community$intdict$IntDict$inner,
-					i.prefix,
-					A2($elm_community$intdict$IntDict$map, f, i.left),
-					A2($elm_community$intdict$IntDict$map, f, i.right));
-		}
-	});
-var $author$project$Polygraph$mapObj = F3(
-	function (fn, fe, o) {
-		if (o.$ === 'NodeObj') {
-			var n = o.a;
-			return $author$project$Polygraph$NodeObj(
-				fn(n));
-		} else {
-			var i1 = o.a;
-			var i2 = o.b;
-			var e = o.c;
-			return A3(
-				$author$project$Polygraph$EdgeObj,
-				i1,
-				i2,
-				fe(e));
-		}
-	});
-var $author$project$Polygraph$mapGraphRep = F2(
-	function (fn, fe) {
-		return $elm_community$intdict$IntDict$map(
-			function (i) {
-				return A2(
-					$author$project$Polygraph$mapObj,
-					fn(i),
-					fe(i));
-			});
-	});
-var $author$project$Polygraph$setGraphRep = F2(
-	function (_v0, g) {
-		var g0 = _v0.a;
-		return $author$project$Polygraph$Graph(
-			{graph: g, nextId: g0.nextId});
-	});
-var $author$project$Polygraph$mapRep = F2(
-	function (f, g) {
-		return A2(
-			$author$project$Polygraph$setGraphRep,
-			g,
-			f(
-				$author$project$Polygraph$graphRep(g)));
-	});
-var $author$project$Polygraph$map = F2(
-	function (fn, fe) {
-		return $author$project$Polygraph$mapRep(
-			A2($author$project$Polygraph$mapGraphRep, fn, fe));
-	});
-var $author$project$Polygraph$mapCodec = F2(
-	function (c1, c2) {
-		return A2(
-			$author$project$Codec$build,
-			A2(
-				$author$project$Polygraph$map,
-				$elm$core$Basics$always(
-					$author$project$Codec$encoder(c1)),
-				$elm$core$Basics$always(
-					$author$project$Codec$encoder(c2))),
-			A2(
-				$author$project$Polygraph$map,
-				$elm$core$Basics$always(
-					$author$project$Codec$decoder(c1)),
-				$elm$core$Basics$always(
-					$author$project$Codec$decoder(c2))));
-	});
-var $author$project$Format$Version18$CoqValidated = {$: 'CoqValidated'};
-var $author$project$Format$Version18$Text = {$: 'Text'};
-var $author$project$Format$Version18$UnrecognizedNodeFlag = {$: 'UnrecognizedNodeFlag'};
+var $author$project$Format$Version18$stringToEdgeFlag = $author$project$Codec$decoder($author$project$Format$Version18$edgeFlagCodec);
+var $author$project$Format$Version19$UnrecognizedNodeFlag = {$: 'UnrecognizedNodeFlag'};
 var $author$project$Format$Version18$nodeFlagCodec = A2(
 	$author$project$Codec$buildVariant,
-	$elm$core$Basics$always($author$project$Format$Version18$UnrecognizedNodeFlag),
+	$elm$core$Basics$always($author$project$Format$Version19$UnrecognizedNodeFlag),
 	A3(
 		$author$project$Codec$variant0,
 		'',
-		$author$project$Format$Version18$UnrecognizedNodeFlag,
+		$author$project$Format$Version19$UnrecognizedNodeFlag,
 		A3(
 			$author$project$Codec$variant0,
 			'text',
-			$author$project$Format$Version18$Text,
+			$author$project$Format$Version19$Text,
 			A3(
 				$author$project$Codec$variant0,
 				'coqValidated',
-				$author$project$Format$Version18$CoqValidated,
+				$author$project$Format$Version19$CoqValidated,
 				$author$project$Codec$customEnum(
 					F4(
 						function (coq, text, unrecognized, v) {
@@ -9063,185 +9361,11 @@ var $author$project$Format$Version18$nodeFlagCodec = A2(
 									return unrecognized;
 							}
 						}))))));
-var $author$project$Format$Version18$nodeFlagsCodec = $author$project$Codec$compose(
-	$author$project$Codec$list($author$project$Format$Version18$nodeFlagCodec));
-var $author$project$Format$Version18$nodeMaybeFlagCodecFalse = function (flag) {
-	return $author$project$Format$Version18$nodeFlagsCodec(
-		$author$project$Codec$boolList(flag));
+var $author$project$Format$Version18$stringToNodeFlag = $author$project$Codec$decoder($author$project$Format$Version18$nodeFlagCodec);
+var $author$project$Format$Version18$fromJSGraph = function (g) {
+	return $author$project$Format$Version18$fromJSGraphFlags(
+		A3($author$project$Format$Version18$graphoMap, $author$project$Format$Version18$stringToNodeFlag, $author$project$Format$Version18$stringToEdgeFlag, g));
 };
-var $author$project$Format$Version18$coqValidatedFlag = $author$project$Format$Version18$nodeMaybeFlagCodecFalse($author$project$Format$Version18$CoqValidated);
-var $author$project$Format$Version18$textFlag = $author$project$Format$Version18$nodeMaybeFlagCodecFalse($author$project$Format$Version18$Text);
-var $author$project$Format$Version18$nodeCodec = $author$project$Codec$buildObject(
-	A4(
-		$author$project$Codec$fields,
-		function ($) {
-			return $.isCoqValidated;
-		},
-		function ($) {
-			return $.flags;
-		},
-		$author$project$Format$Version18$coqValidatedFlag,
-		A4(
-			$author$project$Codec$fields,
-			function ($) {
-				return $.zindex;
-			},
-			function ($) {
-				return $.zindex;
-			},
-			$author$project$Codec$identity,
-			A4(
-				$author$project$Codec$fields,
-				A2(
-					$elm$core$Basics$composeR,
-					function ($) {
-						return $.isMath;
-					},
-					$elm$core$Basics$not),
-				function ($) {
-					return $.flags;
-				},
-				$author$project$Format$Version18$textFlag,
-				A4(
-					$author$project$Codec$fields,
-					function ($) {
-						return $.label;
-					},
-					function ($) {
-						return $.label;
-					},
-					$author$project$Codec$identity,
-					A4(
-						$author$project$Codec$fields,
-						function ($) {
-							return $.pos;
-						},
-						function ($) {
-							return $.pos;
-						},
-						$author$project$Codec$identity,
-						A2(
-							$author$project$Codec$object,
-							F5(
-								function (pos, label, isText, zindex, isCoqValidated) {
-									return {dims: $elm$core$Maybe$Nothing, isCoqValidated: isCoqValidated, isMath: !isText, label: label, pos: pos, selected: false, weaklySelected: false, zindex: zindex};
-								}),
-							F5(
-								function (pos, label, isText, zindex, isCoqValidated) {
-									return {
-										flags: _Utils_ap(isText, isCoqValidated),
-										label: label,
-										pos: pos,
-										zindex: zindex
-									};
-								}))))))));
-var $author$project$Format$Version18$tabCodec = $author$project$Codec$buildObject(
-	A4(
-		$author$project$Codec$fields,
-		function ($) {
-			return $.freehandDrawings;
-		},
-		function ($) {
-			return $.freehandDrawings;
-		},
-		$author$project$FreeHandDrawings$codec,
-		A4(
-			$author$project$Codec$fields,
-			function ($) {
-				return $.id;
-			},
-			function ($) {
-				return $.id;
-			},
-			$author$project$Codec$identity,
-			A4(
-				$author$project$Codec$fields,
-				function ($) {
-					return $.sizeGrid;
-				},
-				function ($) {
-					return $.sizeGrid;
-				},
-				$author$project$Codec$identity,
-				A4(
-					$author$project$Codec$fields,
-					function ($) {
-						return $.title;
-					},
-					function ($) {
-						return $.title;
-					},
-					$author$project$Codec$identity,
-					A4(
-						$author$project$Codec$fields,
-						function ($) {
-							return $.graph;
-						},
-						function (e) {
-							return {edges: e.edges, nextId: e.nextGraphId, nodes: e.nodes};
-						},
-						A2(
-							$author$project$Codec$compose,
-							$author$project$Polygraph$codec,
-							A2($author$project$Polygraph$mapCodec, $author$project$Format$Version18$nodeCodec, $author$project$Format$Version18$edgeCodec)),
-						A2(
-							$author$project$Codec$object,
-							F5(
-								function (graph, title, sizeGrid, tabId, freehandDrawings) {
-									return {freehandDrawings: freehandDrawings, graph: graph, id: tabId, sizeGrid: sizeGrid, title: title};
-								}),
-							F5(
-								function (graph, title, sizeGrid, tabId, freehandDrawings) {
-									return {edges: graph.edges, freehandDrawings: freehandDrawings, id: tabId, nextGraphId: graph.nextId, nodes: graph.nodes, sizeGrid: sizeGrid, title: title};
-								}))))))));
-var $author$project$Format$Version18$graphInfoCodec = $author$project$Codec$buildObject(
-	A4(
-		$author$project$Codec$fields,
-		function ($) {
-			return $.activeTabId;
-		},
-		function ($) {
-			return $.activeTabId;
-		},
-		$author$project$Codec$identity,
-		A4(
-			$author$project$Codec$fields,
-			function ($) {
-				return $.latexPreamble;
-			},
-			function ($) {
-				return $.latexPreamble;
-			},
-			$author$project$Codec$identity,
-			A4(
-				$author$project$Codec$fields,
-				function ($) {
-					return $.nextTabId;
-				},
-				function ($) {
-					return $.nextTabId;
-				},
-				$author$project$Codec$identity,
-				A4(
-					$author$project$Codec$fields,
-					function ($) {
-						return $.tabs;
-					},
-					function ($) {
-						return $.tabs;
-					},
-					$author$project$Codec$list($author$project$Format$Version18$tabCodec),
-					A2(
-						$author$project$Codec$object,
-						F4(
-							function (tabs, nextTabId, latexPreamble, activeTabId) {
-								return {activeTabId: activeTabId, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs};
-							}),
-						F4(
-							function (tabs, nextTabId, latexPreamble, activeTabId) {
-								return {activeTabId: activeTabId, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs};
-							})))))));
-var $author$project$Format$Version18$fromJSGraph = $author$project$Codec$decoder($author$project$Format$Version18$graphInfoCodec);
 var $author$project$Format$Version17$toNextTab = function (_v0) {
 	var id = _v0.id;
 	var title = _v0.title;
@@ -9267,29 +9391,55 @@ var $author$project$Format$Version17$fromJSGraph = function (g) {
 	return $author$project$Format$Version18$fromJSGraph(
 		$author$project$Format$Version17$toNextVersion(g));
 };
-var $author$project$Polygraph$edgeMap = F2(
-	function (f, _v0) {
-		var id = _v0.id;
-		var from = _v0.from;
-		var to = _v0.to;
-		var label = _v0.label;
-		return {
-			from: from,
-			id: id,
-			label: f(label),
-			to: to
-		};
-	});
-var $author$project$Polygraph$nodeMap = F2(
-	function (f, _v0) {
-		var id = _v0.id;
-		var label = _v0.label;
-		return {
-			id: id,
-			label: f(label)
-		};
+var $author$project$Format$Version18$addFlag = F2(
+	function (flag, l) {
+		return A2(
+			$elm$core$List$cons,
+			A2($author$project$Codec$encoder, $author$project$Format$Version18$edgeFlagCodec, flag),
+			l);
 	});
 var $author$project$Format$Version16$keys = {adjunction: 'adjunction', normal: 'normal', pullshout: 'pullshout'};
+var $author$project$Format$Version18$edgeFlagsCodec = $author$project$Codec$compose(
+	$author$project$Codec$list($author$project$Format$Version18$edgeFlagCodec));
+var $author$project$Format$Version18$edgeMaybeFlagCodec = F3(
+	function (_default, constr, destr) {
+		return $author$project$Format$Version18$edgeFlagsCodec(
+			A3($author$project$Codec$maybeList, _default, constr, destr));
+	});
+var $author$project$Format$Version18$bendFlag = A3(
+	$author$project$Format$Version18$edgeMaybeFlagCodec,
+	0,
+	$author$project$Format$Version19$Bend,
+	function (flag) {
+		if (flag.$ === 'Bend') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Version18$edgeMaybeFlagCodecFalse = function (flag) {
+	return $author$project$Format$Version18$edgeFlagsCodec(
+		$author$project$Codec$boolList(flag));
+};
+var $author$project$Format$Version18$dashedFlag = $author$project$Format$Version18$edgeMaybeFlagCodecFalse($author$project$Format$Version19$Dashed);
+var $author$project$Format$Version18$positionFlag = A3(
+	$author$project$Format$Version18$edgeMaybeFlagCodec,
+	0.5,
+	$author$project$Format$Version19$Position,
+	function (flag) {
+		if (flag.$ === 'Position') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(
+				A2(
+					$elm$core$Basics$max,
+					0.1,
+					A2($elm$core$Basics$min, 0.9, a)));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Version18$wavyFlag = $author$project$Format$Version18$edgeMaybeFlagCodecFalse($author$project$Format$Version19$Wavy);
 var $author$project$Format$Version16$toNextStyle = function (_v0) {
 	var tail = _v0.tail;
 	var head = _v0.head;
@@ -9380,12 +9530,20 @@ var $author$project$Format$Version16$toNextEdge = function (_v0) {
 	var style2 = $author$project$Format$Version16$toNextStyle(style);
 	var style3 = _Utils_eq(kind, $author$project$Format$Version16$keys.pullshout) ? A2(
 		$author$project$Format$Version18$addFlag,
-		$author$project$Format$Version18$Pullshout(
+		$author$project$Format$Version19$Pullshout(
 			{offset1: style.position, offset2: style.bend}),
 		style2) : style2;
-	var style4 = _Utils_eq(kind, $author$project$Format$Version16$keys.adjunction) ? A2($author$project$Format$Version18$addFlag, $author$project$Format$Version18$Adjunction, style3) : style3;
+	var style4 = _Utils_eq(kind, $author$project$Format$Version16$keys.adjunction) ? A2($author$project$Format$Version18$addFlag, $author$project$Format$Version19$Adjunction, style3) : style3;
 	return {label: label, style: style4, zindex: zindex};
 };
+var $author$project$Format$Version18$nodeFlagsCodec = $author$project$Codec$compose(
+	$author$project$Codec$list($author$project$Format$Version18$nodeFlagCodec));
+var $author$project$Format$Version18$nodeMaybeFlagCodecFalse = function (flag) {
+	return $author$project$Format$Version18$nodeFlagsCodec(
+		$author$project$Codec$boolList(flag));
+};
+var $author$project$Format$Version18$coqValidatedFlag = $author$project$Format$Version18$nodeMaybeFlagCodecFalse($author$project$Format$Version19$CoqValidated);
+var $author$project$Format$Version18$textFlag = $author$project$Format$Version18$nodeMaybeFlagCodecFalse($author$project$Format$Version19$Text);
 var $author$project$Format$Version16$toNextNode = function (_v0) {
 	var pos = _v0.pos;
 	var label = _v0.label;
@@ -10040,6 +10198,551 @@ var $author$project$Format$Version0$fromJSGraph = function (g) {
 	return $author$project$Format$Version1$fromJSGraph(
 		$author$project$Format$Version0$toNextVersion(g));
 };
+var $author$project$Codec$customPair = F2(
+	function (a, common) {
+		return A4(
+			$author$project$Codec$custom,
+			a,
+			common,
+			$elm$core$Tuple$first,
+			F2(
+				function (tag, _v0) {
+					var b = _v0.b;
+					return _Utils_Tuple2(tag, b);
+				}));
+	});
+var $elm$json$Json$Decode$float = _Json_decodeFloat;
+var $elm$json$Json$Encode$float = _Json_wrap;
+var $elm$core$Result$withDefault = F2(
+	function (def, result) {
+		if (result.$ === 'Ok') {
+			var a = result.a;
+			return a;
+		} else {
+			return def;
+		}
+	});
+var $author$project$Codec$floatJs = $author$project$Codec$Codec(
+	{
+		decoder: function (v) {
+			return A2(
+				$elm$core$Result$withDefault,
+				0,
+				A2($elm$json$Json$Decode$decodeValue, $elm$json$Json$Decode$float, v));
+		},
+		encoder: $elm$json$Json$Encode$float
+	});
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $author$project$Codec$trueJs = $author$project$Codec$Codec(
+	{
+		decoder: function (v) {
+			return A2(
+				$elm$core$Result$withDefault,
+				false,
+				A2($elm$json$Json$Decode$decodeValue, $elm$json$Json$Decode$bool, v));
+		},
+		encoder: function (_v0) {
+			return $elm$json$Json$Encode$bool(true);
+		}
+	});
+var $elm$core$Tuple$second = function (_v0) {
+	var y = _v0.b;
+	return y;
+};
+var $author$project$Codec$variant1Pair = F2(
+	function (tag, constr) {
+		return A4(
+			$author$project$Codec$variant1,
+			tag,
+			constr,
+			F2(
+				function (arg, _v0) {
+					var tag2 = _v0.a;
+					return _Utils_Tuple2(tag2, arg);
+				}),
+			$elm$core$Tuple$second);
+	});
+var $author$project$Codec$variantTruePair = F4(
+	function (tag, v, _default, c) {
+		return A3(
+			$author$project$Codec$variant1Pair,
+			tag,
+			function (b) {
+				return b ? v : _default;
+			},
+			c);
+	});
+var $author$project$Format$Version19$genericVariantTrue = F3(
+	function (_default, tag, v) {
+		return A4($author$project$Codec$variantTruePair, tag, v, _default, $author$project$Codec$trueJs);
+	});
+var $elm$json$Json$Encode$null = _Json_encodeNull;
+var $author$project$Format$Version19$optionNames = {adjunction: 'adjunction', alignment: 'alignment', bend: 'bend', color: 'color ', dashed: 'dashed', head: 'head', headColor: 'headColor', kind: 'kind', loopAngle: 'loopAngle', loopRadius: 'loopRadius', marker: 'marker', position: 'position', pullshout: 'pullshout', shiftSource: 'shiftSource', shiftTarget: 'shiftTarget', tail: 'tail', tailColor: 'tailColor', unrecognized: 'unrecognized', wavy: 'wavy'};
+var $author$project$Format$Version19$maxDecimalDigits = 4;
+var $author$project$Format$Version19$stringFromFloat = F2(
+	function (n, f) {
+		var s = $elm$core$String$fromFloat(f);
+		var _v0 = A2($elm$core$String$split, '.', s);
+		if ((_v0.b && _v0.b.b) && (!_v0.b.b.b)) {
+			var s1 = _v0.a;
+			var _v1 = _v0.b;
+			var s2 = _v1.a;
+			return s1 + ('.' + A2($elm$core$String$left, n, s2));
+		} else {
+			return s;
+		}
+	});
+var $author$project$Format$Version19$myStringFromFloat = $author$project$Format$Version19$stringFromFloat($author$project$Format$Version19$maxDecimalDigits);
+var $author$project$Format$Version19$myStringToFloat = function () {
+	var epsilon = 2 * A2($elm$core$Basics$pow, 10, 1 - $author$project$Format$Version19$maxDecimalDigits);
+	return A2(
+		$elm$core$Basics$composeR,
+		$elm$core$String$toFloat,
+		$elm$core$Maybe$map(
+			function (d) {
+				return ((_Utils_cmp(epsilon, d) < 0) && (_Utils_cmp(d, epsilon) < 0)) ? 0 : d;
+			}));
+}();
+var $author$project$Format$Version19$pullshoutOffsetCodec = A2(
+	$author$project$Codec$build,
+	function (_v0) {
+		var offset1 = _v0.offset1;
+		var offset2 = _v0.offset2;
+		return $author$project$Format$Version19$myStringFromFloat(offset1) + (' ' + $author$project$Format$Version19$myStringFromFloat(offset2));
+	},
+	function (s) {
+		var _default = {offset1: 0, offset2: 0};
+		var _v1 = A2($elm$core$String$split, ' ', s);
+		if ((_v1.b && _v1.b.b) && (!_v1.b.b.b)) {
+			var s1 = _v1.a;
+			var _v2 = _v1.b;
+			var s2 = _v2.a;
+			var _v3 = _Utils_Tuple2(
+				$author$project$Format$Version19$myStringToFloat(s1),
+				$author$project$Format$Version19$myStringToFloat(s2));
+			if ((_v3.a.$ === 'Just') && (_v3.b.$ === 'Just')) {
+				var f1 = _v3.a.a;
+				var f2 = _v3.b.a;
+				return {offset1: f1, offset2: f2};
+			} else {
+				return _default;
+			}
+		} else {
+			return _default;
+		}
+	});
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Codec$stringJs = $author$project$Codec$Codec(
+	{
+		decoder: function (v) {
+			return A2(
+				$elm$core$Result$withDefault,
+				'',
+				A2($elm$json$Json$Decode$decodeValue, $elm$json$Json$Decode$string, v));
+		},
+		encoder: $elm$json$Json$Encode$string
+	});
+var $author$project$Format$Version19$edgeFlagCodec = function () {
+	var variantTrue = $author$project$Format$Version19$genericVariantTrue($author$project$Format$Version19$Unrecognized);
+	var variantString = F3(
+		function (tag, v, c) {
+			return A3(
+				$author$project$Codec$variant1Pair,
+				tag,
+				v,
+				A2($author$project$Codec$compose, $author$project$Codec$stringJs, c));
+		});
+	var split = function (dashed) {
+		return function (marker) {
+			return function (pullshout) {
+				return function (bend) {
+					return function (position) {
+						return function (adjunction) {
+							return function (wavy) {
+								return function (kind) {
+									return function (headstyle) {
+										return function (tailstyle) {
+											return function (alignment) {
+												return function (color) {
+													return function (headcolor) {
+														return function (tailcolor) {
+															return function (shiftSource) {
+																return function (shiftTarget) {
+																	return function (loopRadius) {
+																		return function (loopAngle) {
+																			return function (unrecognized) {
+																				return function (v) {
+																					switch (v.$) {
+																						case 'Dashed':
+																							return dashed(true);
+																						case 'Marker':
+																							var s = v.a;
+																							return marker(s);
+																						case 'Pullshout':
+																							var r = v.a;
+																							return pullshout(r);
+																						case 'Bend':
+																							var f = v.a;
+																							return bend(f);
+																						case 'Position':
+																							var f = v.a;
+																							return position(f);
+																						case 'Adjunction':
+																							return adjunction(true);
+																						case 'Wavy':
+																							return wavy(true);
+																						case 'Kind':
+																							var k = v.a;
+																							return kind(k);
+																						case 'HeadStyle':
+																							var s = v.a;
+																							return headstyle(s);
+																						case 'TailStyle':
+																							var s = v.a;
+																							return tailstyle(s);
+																						case 'Alignment':
+																							var s = v.a;
+																							return alignment(s);
+																						case 'Unrecognized':
+																							return unrecognized;
+																						case 'Color':
+																							var c = v.a;
+																							return color(c);
+																						case 'HeadColor':
+																							var c = v.a;
+																							return headcolor(c);
+																						case 'TailColor':
+																							var c = v.a;
+																							return tailcolor(c);
+																						case 'ShiftSource':
+																							var c = v.a;
+																							return shiftSource(c);
+																						case 'ShiftTarget':
+																							var c = v.a;
+																							return shiftTarget(c);
+																						case 'LoopRadius':
+																							var c = v.a;
+																							return loopRadius(c);
+																						default:
+																							var c = v.a;
+																							return loopAngle(c);
+																					}
+																				};
+																			};
+																		};
+																	};
+																};
+															};
+														};
+													};
+												};
+											};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+	return A2(
+		$author$project$Codec$buildVariant,
+		$elm$core$Basics$always($author$project$Format$Version19$Unrecognized),
+		A3(
+			$author$project$Codec$variant0,
+			$author$project$Format$Version19$optionNames.unrecognized,
+			$author$project$Format$Version19$Unrecognized,
+			A4(
+				$author$project$Codec$variant1Pair,
+				$author$project$Format$Version19$optionNames.loopAngle,
+				$author$project$Format$Version19$LoopAngle,
+				$author$project$Codec$floatJs,
+				A4(
+					$author$project$Codec$variant1Pair,
+					$author$project$Format$Version19$optionNames.loopRadius,
+					$author$project$Format$Version19$LoopRadius,
+					$author$project$Codec$floatJs,
+					A4(
+						$author$project$Codec$variant1Pair,
+						$author$project$Format$Version19$optionNames.shiftTarget,
+						$author$project$Format$Version19$ShiftTarget,
+						$author$project$Codec$floatJs,
+						A4(
+							$author$project$Codec$variant1Pair,
+							$author$project$Format$Version19$optionNames.shiftSource,
+							$author$project$Format$Version19$ShiftSource,
+							$author$project$Codec$floatJs,
+							A4(
+								variantString,
+								$author$project$Format$Version19$optionNames.tailColor,
+								$author$project$Format$Version19$TailColor,
+								$author$project$Drawing$Color$codec,
+								A4(
+									variantString,
+									$author$project$Format$Version19$optionNames.headColor,
+									$author$project$Format$Version19$HeadColor,
+									$author$project$Drawing$Color$codec,
+									A4(
+										variantString,
+										$author$project$Format$Version19$optionNames.color,
+										$author$project$Format$Version19$Color,
+										$author$project$Drawing$Color$codec,
+										A4(
+											variantString,
+											$author$project$Format$Version19$optionNames.alignment,
+											$author$project$Format$Version19$Alignment,
+											$author$project$ArrowStyle$alignmentCodec,
+											A4(
+												variantString,
+												$author$project$Format$Version19$optionNames.tail,
+												$author$project$Format$Version19$TailStyle,
+												$author$project$ArrowStyle$tailCodec,
+												A4(
+													variantString,
+													$author$project$Format$Version19$optionNames.head,
+													$author$project$Format$Version19$HeadStyle,
+													$author$project$ArrowStyle$headCodec,
+													A4(
+														variantString,
+														$author$project$Format$Version19$optionNames.kind,
+														$author$project$Format$Version19$Kind,
+														$author$project$ArrowStyle$kindCodec,
+														A3(
+															variantTrue,
+															$author$project$Format$Version19$optionNames.wavy,
+															$author$project$Format$Version19$Wavy,
+															A3(
+																variantTrue,
+																$author$project$Format$Version19$optionNames.adjunction,
+																$author$project$Format$Version19$Adjunction,
+																A4(
+																	$author$project$Codec$variant1Pair,
+																	$author$project$Format$Version19$optionNames.position,
+																	$author$project$Format$Version19$Position,
+																	$author$project$Codec$floatJs,
+																	A4(
+																		$author$project$Codec$variant1Pair,
+																		$author$project$Format$Version19$optionNames.bend,
+																		$author$project$Format$Version19$Bend,
+																		$author$project$Codec$floatJs,
+																		A4(
+																			variantString,
+																			$author$project$Format$Version19$optionNames.pullshout,
+																			$author$project$Format$Version19$Pullshout,
+																			$author$project$Format$Version19$pullshoutOffsetCodec,
+																			A4(
+																				$author$project$Codec$variant1Pair,
+																				$author$project$Format$Version19$optionNames.marker,
+																				$author$project$Format$Version19$Marker,
+																				$author$project$Codec$stringJs,
+																				A3(
+																					variantTrue,
+																					$author$project$Format$Version19$optionNames.dashed,
+																					$author$project$Format$Version19$Dashed,
+																					A2(
+																						$author$project$Codec$customPair,
+																						split,
+																						_Utils_Tuple2('', $elm$json$Json$Encode$null))))))))))))))))))))));
+}();
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $author$project$Codec$filter = function (f) {
+	return A2(
+		$author$project$Codec$build,
+		$elm$core$List$filter(f),
+		$elm$core$List$filter(f));
+};
+var $elm$core$Dict$fromList = function (assocs) {
+	return A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v0, dict) {
+				var key = _v0.a;
+				var value = _v0.b;
+				return A3($elm$core$Dict$insert, key, value, dict);
+			}),
+		$elm$core$Dict$empty,
+		assocs);
+};
+var $elm$json$Json$Decode$keyValuePairs = _Json_decodeKeyValuePairs;
+var $elm$json$Json$Decode$dict = function (decoder) {
+	return A2(
+		$elm$json$Json$Decode$map,
+		$elm$core$Dict$fromList,
+		$elm$json$Json$Decode$keyValuePairs(decoder));
+};
+var $elm$json$Json$Encode$object = function (pairs) {
+	return _Json_wrap(
+		A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v0, obj) {
+					var k = _v0.a;
+					var v = _v0.b;
+					return A3(_Json_addField, k, v, obj);
+				}),
+			_Json_emptyObject(_Utils_Tuple0),
+			pairs));
+};
+var $elm$json$Json$Decode$value = _Json_decodeValue;
+var $author$project$Codec$objectJs = $author$project$Codec$Codec(
+	{
+		decoder: function (v) {
+			return $elm$core$Dict$toList(
+				A2(
+					$elm$core$Result$withDefault,
+					$elm$core$Dict$empty,
+					A2(
+						$elm$json$Json$Decode$decodeValue,
+						$elm$json$Json$Decode$dict($elm$json$Json$Decode$value),
+						v)));
+		},
+		encoder: $elm$json$Json$Encode$object
+	});
+var $author$project$Format$Version19$codecEdgeFlagsJs = A2(
+	$author$project$Codec$compose,
+	$author$project$Codec$objectJs,
+	A2(
+		$author$project$Codec$compose,
+		$author$project$Codec$list($author$project$Format$Version19$edgeFlagCodec),
+		$author$project$Codec$filter(
+			$elm$core$Basics$neq($author$project$Format$Version19$Unrecognized))));
+var $author$project$Format$Version19$nodeFlagCodec = function () {
+	var variantTrue = $author$project$Format$Version19$genericVariantTrue($author$project$Format$Version19$UnrecognizedNodeFlag);
+	return A2(
+		$author$project$Codec$buildVariant,
+		$elm$core$Basics$always($author$project$Format$Version19$UnrecognizedNodeFlag),
+		A3(
+			$author$project$Codec$variant0,
+			'',
+			$author$project$Format$Version19$UnrecognizedNodeFlag,
+			A3(
+				variantTrue,
+				'text',
+				$author$project$Format$Version19$Text,
+				A3(
+					variantTrue,
+					'coqValidated',
+					$author$project$Format$Version19$CoqValidated,
+					A2(
+						$author$project$Codec$customPair,
+						F4(
+							function (coq, text, unrecognized, v) {
+								switch (v.$) {
+									case 'CoqValidated':
+										return coq(true);
+									case 'Text':
+										return text(true);
+									default:
+										return unrecognized;
+								}
+							}),
+						_Utils_Tuple2('', $elm$json$Json$Encode$null))))));
+}();
+var $author$project$Format$Version19$codecNodeFlagsJs = A2(
+	$author$project$Codec$compose,
+	$author$project$Codec$objectJs,
+	A2(
+		$author$project$Codec$compose,
+		$author$project$Codec$list($author$project$Format$Version19$nodeFlagCodec),
+		$author$project$Codec$filter(
+			$elm$core$Basics$neq($author$project$Format$Version19$UnrecognizedNodeFlag))));
+var $author$project$Format$Version19$edgeMap = F2(
+	function (f, _v0) {
+		var label = _v0.label;
+		var options = _v0.options;
+		var zindex = _v0.zindex;
+		return {
+			label: label,
+			options: f(options),
+			zindex: zindex
+		};
+	});
+var $author$project$Format$Version19$nodeMap = F2(
+	function (f, _v0) {
+		var pos = _v0.pos;
+		var label = _v0.label;
+		var zindex = _v0.zindex;
+		var options = _v0.options;
+		return {
+			label: label,
+			options: f(options),
+			pos: pos,
+			zindex: zindex
+		};
+	});
+var $author$project$Format$Version19$taboMap = F3(
+	function (fn, fe, _v0) {
+		var id = _v0.id;
+		var title = _v0.title;
+		var sizeGrid = _v0.sizeGrid;
+		var nodes = _v0.nodes;
+		var edges = _v0.edges;
+		var nextGraphId = _v0.nextGraphId;
+		var freehandDrawings = _v0.freehandDrawings;
+		return {
+			edges: A2(
+				$elm$core$List$map,
+				$author$project$Polygraph$edgeMap(
+					$author$project$Format$Version19$edgeMap(fe)),
+				edges),
+			freehandDrawings: freehandDrawings,
+			id: id,
+			nextGraphId: nextGraphId,
+			nodes: A2(
+				$elm$core$List$map,
+				$author$project$Polygraph$nodeMap(
+					$author$project$Format$Version19$nodeMap(fn)),
+				nodes),
+			sizeGrid: sizeGrid,
+			title: title
+		};
+	});
+var $author$project$Format$Version19$graphoMap = F3(
+	function (fn, fe, _v0) {
+		var tabs = _v0.tabs;
+		var latexPreamble = _v0.latexPreamble;
+		var nextTabId = _v0.nextTabId;
+		var activeTabId = _v0.activeTabId;
+		return {
+			activeTabId: activeTabId,
+			latexPreamble: latexPreamble,
+			nextTabId: nextTabId,
+			tabs: A2(
+				$elm$core$List$map,
+				A2($author$project$Format$Version19$taboMap, fn, fe),
+				tabs)
+		};
+	});
+var $author$project$Format$Version19$graphoCodec = F2(
+	function (c1, c2) {
+		return A2(
+			$author$project$Codec$build,
+			A2(
+				$author$project$Format$Version19$graphoMap,
+				$author$project$Codec$encoder(c1),
+				$author$project$Codec$encoder(c2)),
+			A2(
+				$author$project$Format$Version19$graphoMap,
+				$author$project$Codec$decoder(c1),
+				$author$project$Codec$decoder(c2)));
+	});
+var $author$project$Format$Version19$codecGraphFlagsJs = A2($author$project$Format$Version19$graphoCodec, $author$project$Format$Version19$codecNodeFlagsJs, $author$project$Format$Version19$codecEdgeFlagsJs);
+var $author$project$Format$Version19$fromJSGraph = A2(
+	$elm$core$Basics$composeL,
+	$author$project$Format$Version19$fromJSGraphFlags,
+	$author$project$Codec$decoder($author$project$Format$Version19$codecGraphFlagsJs));
 var $author$project$Msg$SimpleScenario = {$: 'SimpleScenario'};
 var $author$project$Msg$isSimpleScenario = function (s) {
 	return _Utils_eq(s, $author$project$Msg$SimpleScenario);
@@ -10087,7 +10790,6 @@ var $author$project$Msg$loadGraphInfoToMsg = function (g) {
 	return g.setFirstTab ? $author$project$Msg$SetFirstTab(g.graph) : (g.clipboard ? $author$project$Msg$PasteGraph(g.graph) : $author$project$Msg$Loaded(
 		{graph: g.graph, scenario: g.scenario}));
 };
-var $elm$json$Json$Decode$float = _Json_decodeFloat;
 var $elm$json$Json$Decode$index = _Json_decodeIndex;
 var $elm$json$Json$Decode$list = _Json_decodeList;
 var $author$project$Main$loadedGraph0 = _Platform_incomingPort(
@@ -12387,6 +13089,220 @@ var $author$project$Main$loadedGraph18 = _Platform_incomingPort(
 				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
 		},
 		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
+var $author$project$Main$loadedGraph19 = _Platform_incomingPort(
+	'loadedGraph19',
+	A2(
+		$elm$json$Json$Decode$andThen,
+		function (setFirstTab) {
+			return A2(
+				$elm$json$Json$Decode$andThen,
+				function (scenario) {
+					return A2(
+						$elm$json$Json$Decode$andThen,
+						function (graph) {
+							return A2(
+								$elm$json$Json$Decode$andThen,
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
+								},
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (tabs) {
+									return A2(
+										$elm$json$Json$Decode$andThen,
+										function (nextTabId) {
+											return A2(
+												$elm$json$Json$Decode$andThen,
+												function (latexPreamble) {
+													return A2(
+														$elm$json$Json$Decode$andThen,
+														function (activeTabId) {
+															return $elm$json$Json$Decode$succeed(
+																{activeTabId: activeTabId, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs});
+														},
+														A2($elm$json$Json$Decode$field, 'activeTabId', $elm$json$Json$Decode$int));
+												},
+												A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
+										},
+										A2($elm$json$Json$Decode$field, 'nextTabId', $elm$json$Json$Decode$int));
+								},
+								A2(
+									$elm$json$Json$Decode$field,
+									'tabs',
+									$elm$json$Json$Decode$list(
+										A2(
+											$elm$json$Json$Decode$andThen,
+											function (title) {
+												return A2(
+													$elm$json$Json$Decode$andThen,
+													function (sizeGrid) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (nodes) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (nextGraphId) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (id) {
+																				return A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (freehandDrawings) {
+																						return A2(
+																							$elm$json$Json$Decode$andThen,
+																							function (edges) {
+																								return $elm$json$Json$Decode$succeed(
+																									{edges: edges, freehandDrawings: freehandDrawings, id: id, nextGraphId: nextGraphId, nodes: nodes, sizeGrid: sizeGrid, title: title});
+																							},
+																							A2(
+																								$elm$json$Json$Decode$field,
+																								'edges',
+																								$elm$json$Json$Decode$list(
+																									A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (to) {
+																											return A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (label) {
+																													return A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (id) {
+																															return A2(
+																																$elm$json$Json$Decode$andThen,
+																																function (from) {
+																																	return $elm$json$Json$Decode$succeed(
+																																		{from: from, id: id, label: label, to: to});
+																																},
+																																A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																														},
+																														A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																												},
+																												A2(
+																													$elm$json$Json$Decode$field,
+																													'label',
+																													A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (zindex) {
+																															return A2(
+																																$elm$json$Json$Decode$andThen,
+																																function (options) {
+																																	return A2(
+																																		$elm$json$Json$Decode$andThen,
+																																		function (label) {
+																																			return $elm$json$Json$Decode$succeed(
+																																				{label: label, options: options, zindex: zindex});
+																																		},
+																																		A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																																},
+																																A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
+																														},
+																														A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
+																										},
+																										A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+																					},
+																					A2(
+																						$elm$json$Json$Decode$field,
+																						'freehandDrawings',
+																						$elm$json$Json$Decode$list(
+																							A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (start) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (offsets) {
+																											return $elm$json$Json$Decode$succeed(
+																												{offsets: offsets, start: start});
+																										},
+																										A2($elm$json$Json$Decode$field, 'offsets', $elm$json$Json$Decode$string));
+																								},
+																								A2(
+																									$elm$json$Json$Decode$field,
+																									'start',
+																									A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (_v0) {
+																											return A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (_v1) {
+																													return $elm$json$Json$Decode$succeed(
+																														_Utils_Tuple2(_v0, _v1));
+																												},
+																												A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																										},
+																										A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))));
+																			},
+																			A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																	},
+																	A2($elm$json$Json$Decode$field, 'nextGraphId', $elm$json$Json$Decode$int));
+															},
+															A2(
+																$elm$json$Json$Decode$field,
+																'nodes',
+																$elm$json$Json$Decode$list(
+																	A2(
+																		$elm$json$Json$Decode$andThen,
+																		function (label) {
+																			return A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (id) {
+																					return $elm$json$Json$Decode$succeed(
+																						{id: id, label: label});
+																				},
+																				A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																		},
+																		A2(
+																			$elm$json$Json$Decode$field,
+																			'label',
+																			A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (zindex) {
+																					return A2(
+																						$elm$json$Json$Decode$andThen,
+																						function (pos) {
+																							return A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (options) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (label) {
+																											return $elm$json$Json$Decode$succeed(
+																												{label: label, options: options, pos: pos, zindex: zindex});
+																										},
+																										A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																								},
+																								A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
+																						},
+																						A2(
+																							$elm$json$Json$Decode$field,
+																							'pos',
+																							A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (_v0) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (_v1) {
+																											return $elm$json$Json$Decode$succeed(
+																												_Utils_Tuple2(_v0, _v1));
+																										},
+																										A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																								},
+																								A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))));
+																				},
+																				A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int)))))));
+													},
+													A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int));
+											},
+											A2($elm$json$Json$Decode$field, 'title', $elm$json$Json$Decode$string)))))));
+				},
+				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
+		},
+		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
 var $author$project$Main$loadedGraph2 = _Platform_incomingPort(
 	'loadedGraph2',
 	A2(
@@ -13848,18 +14764,6 @@ var $elm$browser$Browser$Events$addKey = function (sub) {
 			name),
 		sub);
 };
-var $elm$core$Dict$fromList = function (assocs) {
-	return A3(
-		$elm$core$List$foldl,
-		F2(
-			function (_v0, dict) {
-				var key = _v0.a;
-				var value = _v0.b;
-				return A3($elm$core$Dict$insert, key, value, dict);
-			}),
-		$elm$core$Dict$empty,
-		assocs);
-};
 var $elm$browser$Browser$Events$Event = F2(
 	function (key, event) {
 		return {event: event, key: key};
@@ -14012,7 +14916,6 @@ var $author$project$Main$onCut = _Platform_incomingPort(
 	'onCut',
 	$elm$json$Json$Decode$null(_Utils_Tuple0));
 var $elm$browser$Browser$Events$onKeyDown = A2($elm$browser$Browser$Events$on, $elm$browser$Browser$Events$Document, 'keydown');
-var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $author$project$Main$onKeyDownActive = _Platform_incomingPort('onKeyDownActive', $elm$json$Json$Decode$value);
 var $elm$browser$Browser$Events$onKeyUp = A2($elm$browser$Browser$Events$on, $elm$browser$Browser$Events$Document, 'keyup');
 var $author$project$Main$onMouseMoveFromJS = _Platform_incomingPort(
@@ -14089,7 +14992,16 @@ var $author$project$Format$GraphInfo$TabSizeGrid = F2(
 var $author$project$Format$GraphInfo$TabUnremove = function (a) {
 	return {$: 'TabUnremove', a: a};
 };
-var $author$project$Format$LastVersion$edgeCodec = $author$project$Format$Version18$edgeCodec;
+var $author$project$Format$Version19$edgeCodec = A2(
+	$author$project$Codec$compose,
+	A2(
+		$author$project$Codec$build,
+		$author$project$Format$Version19$edgeMap(
+			$author$project$Codec$encoder($author$project$Format$Version19$codecEdgeFlagsJs)),
+		$author$project$Format$Version19$edgeMap(
+			$author$project$Codec$decoder($author$project$Format$Version19$codecEdgeFlagsJs))),
+	$author$project$Format$Version19$edgeFCodec);
+var $author$project$Format$LastVersion$edgeCodec = $author$project$Format$Version19$edgeCodec;
 var $author$project$Polygraph$Modif = function (a) {
 	return {$: 'Modif', a: a};
 };
@@ -14263,7 +15175,16 @@ var $author$project$Polygraph$modifCodec = A2(
 			return m;
 		},
 		$author$project$Polygraph$Modif));
-var $author$project$Format$LastVersion$nodeCodec = $author$project$Format$Version18$nodeCodec;
+var $author$project$Format$Version19$nodeCodec = A2(
+	$author$project$Codec$compose,
+	A2(
+		$author$project$Codec$build,
+		$author$project$Format$Version19$nodeMap(
+			$author$project$Codec$encoder($author$project$Format$Version19$codecNodeFlagsJs)),
+		$author$project$Format$Version19$nodeMap(
+			$author$project$Codec$decoder($author$project$Format$Version19$codecNodeFlagsJs))),
+	$author$project$Format$Version19$nodeFCodec);
+var $author$project$Format$LastVersion$nodeCodec = $author$project$Format$Version19$nodeCodec;
 var $author$project$Format$GraphInfoCodec$codecGraphModif = A2(
 	$author$project$Codec$compose,
 	$author$project$Polygraph$modifCodec,
@@ -14400,7 +15321,24 @@ var $author$project$FreeHandDrawings$emptyDrawingJS = {
 var $author$project$Format$GraphInfo$emptyTab = function (id) {
 	return {freehandDrawings: $author$project$FreeHandDrawings$empty, graph: $author$project$Polygraph$empty, id: id, sizeGrid: 200, title: '1'};
 };
-var $author$project$Format$LastVersion$tabCodec = $author$project$Format$Version18$tabCodec;
+var $author$project$Format$Version19$taboCodec = F2(
+	function (c1, c2) {
+		return A2(
+			$author$project$Codec$build,
+			A2(
+				$author$project$Format$Version19$taboMap,
+				$author$project$Codec$encoder(c1),
+				$author$project$Codec$encoder(c2)),
+			A2(
+				$author$project$Format$Version19$taboMap,
+				$author$project$Codec$decoder(c1),
+				$author$project$Codec$decoder(c2)));
+	});
+var $author$project$Format$Version19$tabCodec = A2(
+	$author$project$Codec$compose,
+	A2($author$project$Format$Version19$taboCodec, $author$project$Format$Version19$codecNodeFlagsJs, $author$project$Format$Version19$codecEdgeFlagsJs),
+	$author$project$Format$Version19$tabFlagsCodec);
+var $author$project$Format$LastVersion$tabCodec = $author$project$Format$Version19$tabCodec;
 var $author$project$Format$GraphInfoCodec$defaultModifJS = {
 	graphModif: $author$project$Format$GraphInfoCodec$defaultGraphModifJS,
 	newFreeHand: $author$project$FreeHandDrawings$emptyDrawingJS,
@@ -14726,7 +15664,14 @@ var $author$project$Format$GraphInfoCodec$codecModif = function () {
 var $author$project$Msg$Noop = {$: 'Noop'};
 var $author$project$CommandCodec$defaultProtocolMsg = $author$project$Msg$ModifProtocol(
 	{command: $author$project$Msg$Noop, id: $author$project$Msg$defaultModifId, modif: $author$project$Format$GraphInfo$Noop, selIds: $elm_community$intdict$IntDict$empty});
-var $author$project$Format$LastVersion$graphInfoCodec = $author$project$Format$Version18$graphInfoCodec;
+var $author$project$Format$Version19$toJSGraph = function (g) {
+	return A2(
+		$author$project$Codec$encoder,
+		$author$project$Format$Version19$codecGraphFlagsJs,
+		A2($author$project$Codec$encoder, $author$project$Format$Version19$graphInfoCodecFlags, g));
+};
+var $author$project$Format$Version19$graphInfoCodec = A2($author$project$Codec$build, $author$project$Format$Version19$toJSGraph, $author$project$Format$Version19$fromJSGraph);
+var $author$project$Format$LastVersion$graphInfoCodec = $author$project$Format$Version19$graphInfoCodec;
 var $author$project$Codec$maybeBuildVariant = F2(
 	function (defaultV, _v0) {
 		var c = _v0.a;
@@ -15341,19 +16286,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																										function (zindex) {
 																																											return A2(
 																																												$elm$json$Json$Decode$andThen,
-																																												function (style) {
+																																												function (options) {
 																																													return A2(
 																																														$elm$json$Json$Decode$andThen,
 																																														function (label) {
 																																															return $elm$json$Json$Decode$succeed(
-																																																{label: label, style: style, zindex: zindex});
+																																																{label: label, options: options, zindex: zindex});
 																																														},
 																																														A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																												},
-																																												A2(
-																																													$elm$json$Json$Decode$field,
-																																													'style',
-																																													$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																												A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
 																																										},
 																																										A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
 																																						},
@@ -15420,19 +16362,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																		function (pos) {
 																																			return A2(
 																																				$elm$json$Json$Decode$andThen,
-																																				function (label) {
+																																				function (options) {
 																																					return A2(
 																																						$elm$json$Json$Decode$andThen,
-																																						function (flags) {
+																																						function (label) {
 																																							return $elm$json$Json$Decode$succeed(
-																																								{flags: flags, label: label, pos: pos, zindex: zindex});
+																																								{label: label, options: options, pos: pos, zindex: zindex});
 																																						},
-																																						A2(
-																																							$elm$json$Json$Decode$field,
-																																							'flags',
-																																							$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																						A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																				},
-																																				A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																																				A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
 																																		},
 																																		A2(
 																																			$elm$json$Json$Decode$field,
@@ -15641,19 +16580,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																																			function (zindex) {
 																																																				return A2(
 																																																					$elm$json$Json$Decode$andThen,
-																																																					function (style) {
+																																																					function (options) {
 																																																						return A2(
 																																																							$elm$json$Json$Decode$andThen,
 																																																							function (label) {
 																																																								return $elm$json$Json$Decode$succeed(
-																																																									{label: label, style: style, zindex: zindex});
+																																																									{label: label, options: options, zindex: zindex});
 																																																							},
 																																																							A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																																					},
-																																																					A2(
-																																																						$elm$json$Json$Decode$field,
-																																																						'style',
-																																																						$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																																					A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
 																																																			},
 																																																			A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
 																																															},
@@ -15685,19 +16621,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																																	function (pos) {
 																																																		return A2(
 																																																			$elm$json$Json$Decode$andThen,
-																																																			function (label) {
+																																																			function (options) {
 																																																				return A2(
 																																																					$elm$json$Json$Decode$andThen,
-																																																					function (flags) {
+																																																					function (label) {
 																																																						return $elm$json$Json$Decode$succeed(
-																																																							{flags: flags, label: label, pos: pos, zindex: zindex});
+																																																							{label: label, options: options, pos: pos, zindex: zindex});
 																																																					},
-																																																					A2(
-																																																						$elm$json$Json$Decode$field,
-																																																						'flags',
-																																																						$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																																					A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																																			},
-																																																			A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																																																			A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
 																																																	},
 																																																	A2(
 																																																		$elm$json$Json$Decode$field,
@@ -15748,19 +16681,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																															function (zindex) {
 																																																return A2(
 																																																	$elm$json$Json$Decode$andThen,
-																																																	function (style) {
+																																																	function (options) {
 																																																		return A2(
 																																																			$elm$json$Json$Decode$andThen,
 																																																			function (label) {
 																																																				return $elm$json$Json$Decode$succeed(
-																																																					{label: label, style: style, zindex: zindex});
+																																																					{label: label, options: options, zindex: zindex});
 																																																			},
 																																																			A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																																	},
-																																																	A2(
-																																																		$elm$json$Json$Decode$field,
-																																																		'style',
-																																																		$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																																	A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
 																																															},
 																																															A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
 																																											},
@@ -15792,19 +16722,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																													function (pos) {
 																																														return A2(
 																																															$elm$json$Json$Decode$andThen,
-																																															function (label) {
+																																															function (options) {
 																																																return A2(
 																																																	$elm$json$Json$Decode$andThen,
-																																																	function (flags) {
+																																																	function (label) {
 																																																		return $elm$json$Json$Decode$succeed(
-																																																			{flags: flags, label: label, pos: pos, zindex: zindex});
+																																																			{label: label, options: options, pos: pos, zindex: zindex});
 																																																	},
-																																																	A2(
-																																																		$elm$json$Json$Decode$field,
-																																																		'flags',
-																																																		$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																																	A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																															},
-																																															A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																																															A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
 																																													},
 																																													A2(
 																																														$elm$json$Json$Decode$field,
@@ -15925,19 +16852,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																											function (zindex) {
 																																												return A2(
 																																													$elm$json$Json$Decode$andThen,
-																																													function (style) {
+																																													function (options) {
 																																														return A2(
 																																															$elm$json$Json$Decode$andThen,
 																																															function (label) {
 																																																return $elm$json$Json$Decode$succeed(
-																																																	{label: label, style: style, zindex: zindex});
+																																																	{label: label, options: options, zindex: zindex});
 																																															},
 																																															A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																													},
-																																													A2(
-																																														$elm$json$Json$Decode$field,
-																																														'style',
-																																														$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																													A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
 																																											},
 																																											A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
 																																							},
@@ -16004,19 +16928,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																			function (pos) {
 																																				return A2(
 																																					$elm$json$Json$Decode$andThen,
-																																					function (label) {
+																																					function (options) {
 																																						return A2(
 																																							$elm$json$Json$Decode$andThen,
-																																							function (flags) {
+																																							function (label) {
 																																								return $elm$json$Json$Decode$succeed(
-																																									{flags: flags, label: label, pos: pos, zindex: zindex});
+																																									{label: label, options: options, pos: pos, zindex: zindex});
 																																							},
-																																							A2(
-																																								$elm$json$Json$Decode$field,
-																																								'flags',
-																																								$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																							A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																					},
-																																					A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																																					A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
 																																			},
 																																			A2(
 																																				$elm$json$Json$Decode$field,
@@ -16155,19 +17076,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																		function (zindex) {
 																																			return A2(
 																																				$elm$json$Json$Decode$andThen,
-																																				function (style) {
+																																				function (options) {
 																																					return A2(
 																																						$elm$json$Json$Decode$andThen,
 																																						function (label) {
 																																							return $elm$json$Json$Decode$succeed(
-																																								{label: label, style: style, zindex: zindex});
+																																								{label: label, options: options, zindex: zindex});
 																																						},
 																																						A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																				},
-																																				A2(
-																																					$elm$json$Json$Decode$field,
-																																					'style',
-																																					$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																				A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
 																																		},
 																																		A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
 																														},
@@ -16234,19 +17152,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																										function (pos) {
 																											return A2(
 																												$elm$json$Json$Decode$andThen,
-																												function (label) {
+																												function (options) {
 																													return A2(
 																														$elm$json$Json$Decode$andThen,
-																														function (flags) {
+																														function (label) {
 																															return $elm$json$Json$Decode$succeed(
-																																{flags: flags, label: label, pos: pos, zindex: zindex});
+																																{label: label, options: options, pos: pos, zindex: zindex});
 																														},
-																														A2(
-																															$elm$json$Json$Decode$field,
-																															'flags',
-																															$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																														A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																												},
-																												A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																												A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
 																										},
 																										A2(
 																											$elm$json$Json$Decode$field,
@@ -16369,19 +17284,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																												function (zindex) {
 																																													return A2(
 																																														$elm$json$Json$Decode$andThen,
-																																														function (style) {
+																																														function (options) {
 																																															return A2(
 																																																$elm$json$Json$Decode$andThen,
 																																																function (label) {
 																																																	return $elm$json$Json$Decode$succeed(
-																																																		{label: label, style: style, zindex: zindex});
+																																																		{label: label, options: options, zindex: zindex});
 																																																},
 																																																A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																														},
-																																														A2(
-																																															$elm$json$Json$Decode$field,
-																																															'style',
-																																															$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																														A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
 																																												},
 																																												A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
 																																								},
@@ -16413,19 +17325,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																										function (pos) {
 																																											return A2(
 																																												$elm$json$Json$Decode$andThen,
-																																												function (label) {
+																																												function (options) {
 																																													return A2(
 																																														$elm$json$Json$Decode$andThen,
-																																														function (flags) {
+																																														function (label) {
 																																															return $elm$json$Json$Decode$succeed(
-																																																{flags: flags, label: label, pos: pos, zindex: zindex});
+																																																{label: label, options: options, pos: pos, zindex: zindex});
 																																														},
-																																														A2(
-																																															$elm$json$Json$Decode$field,
-																																															'flags',
-																																															$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																														A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																												},
-																																												A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																																												A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
 																																										},
 																																										A2(
 																																											$elm$json$Json$Decode$field,
@@ -16476,19 +17385,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																								function (zindex) {
 																																									return A2(
 																																										$elm$json$Json$Decode$andThen,
-																																										function (style) {
+																																										function (options) {
 																																											return A2(
 																																												$elm$json$Json$Decode$andThen,
 																																												function (label) {
 																																													return $elm$json$Json$Decode$succeed(
-																																														{label: label, style: style, zindex: zindex});
+																																														{label: label, options: options, zindex: zindex});
 																																												},
 																																												A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																										},
-																																										A2(
-																																											$elm$json$Json$Decode$field,
-																																											'style',
-																																											$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																										A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
 																																								},
 																																								A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
 																																				},
@@ -16520,19 +17426,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																						function (pos) {
 																																							return A2(
 																																								$elm$json$Json$Decode$andThen,
-																																								function (label) {
+																																								function (options) {
 																																									return A2(
 																																										$elm$json$Json$Decode$andThen,
-																																										function (flags) {
+																																										function (label) {
 																																											return $elm$json$Json$Decode$succeed(
-																																												{flags: flags, label: label, pos: pos, zindex: zindex});
+																																												{label: label, options: options, pos: pos, zindex: zindex});
 																																										},
-																																										A2(
-																																											$elm$json$Json$Decode$field,
-																																											'flags',
-																																											$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																										A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																								},
-																																								A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																																								A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
 																																						},
 																																						A2(
 																																							$elm$json$Json$Decode$field,
@@ -16653,19 +17556,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																																				function (zindex) {
 																																					return A2(
 																																						$elm$json$Json$Decode$andThen,
-																																						function (style) {
+																																						function (options) {
 																																							return A2(
 																																								$elm$json$Json$Decode$andThen,
 																																								function (label) {
 																																									return $elm$json$Json$Decode$succeed(
-																																										{label: label, style: style, zindex: zindex});
+																																										{label: label, options: options, zindex: zindex});
 																																								},
 																																								A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																																						},
-																																						A2(
-																																							$elm$json$Json$Decode$field,
-																																							'style',
-																																							$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																						A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
 																																				},
 																																				A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
 																																},
@@ -16732,19 +17632,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																												function (pos) {
 																													return A2(
 																														$elm$json$Json$Decode$andThen,
-																														function (label) {
+																														function (options) {
 																															return A2(
 																																$elm$json$Json$Decode$andThen,
-																																function (flags) {
+																																function (label) {
 																																	return $elm$json$Json$Decode$succeed(
-																																		{flags: flags, label: label, pos: pos, zindex: zindex});
+																																		{label: label, options: options, pos: pos, zindex: zindex});
 																																},
-																																A2(
-																																	$elm$json$Json$Decode$field,
-																																	'flags',
-																																	$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+																																A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
 																														},
-																														A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																														A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
 																												},
 																												A2(
 																													$elm$json$Json$Decode$field,
@@ -16810,15 +17707,6 @@ var $author$project$Main$simpleMsg = _Platform_incomingPort('simpleMsg', $elm$js
 var $author$project$Main$unlockPointer = _Platform_incomingPort(
 	'unlockPointer',
 	$elm$json$Json$Decode$null(_Utils_Tuple0));
-var $elm$core$Result$withDefault = F2(
-	function (def, result) {
-		if (result.$ === 'Ok') {
-			var a = result.a;
-			return a;
-		} else {
-			return def;
-		}
-	});
 var $author$project$Main$subscriptions = function (m) {
 	return $elm$core$Platform$Sub$batch(
 		_Utils_ap(
@@ -16941,6 +17829,11 @@ var $author$project$Main$subscriptions = function (m) {
 						$elm$core$Basics$composeR,
 						$author$project$Msg$mapLoadGraphInfo($author$project$Format$Version18$fromJSGraph),
 						$author$project$Msg$loadGraphInfoToMsg)),
+					$author$project$Main$loadedGraph19(
+					A2(
+						$elm$core$Basics$composeR,
+						$author$project$Msg$mapLoadGraphInfo($author$project$Format$Version19$fromJSGraph),
+						$author$project$Msg$loadGraphInfoToMsg)),
 					$author$project$Main$setFirstTabEquation($author$project$Msg$SetFirstTabEquation),
 					$elm$browser$Browser$Events$onClick(
 					$elm$json$Json$Decode$succeed($author$project$Msg$MouseClick)),
@@ -17041,7 +17934,6 @@ var $author$project$Main$subscriptions = function (m) {
 								})
 							]))))));
 };
-var $elm$json$Json$Encode$null = _Json_encodeNull;
 var $author$project$Main$pointerLock = _Platform_outgoingPort(
 	'pointerLock',
 	function ($) {
@@ -17200,10 +18092,6 @@ var $author$project$IntDictExtra$removeList = F2(
 		return A3($elm$core$List$foldl, $elm_community$intdict$IntDict$remove, d, l);
 	});
 var $author$project$Polygraph$rawRemoveList = $author$project$IntDictExtra$removeList;
-var $elm$core$Tuple$second = function (_v0) {
-	var y = _v0.b;
-	return y;
-};
 var $author$project$Polygraph$updateRep = F3(
 	function (i, fn, fe) {
 		return A2(
@@ -17712,17 +18600,6 @@ var $elm_community$intdict$IntDict$diff = F2(
 			var _v2 = _v0.b;
 			return l;
 		}
-	});
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
 	});
 var $elm_community$intdict$IntDict$intersect = F2(
 	function (l, r) {
@@ -20324,7 +21201,6 @@ var $author$project$Command$fixModel = function (modeli) {
 			return defaultIfTabChanged;
 	}
 };
-var $elm$json$Json$Encode$float = _Json_wrap;
 var $elm$json$Json$Encode$list = F2(
 	function (func, entries) {
 		return _Json_wrap(
@@ -20397,7 +21273,6 @@ var $elm_community$maybe_extra$Maybe$Extra$or = F2(
 		}
 	});
 var $elm$core$Debug$log = _Debug_log;
-var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$core$Maybe$destruct = F3(
 	function (_default, func, maybe) {
 		if (maybe.$ === 'Just') {
@@ -20408,20 +21283,6 @@ var $elm$core$Maybe$destruct = F3(
 		}
 	});
 var $elm$json$Json$Encode$int = _Json_wrap;
-var $elm$json$Json$Encode$object = function (pairs) {
-	return _Json_wrap(
-		A3(
-			$elm$core$List$foldl,
-			F2(
-				function (_v0, obj) {
-					var k = _v0.a;
-					var v = _v0.b;
-					return A3(_Json_addField, k, v, obj);
-				}),
-			_Json_emptyObject(_Utils_Tuple0),
-			pairs));
-};
-var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 	'protocolSendJS',
 	function ($) {
@@ -20549,8 +21410,8 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																																	'label',
 																																	$elm$json$Json$Encode$string($.label)),
 																																	_Utils_Tuple2(
-																																	'style',
-																																	$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
+																																	'options',
+																																	$elm$core$Basics$identity($.options)),
 																																	_Utils_Tuple2(
 																																	'zindex',
 																																	$elm$json$Json$Encode$int($.zindex))
@@ -20610,11 +21471,11 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																															_List_fromArray(
 																																[
 																																	_Utils_Tuple2(
-																																	'flags',
-																																	$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
-																																	_Utils_Tuple2(
 																																	'label',
 																																	$elm$json$Json$Encode$string($.label)),
+																																	_Utils_Tuple2(
+																																	'options',
+																																	$elm$core$Basics$identity($.options)),
 																																	_Utils_Tuple2(
 																																	'pos',
 																																	function ($) {
@@ -20746,8 +21607,8 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																																'label',
 																																$elm$json$Json$Encode$string($.label)),
 																																_Utils_Tuple2(
-																																'style',
-																																$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
+																																'options',
+																																$elm$core$Basics$identity($.options)),
 																																_Utils_Tuple2(
 																																'zindex',
 																																$elm$json$Json$Encode$int($.zindex))
@@ -20775,11 +21636,11 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																														_List_fromArray(
 																															[
 																																_Utils_Tuple2(
-																																'flags',
-																																$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
-																																_Utils_Tuple2(
 																																'label',
 																																$elm$json$Json$Encode$string($.label)),
+																																_Utils_Tuple2(
+																																'options',
+																																$elm$core$Basics$identity($.options)),
 																																_Utils_Tuple2(
 																																'pos',
 																																function ($) {
@@ -20824,8 +21685,8 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																																'label',
 																																$elm$json$Json$Encode$string($.label)),
 																																_Utils_Tuple2(
-																																'style',
-																																$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
+																																'options',
+																																$elm$core$Basics$identity($.options)),
 																																_Utils_Tuple2(
 																																'zindex',
 																																$elm$json$Json$Encode$int($.zindex))
@@ -20853,11 +21714,11 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																														_List_fromArray(
 																															[
 																																_Utils_Tuple2(
-																																'flags',
-																																$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
-																																_Utils_Tuple2(
 																																'label',
 																																$elm$json$Json$Encode$string($.label)),
+																																_Utils_Tuple2(
+																																'options',
+																																$elm$core$Basics$identity($.options)),
 																																_Utils_Tuple2(
 																																'pos',
 																																function ($) {
@@ -20950,8 +21811,8 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																																'label',
 																																$elm$json$Json$Encode$string($.label)),
 																																_Utils_Tuple2(
-																																'style',
-																																$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
+																																'options',
+																																$elm$core$Basics$identity($.options)),
 																																_Utils_Tuple2(
 																																'zindex',
 																																$elm$json$Json$Encode$int($.zindex))
@@ -21011,11 +21872,11 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																														_List_fromArray(
 																															[
 																																_Utils_Tuple2(
-																																'flags',
-																																$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
-																																_Utils_Tuple2(
 																																'label',
 																																$elm$json$Json$Encode$string($.label)),
+																																_Utils_Tuple2(
+																																'options',
+																																$elm$core$Basics$identity($.options)),
 																																_Utils_Tuple2(
 																																'pos',
 																																function ($) {
@@ -21121,8 +21982,8 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																													'label',
 																													$elm$json$Json$Encode$string($.label)),
 																													_Utils_Tuple2(
-																													'style',
-																													$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
+																													'options',
+																													$elm$core$Basics$identity($.options)),
 																													_Utils_Tuple2(
 																													'zindex',
 																													$elm$json$Json$Encode$int($.zindex))
@@ -21182,11 +22043,11 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																											_List_fromArray(
 																												[
 																													_Utils_Tuple2(
-																													'flags',
-																													$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
-																													_Utils_Tuple2(
 																													'label',
 																													$elm$json$Json$Encode$string($.label)),
+																													_Utils_Tuple2(
+																													'options',
+																													$elm$core$Basics$identity($.options)),
 																													_Utils_Tuple2(
 																													'pos',
 																													function ($) {
@@ -21263,8 +22124,8 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																													'label',
 																													$elm$json$Json$Encode$string($.label)),
 																													_Utils_Tuple2(
-																													'style',
-																													$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
+																													'options',
+																													$elm$core$Basics$identity($.options)),
 																													_Utils_Tuple2(
 																													'zindex',
 																													$elm$json$Json$Encode$int($.zindex))
@@ -21292,11 +22153,11 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																											_List_fromArray(
 																												[
 																													_Utils_Tuple2(
-																													'flags',
-																													$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
-																													_Utils_Tuple2(
 																													'label',
 																													$elm$json$Json$Encode$string($.label)),
+																													_Utils_Tuple2(
+																													'options',
+																													$elm$core$Basics$identity($.options)),
 																													_Utils_Tuple2(
 																													'pos',
 																													function ($) {
@@ -21341,8 +22202,8 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																													'label',
 																													$elm$json$Json$Encode$string($.label)),
 																													_Utils_Tuple2(
-																													'style',
-																													$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
+																													'options',
+																													$elm$core$Basics$identity($.options)),
 																													_Utils_Tuple2(
 																													'zindex',
 																													$elm$json$Json$Encode$int($.zindex))
@@ -21370,11 +22231,11 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																											_List_fromArray(
 																												[
 																													_Utils_Tuple2(
-																													'flags',
-																													$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
-																													_Utils_Tuple2(
 																													'label',
 																													$elm$json$Json$Encode$string($.label)),
+																													_Utils_Tuple2(
+																													'options',
+																													$elm$core$Basics$identity($.options)),
 																													_Utils_Tuple2(
 																													'pos',
 																													function ($) {
@@ -21467,8 +22328,8 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																													'label',
 																													$elm$json$Json$Encode$string($.label)),
 																													_Utils_Tuple2(
-																													'style',
-																													$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
+																													'options',
+																													$elm$core$Basics$identity($.options)),
 																													_Utils_Tuple2(
 																													'zindex',
 																													$elm$json$Json$Encode$int($.zindex))
@@ -21528,11 +22389,11 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																											_List_fromArray(
 																												[
 																													_Utils_Tuple2(
-																													'flags',
-																													$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
-																													_Utils_Tuple2(
 																													'label',
 																													$elm$json$Json$Encode$string($.label)),
+																													_Utils_Tuple2(
+																													'options',
+																													$elm$core$Basics$identity($.options)),
 																													_Utils_Tuple2(
 																													'pos',
 																													function ($) {
@@ -26393,8 +27254,8 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
 																											_Utils_Tuple2(
-																											'style',
-																											$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
+																											'options',
+																											$elm$core$Basics$identity($.options)),
 																											_Utils_Tuple2(
 																											'zindex',
 																											$elm$json$Json$Encode$int($.zindex))
@@ -26454,11 +27315,11 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 																									_List_fromArray(
 																										[
 																											_Utils_Tuple2(
-																											'flags',
-																											$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
-																											_Utils_Tuple2(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
+																											_Utils_Tuple2(
+																											'options',
+																											$elm$core$Basics$identity($.options)),
 																											_Utils_Tuple2(
 																											'pos',
 																											function ($) {
@@ -26610,12 +27471,9 @@ var $author$project$Format$GraphInfo$normalise = function (gi) {
 var $author$project$Model$toGraphInfo = function (m) {
 	return m.graphInfo;
 };
-var $author$project$Format$Version18$toJSGraph = function (g) {
-	return A2($author$project$Codec$encoder, $author$project$Format$Version18$graphInfoCodec, g);
-};
-var $author$project$Format$LastVersion$toJSGraph = $author$project$Format$Version18$toJSGraph;
-var $author$project$Format$Version18$version = 18;
-var $author$project$Format$LastVersion$version = $author$project$Format$Version18$version;
+var $author$project$Format$LastVersion$toJSGraph = $author$project$Format$Version19$toJSGraph;
+var $author$project$Format$Version19$version = 19;
+var $author$project$Format$LastVersion$version = $author$project$Format$Version19$version;
 var $author$project$Main$toJsGraphInfo = function (model) {
 	return {
 		graph: $author$project$Format$LastVersion$toJSGraph(
@@ -26845,8 +27703,8 @@ var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
 																											_Utils_Tuple2(
-																											'style',
-																											$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
+																											'options',
+																											$elm$core$Basics$identity($.options)),
 																											_Utils_Tuple2(
 																											'zindex',
 																											$elm$json$Json$Encode$int($.zindex))
@@ -26906,11 +27764,11 @@ var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
 																									_List_fromArray(
 																										[
 																											_Utils_Tuple2(
-																											'flags',
-																											$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
-																											_Utils_Tuple2(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
+																											_Utils_Tuple2(
+																											'options',
+																											$elm$core$Basics$identity($.options)),
 																											_Utils_Tuple2(
 																											'pos',
 																											function ($) {
@@ -32593,8 +33451,8 @@ var $author$project$Main$clipboardWriteGraph = _Platform_outgoingPort(
 																							'label',
 																							$elm$json$Json$Encode$string($.label)),
 																							_Utils_Tuple2(
-																							'style',
-																							$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
+																							'options',
+																							$elm$core$Basics$identity($.options)),
 																							_Utils_Tuple2(
 																							'zindex',
 																							$elm$json$Json$Encode$int($.zindex))
@@ -32654,11 +33512,11 @@ var $author$project$Main$clipboardWriteGraph = _Platform_outgoingPort(
 																					_List_fromArray(
 																						[
 																							_Utils_Tuple2(
-																							'flags',
-																							$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
-																							_Utils_Tuple2(
 																							'label',
 																							$elm$json$Json$Encode$string($.label)),
+																							_Utils_Tuple2(
+																							'options',
+																							$elm$core$Basics$identity($.options)),
 																							_Utils_Tuple2(
 																							'pos',
 																							function ($) {
@@ -32752,8 +33610,8 @@ var $author$project$Main$clipboardWriteLatex = _Platform_outgoingPort(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
 																											_Utils_Tuple2(
-																											'style',
-																											$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
+																											'options',
+																											$elm$core$Basics$identity($.options)),
 																											_Utils_Tuple2(
 																											'zindex',
 																											$elm$json$Json$Encode$int($.zindex))
@@ -32813,11 +33671,11 @@ var $author$project$Main$clipboardWriteLatex = _Platform_outgoingPort(
 																									_List_fromArray(
 																										[
 																											_Utils_Tuple2(
-																											'flags',
-																											$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
-																											_Utils_Tuple2(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
+																											_Utils_Tuple2(
+																											'options',
+																											$elm$core$Basics$identity($.options)),
 																											_Utils_Tuple2(
 																											'pos',
 																											function ($) {
@@ -33042,8 +33900,8 @@ var $author$project$Main$generateProofJs = _Platform_outgoingPort(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
 																											_Utils_Tuple2(
-																											'style',
-																											$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.style)),
+																											'options',
+																											$elm$core$Basics$identity($.options)),
 																											_Utils_Tuple2(
 																											'zindex',
 																											$elm$json$Json$Encode$int($.zindex))
@@ -33103,11 +33961,11 @@ var $author$project$Main$generateProofJs = _Platform_outgoingPort(
 																									_List_fromArray(
 																										[
 																											_Utils_Tuple2(
-																											'flags',
-																											$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.flags)),
-																											_Utils_Tuple2(
 																											'label',
 																											$elm$json$Json$Encode$string($.label)),
+																											_Utils_Tuple2(
+																											'options',
+																											$elm$core$Basics$identity($.options)),
 																											_Utils_Tuple2(
 																											'pos',
 																											function ($) {
