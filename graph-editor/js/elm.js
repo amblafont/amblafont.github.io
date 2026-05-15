@@ -7738,6 +7738,9 @@ var $author$project$Format$Version19$Color = function (a) {
 var $author$project$Format$Version19$HeadColor = function (a) {
 	return {$: 'HeadColor', a: a};
 };
+var $author$project$Format$Version19$LabelColor = function (a) {
+	return {$: 'LabelColor', a: a};
+};
 var $author$project$Format$Version19$TailColor = function (a) {
 	return {$: 'TailColor', a: a};
 };
@@ -7749,6 +7752,7 @@ var $author$project$Format$Version19$colorsFlag = A2(
 		var main = _v0.main;
 		var head = _v0.head;
 		var tail = _v0.tail;
+		var label = _v0.label;
 		return _Utils_ap(
 			_Utils_eq(main, $author$project$Drawing$Color$black) ? _List_Nil : _List_fromArray(
 				[
@@ -7759,52 +7763,74 @@ var $author$project$Format$Version19$colorsFlag = A2(
 					[
 						$author$project$Format$Version19$HeadColor(head)
 					]),
-				_Utils_eq(tail, main) ? _List_Nil : _List_fromArray(
-					[
-						$author$project$Format$Version19$TailColor(tail)
-					])));
+				_Utils_ap(
+					_Utils_eq(tail, main) ? _List_Nil : _List_fromArray(
+						[
+							$author$project$Format$Version19$TailColor(tail)
+						]),
+					_Utils_eq(label, main) ? _List_Nil : _List_fromArray(
+						[
+							$author$project$Format$Version19$LabelColor(label)
+						]))));
 	},
 	function (l) {
-		var _v1 = _Utils_Tuple3(
-			A2(
-				$elm_community$list_extra$List$Extra$findMap,
-				function (v) {
-					if (v.$ === 'Color') {
-						var c = v.a;
-						return $elm$core$Maybe$Just(c);
-					} else {
-						return $elm$core$Maybe$Nothing;
-					}
-				},
-				l),
-			A2(
-				$elm_community$list_extra$List$Extra$findMap,
-				function (v) {
-					if (v.$ === 'HeadColor') {
-						var c = v.a;
-						return $elm$core$Maybe$Just(c);
-					} else {
-						return $elm$core$Maybe$Nothing;
-					}
-				},
-				l),
-			A2(
-				$elm_community$list_extra$List$Extra$findMap,
-				function (v) {
-					if (v.$ === 'TailColor') {
-						var c = v.a;
-						return $elm$core$Maybe$Just(c);
-					} else {
-						return $elm$core$Maybe$Nothing;
-					}
-				},
-				l));
-		var mc = _v1.a;
-		var hc = _v1.b;
-		var tc = _v1.c;
+		var _v1 = _Utils_Tuple2(
+			_Utils_Tuple2(
+				A2(
+					$elm_community$list_extra$List$Extra$findMap,
+					function (v) {
+						if (v.$ === 'Color') {
+							var c = v.a;
+							return $elm$core$Maybe$Just(c);
+						} else {
+							return $elm$core$Maybe$Nothing;
+						}
+					},
+					l),
+				A2(
+					$elm_community$list_extra$List$Extra$findMap,
+					function (v) {
+						if (v.$ === 'HeadColor') {
+							var c = v.a;
+							return $elm$core$Maybe$Just(c);
+						} else {
+							return $elm$core$Maybe$Nothing;
+						}
+					},
+					l)),
+			_Utils_Tuple2(
+				A2(
+					$elm_community$list_extra$List$Extra$findMap,
+					function (v) {
+						if (v.$ === 'TailColor') {
+							var c = v.a;
+							return $elm$core$Maybe$Just(c);
+						} else {
+							return $elm$core$Maybe$Nothing;
+						}
+					},
+					l),
+				A2(
+					$elm_community$list_extra$List$Extra$findMap,
+					function (v) {
+						if (v.$ === 'LabelColor') {
+							var c = v.a;
+							return $elm$core$Maybe$Just(c);
+						} else {
+							return $elm$core$Maybe$Nothing;
+						}
+					},
+					l)));
+		var _v6 = _v1.a;
+		var mc = _v6.a;
+		var hc = _v6.b;
+		var _v7 = _v1.b;
+		var tc = _v7.a;
+		var lc = _v7.b;
 		var c = A2($elm$core$Maybe$withDefault, $author$project$Drawing$Color$black, mc);
 		return {
 			head: A2($elm$core$Maybe$withDefault, c, hc),
+			label: A2($elm$core$Maybe$withDefault, c, lc),
 			main: c,
 			tail: A2($elm$core$Maybe$withDefault, c, tc)
 		};
@@ -8024,7 +8050,8 @@ var $author$project$Format$Version19$arrowStyleCodec = function () {
 								var color = _v0.color;
 								var headColor = _v0.headColor;
 								var tailColor = _v0.tailColor;
-								return {head: headColor, main: color, tail: tailColor};
+								var labelColor = _v0.labelColor;
+								return {head: headColor, label: labelColor, main: color, tail: tailColor};
 							},
 							$author$project$Format$Version19$colorsFlag,
 							A3(
@@ -8097,7 +8124,7 @@ var $author$project$Format$Version19$arrowStyleCodec = function () {
 																												return function (wavy) {
 																													return function (loopRadius) {
 																														return function (loopAngle) {
-																															return {bend: bend, color: colors.main, dashed: dashed, head: head, headColor: colors.head, kind: kind, labelAlignment: alignment, labelPosition: position, loopAngle: loopAngle, loopRadius: loopRadius, marker: marker, shiftSource: shiftSource, shiftTarget: shiftTarget, tail: tail, tailColor: colors.tail, wavy: wavy};
+																															return {bend: bend, color: colors.main, dashed: dashed, head: head, headColor: colors.head, kind: kind, labelAlignment: alignment, labelColor: colors.label, labelPosition: position, loopAngle: loopAngle, loopRadius: loopRadius, marker: marker, shiftSource: shiftSource, shiftTarget: shiftTarget, tail: tail, tailColor: colors.tail, wavy: wavy};
 																														};
 																													};
 																												};
@@ -8194,7 +8221,7 @@ var $author$project$Format$Version19$pullshoutStyle = function (_v0) {
 		A2(
 			$author$project$Codec$encoder,
 			$author$project$Format$Version19$colorsFlag,
-			{head: color, main: color, tail: color}));
+			{head: color, label: color, main: color, tail: color}));
 };
 var $author$project$Format$Version19$pullshoutEdge = F2(
 	function (z, label) {
@@ -8605,7 +8632,14 @@ var $author$project$Format$Version18$toNextEdgeFlags = function (_v0) {
 	var label = _v0.label;
 	var style = _v0.style;
 	var zindex = _v0.zindex;
-	return {label: label, options: style, zindex: zindex};
+	return {
+		label: label,
+		options: A2(
+			$elm$core$List$cons,
+			$author$project$Format$Version19$LabelColor($author$project$Drawing$Color$black),
+			style),
+		zindex: zindex
+	};
 };
 var $author$project$Format$Version18$toNextNodeFlags = function (_v0) {
 	var pos = _v0.pos;
@@ -9212,9 +9246,11 @@ var $author$project$Format$Version18$edgeFlagCodec = function () {
 																						case 'LoopRadius':
 																							var c = v.a;
 																							return loopRadius(c);
-																						default:
+																						case 'LoopAngle':
 																							var c = v.a;
 																							return loopAngle(c);
+																						default:
+																							return unrecognized;
 																					}
 																				};
 																			};
@@ -10277,7 +10313,7 @@ var $author$project$Format$Version19$genericVariantTrue = F3(
 		return A4($author$project$Codec$variantTruePair, tag, v, _default, $author$project$Codec$trueJs);
 	});
 var $elm$json$Json$Encode$null = _Json_encodeNull;
-var $author$project$Format$Version19$optionNames = {adjunction: 'adjunction', alignment: 'alignment', bend: 'bend', color: 'color ', dashed: 'dashed', head: 'head', headColor: 'headColor', kind: 'kind', loopAngle: 'loopAngle', loopRadius: 'loopRadius', marker: 'marker', position: 'position', pullshout: 'pullshout', shiftSource: 'shiftSource', shiftTarget: 'shiftTarget', tail: 'tail', tailColor: 'tailColor', unrecognized: 'unrecognized', wavy: 'wavy'};
+var $author$project$Format$Version19$optionNames = {adjunction: 'adjunction', alignment: 'alignment', bend: 'bend', color: 'color ', dashed: 'dashed', head: 'head', headColor: 'headColor', kind: 'kind', labelColor: 'labelColor', loopAngle: 'loopAngle', loopRadius: 'loopRadius', marker: 'marker', position: 'position', pullshout: 'pullshout', shiftSource: 'shiftSource', shiftTarget: 'shiftTarget', tail: 'tail', tailColor: 'tailColor', unrecognized: 'unrecognized', wavy: 'wavy'};
 var $author$project$Format$Version19$maxDecimalDigits = 4;
 var $author$project$Format$Version19$stringFromFloat = F2(
 	function (n, f) {
@@ -10366,67 +10402,72 @@ var $author$project$Format$Version19$edgeFlagCodec = function () {
 												return function (color) {
 													return function (headcolor) {
 														return function (tailcolor) {
-															return function (shiftSource) {
-																return function (shiftTarget) {
-																	return function (loopRadius) {
-																		return function (loopAngle) {
-																			return function (unrecognized) {
-																				return function (v) {
-																					switch (v.$) {
-																						case 'Dashed':
-																							return dashed(true);
-																						case 'Marker':
-																							var s = v.a;
-																							return marker(s);
-																						case 'Pullshout':
-																							var r = v.a;
-																							return pullshout(r);
-																						case 'Bend':
-																							var f = v.a;
-																							return bend(f);
-																						case 'Position':
-																							var f = v.a;
-																							return position(f);
-																						case 'Adjunction':
-																							return adjunction(true);
-																						case 'Wavy':
-																							return wavy(true);
-																						case 'Kind':
-																							var k = v.a;
-																							return kind(k);
-																						case 'HeadStyle':
-																							var s = v.a;
-																							return headstyle(s);
-																						case 'TailStyle':
-																							var s = v.a;
-																							return tailstyle(s);
-																						case 'Alignment':
-																							var s = v.a;
-																							return alignment(s);
-																						case 'Unrecognized':
-																							return unrecognized;
-																						case 'Color':
-																							var c = v.a;
-																							return color(c);
-																						case 'HeadColor':
-																							var c = v.a;
-																							return headcolor(c);
-																						case 'TailColor':
-																							var c = v.a;
-																							return tailcolor(c);
-																						case 'ShiftSource':
-																							var c = v.a;
-																							return shiftSource(c);
-																						case 'ShiftTarget':
-																							var c = v.a;
-																							return shiftTarget(c);
-																						case 'LoopRadius':
-																							var c = v.a;
-																							return loopRadius(c);
-																						default:
-																							var c = v.a;
-																							return loopAngle(c);
-																					}
+															return function (labelcolor) {
+																return function (shiftSource) {
+																	return function (shiftTarget) {
+																		return function (loopRadius) {
+																			return function (loopAngle) {
+																				return function (unrecognized) {
+																					return function (v) {
+																						switch (v.$) {
+																							case 'Dashed':
+																								return dashed(true);
+																							case 'Marker':
+																								var s = v.a;
+																								return marker(s);
+																							case 'Pullshout':
+																								var r = v.a;
+																								return pullshout(r);
+																							case 'Bend':
+																								var f = v.a;
+																								return bend(f);
+																							case 'Position':
+																								var f = v.a;
+																								return position(f);
+																							case 'Adjunction':
+																								return adjunction(true);
+																							case 'Wavy':
+																								return wavy(true);
+																							case 'Kind':
+																								var k = v.a;
+																								return kind(k);
+																							case 'HeadStyle':
+																								var s = v.a;
+																								return headstyle(s);
+																							case 'TailStyle':
+																								var s = v.a;
+																								return tailstyle(s);
+																							case 'Alignment':
+																								var s = v.a;
+																								return alignment(s);
+																							case 'Unrecognized':
+																								return unrecognized;
+																							case 'Color':
+																								var c = v.a;
+																								return color(c);
+																							case 'HeadColor':
+																								var c = v.a;
+																								return headcolor(c);
+																							case 'TailColor':
+																								var c = v.a;
+																								return tailcolor(c);
+																							case 'LabelColor':
+																								var c = v.a;
+																								return labelcolor(c);
+																							case 'ShiftSource':
+																								var c = v.a;
+																								return shiftSource(c);
+																							case 'ShiftTarget':
+																								var c = v.a;
+																								return shiftTarget(c);
+																							case 'LoopRadius':
+																								var c = v.a;
+																								return loopRadius(c);
+																							default:
+																								var c = v.a;
+																								return loopAngle(c);
+																						}
+																					};
 																				};
 																			};
 																		};
@@ -10476,75 +10517,80 @@ var $author$project$Format$Version19$edgeFlagCodec = function () {
 							$author$project$Codec$floatJs,
 							A4(
 								variantString,
-								$author$project$Format$Version19$optionNames.tailColor,
-								$author$project$Format$Version19$TailColor,
+								$author$project$Format$Version19$optionNames.labelColor,
+								$author$project$Format$Version19$LabelColor,
 								$author$project$Drawing$Color$codec,
 								A4(
 									variantString,
-									$author$project$Format$Version19$optionNames.headColor,
-									$author$project$Format$Version19$HeadColor,
+									$author$project$Format$Version19$optionNames.tailColor,
+									$author$project$Format$Version19$TailColor,
 									$author$project$Drawing$Color$codec,
 									A4(
 										variantString,
-										$author$project$Format$Version19$optionNames.color,
-										$author$project$Format$Version19$Color,
+										$author$project$Format$Version19$optionNames.headColor,
+										$author$project$Format$Version19$HeadColor,
 										$author$project$Drawing$Color$codec,
 										A4(
 											variantString,
-											$author$project$Format$Version19$optionNames.alignment,
-											$author$project$Format$Version19$Alignment,
-											$author$project$ArrowStyle$alignmentCodec,
+											$author$project$Format$Version19$optionNames.color,
+											$author$project$Format$Version19$Color,
+											$author$project$Drawing$Color$codec,
 											A4(
 												variantString,
-												$author$project$Format$Version19$optionNames.tail,
-												$author$project$Format$Version19$TailStyle,
-												$author$project$ArrowStyle$tailCodec,
+												$author$project$Format$Version19$optionNames.alignment,
+												$author$project$Format$Version19$Alignment,
+												$author$project$ArrowStyle$alignmentCodec,
 												A4(
 													variantString,
-													$author$project$Format$Version19$optionNames.head,
-													$author$project$Format$Version19$HeadStyle,
-													$author$project$ArrowStyle$headCodec,
+													$author$project$Format$Version19$optionNames.tail,
+													$author$project$Format$Version19$TailStyle,
+													$author$project$ArrowStyle$tailCodec,
 													A4(
 														variantString,
-														$author$project$Format$Version19$optionNames.kind,
-														$author$project$Format$Version19$Kind,
-														$author$project$ArrowStyle$kindCodec,
-														A3(
-															variantTrue,
-															$author$project$Format$Version19$optionNames.wavy,
-															$author$project$Format$Version19$Wavy,
+														$author$project$Format$Version19$optionNames.head,
+														$author$project$Format$Version19$HeadStyle,
+														$author$project$ArrowStyle$headCodec,
+														A4(
+															variantString,
+															$author$project$Format$Version19$optionNames.kind,
+															$author$project$Format$Version19$Kind,
+															$author$project$ArrowStyle$kindCodec,
 															A3(
 																variantTrue,
-																$author$project$Format$Version19$optionNames.adjunction,
-																$author$project$Format$Version19$Adjunction,
-																A4(
-																	$author$project$Codec$variant1Pair,
-																	$author$project$Format$Version19$optionNames.position,
-																	$author$project$Format$Version19$Position,
-																	$author$project$Codec$floatJs,
+																$author$project$Format$Version19$optionNames.wavy,
+																$author$project$Format$Version19$Wavy,
+																A3(
+																	variantTrue,
+																	$author$project$Format$Version19$optionNames.adjunction,
+																	$author$project$Format$Version19$Adjunction,
 																	A4(
 																		$author$project$Codec$variant1Pair,
-																		$author$project$Format$Version19$optionNames.bend,
-																		$author$project$Format$Version19$Bend,
+																		$author$project$Format$Version19$optionNames.position,
+																		$author$project$Format$Version19$Position,
 																		$author$project$Codec$floatJs,
 																		A4(
-																			variantString,
-																			$author$project$Format$Version19$optionNames.pullshout,
-																			$author$project$Format$Version19$Pullshout,
-																			$author$project$Format$Version19$pullshoutOffsetCodec,
+																			$author$project$Codec$variant1Pair,
+																			$author$project$Format$Version19$optionNames.bend,
+																			$author$project$Format$Version19$Bend,
+																			$author$project$Codec$floatJs,
 																			A4(
-																				$author$project$Codec$variant1Pair,
-																				$author$project$Format$Version19$optionNames.marker,
-																				$author$project$Format$Version19$Marker,
-																				$author$project$Codec$stringJs,
-																				A3(
-																					variantTrue,
-																					$author$project$Format$Version19$optionNames.dashed,
-																					$author$project$Format$Version19$Dashed,
-																					A2(
-																						$author$project$Codec$customPair,
-																						split,
-																						_Utils_Tuple2('', $elm$json$Json$Encode$null))))))))))))))))))))));
+																				variantString,
+																				$author$project$Format$Version19$optionNames.pullshout,
+																				$author$project$Format$Version19$Pullshout,
+																				$author$project$Format$Version19$pullshoutOffsetCodec,
+																				A4(
+																					$author$project$Codec$variant1Pair,
+																					$author$project$Format$Version19$optionNames.marker,
+																					$author$project$Format$Version19$Marker,
+																					$author$project$Codec$stringJs,
+																					A3(
+																						variantTrue,
+																						$author$project$Format$Version19$optionNames.dashed,
+																						$author$project$Format$Version19$Dashed,
+																						A2(
+																							$author$project$Codec$customPair,
+																							split,
+																							_Utils_Tuple2('', $elm$json$Json$Encode$null)))))))))))))))))))))));
 }();
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
@@ -28253,7 +28299,7 @@ var $author$project$QuickInput$equalityParser = A2(
 			$elm$parser$Parser$spaces)),
 	$author$project$QuickInput$handSideParser);
 var $author$project$ArrowStyle$noMarker = '';
-var $author$project$ArrowStyle$empty = {bend: 0, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$DefaultHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, loopAngle: 0, loopRadius: $author$project$ArrowStyle$defaultLoopRadius, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0.5, shiftTarget: 0.5, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
+var $author$project$ArrowStyle$empty = {bend: 0, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$DefaultHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelColor: $author$project$Drawing$Color$black, labelPosition: 0.5, loopAngle: 0, loopRadius: $author$project$ArrowStyle$defaultLoopRadius, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0.5, shiftTarget: 0.5, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
 var $author$project$Verbatim$makeVerbatimLabel = F2(
 	function (isVerbatim, s) {
 		return isVerbatim ? _Utils_ap($author$project$Verbatim$verbatimCmd, s) : s;
@@ -31504,7 +31550,7 @@ var $author$project$GraphDefs$newEdgeLabel = F2(
 		return A3($author$project$GraphDefs$newEdgeLabelAdj, s, style, false);
 	});
 var $author$project$ArrowStyle$simpleLineStyle = function (bend) {
-	return {bend: bend, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$NoHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelPosition: 0.5, loopAngle: 0, loopRadius: $author$project$ArrowStyle$defaultLoopRadius, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0.5, shiftTarget: 0.5, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
+	return {bend: bend, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$NoHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelColor: $author$project$Drawing$Color$black, labelPosition: 0.5, loopAngle: 0, loopRadius: $author$project$ArrowStyle$defaultLoopRadius, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0.5, shiftTarget: 0.5, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
 };
 var $author$project$Modes$NewLine$makeGraph = F2(
 	function (m, s) {
