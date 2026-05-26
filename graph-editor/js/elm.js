@@ -24755,7 +24755,7 @@ var $author$project$GraphDrawing$graphDrawing = F2(
 						if (_v0.b.$ === 'ArrowShape') {
 							var l = _v0.a.a;
 							var q = _v0.b.a;
-							return ((!cfg.showDependencies) && (l.isDependency && ((!_Utils_eq(e.isActive, $author$project$GraphDrawing$MainActive)) && (!_Utils_eq(e.sourceIsActive, $author$project$GraphDrawing$MainActive))))) ? $author$project$Drawing$empty : A7($author$project$GraphDrawing$normalEdgeDrawing, cfg, id, e.isActive, e.zindex, l, q, l.style.bend);
+							return ((!cfg.showDependencies) && (l.isDependency && ((!_Utils_eq(e.isActive, $author$project$GraphDrawing$MainActive)) && ((!_Utils_eq(e.sourceIsActive, $author$project$GraphDrawing$MainActive)) && (!l.editable))))) ? $author$project$Drawing$empty : A7($author$project$GraphDrawing$normalEdgeDrawing, cfg, id, e.isActive, e.zindex, l, q, l.style.bend);
 						} else {
 							break _v0$2;
 						}
