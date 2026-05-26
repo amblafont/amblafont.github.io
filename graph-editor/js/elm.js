@@ -5266,6 +5266,7 @@ var $author$project$Model$createModel = function (_v0) {
 		rulerShow: false,
 		saveLoadButtons: saveLoadButtons,
 		scenario: $author$project$Msg$Standard,
+		showDependencies: false,
 		showOverlayHelp: false,
 		specialKeys: {alt: false, ctrl: false, shift: false},
 		squareModeProof: false,
@@ -7656,7 +7657,302 @@ var $author$project$Codec$compose = F2(
 					$author$project$Codec$encoder(dec))
 			});
 	});
+var $author$project$IntDictExtra$cons = F2(
+	function (id, x) {
+		return A2(
+			$elm_community$intdict$IntDict$update,
+			id,
+			function (l) {
+				return $elm$core$Maybe$Just(
+					A2(
+						$elm$core$List$cons,
+						x,
+						A2($elm$core$Maybe$withDefault, _List_Nil, l)));
+			});
+	});
+var $author$project$Polygraph$edgeMap = F2(
+	function (f, _v0) {
+		var id = _v0.id;
+		var from = _v0.from;
+		var to = _v0.to;
+		var label = _v0.label;
+		return {
+			from: from,
+			id: id,
+			label: f(label),
+			to: to
+		};
+	});
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $author$project$GraphDefs$filterNormalEdges = function (d) {
+	if (d.$ === 'PullshoutEdge') {
+		return $elm$core$Maybe$Nothing;
+	} else {
+		var l = d.a;
+		return $elm$core$Maybe$Just(l);
+	}
+};
+var $author$project$GraphDefs$mapDetails = F2(
+	function (f, e) {
+		return {
+			details: f(e.details),
+			selected: e.selected,
+			weaklySelected: e.weaklySelected,
+			zindex: e.zindex
+		};
+	});
+var $author$project$GraphDefs$flattenDetails = function (e) {
+	return A2(
+		$elm$core$Maybe$map,
+		function (d) {
+			return A2(
+				$author$project$GraphDefs$mapDetails,
+				$elm$core$Basics$always(d),
+				e);
+		},
+		e.details);
+};
+var $author$project$GraphDefs$filterLabelNormal = A2(
+	$elm$core$Basics$composeR,
+	$author$project$GraphDefs$mapDetails($author$project$GraphDefs$filterNormalEdges),
+	$author$project$GraphDefs$flattenDetails);
+var $author$project$GraphDefs$filterEdgeNormal = function (e) {
+	return A2(
+		$elm$core$Maybe$map,
+		function (l) {
+			return A2(
+				$author$project$Polygraph$edgeMap,
+				$elm$core$Basics$always(l),
+				e);
+		},
+		$author$project$GraphDefs$filterLabelNormal(e.label));
+};
+var $author$project$SpecialLabels$Dependency = {$: 'Dependency'};
+var $author$project$SpecialLabels$Normal = {$: 'Normal'};
+var $author$project$SpecialLabels$specialToKey = function (l) {
+	switch (l.$) {
+		case 'Dependency':
+			return 'dep';
+		case 'Verbatim':
+			return 'verb';
+		default:
+			return '';
+	}
+};
+var $author$project$SpecialLabels$prefixFromKey = function (key) {
+	return '%' + ($author$project$SpecialLabels$specialToKey(key) + ' ');
+};
+var $author$project$SpecialLabels$extractSpecial = F2(
+	function (key, s) {
+		if (_Utils_eq(key, $author$project$SpecialLabels$Normal)) {
+			return $elm$core$Maybe$Just(s);
+		} else {
+			var prefix = $author$project$SpecialLabels$prefixFromKey(key);
+			return A2($elm$core$String$startsWith, prefix, s) ? $elm$core$Maybe$Just(
+				A2(
+					$elm$core$String$dropLeft,
+					$elm$core$String$length(prefix),
+					s)) : $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$SpecialLabels$isDependency = function (s) {
+	return !_Utils_eq(
+		A2($author$project$SpecialLabels$extractSpecial, $author$project$SpecialLabels$Dependency, s),
+		$elm$core$Maybe$Nothing);
+};
+var $author$project$GraphDefs$isDepEdge = A2(
+	$elm$core$Basics$composeR,
+	function ($) {
+		return $.label;
+	},
+	$author$project$SpecialLabels$isDependency);
+var $author$project$GraphDefs$dependencyEdges = function (g) {
+	return A2(
+		$elm$core$List$filter,
+		A2(
+			$elm$core$Basics$composeR,
+			function ($) {
+				return $.label;
+			},
+			$author$project$GraphDefs$isDepEdge),
+		A2(
+			$elm$core$List$map,
+			$author$project$Polygraph$edgeMap(
+				function ($) {
+					return $.details;
+				}),
+			A2(
+				$elm$core$List$filterMap,
+				$author$project$GraphDefs$filterEdgeNormal,
+				$author$project$Polygraph$edges(g))));
+};
+var $author$project$SpecialLabels$removeSpecial = F2(
+	function (key, s) {
+		return A2(
+			$elm$core$Maybe$withDefault,
+			s,
+			A2($author$project$SpecialLabels$extractSpecial, key, s));
+	});
+var $author$project$GraphDefs$getDependencyName = function (l) {
+	return A2($author$project$SpecialLabels$removeSpecial, $author$project$SpecialLabels$Dependency, l.label);
+};
+var $author$project$GraphDefs$dependencyDict = function (graph) {
+	var depEdges = $author$project$GraphDefs$dependencyEdges(graph);
+	return A3(
+		$elm$core$List$foldl,
+		function (e) {
+			return A2(
+				$author$project$IntDictExtra$cons,
+				e.from,
+				_Utils_Tuple2(
+					$author$project$GraphDefs$getDependencyName(e.label),
+					e.to));
+		},
+		$elm_community$intdict$IntDict$empty,
+		depEdges);
+};
+var $elm$core$Basics$not = _Basics_not;
+var $elm_community$intdict$IntDict$get = F2(
+	function (key, dict) {
+		get:
+		while (true) {
+			switch (dict.$) {
+				case 'Empty':
+					return $elm$core$Maybe$Nothing;
+				case 'Leaf':
+					var l = dict.a;
+					return _Utils_eq(l.key, key) ? $elm$core$Maybe$Just(l.value) : $elm$core$Maybe$Nothing;
+				default:
+					var i = dict.a;
+					if (!A2($elm_community$intdict$IntDict$prefixMatches, i.prefix, key)) {
+						return $elm$core$Maybe$Nothing;
+					} else {
+						if (A2($elm_community$intdict$IntDict$isBranchingBitSet, i.prefix, key)) {
+							var $temp$key = key,
+								$temp$dict = i.right;
+							key = $temp$key;
+							dict = $temp$dict;
+							continue get;
+						} else {
+							var $temp$key = key,
+								$temp$dict = i.left;
+							key = $temp$key;
+							dict = $temp$dict;
+							continue get;
+						}
+					}
+			}
+		}
+	});
+var $author$project$IntDictExtra$getDictList = F2(
+	function (a, l) {
+		return A2(
+			$elm$core$Maybe$withDefault,
+			_List_Nil,
+			A2($elm_community$intdict$IntDict$get, a, l));
+	});
+var $elm_community$intdict$IntDict$map = F2(
+	function (f, dict) {
+		switch (dict.$) {
+			case 'Empty':
+				return $elm_community$intdict$IntDict$empty;
+			case 'Leaf':
+				var l = dict.a;
+				return A2(
+					$elm_community$intdict$IntDict$leaf,
+					l.key,
+					A2(f, l.key, l.value));
+			default:
+				var i = dict.a;
+				return A3(
+					$elm_community$intdict$IntDict$inner,
+					i.prefix,
+					A2($elm_community$intdict$IntDict$map, f, i.left),
+					A2($elm_community$intdict$IntDict$map, f, i.right));
+		}
+	});
+var $author$project$Polygraph$mapObj = F3(
+	function (fn, fe, o) {
+		if (o.$ === 'NodeObj') {
+			var n = o.a;
+			return $author$project$Polygraph$NodeObj(
+				fn(n));
+		} else {
+			var i1 = o.a;
+			var i2 = o.b;
+			var e = o.c;
+			return A3(
+				$author$project$Polygraph$EdgeObj,
+				i1,
+				i2,
+				fe(e));
+		}
+	});
+var $author$project$Polygraph$mapGraphRep = F2(
+	function (fn, fe) {
+		return $elm_community$intdict$IntDict$map(
+			function (i) {
+				return A2(
+					$author$project$Polygraph$mapObj,
+					fn(i),
+					fe(i));
+			});
+	});
+var $author$project$Polygraph$setGraphRep = F2(
+	function (_v0, g) {
+		var g0 = _v0.a;
+		return $author$project$Polygraph$Graph(
+			{graph: g, nextId: g0.nextId});
+	});
+var $author$project$Polygraph$mapRep = F2(
+	function (f, g) {
+		return A2(
+			$author$project$Polygraph$setGraphRep,
+			g,
+			f(
+				$author$project$Polygraph$graphRep(g)));
+	});
+var $author$project$Polygraph$map = F2(
+	function (fn, fe) {
+		return $author$project$Polygraph$mapRep(
+			A2($author$project$Polygraph$mapGraphRep, fn, fe));
+	});
+var $author$project$GraphDefs$depGraph = function (g) {
+	var dict = $author$project$GraphDefs$dependencyDict(g);
+	return A3(
+		$author$project$Polygraph$map,
+		F2(
+			function (id, n) {
+				return {
+					deps: A2($author$project$IntDictExtra$getDictList, id, dict),
+					node: n
+				};
+			}),
+		$elm$core$Basics$always($elm$core$Basics$identity),
+		g);
+};
+var $author$project$GraphDefs$depsCodec = A2(
+	$author$project$Codec$build,
+	$author$project$GraphDefs$depGraph,
+	A2(
+		$author$project$Polygraph$map,
+		$elm$core$Basics$always(
+			function ($) {
+				return $.node;
+			}),
+		$elm$core$Basics$always($elm$core$Basics$identity)));
 var $author$project$Format$Version19$Adjunction = {$: 'Adjunction'};
+var $author$project$Format$Version19$Dependency = {$: 'Dependency'};
 var $author$project$Format$Version19$Alignment = function (a) {
 	return {$: 'Alignment', a: a};
 };
@@ -8240,12 +8536,19 @@ var $author$project$Format$Version19$fromEdgeLabel = function (e) {
 		var l = _v0.a;
 		var label = l.label;
 		var isAdjunction = l.isAdjunction;
+		var isDependency = $author$project$SpecialLabels$isDependency(label);
 		var style = $author$project$ArrowStyle$getStyle(l);
 		return {
 			label: label,
 			options: function () {
 				var convertedStyle = A2($author$project$Codec$encoder, $author$project$Format$Version19$arrowStyleCodec, style);
-				return isAdjunction ? A2($elm$core$List$cons, $author$project$Format$Version19$Adjunction, convertedStyle) : convertedStyle;
+				return _Utils_ap(
+					isAdjunction ? _List_fromArray(
+						[$author$project$Format$Version19$Adjunction]) : _List_Nil,
+					_Utils_ap(
+						isDependency ? _List_fromArray(
+							[$author$project$Format$Version19$Dependency]) : _List_Nil,
+						convertedStyle));
 			}(),
 			zindex: e.zindex
 		};
@@ -8342,72 +8645,6 @@ var $author$project$Format$Version19$toEdgeLabel = function (_v0) {
 	};
 };
 var $author$project$Format$Version19$edgeFCodec = A2($author$project$Codec$build, $author$project$Format$Version19$fromEdgeLabel, $author$project$Format$Version19$toEdgeLabel);
-var $elm_community$intdict$IntDict$map = F2(
-	function (f, dict) {
-		switch (dict.$) {
-			case 'Empty':
-				return $elm_community$intdict$IntDict$empty;
-			case 'Leaf':
-				var l = dict.a;
-				return A2(
-					$elm_community$intdict$IntDict$leaf,
-					l.key,
-					A2(f, l.key, l.value));
-			default:
-				var i = dict.a;
-				return A3(
-					$elm_community$intdict$IntDict$inner,
-					i.prefix,
-					A2($elm_community$intdict$IntDict$map, f, i.left),
-					A2($elm_community$intdict$IntDict$map, f, i.right));
-		}
-	});
-var $author$project$Polygraph$mapObj = F3(
-	function (fn, fe, o) {
-		if (o.$ === 'NodeObj') {
-			var n = o.a;
-			return $author$project$Polygraph$NodeObj(
-				fn(n));
-		} else {
-			var i1 = o.a;
-			var i2 = o.b;
-			var e = o.c;
-			return A3(
-				$author$project$Polygraph$EdgeObj,
-				i1,
-				i2,
-				fe(e));
-		}
-	});
-var $author$project$Polygraph$mapGraphRep = F2(
-	function (fn, fe) {
-		return $elm_community$intdict$IntDict$map(
-			function (i) {
-				return A2(
-					$author$project$Polygraph$mapObj,
-					fn(i),
-					fe(i));
-			});
-	});
-var $author$project$Polygraph$setGraphRep = F2(
-	function (_v0, g) {
-		var g0 = _v0.a;
-		return $author$project$Polygraph$Graph(
-			{graph: g, nextId: g0.nextId});
-	});
-var $author$project$Polygraph$mapRep = F2(
-	function (f, g) {
-		return A2(
-			$author$project$Polygraph$setGraphRep,
-			g,
-			f(
-				$author$project$Polygraph$graphRep(g)));
-	});
-var $author$project$Polygraph$map = F2(
-	function (fn, fe) {
-		return $author$project$Polygraph$mapRep(
-			A2($author$project$Polygraph$mapGraphRep, fn, fe));
-	});
 var $author$project$Polygraph$mapCodec = F2(
 	function (c1, c2) {
 		return A2(
@@ -8430,73 +8667,123 @@ var $author$project$Format$Version19$nodeMaybeFlagCodecFalse = function (flag) {
 	return $author$project$Codec$boolList(flag);
 };
 var $author$project$Format$Version19$coqValidatedFlag = $author$project$Format$Version19$nodeMaybeFlagCodecFalse($author$project$Format$Version19$CoqValidated);
-var $elm$core$Basics$not = _Basics_not;
+var $author$project$Format$Version19$Dependencies = function (a) {
+	return {$: 'Dependencies', a: a};
+};
+var $author$project$Format$Version19$depsFlag = A3(
+	$author$project$Codec$maybeList,
+	_List_Nil,
+	$author$project$Format$Version19$Dependencies,
+	function (c) {
+		if (c.$ === 'Dependencies') {
+			var l = c.a;
+			return $elm$core$Maybe$Just(l);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
 var $author$project$Format$Version19$Text = {$: 'Text'};
 var $author$project$Format$Version19$textFlag = $author$project$Format$Version19$nodeMaybeFlagCodecFalse($author$project$Format$Version19$Text);
-var $author$project$Format$Version19$nodeFCodec = $author$project$Codec$buildObject(
-	A4(
-		$author$project$Codec$fields,
-		function ($) {
-			return $.isCoqValidated;
-		},
-		function ($) {
-			return $.options;
-		},
-		$author$project$Format$Version19$coqValidatedFlag,
+var $author$project$Format$Version19$nodeFCodecWithDeps = function () {
+	var node = function (x) {
+		return A2(
+			$elm$core$Basics$composeR,
+			function ($) {
+				return $.node;
+			},
+			x);
+	};
+	return $author$project$Codec$buildObject(
 		A4(
 			$author$project$Codec$fields,
+			node(
+				function ($) {
+					return $.isCoqValidated;
+				}),
 			function ($) {
-				return $.zindex;
+				return $.options;
 			},
-			function ($) {
-				return $.zindex;
-			},
-			$author$project$Codec$identity,
+			$author$project$Format$Version19$coqValidatedFlag,
 			A4(
 				$author$project$Codec$fields,
-				A2(
-					$elm$core$Basics$composeR,
+				node(
 					function ($) {
-						return $.isMath;
-					},
-					$elm$core$Basics$not),
+						return $.zindex;
+					}),
 				function ($) {
-					return $.options;
+					return $.zindex;
 				},
-				$author$project$Format$Version19$textFlag,
+				$author$project$Codec$identity,
 				A4(
 					$author$project$Codec$fields,
+					node(
+						A2(
+							$elm$core$Basics$composeR,
+							function ($) {
+								return $.isMath;
+							},
+							$elm$core$Basics$not)),
 					function ($) {
-						return $.label;
+						return $.options;
 					},
-					function ($) {
-						return $.label;
-					},
-					$author$project$Codec$identity,
+					$author$project$Format$Version19$textFlag,
 					A4(
 						$author$project$Codec$fields,
+						node(
+							function ($) {
+								return $.label;
+							}),
 						function ($) {
-							return $.pos;
-						},
-						function ($) {
-							return $.pos;
+							return $.label;
 						},
 						$author$project$Codec$identity,
-						A2(
-							$author$project$Codec$object,
-							F5(
-								function (pos, label, isText, zindex, isCoqValidated) {
-									return {dims: $elm$core$Maybe$Nothing, isCoqValidated: isCoqValidated, isMath: !isText, label: label, pos: pos, selected: false, weaklySelected: false, zindex: zindex};
+						A4(
+							$author$project$Codec$fields,
+							node(
+								function ($) {
+									return $.pos;
 								}),
-							F5(
-								function (pos, label, isText, zindex, isCoqValidated) {
-									return {
-										label: label,
-										options: _Utils_ap(isText, isCoqValidated),
-										pos: pos,
-										zindex: zindex
-									};
-								}))))))));
+							function ($) {
+								return $.pos;
+							},
+							$author$project$Codec$identity,
+							A4(
+								$author$project$Codec$fields,
+								function ($) {
+									return $.deps;
+								},
+								function ($) {
+									return $.options;
+								},
+								$author$project$Format$Version19$depsFlag,
+								A2(
+									$author$project$Codec$object,
+									F6(
+										function (deps, pos, label, isText, zindex, isCoqValidated) {
+											return {
+												deps: deps,
+												node: {dims: $elm$core$Maybe$Nothing, isCoqValidated: isCoqValidated, isMath: !isText, label: label, pos: pos, selected: false, weaklySelected: false, zindex: zindex}
+											};
+										}),
+									F6(
+										function (deps, pos, label, isText, zindex, isCoqValidated) {
+											return {
+												label: label,
+												options: _Utils_ap(
+													deps,
+													_Utils_ap(isText, isCoqValidated)),
+												pos: pos,
+												zindex: zindex
+											};
+										})))))))));
+}();
+var $author$project$Format$Version19$graphCodec = A2(
+	$author$project$Codec$compose,
+	A2(
+		$author$project$Codec$compose,
+		$author$project$Polygraph$codec,
+		A2($author$project$Polygraph$mapCodec, $author$project$Format$Version19$nodeFCodecWithDeps, $author$project$Format$Version19$edgeFCodec)),
+	$author$project$GraphDefs$depsCodec);
 var $author$project$Format$Version19$tabFlagsCodec = $author$project$Codec$buildObject(
 	A4(
 		$author$project$Codec$fields,
@@ -8542,10 +8829,7 @@ var $author$project$Format$Version19$tabFlagsCodec = $author$project$Codec$build
 						function (e) {
 							return {edges: e.edges, nextId: e.nextGraphId, nodes: e.nodes};
 						},
-						A2(
-							$author$project$Codec$compose,
-							$author$project$Polygraph$codec,
-							A2($author$project$Polygraph$mapCodec, $author$project$Format$Version19$nodeFCodec, $author$project$Format$Version19$edgeFCodec)),
+						$author$project$Format$Version19$graphCodec,
 						A2(
 							$author$project$Codec$object,
 							F5(
@@ -8606,19 +8890,6 @@ var $author$project$Format$Version19$graphInfoCodecFlags = $author$project$Codec
 var $author$project$Format$Version19$fromJSGraphFlags = function (g) {
 	return A2($author$project$Codec$decoder, $author$project$Format$Version19$graphInfoCodecFlags, g);
 };
-var $author$project$Polygraph$edgeMap = F2(
-	function (f, _v0) {
-		var id = _v0.id;
-		var from = _v0.from;
-		var to = _v0.to;
-		var label = _v0.label;
-		return {
-			from: from,
-			id: id,
-			label: f(label),
-			to: to
-		};
-	});
 var $author$project$Polygraph$nodeMap = F2(
 	function (f, _v0) {
 		var id = _v0.id;
@@ -9226,8 +9497,6 @@ var $author$project$Format$Version18$edgeFlagCodec = function () {
 																						case 'Alignment':
 																							var s = v.a;
 																							return alignment(s);
-																						case 'Unrecognized':
-																							return unrecognized;
 																						case 'Color':
 																							var c = v.a;
 																							return color(c);
@@ -10313,7 +10582,7 @@ var $author$project$Format$Version19$genericVariantTrue = F3(
 		return A4($author$project$Codec$variantTruePair, tag, v, _default, $author$project$Codec$trueJs);
 	});
 var $elm$json$Json$Encode$null = _Json_encodeNull;
-var $author$project$Format$Version19$optionNames = {adjunction: 'adjunction', alignment: 'alignment', bend: 'bend', color: 'color ', dashed: 'dashed', head: 'head', headColor: 'headColor', kind: 'kind', labelColor: 'labelColor', loopAngle: 'loopAngle', loopRadius: 'loopRadius', marker: 'marker', position: 'position', pullshout: 'pullshout', shiftSource: 'shiftSource', shiftTarget: 'shiftTarget', tail: 'tail', tailColor: 'tailColor', unrecognized: 'unrecognized', wavy: 'wavy'};
+var $author$project$Format$Version19$optionNames = {adjunction: 'adjunction', alignment: 'alignment', bend: 'bend', color: 'color ', dashed: 'dashed', dependency: 'dependency', head: 'head', headColor: 'headColor', kind: 'kind', labelColor: 'labelColor', loopAngle: 'loopAngle', loopRadius: 'loopRadius', marker: 'marker', position: 'position', pullshout: 'pullshout', shiftSource: 'shiftSource', shiftTarget: 'shiftTarget', tail: 'tail', tailColor: 'tailColor', unrecognized: 'unrecognized', wavy: 'wavy'};
 var $author$project$Format$Version19$maxDecimalDigits = 4;
 var $author$project$Format$Version19$stringFromFloat = F2(
 	function (n, f) {
@@ -10394,79 +10663,83 @@ var $author$project$Format$Version19$edgeFlagCodec = function () {
 				return function (bend) {
 					return function (position) {
 						return function (adjunction) {
-							return function (wavy) {
-								return function (kind) {
-									return function (headstyle) {
-										return function (tailstyle) {
-											return function (alignment) {
-												return function (color) {
-													return function (headcolor) {
-														return function (tailcolor) {
-															return function (labelcolor) {
-																return function (shiftSource) {
-																	return function (shiftTarget) {
-																		return function (loopRadius) {
-																			return function (loopAngle) {
-																				return function (unrecognized) {
-																					return function (v) {
-																						switch (v.$) {
-																							case 'Dashed':
-																								return dashed(true);
-																							case 'Marker':
-																								var s = v.a;
-																								return marker(s);
-																							case 'Pullshout':
-																								var r = v.a;
-																								return pullshout(r);
-																							case 'Bend':
-																								var f = v.a;
-																								return bend(f);
-																							case 'Position':
-																								var f = v.a;
-																								return position(f);
-																							case 'Adjunction':
-																								return adjunction(true);
-																							case 'Wavy':
-																								return wavy(true);
-																							case 'Kind':
-																								var k = v.a;
-																								return kind(k);
-																							case 'HeadStyle':
-																								var s = v.a;
-																								return headstyle(s);
-																							case 'TailStyle':
-																								var s = v.a;
-																								return tailstyle(s);
-																							case 'Alignment':
-																								var s = v.a;
-																								return alignment(s);
-																							case 'Unrecognized':
-																								return unrecognized;
-																							case 'Color':
-																								var c = v.a;
-																								return color(c);
-																							case 'HeadColor':
-																								var c = v.a;
-																								return headcolor(c);
-																							case 'TailColor':
-																								var c = v.a;
-																								return tailcolor(c);
-																							case 'LabelColor':
-																								var c = v.a;
-																								return labelcolor(c);
-																							case 'ShiftSource':
-																								var c = v.a;
-																								return shiftSource(c);
-																							case 'ShiftTarget':
-																								var c = v.a;
-																								return shiftTarget(c);
-																							case 'LoopRadius':
-																								var c = v.a;
-																								return loopRadius(c);
-																							default:
-																								var c = v.a;
-																								return loopAngle(c);
-																						}
+							return function (dependency) {
+								return function (wavy) {
+									return function (kind) {
+										return function (headstyle) {
+											return function (tailstyle) {
+												return function (alignment) {
+													return function (color) {
+														return function (headcolor) {
+															return function (tailcolor) {
+																return function (labelcolor) {
+																	return function (shiftSource) {
+																		return function (shiftTarget) {
+																			return function (loopRadius) {
+																				return function (loopAngle) {
+																					return function (unrecognized) {
+																						return function (v) {
+																							switch (v.$) {
+																								case 'Dashed':
+																									return dashed(true);
+																								case 'Marker':
+																									var s = v.a;
+																									return marker(s);
+																								case 'Pullshout':
+																									var r = v.a;
+																									return pullshout(r);
+																								case 'Bend':
+																									var f = v.a;
+																									return bend(f);
+																								case 'Position':
+																									var f = v.a;
+																									return position(f);
+																								case 'Adjunction':
+																									return adjunction(true);
+																								case 'Dependency':
+																									return dependency(true);
+																								case 'Wavy':
+																									return wavy(true);
+																								case 'Kind':
+																									var k = v.a;
+																									return kind(k);
+																								case 'HeadStyle':
+																									var s = v.a;
+																									return headstyle(s);
+																								case 'TailStyle':
+																									var s = v.a;
+																									return tailstyle(s);
+																								case 'Alignment':
+																									var s = v.a;
+																									return alignment(s);
+																								case 'Unrecognized':
+																									return unrecognized;
+																								case 'Color':
+																									var c = v.a;
+																									return color(c);
+																								case 'HeadColor':
+																									var c = v.a;
+																									return headcolor(c);
+																								case 'TailColor':
+																									var c = v.a;
+																									return tailcolor(c);
+																								case 'LabelColor':
+																									var c = v.a;
+																									return labelcolor(c);
+																								case 'ShiftSource':
+																									var c = v.a;
+																									return shiftSource(c);
+																								case 'ShiftTarget':
+																									var c = v.a;
+																									return shiftTarget(c);
+																								case 'LoopRadius':
+																									var c = v.a;
+																									return loopRadius(c);
+																								default:
+																									var c = v.a;
+																									return loopAngle(c);
+																							}
+																						};
 																					};
 																				};
 																			};
@@ -10561,48 +10834,41 @@ var $author$project$Format$Version19$edgeFlagCodec = function () {
 																$author$project$Format$Version19$Wavy,
 																A3(
 																	variantTrue,
-																	$author$project$Format$Version19$optionNames.adjunction,
-																	$author$project$Format$Version19$Adjunction,
-																	A4(
-																		$author$project$Codec$variant1Pair,
-																		$author$project$Format$Version19$optionNames.position,
-																		$author$project$Format$Version19$Position,
-																		$author$project$Codec$floatJs,
+																	$author$project$Format$Version19$optionNames.dependency,
+																	$author$project$Format$Version19$Dependency,
+																	A3(
+																		variantTrue,
+																		$author$project$Format$Version19$optionNames.adjunction,
+																		$author$project$Format$Version19$Adjunction,
 																		A4(
 																			$author$project$Codec$variant1Pair,
-																			$author$project$Format$Version19$optionNames.bend,
-																			$author$project$Format$Version19$Bend,
+																			$author$project$Format$Version19$optionNames.position,
+																			$author$project$Format$Version19$Position,
 																			$author$project$Codec$floatJs,
 																			A4(
-																				variantString,
-																				$author$project$Format$Version19$optionNames.pullshout,
-																				$author$project$Format$Version19$Pullshout,
-																				$author$project$Format$Version19$pullshoutOffsetCodec,
+																				$author$project$Codec$variant1Pair,
+																				$author$project$Format$Version19$optionNames.bend,
+																				$author$project$Format$Version19$Bend,
+																				$author$project$Codec$floatJs,
 																				A4(
-																					$author$project$Codec$variant1Pair,
-																					$author$project$Format$Version19$optionNames.marker,
-																					$author$project$Format$Version19$Marker,
-																					$author$project$Codec$stringJs,
-																					A3(
-																						variantTrue,
-																						$author$project$Format$Version19$optionNames.dashed,
-																						$author$project$Format$Version19$Dashed,
-																						A2(
-																							$author$project$Codec$customPair,
-																							split,
-																							_Utils_Tuple2('', $elm$json$Json$Encode$null)))))))))))))))))))))));
+																					variantString,
+																					$author$project$Format$Version19$optionNames.pullshout,
+																					$author$project$Format$Version19$Pullshout,
+																					$author$project$Format$Version19$pullshoutOffsetCodec,
+																					A4(
+																						$author$project$Codec$variant1Pair,
+																						$author$project$Format$Version19$optionNames.marker,
+																						$author$project$Format$Version19$Marker,
+																						$author$project$Codec$stringJs,
+																						A3(
+																							variantTrue,
+																							$author$project$Format$Version19$optionNames.dashed,
+																							$author$project$Format$Version19$Dashed,
+																							A2(
+																								$author$project$Codec$customPair,
+																								split,
+																								_Utils_Tuple2('', $elm$json$Json$Encode$null))))))))))))))))))))))));
 }();
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
 var $author$project$Codec$filter = function (f) {
 	return A2(
 		$author$project$Codec$build,
@@ -10664,6 +10930,39 @@ var $author$project$Format$Version19$codecEdgeFlagsJs = A2(
 		$author$project$Codec$list($author$project$Format$Version19$edgeFlagCodec),
 		$author$project$Codec$filter(
 			$elm$core$Basics$neq($author$project$Format$Version19$Unrecognized))));
+var $author$project$Codec$filterMap = F2(
+	function (f, g) {
+		return A2(
+			$author$project$Codec$build,
+			$elm$core$List$filterMap(f),
+			$elm$core$List$filterMap(g));
+	});
+var $elm$json$Json$Encode$int = _Json_wrap;
+var $author$project$Format$Version19$depsArgsCodec = function () {
+	var c = A2(
+		$author$project$Codec$filterMap,
+		function (_v0) {
+			var s = _v0.a;
+			var id = _v0.b;
+			return $elm$core$Maybe$Just(
+				_Utils_Tuple2(
+					s,
+					$elm$json$Json$Encode$int(id)));
+		},
+		function (_v1) {
+			var s = _v1.a;
+			var id = _v1.b;
+			var _v2 = A2($elm$json$Json$Decode$decodeValue, $elm$json$Json$Decode$int, id);
+			if (_v2.$ === 'Ok') {
+				var i = _v2.a;
+				return $elm$core$Maybe$Just(
+					_Utils_Tuple2(s, i));
+			} else {
+				return $elm$core$Maybe$Nothing;
+			}
+		});
+	return A2($author$project$Codec$compose, $author$project$Codec$objectJs, c);
+}();
 var $author$project$Format$Version19$nodeFlagCodec = function () {
 	var variantTrue = $author$project$Format$Version19$genericVariantTrue($author$project$Format$Version19$UnrecognizedNodeFlag);
 	return A2(
@@ -10673,28 +10972,36 @@ var $author$project$Format$Version19$nodeFlagCodec = function () {
 			$author$project$Codec$variant0,
 			'',
 			$author$project$Format$Version19$UnrecognizedNodeFlag,
-			A3(
-				variantTrue,
-				'text',
-				$author$project$Format$Version19$Text,
+			A4(
+				$author$project$Codec$variant1Pair,
+				'dependencies',
+				$author$project$Format$Version19$Dependencies,
+				$author$project$Format$Version19$depsArgsCodec,
 				A3(
 					variantTrue,
-					'coqValidated',
-					$author$project$Format$Version19$CoqValidated,
-					A2(
-						$author$project$Codec$customPair,
-						F4(
-							function (coq, text, unrecognized, v) {
-								switch (v.$) {
-									case 'CoqValidated':
-										return coq(true);
-									case 'Text':
-										return text(true);
-									default:
-										return unrecognized;
-								}
-							}),
-						_Utils_Tuple2('', $elm$json$Json$Encode$null))))));
+					'text',
+					$author$project$Format$Version19$Text,
+					A3(
+						variantTrue,
+						'coqValidated',
+						$author$project$Format$Version19$CoqValidated,
+						A2(
+							$author$project$Codec$customPair,
+							F5(
+								function (coq, text, deps, unrecognized, v) {
+									switch (v.$) {
+										case 'CoqValidated':
+											return coq(true);
+										case 'Text':
+											return text(true);
+										case 'Dependencies':
+											var d = v.a;
+											return deps(d);
+										default:
+											return unrecognized;
+									}
+								}),
+							_Utils_Tuple2('', $elm$json$Json$Encode$null)))))));
 }();
 var $author$project$Format$Version19$codecNodeFlagsJs = A2(
 	$author$project$Codec$compose,
@@ -15221,7 +15528,7 @@ var $author$project$Polygraph$modifCodec = A2(
 			return m;
 		},
 		$author$project$Polygraph$Modif));
-var $author$project$Format$Version19$nodeCodec = A2(
+var $author$project$Format$Version19$nodeCodecWithDeps = A2(
 	$author$project$Codec$compose,
 	A2(
 		$author$project$Codec$build,
@@ -15229,7 +15536,21 @@ var $author$project$Format$Version19$nodeCodec = A2(
 			$author$project$Codec$encoder($author$project$Format$Version19$codecNodeFlagsJs)),
 		$author$project$Format$Version19$nodeMap(
 			$author$project$Codec$decoder($author$project$Format$Version19$codecNodeFlagsJs))),
-	$author$project$Format$Version19$nodeFCodec);
+	$author$project$Format$Version19$nodeFCodecWithDeps);
+var $author$project$Format$Version19$nodeCodec = A2(
+	$author$project$Codec$build,
+	function (n) {
+		return A2(
+			$author$project$Codec$encoder,
+			$author$project$Format$Version19$nodeCodecWithDeps,
+			{deps: _List_Nil, node: n});
+	},
+	A2(
+		$elm$core$Basics$composeR,
+		$author$project$Codec$decoder($author$project$Format$Version19$nodeCodecWithDeps),
+		function ($) {
+			return $.node;
+		}));
 var $author$project$Format$LastVersion$nodeCodec = $author$project$Format$Version19$nodeCodec;
 var $author$project$Format$GraphInfoCodec$codecGraphModif = A2(
 	$author$project$Codec$compose,
@@ -18166,38 +18487,6 @@ var $author$project$Polygraph$Waiting = F3(
 	function (a, b, c) {
 		return {$: 'Waiting', a: a, b: b, c: c};
 	});
-var $elm_community$intdict$IntDict$get = F2(
-	function (key, dict) {
-		get:
-		while (true) {
-			switch (dict.$) {
-				case 'Empty':
-					return $elm$core$Maybe$Nothing;
-				case 'Leaf':
-					var l = dict.a;
-					return _Utils_eq(l.key, key) ? $elm$core$Maybe$Just(l.value) : $elm$core$Maybe$Nothing;
-				default:
-					var i = dict.a;
-					if (!A2($elm_community$intdict$IntDict$prefixMatches, i.prefix, key)) {
-						return $elm$core$Maybe$Nothing;
-					} else {
-						if (A2($elm_community$intdict$IntDict$isBranchingBitSet, i.prefix, key)) {
-							var $temp$key = key,
-								$temp$dict = i.right;
-							key = $temp$key;
-							dict = $temp$dict;
-							continue get;
-						} else {
-							var $temp$key = key,
-								$temp$dict = i.left;
-							key = $temp$key;
-							dict = $temp$dict;
-							continue get;
-						}
-					}
-			}
-		}
-	});
 var $author$project$Polygraph$mapRecAux = F6(
 	function (cn, ce, fn, fe, dict, ids) {
 		mapRecAux:
@@ -19561,14 +19850,6 @@ var $author$project$Format$GraphInfo$getGraph = F2(
 			},
 			A2($author$project$Format$GraphInfo$getTabById, gi, id));
 	});
-var $author$project$GraphDefs$filterNormalEdges = function (d) {
-	if (d.$ === 'PullshoutEdge') {
-		return $elm$core$Maybe$Nothing;
-	} else {
-		var l = d.a;
-		return $elm$core$Maybe$Just(l);
-	}
-};
 var $author$project$Polygraph$get = F4(
 	function (id, fn, fe, g) {
 		var _v0 = A2(
@@ -21328,7 +21609,6 @@ var $elm$core$Maybe$destruct = F3(
 			return _default;
 		}
 	});
-var $elm$json$Json$Encode$int = _Json_wrap;
 var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 	'protocolSendJS',
 	function ($) {
@@ -22620,30 +22900,6 @@ var $author$project$Command$applyCommands = F2(
 				_List_fromArray(
 					[cmd, cmd2])));
 	});
-var $author$project$GraphDefs$mapDetails = F2(
-	function (f, e) {
-		return {
-			details: f(e.details),
-			selected: e.selected,
-			weaklySelected: e.weaklySelected,
-			zindex: e.zindex
-		};
-	});
-var $author$project$GraphDefs$flattenDetails = function (e) {
-	return A2(
-		$elm$core$Maybe$map,
-		function (d) {
-			return A2(
-				$author$project$GraphDefs$mapDetails,
-				$elm$core$Basics$always(d),
-				e);
-		},
-		e.details);
-};
-var $author$project$GraphDefs$filterLabelNormal = A2(
-	$elm$core$Basics$composeR,
-	$author$project$GraphDefs$mapDetails($author$project$GraphDefs$filterNormalEdges),
-	$author$project$GraphDefs$flattenDetails);
 var $author$project$GraphDefs$allDimsReady = function (g) {
 	var checkDim = function (e) {
 		if (e.label === '') {
@@ -22989,6 +23245,7 @@ var $author$project$Drawing$tikz = function (d) {
 			_Utils_ap(unkeyedList, keyedList)));
 	return '\\begin{tikzpicture}\n' + (data + '\n\\end{tikzpicture}');
 };
+var $author$project$GraphDrawing$MainActive = {$: 'MainActive'};
 var $author$project$Msg$EdgeClick = F2(
 	function (a, b) {
 		return {$: 'EdgeClick', a: a, b: b};
@@ -23250,19 +23507,16 @@ var $author$project$HtmlDefs$dimsAttribute = function (_v0) {
 			$elm$core$String$fromFloat(height))
 		]);
 };
-var $author$project$Verbatim$verbatimCmd = '%verb ';
-var $author$project$Verbatim$extractVerbatim = function (s) {
-	var prefix = $author$project$Verbatim$verbatimCmd;
-	return A2($elm$core$String$startsWith, prefix, s) ? $elm$core$Maybe$Just(
-		A2(
-			$elm$core$String$dropLeft,
-			$elm$core$String$length(prefix),
-			s)) : $elm$core$Maybe$Nothing;
-};
+var $author$project$SpecialLabels$Verbatim = {$: 'Verbatim'};
+var $author$project$SpecialLabels$extractVerbatim = $author$project$SpecialLabels$extractSpecial($author$project$SpecialLabels$Verbatim);
 var $author$project$GraphDrawing$idToKey = A2($elm$core$Basics$composeR, $elm$core$String$fromInt, $elm$core$Maybe$Just);
 var $author$project$Drawing$Node = function (a) {
 	return {$: 'Node', a: a};
 };
+var $author$project$Drawing$makeColorString = F2(
+	function (c, s) {
+		return _Utils_eq(c, $author$project$Drawing$Color$black) ? s : ('\\color{' + ($author$project$Drawing$Color$toString(c) + ('}' + s)));
+	});
 var $author$project$Drawing$makeLatex = F2(
 	function (arg, attrs) {
 		return A3(
@@ -23273,7 +23527,14 @@ var $author$project$Drawing$makeLatex = F2(
 				$author$project$Drawing$TikzShape,
 				attrs,
 				$author$project$Drawing$Node(
-					{angle: arg.angle, dims: arg.dims, label: arg.label, pos: arg.pos, preamble: arg.preamble, scale: arg.scale})));
+					{
+						angle: arg.angle,
+						dims: arg.dims,
+						label: A2($author$project$Drawing$makeColorString, arg.color, arg.label),
+						pos: arg.pos,
+						preamble: arg.preamble,
+						scale: arg.scale
+					})));
 	});
 var $elm$core$String$filter = _String_filter;
 var $author$project$Drawing$makeVerbatimString = function (s) {
@@ -23312,7 +23573,7 @@ var $author$project$Drawing$makeVerbatim = F2(
 		var label = $author$project$Drawing$makeVerbatimString(arg.label);
 		return A2(
 			$author$project$Drawing$makeLatex,
-			{angle: arg.angle, dims: arg.dims, key: arg.key, label: label, pos: arg.pos, preamble: '', scale: arg.scale, zindex: arg.zindex},
+			{angle: arg.angle, color: arg.color, dims: arg.dims, key: arg.key, label: label, pos: arg.pos, preamble: '', scale: arg.scale, zindex: arg.zindex},
 			attrs);
 	});
 var $author$project$Msg$RenderedTextInput = {$: 'RenderedTextInput'};
@@ -23550,6 +23811,11 @@ var $author$project$GraphDrawing$make_input = F4(
 				_List_Nil));
 	});
 var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDoubleClick = A2($mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions, 'dblclick', $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$defaultOptions);
+var $author$project$SpecialLabels$allLabels = _List_fromArray(
+	[$author$project$SpecialLabels$Dependency, $author$project$SpecialLabels$Verbatim, $author$project$SpecialLabels$Normal]);
+var $author$project$SpecialLabels$removeAny = function (s) {
+	return A3($elm$core$List$foldl, $author$project$SpecialLabels$removeSpecial, s, $author$project$SpecialLabels$allLabels);
+};
 var $author$project$GraphDrawing$nodeDrawing = F2(
 	function (cfg, node) {
 		var n = node.label;
@@ -23586,13 +23852,14 @@ var $author$project$GraphDrawing$nodeDrawing = F2(
 								$author$project$HtmlDefs$onRendered(
 								$author$project$Msg$NodeRendered(id))
 							]))));
-			var _v0 = $author$project$Verbatim$extractVerbatim(n.label);
+			var _v0 = $author$project$SpecialLabels$extractVerbatim(n.label);
 			if (_v0.$ === 'Just') {
 				var vLabel = _v0.a;
 				return A2(
 					$author$project$Drawing$makeVerbatim,
 					{
 						angle: 0,
+						color: $author$project$Drawing$Color$black,
 						dims: n.dims,
 						key: $author$project$GraphDrawing$idToKey(id),
 						label: vLabel,
@@ -23609,9 +23876,10 @@ var $author$project$GraphDrawing$nodeDrawing = F2(
 					$author$project$Drawing$makeLatex,
 					{
 						angle: 0,
+						color: $author$project$Drawing$Color$black,
 						dims: n.dims,
 						key: $author$project$GraphDrawing$idToKey(id),
-						label: label,
+						label: $author$project$SpecialLabels$removeAny(label),
 						pos: n.pos,
 						preamble: cfg.latexPreamble,
 						scale: 1,
@@ -23669,11 +23937,12 @@ var $author$project$GraphDrawing$drawStringMarker = F3(
 			$author$project$Drawing$makeLatex,
 			{
 				angle: angle,
+				color: color,
 				dims: _Utils_Tuple2(12, 18),
 				key: $elm$core$Maybe$Nothing,
 				label: marker,
 				pos: pos,
-				preamble: '\\color{' + ($author$project$Drawing$Color$toString(color) + '}'),
+				preamble: '',
 				scale: $author$project$GraphDefs$edgeScaleFactor,
 				zindex: $author$project$Zindex$foregroundZ
 			},
@@ -24386,13 +24655,14 @@ var $author$project$GraphDrawing$drawLabelAt = F6(
 						]),
 					$author$project$HtmlDefs$dimsAttribute(
 						A2($author$project$Geometry$Point$resize, 1 / $author$project$GraphDefs$edgeScaleFactor, label.dims)));
-				var _v0 = $author$project$Verbatim$extractVerbatim(finalLabel);
+				var _v0 = $author$project$SpecialLabels$extractVerbatim(finalLabel);
 				if (_v0.$ === 'Just') {
 					var vLabel = _v0.a;
 					return A2(
 						$author$project$Drawing$makeVerbatim,
 						{
 							angle: angle,
+							color: label.style.labelColor,
 							dims: label.dims,
 							key: $author$project$GraphDrawing$idToKey(edgeId),
 							label: vLabel,
@@ -24406,9 +24676,10 @@ var $author$project$GraphDrawing$drawLabelAt = F6(
 						$author$project$Drawing$makeLatex,
 						{
 							angle: angle,
+							color: label.style.labelColor,
 							dims: label.dims,
 							key: $author$project$GraphDrawing$idToKey(edgeId),
-							label: finalLabel,
+							label: $author$project$SpecialLabels$removeAny(finalLabel),
 							pos: labelpos,
 							preamble: cfg.latexPreamble,
 							scale: $author$project$GraphDefs$edgeScaleFactor,
@@ -24484,7 +24755,7 @@ var $author$project$GraphDrawing$graphDrawing = F2(
 						if (_v0.b.$ === 'ArrowShape') {
 							var l = _v0.a.a;
 							var q = _v0.b.a;
-							return A7($author$project$GraphDrawing$normalEdgeDrawing, cfg, id, e.isActive, e.zindex, l, q, l.style.bend);
+							return ((!cfg.showDependencies) && (l.isDependency && ((!_Utils_eq(e.isActive, $author$project$GraphDrawing$MainActive)) && (!_Utils_eq(e.sourceIsActive, $author$project$GraphDrawing$MainActive))))) ? $author$project$Drawing$empty : A7($author$project$GraphDrawing$normalEdgeDrawing, cfg, id, e.isActive, e.zindex, l, q, l.style.bend);
 						} else {
 							break _v0$2;
 						}
@@ -24529,11 +24800,11 @@ var $author$project$Main$toDrawing = F2(
 				} else {
 					return model.graphInfo.latexPreamble;
 				}
-			}()
+			}(),
+			showDependencies: model.showDependencies
 		};
 		return A2($author$project$GraphDrawing$graphDrawing, cfg, graph);
 	});
-var $author$project$GraphDrawing$MainActive = {$: 'MainActive'};
 var $author$project$GraphDrawing$NoActive = {$: 'NoActive'};
 var $author$project$GraphDrawing$WeakActive = {$: 'WeakActive'};
 var $author$project$GraphDrawing$NormalEdge = function (a) {
@@ -24556,6 +24827,7 @@ var $author$project$GraphDrawing$make_edgeDrawingLabel = F2(
 		var editable = _v0.editable;
 		var isActive = _v0.isActive;
 		var shape = _v0.shape;
+		var sourceIsActive = _v0.sourceIsActive;
 		return {
 			details: function () {
 				var _v1 = e.details;
@@ -24573,6 +24845,7 @@ var $author$project$GraphDrawing$make_edgeDrawingLabel = F2(
 							dims: $author$project$GraphDefs$getEdgeDims(l),
 							editable: editable,
 							isAdjunction: isAdjunction,
+							isDependency: $author$project$GraphDefs$isDepEdge(l),
 							label: label,
 							style: style
 						});
@@ -24580,6 +24853,7 @@ var $author$project$GraphDrawing$make_edgeDrawingLabel = F2(
 			}(),
 			isActive: isActive,
 			shape: shape,
+			sourceIsActive: sourceIsActive,
 			zindex: e.zindex
 		};
 	});
@@ -24608,8 +24882,14 @@ var $author$project$GraphDrawing$toDrawingGraph = function (g) {
 		return r.selected ? $author$project$GraphDrawing$MainActive : (r.weaklySelected ? $author$project$GraphDrawing$WeakActive : $author$project$GraphDrawing$NoActive);
 	};
 	var graphWithPos = $author$project$GraphDefs$posGraph(g);
-	return A3(
-		$author$project$Polygraph$map,
+	return A5(
+		$author$project$Polygraph$mapRecAll,
+		function ($) {
+			return $.isActive;
+		},
+		function ($) {
+			return $.isActive;
+		},
 		F2(
 			function (_v0, n) {
 				return A2(
@@ -24620,14 +24900,15 @@ var $author$project$GraphDrawing$toDrawingGraph = function (g) {
 					},
 					n);
 			}),
-		F2(
-			function (_v1, e) {
+		F4(
+			function (_v1, sourceIsActive, _v2, e) {
 				return A2(
 					$author$project$GraphDrawing$make_edgeDrawingLabel,
 					{
 						editable: false,
 						isActive: makeActivity(e.label),
-						shape: e.shape
+						shape: e.shape,
+						sourceIsActive: sourceIsActive
 					},
 					e.label);
 			}),
@@ -25308,12 +25589,7 @@ var $author$project$GraphProof$getToThePoint = F2(
 	function (startOffset, backOffset) {
 		return 'yade_strip ' + ($elm$core$String$fromInt(startOffset) + (' ' + ($elm$core$String$fromInt(backOffset) + '.')));
 	});
-var $author$project$Verbatim$removeVerbatim = function (s) {
-	return A2(
-		$elm$core$Maybe$withDefault,
-		s,
-		$author$project$Verbatim$extractVerbatim(s));
-};
+var $author$project$SpecialLabels$removeVerbatim = $author$project$SpecialLabels$removeSpecial($author$project$SpecialLabels$Verbatim);
 var $author$project$GraphProof$statementToString = function (d) {
 	var expand = function (s) {
 		return (s === '') ? '{_}' : s;
@@ -25331,7 +25607,7 @@ var $author$project$GraphProof$statementToString = function (d) {
 					function ($) {
 						return $.label;
 					},
-					A2($elm$core$Basics$composeR, expand, $author$project$Verbatim$removeVerbatim)))),
+					A2($elm$core$Basics$composeR, expand, $author$project$SpecialLabels$removeVerbatim)))),
 		$elm$core$String$join(' · '));
 	return '<YADE> ' + (edgeToString(d.lhs) + (' = ' + (edgeToString(d.rhs) + ' </YADE>')));
 };
@@ -28300,10 +28576,15 @@ var $author$project$QuickInput$equalityParser = A2(
 	$author$project$QuickInput$handSideParser);
 var $author$project$ArrowStyle$noMarker = '';
 var $author$project$ArrowStyle$empty = {bend: 0, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$DefaultHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelColor: $author$project$Drawing$Color$black, labelPosition: 0.5, loopAngle: 0, loopRadius: $author$project$ArrowStyle$defaultLoopRadius, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0.5, shiftTarget: 0.5, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
-var $author$project$Verbatim$makeVerbatimLabel = F2(
-	function (isVerbatim, s) {
-		return isVerbatim ? _Utils_ap($author$project$Verbatim$verbatimCmd, s) : s;
+var $author$project$SpecialLabels$makeSpecial = F2(
+	function (key, s) {
+		return _Utils_eq(key, $author$project$SpecialLabels$Normal) ? s : _Utils_ap(
+			$author$project$SpecialLabels$prefixFromKey(key),
+			s);
 	});
+var $author$project$SpecialLabels$makeVerbatimLabel = function (isVerbatim) {
+	return isVerbatim ? $author$project$SpecialLabels$makeSpecial($author$project$SpecialLabels$Verbatim) : $elm$core$Basics$identity;
+};
 var $author$project$Polygraph$md_graph = function (_v0) {
 	var graph = _v0.a.graph;
 	return graph;
@@ -28371,7 +28652,7 @@ var $author$project$GraphDefs$md_createNodeLabelVerbatim = F4(
 		var label = A4(
 			$author$project$GraphDefs$newNodeLabel,
 			p,
-			A2($author$project$Verbatim$makeVerbatimLabel, isVerbatim, s),
+			A2($author$project$SpecialLabels$makeVerbatimLabel, isVerbatim, s),
 			true,
 			$author$project$Zindex$defaultZ);
 		var _v0 = A2($author$project$Polygraph$md_newNode, g, label);
@@ -28403,16 +28684,26 @@ var $author$project$Polygraph$md_newEdge = F4(
 var $author$project$GraphDefs$newGenericLabel = function (d) {
 	return {details: d, selected: false, weaklySelected: false, zindex: $author$project$Zindex$defaultZ};
 };
-var $author$project$GraphDefs$newEdgeLabelVerbatimAdj = F4(
-	function (isVerbatim, isAdjunction, s, style) {
+var $author$project$GraphDefs$newEdgeLabelVerbatimStuff = F3(
+	function (_v0, s, style) {
+		var special = _v0.special;
+		var isAdjunction = _v0.isAdjunction;
 		return $author$project$GraphDefs$newGenericLabel(
 			$author$project$GraphDefs$NormalEdge(
 				{
 					dims: $elm$core$Maybe$Nothing,
 					isAdjunction: isAdjunction,
-					label: A2($author$project$Verbatim$makeVerbatimLabel, isVerbatim, s),
+					label: A2($author$project$SpecialLabels$makeSpecial, special, s),
 					style: style
 				}));
+	});
+var $author$project$GraphDefs$newEdgeLabelVerbatimAdj = F2(
+	function (isVerbatim, isAdjunction) {
+		return $author$project$GraphDefs$newEdgeLabelVerbatimStuff(
+			{
+				isAdjunction: isAdjunction,
+				special: isVerbatim ? $author$project$SpecialLabels$Verbatim : $author$project$SpecialLabels$Normal
+			});
 	});
 var $author$project$QuickInput$buildGraphEdges = F8(
 	function (isVerbatim, g, offset, alignment, pos, from, to, ch) {
@@ -28693,17 +28984,6 @@ var $author$project$Modes$Bend$captureValue = function (state) {
 	var newBend = state.value;
 	var finalBend = $elm$core$Basics$round(newBend * 10) / 10;
 	return finalBend;
-};
-var $author$project$GraphDefs$filterEdgeNormal = function (e) {
-	return A2(
-		$elm$core$Maybe$map,
-		function (l) {
-			return A2(
-				$author$project$Polygraph$edgeMap,
-				$elm$core$Basics$always(l),
-				e);
-		},
-		$author$project$GraphDefs$filterLabelNormal(e.label));
 };
 var $author$project$Polygraph$md_graphMap = F2(
 	function (f, _v0) {
@@ -29155,6 +29435,7 @@ var $author$project$ArrowStyle$updateEdgeColor = F3(
 					{
 						color: c,
 						headColor: _Utils_eq(s.headColor, s.color) ? c : s.headColor,
+						labelColor: _Utils_eq(s.labelColor, s.color) ? c : s.labelColor,
 						tailColor: _Utils_eq(s.tailColor, s.color) ? c : s.tailColor
 					});
 		}
@@ -30568,6 +30849,10 @@ var $author$project$ArrowStyle$keyMaybeUpdateColor = F3(
 var $author$project$Modes$CreateLoop = function (a) {
 	return {$: 'CreateLoop', a: a};
 };
+var $author$project$Modes$NewArrow$Dependency = function (a) {
+	return {$: 'Dependency', a: a};
+};
+var $author$project$Modes$NewArrow$Empty = {$: 'Empty'};
 var $author$project$Modes$NewArrowPart = function (a) {
 	return {$: 'NewArrowPart', a: a};
 };
@@ -30929,6 +31214,63 @@ var $author$project$ArrowStyle$keyMaybeUpdateStyle = F2(
 		}
 		return $elm$core$Maybe$Nothing;
 	});
+var $author$project$Polygraph$getNode = F2(
+	function (id, g) {
+		return A2(
+			$elm$core$Maybe$andThen,
+			$author$project$Polygraph$objNode,
+			A2(
+				$elm_community$intdict$IntDict$get,
+				id,
+				$author$project$Polygraph$graphRep(g)));
+	});
+var $author$project$GraphDefs$getDepLabels = F2(
+	function (id, graphi) {
+		var graph = $author$project$GraphDefs$depGraph(graphi);
+		var _v0 = A2($author$project$Polygraph$getNode, id, graph);
+		if (_v0.$ === 'Nothing') {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			var deps = _v0.a.deps;
+			return $elm$core$Maybe$Just(
+				A2($elm$core$List$map, $elm$core$Tuple$first, deps));
+		}
+	});
+var $author$project$GraphDefs$nextDepLabel = F2(
+	function (id, graphi) {
+		var _v0 = A2($author$project$GraphDefs$getDepLabels, id, graphi);
+		if (_v0.$ === 'Nothing') {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			var l = _v0.a;
+			return $elm$core$Maybe$Just(
+				$elm$core$String$fromInt(
+					A2(
+						$elm$core$Maybe$withDefault,
+						0,
+						A2(
+							$elm$core$Maybe$map,
+							$elm$core$Basics$add(1),
+							$elm$core$List$maximum(
+								A2($elm$core$List$filterMap, $elm$core$String$toInt, l))))));
+		}
+	});
+var $author$project$Modes$NewArrow$nextDepLabel = F2(
+	function (model, state) {
+		var _v0 = $author$project$Polygraph$nodes(state.chosen);
+		if (!_v0.b) {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			if (_v0.b.b) {
+				var _v1 = _v0.b;
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var id = _v0.a.id;
+				var graph = $author$project$Model$getActiveGraph(model);
+				return A2($author$project$GraphDefs$nextDepLabel, id, graph);
+			}
+		}
+	});
 var $author$project$Modes$CreateCone = {$: 'CreateCone'};
 var $author$project$Modes$CreateCylinder = {$: 'CreateCylinder'};
 var $elm$core$List$isEmpty = function (xs) {
@@ -30963,6 +31305,24 @@ var $author$project$Modes$NewArrow$isLoop = function (state) {
 var $author$project$Modes$NewArrow$getStyle = function (state) {
 	var style = $author$project$ArrowStyle$getStyle(state);
 	return style;
+};
+var $author$project$Modes$NewArrow$isDependency = function (k) {
+	if (k.$ === 'Dependency') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $author$project$Modes$NewArrow$labelKindToString = function (kind) {
+	switch (kind.$) {
+		case 'Dash':
+			return '-';
+		case 'Empty':
+			return '';
+		default:
+			var s = kind.a;
+			return s;
+	}
 };
 var $author$project$Polygraph$makeCylinder = F4(
 	function (g, subGraph, label, inverted) {
@@ -31007,29 +31367,30 @@ var $author$project$Polygraph$md_makeCylinder = F4(
 				inverted));
 	});
 var $author$project$GraphDefs$newEdgeLabelAdj = F3(
-	function (s, style, isAdjunction) {
-		return A4($author$project$GraphDefs$newEdgeLabelVerbatimAdj, false, isAdjunction, s, style);
+	function (s, style, _v0) {
+		var isAdjunction = _v0.isAdjunction;
+		var isDependency = _v0.isDependency;
+		return A3(
+			$author$project$GraphDefs$newEdgeLabelVerbatimStuff,
+			{
+				isAdjunction: isAdjunction,
+				special: isDependency ? $author$project$SpecialLabels$Dependency : $author$project$SpecialLabels$Normal
+			},
+			s,
+			style);
 	});
 var $author$project$Modes$NewArrow$moveNodeInfo = F4(
-	function (merge, emptyLabel, model, state) {
+	function (merge, labelKind, model, state) {
 		var modelGraph = $author$project$Model$getActiveGraph(model);
 		var style = $author$project$Modes$NewArrow$getStyle(state);
-		var updateLoopStyle = F3(
-			function (angle, radius, l) {
-				var oldStyle = l.style;
-				return _Utils_update(
-					l,
-					{
-						style: _Utils_update(
-							oldStyle,
-							{loopAngle: angle, loopRadius: radius})
-					});
-			});
 		var edgeLabel = A3(
 			$author$project$GraphDefs$newEdgeLabelAdj,
-			state.isAdjunction ? '\\vdash' : (emptyLabel ? '' : '-'),
+			state.isAdjunction ? '\\vdash' : $author$project$Modes$NewArrow$labelKindToString(labelKind),
 			style,
-			state.isAdjunction);
+			{
+				isAdjunction: state.isAdjunction,
+				isDependency: $author$project$Modes$NewArrow$isDependency(labelKind)
+			});
 		var nodePos = $author$project$GraphDefs$centerOfNodes(
 			$author$project$Polygraph$nodes(state.chosen));
 		var nodeLabel = A4($author$project$GraphDefs$newNodeLabel, nodePos, '', true, $author$project$Zindex$defaultZ);
@@ -31120,7 +31481,8 @@ var $author$project$Modes$NewArrow$nextStep = F3(
 	function (model, _v0, state) {
 		var finish = _v0.finish;
 		var merge = _v0.merge;
-		var info = A4($author$project$Modes$NewArrow$moveNodeInfo, merge, true, model, state);
+		var labelKind = _v0.labelKind;
+		var info = A4($author$project$Modes$NewArrow$moveNodeInfo, merge, labelKind, model, state);
 		var modif = A2($author$project$Format$GraphInfo$activeGraphModifHelper, model.graphInfo, info.graph);
 		var selIds = $author$project$Modes$NewArrow$isLoop(state) ? $elm_community$intdict$IntDict$empty : A3($elm_community$intdict$IntDict$insert, model.graphInfo.activeTabId, info.selectable, $elm_community$intdict$IntDict$empty);
 		if (finish) {
@@ -31244,15 +31606,21 @@ var $author$project$Modes$NewArrow$updateCapture = F3(
 var $author$project$Modes$NewArrow$updateNormal = F3(
 	function (state, msg, model) {
 		var modelGraph = $author$project$Model$getActiveGraph(model);
-		var next = function (finishMerge) {
-			return A3($author$project$Modes$NewArrow$nextStep, model, finishMerge, state);
+		var nextOptions = function (options) {
+			return A3($author$project$Modes$NewArrow$nextStep, model, options, state);
+		};
+		var next = function (_v7) {
+			var finish = _v7.finish;
+			var merge = _v7.merge;
+			return nextOptions(
+				{finish: finish, labelKind: $author$project$Modes$NewArrow$Empty, merge: merge});
 		};
 		var pullshoutMode = function (k) {
 			return $author$project$Model$noCmd(
 				function () {
-					var _v5 = state.kind;
-					if (_v5.$ === 'CreateArrow') {
-						var id = _v5.a;
+					var _v6 = state.kind;
+					if (_v6.$ === 'CreateArrow') {
+						var id = _v6.a;
 						return A2(
 							$author$project$Model$setMode,
 							A2(
@@ -31279,7 +31647,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 							mode: $author$project$Modes$NewArrowPart(m)
 						}))) : $author$project$Model$noCmd(model);
 		};
-		_v0$24:
+		_v0$25:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseClick':
@@ -31305,7 +31673,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 							return next(
 								{finish: false, merge: true});
 						} else {
-							break _v0$24;
+							break _v0$25;
 						}
 					} else {
 						if (msg.c.$ === 'Control') {
@@ -31319,7 +31687,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 									return next(
 										{finish: false, merge: state.merge || state.isAdjunction});
 								default:
-									break _v0$24;
+									break _v0$25;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -31377,6 +31745,19 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 								case 'a':
 									return next(
 										{finish: true, merge: true});
+								case 'D':
+									var _v3 = A2($author$project$Modes$NewArrow$nextDepLabel, model, state);
+									if (_v3.$ === 'Nothing') {
+										return $author$project$Model$noCmd(model);
+									} else {
+										var s = _v3.a;
+										return nextOptions(
+											{
+												finish: true,
+												labelKind: $author$project$Modes$NewArrow$Dependency(s),
+												merge: true
+											});
+									}
 								case 'b':
 									return $author$project$Model$noCmd(
 										A2($author$project$Modes$NewArrow$initialiseBendMode, state, model));
@@ -31441,17 +31822,17 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 												state,
 												{kind: kind})));
 								default:
-									break _v0$24;
+									break _v0$25;
 							}
 						}
 					}
 				default:
-					break _v0$24;
+					break _v0$25;
 			}
 		}
-		var _v3 = A3($author$project$Modes$NewArrow$updateCapture, state, msg, model);
-		if (_v3.$ === 'Just') {
-			var res = _v3.a;
+		var _v4 = A3($author$project$Modes$NewArrow$updateCapture, state, msg, model);
+		if (_v4.$ === 'Just') {
+			var res = _v4.a;
 			return res;
 		} else {
 			var newStyle = function () {
@@ -31547,7 +31928,11 @@ var $author$project$ArrowStyle$increaseBend = function (b) {
 };
 var $author$project$GraphDefs$newEdgeLabel = F2(
 	function (s, style) {
-		return A3($author$project$GraphDefs$newEdgeLabelAdj, s, style, false);
+		return A3(
+			$author$project$GraphDefs$newEdgeLabelAdj,
+			s,
+			style,
+			{isAdjunction: false, isDependency: false});
 	});
 var $author$project$ArrowStyle$simpleLineStyle = function (bend) {
 	return {bend: bend, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$NoHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelColor: $author$project$Drawing$Color$black, labelPosition: 0.5, loopAngle: 0, loopRadius: $author$project$ArrowStyle$defaultLoopRadius, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0.5, shiftTarget: 0.5, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
@@ -32342,16 +32727,6 @@ var $author$project$Modes$Square$guessPosition = F2(
 		} else {
 			return m.mousePos;
 		}
-	});
-var $author$project$Polygraph$getNode = F2(
-	function (id, g) {
-		return A2(
-			$elm$core$Maybe$andThen,
-			$author$project$Polygraph$objNode,
-			A2(
-				$elm_community$intdict$IntDict$get,
-				id,
-				$author$project$Polygraph$graphRep(g)));
 	});
 var $author$project$Modes$Square$guessProofPosition = F3(
 	function (m, s, newPos) {
@@ -36574,6 +36949,11 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{rulerShow: !model.rulerShow}));
+			case 'ToggleShowDependency':
+				return $author$project$Model$noCmd(
+					_Utils_update(
+						model,
+						{showDependencies: !model.showDependencies}));
 			case 'ToggleAutosave':
 				return $author$project$Model$noCmd(
 					_Utils_update(
@@ -36804,6 +37184,7 @@ var $author$project$Msg$SizeGrid = function (a) {
 var $author$project$Msg$ToggleAutosave = {$: 'ToggleAutosave'};
 var $author$project$Msg$ToggleHideGrid = {$: 'ToggleHideGrid'};
 var $author$project$Msg$ToggleHideRuler = {$: 'ToggleHideRuler'};
+var $author$project$Msg$ToggleShowDependency = {$: 'ToggleShowDependency'};
 var $author$project$Msg$MouseOnHandFree = function (a) {
 	return {$: 'MouseOnHandFree', a: a};
 };
@@ -37091,6 +37472,7 @@ var $author$project$Modes$Move$graphDrawing = F2(
 			$author$project$Modes$Move$computeGraph(
 				A3($author$project$Modes$Move$mkInfo, m, false, s)));
 	});
+var $author$project$Modes$NewArrow$Dash = {$: 'Dash'};
 var $author$project$Modes$NewArrow$getMerge = function (state) {
 	return state.merge || state.isAdjunction;
 };
@@ -37099,7 +37481,7 @@ var $author$project$Modes$NewArrow$graphDrawing = F2(
 		var info = A4(
 			$author$project$Modes$NewArrow$moveNodeInfo,
 			$author$project$Modes$NewArrow$getMerge(s),
-			false,
+			$author$project$Modes$NewArrow$Dash,
 			m,
 			s);
 		return A2(
@@ -37139,6 +37521,7 @@ var $author$project$GraphDrawing$mapNormalEdge = F2(
 			}(),
 			isActive: e.isActive,
 			shape: e.shape,
+			sourceIsActive: e.sourceIsActive,
 			zindex: e.zindex
 		};
 	});
@@ -37416,7 +37799,7 @@ var $author$project$Modes$Move$help = function (s) {
 	}())))))));
 };
 var $author$project$Modes$NewArrow$help = function (s) {
-	var mainMsg = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard ' + ('([f] to move by a multiple of the grid size), ' + ('[ctrl] merge, [a] merge without renaming, toggle [m]erge preview, ' + ('[0] switch to loop creation, ' + ('[RET] or space to terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('shift [s]ource/targ[e]t, ' + ('[.] customise the marker' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + ($author$project$Drawing$Color$helpMsg + ', color [H]ead/[T]ail'))))))))))))))))));
+	var mainMsg = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard ' + ('([f] to move by a multiple of the grid size), ' + ('[ctrl] merge, [a] merge without renaming, toggle [m]erge preview, ' + ('[0] switch to loop creation, ' + ('[RET] or space to terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('shift [s]ource/targ[e]t, ' + ('[.] customise the marker' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('create [D]ependency arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + ($author$project$Drawing$Color$helpMsg + ', color [H]ead/[T]ail')))))))))))))))))));
 	var _v0 = s.mode;
 	switch (_v0.$) {
 		case 'NewArrowMain':
@@ -41576,6 +41959,7 @@ var $author$project$Main$viewGraph = function (model) {
 										[
 											$elm$html$Html$text('Edit latex preamble')
 										])),
+									A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleShowDependency, 'Show dependencies', '(Coreact feature) If false, only the dependency edges of the selected nodes are shown', model.showDependencies),
 									A2(
 									$elm$html$Html$p,
 									_List_fromArray(
