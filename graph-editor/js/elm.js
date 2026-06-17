@@ -5243,6 +5243,7 @@ var $author$project$Model$createModel = function (_v0) {
 	var defaultGridSize = _v0.defaultGridSize;
 	var rulerMargin = _v0.rulerMargin;
 	var saveLoadButtons = _v0.saveLoadButtons;
+	var labelColorUpdateEnabled = _v0.labelColorUpdateEnabled;
 	var g = $author$project$Polygraph$empty;
 	return {
 		autoSave: true,
@@ -5258,6 +5259,7 @@ var $author$project$Model$createModel = function (_v0) {
 		},
 		hideGrid: false,
 		history: _List_Nil,
+		labelColorUpdateEnabled: labelColorUpdateEnabled,
 		mode: $author$project$Modes$DefaultMode,
 		mouseOnCanvas: false,
 		mousePos: _Utils_Tuple2(0, 0),
@@ -8682,6 +8684,21 @@ var $author$project$Format$Version19$depsFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
+var $author$project$Format$Version19$NodeColor = function (a) {
+	return {$: 'NodeColor', a: a};
+};
+var $author$project$Format$Version19$nodeColorFlag = A3(
+	$author$project$Codec$maybeList,
+	$author$project$Drawing$Color$black,
+	$author$project$Format$Version19$NodeColor,
+	function (flag) {
+		if (flag.$ === 'NodeColor') {
+			var c = flag.a;
+			return $elm$core$Maybe$Just(c);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
 var $author$project$Format$Version19$Text = {$: 'Text'};
 var $author$project$Format$Version19$textFlag = $author$project$Format$Version19$nodeMaybeFlagCodecFalse($author$project$Format$Version19$Text);
 var $author$project$Format$Version19$nodeFCodecWithDeps = function () {
@@ -8698,84 +8715,96 @@ var $author$project$Format$Version19$nodeFCodecWithDeps = function () {
 			$author$project$Codec$fields,
 			node(
 				function ($) {
-					return $.isCoqValidated;
+					return $.color;
 				}),
 			function ($) {
 				return $.options;
 			},
-			$author$project$Format$Version19$coqValidatedFlag,
+			$author$project$Format$Version19$nodeColorFlag,
 			A4(
 				$author$project$Codec$fields,
 				node(
 					function ($) {
-						return $.zindex;
+						return $.isCoqValidated;
 					}),
 				function ($) {
-					return $.zindex;
+					return $.options;
 				},
-				$author$project$Codec$identity,
+				$author$project$Format$Version19$coqValidatedFlag,
 				A4(
 					$author$project$Codec$fields,
 					node(
-						A2(
-							$elm$core$Basics$composeR,
-							function ($) {
-								return $.isMath;
-							},
-							$elm$core$Basics$not)),
+						function ($) {
+							return $.zindex;
+						}),
 					function ($) {
-						return $.options;
+						return $.zindex;
 					},
-					$author$project$Format$Version19$textFlag,
+					$author$project$Codec$identity,
 					A4(
 						$author$project$Codec$fields,
 						node(
-							function ($) {
-								return $.label;
-							}),
+							A2(
+								$elm$core$Basics$composeR,
+								function ($) {
+									return $.isMath;
+								},
+								$elm$core$Basics$not)),
 						function ($) {
-							return $.label;
+							return $.options;
 						},
-						$author$project$Codec$identity,
+						$author$project$Format$Version19$textFlag,
 						A4(
 							$author$project$Codec$fields,
 							node(
 								function ($) {
-									return $.pos;
+									return $.label;
 								}),
 							function ($) {
-								return $.pos;
+								return $.label;
 							},
 							$author$project$Codec$identity,
 							A4(
 								$author$project$Codec$fields,
+								node(
+									function ($) {
+										return $.pos;
+									}),
 								function ($) {
-									return $.deps;
+									return $.pos;
 								},
-								function ($) {
-									return $.options;
-								},
-								$author$project$Format$Version19$depsFlag,
-								A2(
-									$author$project$Codec$object,
-									F6(
-										function (deps, pos, label, isText, zindex, isCoqValidated) {
-											return {
-												deps: deps,
-												node: {dims: $elm$core$Maybe$Nothing, isCoqValidated: isCoqValidated, isMath: !isText, label: label, pos: pos, selected: false, weaklySelected: false, zindex: zindex}
-											};
-										}),
-									F6(
-										function (deps, pos, label, isText, zindex, isCoqValidated) {
-											return {
-												label: label,
-												options: _Utils_ap(
-													deps,
-													_Utils_ap(isText, isCoqValidated)),
-												pos: pos,
-												zindex: zindex
-											};
-										})))))))));
+								$author$project$Codec$identity,
+								A4(
+									$author$project$Codec$fields,
+									function ($) {
+										return $.deps;
+									},
+									function ($) {
+										return $.options;
+									},
+									$author$project$Format$Version19$depsFlag,
+									A2(
+										$author$project$Codec$object,
+										F7(
+											function (deps, pos, label, isText, zindex, isCoqValidated, color) {
+												return {
+													deps: deps,
+													node: {color: color, dims: $elm$core$Maybe$Nothing, isCoqValidated: isCoqValidated, isMath: !isText, label: label, pos: pos, selected: false, weaklySelected: false, zindex: zindex}
+												};
+											}),
+										F7(
+											function (deps, pos, label, isText, zindex, isCoqValidated, color) {
+												return {
+													label: label,
+													options: _Utils_ap(
+														deps,
+														_Utils_ap(
+															isText,
+															_Utils_ap(isCoqValidated, color))),
+													pos: pos,
+													zindex: zindex
+												};
+											}))))))))));
 }();
 var $author$project$Format$Version19$graphCodec = A2(
 	$author$project$Codec$compose,
@@ -10965,6 +10994,14 @@ var $author$project$Format$Version19$depsArgsCodec = function () {
 }();
 var $author$project$Format$Version19$nodeFlagCodec = function () {
 	var variantTrue = $author$project$Format$Version19$genericVariantTrue($author$project$Format$Version19$UnrecognizedNodeFlag);
+	var variantString = F3(
+		function (tag, v, c) {
+			return A3(
+				$author$project$Codec$variant1Pair,
+				tag,
+				v,
+				A2($author$project$Codec$compose, $author$project$Codec$stringJs, c));
+		});
 	return A2(
 		$author$project$Codec$buildVariant,
 		$elm$core$Basics$always($author$project$Format$Version19$UnrecognizedNodeFlag),
@@ -10973,35 +11010,43 @@ var $author$project$Format$Version19$nodeFlagCodec = function () {
 			'',
 			$author$project$Format$Version19$UnrecognizedNodeFlag,
 			A4(
-				$author$project$Codec$variant1Pair,
-				'dependencies',
-				$author$project$Format$Version19$Dependencies,
-				$author$project$Format$Version19$depsArgsCodec,
-				A3(
-					variantTrue,
-					'text',
-					$author$project$Format$Version19$Text,
+				variantString,
+				'nodeColor',
+				$author$project$Format$Version19$NodeColor,
+				$author$project$Drawing$Color$codec,
+				A4(
+					$author$project$Codec$variant1Pair,
+					'dependencies',
+					$author$project$Format$Version19$Dependencies,
+					$author$project$Format$Version19$depsArgsCodec,
 					A3(
 						variantTrue,
-						'coqValidated',
-						$author$project$Format$Version19$CoqValidated,
-						A2(
-							$author$project$Codec$customPair,
-							F5(
-								function (coq, text, deps, unrecognized, v) {
-									switch (v.$) {
-										case 'CoqValidated':
-											return coq(true);
-										case 'Text':
-											return text(true);
-										case 'Dependencies':
-											var d = v.a;
-											return deps(d);
-										default:
-											return unrecognized;
-									}
-								}),
-							_Utils_Tuple2('', $elm$json$Json$Encode$null)))))));
+						'text',
+						$author$project$Format$Version19$Text,
+						A3(
+							variantTrue,
+							'coqValidated',
+							$author$project$Format$Version19$CoqValidated,
+							A2(
+								$author$project$Codec$customPair,
+								F6(
+									function (coq, text, deps, nodeColor, unrecognized, v) {
+										switch (v.$) {
+											case 'CoqValidated':
+												return coq(true);
+											case 'Text':
+												return text(true);
+											case 'Dependencies':
+												var d = v.a;
+												return deps(d);
+											case 'NodeColor':
+												var c = v.a;
+												return nodeColor(c);
+											default:
+												return unrecognized;
+										}
+									}),
+								_Utils_Tuple2('', $elm$json$Json$Encode$null))))))));
 }();
 var $author$project$Format$Version19$codecNodeFlagsJs = A2(
 	$author$project$Codec$compose,
@@ -19507,9 +19552,10 @@ var $author$project$GraphDefs$mergeFunctions = {
 			var isMath = _v1.isMath;
 			var zindex = _v1.zindex;
 			var isCoqValidated = _v1.isCoqValidated;
+			var color = _v1.color;
 			return _Utils_update(
 				n1,
-				{dims: dims, isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
+				{color: color, dims: dims, isCoqValidated: isCoqValidated, isMath: isMath, label: label, pos: pos, zindex: zindex});
 		})
 };
 var $author$project$FreeHandDrawings$remove = F2(
@@ -20215,7 +20261,7 @@ var $author$project$Model$clearHistory = function (m) {
 		{history: _List_Nil, nextModifId: 0, topModifId: $author$project$Msg$defaultModifId});
 };
 var $author$project$Model$modelToFlag = function (m) {
-	return {defaultGridSize: m.defaultGridSize, rulerMargin: m.rulerMargin, saveLoadButtons: m.saveLoadButtons};
+	return {defaultGridSize: m.defaultGridSize, labelColorUpdateEnabled: m.labelColorUpdateEnabled, rulerMargin: m.rulerMargin, saveLoadButtons: m.saveLoadButtons};
 };
 var $author$project$Model$clearModel = function (m) {
 	return $author$project$Model$createModel(
@@ -21522,6 +21568,8 @@ var $author$project$Command$fixModel = function (modeli) {
 				function (_v9) {
 					return A2($author$project$Modes$Loop$fixModel, model, state);
 				});
+		case 'NodeColorMode':
+			return defaultIfTabChanged;
 		case 'LatexPreamble':
 			return model;
 		default:
@@ -23859,7 +23907,7 @@ var $author$project$GraphDrawing$nodeDrawing = F2(
 					$author$project$Drawing$makeVerbatim,
 					{
 						angle: 0,
-						color: $author$project$Drawing$Color$black,
+						color: n.color,
 						dims: n.dims,
 						key: $author$project$GraphDrawing$idToKey(id),
 						label: vLabel,
@@ -23876,7 +23924,7 @@ var $author$project$GraphDrawing$nodeDrawing = F2(
 					$author$project$Drawing$makeLatex,
 					{
 						angle: 0,
-						color: $author$project$Drawing$Color$black,
+						color: n.color,
 						dims: n.dims,
 						key: $author$project$GraphDrawing$idToKey(id),
 						label: $author$project$SpecialLabels$removeAny(label),
@@ -24866,6 +24914,7 @@ var $author$project$GraphDrawing$make_nodeDrawingLabel = F2(
 		var isMath = l.isMath;
 		var nodePos = $author$project$GraphDefs$getNodePos(l);
 		return {
+			color: l.color,
 			dims: editable ? _Utils_Tuple2(0, 0) : $author$project$GraphDefs$getNodeDims(l),
 			editable: editable,
 			inputPos: pos,
@@ -28129,6 +28178,7 @@ var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
 					}($.info))
 				]));
 	});
+var $author$project$Main$saveLabelColorUpdateEnabled = _Platform_outgoingPort('saveLabelColorUpdateEnabled', $elm$json$Json$Encode$bool);
 var $author$project$Main$saveRulerGridSize = _Platform_outgoingPort(
 	'saveRulerGridSize',
 	function ($) {
@@ -28645,7 +28695,7 @@ var $author$project$Polygraph$md_newNode = F2(
 	});
 var $author$project$GraphDefs$newNodeLabel = F4(
 	function (p, s, isMath, zindex) {
-		return {dims: $elm$core$Maybe$Nothing, isCoqValidated: false, isMath: isMath, label: s, pos: p, selected: false, weaklySelected: false, zindex: zindex};
+		return {color: $author$project$Drawing$Color$black, dims: $elm$core$Maybe$Nothing, isCoqValidated: false, isMath: isMath, label: s, pos: p, selected: false, weaklySelected: false, zindex: zindex};
 	});
 var $author$project$GraphDefs$md_createNodeLabelVerbatim = F4(
 	function (isVerbatim, g, s, p) {
@@ -29418,8 +29468,8 @@ var $author$project$Modes$Customize$initialiseShiftMode = F3(
 			}
 		}
 	});
-var $author$project$ArrowStyle$updateEdgeColor = F3(
-	function (part, c, s) {
+var $author$project$ArrowStyle$updateEdgeColor = F4(
+	function (updateLabels, part, c, s) {
 		switch (part.$) {
 			case 'HeadPart':
 				return _Utils_update(
@@ -29435,18 +29485,18 @@ var $author$project$ArrowStyle$updateEdgeColor = F3(
 					{
 						color: c,
 						headColor: _Utils_eq(s.headColor, s.color) ? c : s.headColor,
-						labelColor: _Utils_eq(s.labelColor, s.color) ? c : s.labelColor,
+						labelColor: updateLabels ? c : s.labelColor,
 						tailColor: _Utils_eq(s.tailColor, s.color) ? c : s.tailColor
 					});
 		}
 	});
-var $author$project$GraphDefs$setColor = F3(
-	function (color, part, e) {
+var $author$project$GraphDefs$setColor = F4(
+	function (updateLabels, color, part, e) {
 		var _v0 = e.details;
 		if (_v0.$ === 'NormalEdge') {
 			var l = _v0.a;
 			var oldStyle = l.style;
-			var newStyle = A3($author$project$ArrowStyle$updateEdgeColor, part, color, oldStyle);
+			var newStyle = A4($author$project$ArrowStyle$updateEdgeColor, updateLabels, part, color, oldStyle);
 			return _Utils_update(
 				e,
 				{
@@ -29467,12 +29517,12 @@ var $author$project$GraphDefs$setColor = F3(
 				});
 		}
 	});
-var $author$project$Modes$Customize$updateEdgeColor = F3(
-	function (edges, part, color) {
+var $author$project$Modes$Customize$updateEdgeColor = F4(
+	function (updateLabels, edges, part, color) {
 		return A2(
 			$elm$core$List$map,
 			$author$project$Polygraph$edgeMap(
-				A2($author$project$GraphDefs$setColor, color, part)),
+				A3($author$project$GraphDefs$setColor, updateLabels, color, part)),
 			edges);
 	});
 var $author$project$Modes$Customize$mainUpdate = F4(
@@ -29525,7 +29575,7 @@ var $author$project$Modes$Customize$mainUpdate = F4(
 									_Utils_update(
 										state,
 										{
-											edges: A3($author$project$Modes$Customize$updateEdgeColor, state.edges, edgepart, color)
+											edges: A4($author$project$Modes$Customize$updateEdgeColor, model.labelColorUpdateEnabled, state.edges, edgepart, color)
 										}));
 							} else {
 								return $author$project$Model$noCmd(model);
@@ -29604,7 +29654,7 @@ var $author$project$Modes$Customize$update = F3(
 	});
 var $author$project$GraphDefs$edgeToNodeLabel = F2(
 	function (pos, l) {
-		var nodeLabel = {dims: $elm$core$Maybe$Nothing, isCoqValidated: false, isMath: true, label: '', pos: pos, selected: l.selected, weaklySelected: l.weaklySelected, zindex: l.zindex};
+		var nodeLabel = {color: $author$project$Drawing$Color$black, dims: $elm$core$Maybe$Nothing, isCoqValidated: false, isMath: true, label: '', pos: pos, selected: l.selected, weaklySelected: l.weaklySelected, zindex: l.zindex};
 		var _v0 = l.details;
 		if (_v0.$ === 'PullshoutEdge') {
 			return nodeLabel;
@@ -30839,7 +30889,7 @@ var $author$project$ArrowStyle$keyMaybeUpdateColor = F3(
 		return A2(
 			$elm$core$Maybe$map,
 			function (c) {
-				return A3($author$project$ArrowStyle$updateEdgeColor, p, c, s);
+				return A4($author$project$ArrowStyle$updateEdgeColor, true, p, c, s);
 			},
 			A2(
 				$author$project$ArrowStyle$keyToNewColor,
@@ -32019,6 +32069,64 @@ var $author$project$Modes$NewLine$update = F3(
 					}
 				default:
 					break _v0$6;
+			}
+		}
+		return $author$project$Model$noCmd(model);
+	});
+var $author$project$GraphDefs$selectedNodes = function (g) {
+	return A2(
+		$elm$core$List$filter,
+		A2(
+			$elm$core$Basics$composeR,
+			function ($) {
+				return $.label;
+			},
+			$author$project$GraphDefs$fieldSelect(g)),
+		$author$project$Polygraph$nodes(g));
+};
+var $author$project$Modes$NodeColor$update = F2(
+	function (msg, model) {
+		_v0$2:
+		while (true) {
+			if ((msg.$ === 'KeyChanged') && (!msg.a)) {
+				if (msg.c.$ === 'Character') {
+					var c = msg.c.a;
+					var _v1 = $author$project$Drawing$Color$fromChar(c);
+					if (_v1.$ === 'Just') {
+						var color = _v1.a;
+						var modelGraph = $author$project$Model$getActiveGraph(model);
+						var nodes = $author$project$GraphDefs$selectedNodes(modelGraph);
+						var setColor = function (n) {
+							var l = n.label;
+							return _Utils_update(
+								n,
+								{
+									label: _Utils_update(
+										l,
+										{color: color})
+								});
+						};
+						var newNodes = A2($elm$core$List$map, setColor, nodes);
+						return A2(
+							$author$project$CommandCodec$updateModifHelper,
+							A2($author$project$Model$setMode, $author$project$Modes$DefaultMode, model),
+							A2(
+								$author$project$Polygraph$md_updateNodes,
+								newNodes,
+								$author$project$Polygraph$newModif(modelGraph)));
+					} else {
+						return $author$project$Model$noCmd(model);
+					}
+				} else {
+					if (msg.c.a === 'Escape') {
+						return $author$project$Model$noCmd(
+							A2($author$project$Model$setMode, $author$project$Modes$DefaultMode, model));
+					} else {
+						break _v0$2;
+					}
+				}
+			} else {
+				break _v0$2;
 			}
 		}
 		return $author$project$Model$noCmd(model);
@@ -34455,17 +34563,6 @@ var $author$project$GraphDefs$getSurroundingDiagrams = F2(
 			A2($author$project$GraphProof$isInDiag, gp, pos),
 			$author$project$GraphProof$getAllValidDiagrams(gp));
 	});
-var $author$project$GraphDefs$selectedNodes = function (g) {
-	return A2(
-		$elm$core$List$filter,
-		A2(
-			$elm$core$Basics$composeR,
-			function ($) {
-				return $.label;
-			},
-			$author$project$GraphDefs$fieldSelect(g)),
-		$author$project$Polygraph$nodes(g));
-};
 var $author$project$GraphDefs$selectedNode = function (g) {
 	var _v0 = $author$project$GraphDefs$selectedNodes(g);
 	if (_v0.b && (!_v0.b.b)) {
@@ -34952,6 +35049,13 @@ var $author$project$Modes$NewLine$initialise = function (m) {
 			$author$project$Modes$NewLine(
 				{bend: 0, initialPos: m.mousePos}),
 			m));
+};
+var $author$project$Modes$NodeColorMode = {$: 'NodeColorMode'};
+var $author$project$Modes$NodeColor$initialise = function (model) {
+	var modelGraph = $author$project$Model$getActiveGraph(model);
+	return _Utils_eq(
+		$author$project$GraphDefs$selectedNodes(modelGraph),
+		_List_Nil) ? A2($author$project$Model$setMode, $author$project$Modes$DefaultMode, model) : A2($author$project$Model$setMode, $author$project$Modes$NodeColorMode, model);
 };
 var $author$project$GraphDefs$selectedEdgeId = A2(
 	$elm$core$Basics$composeR,
@@ -35821,9 +35925,9 @@ var $author$project$Main$update_DefaultMode = F2(
 						$author$project$Polygraph$newModif(modelGraph)));
 			}
 		};
-		_v0$55:
+		_v0$56:
 		while (true) {
-			_v0$56:
+			_v0$57:
 			while (true) {
 				switch (msg.$) {
 					case 'MouseOn':
@@ -36038,7 +36142,7 @@ var $author$project$Main$update_DefaultMode = F2(
 										$elm$core$Basics$always($author$project$Msg$PressTimeout),
 										$elm$core$Process$sleep(pressTimeoutMs)));
 							} else {
-								break _v0$56;
+								break _v0$57;
 							}
 						} else {
 							if (msg.c.$ === 'Control') {
@@ -36051,7 +36155,7 @@ var $author$project$Main$update_DefaultMode = F2(
 											model,
 											$author$project$GraphDefs$removeSelected(modelGraph));
 									default:
-										break _v0$55;
+										break _v0$56;
 								}
 							} else {
 								switch (msg.c.a.valueOf()) {
@@ -36127,6 +36231,9 @@ var $author$project$Main$update_DefaultMode = F2(
 											$author$project$Modes$Customize$initialise(model));
 									case 'n':
 										return $author$project$Modes$NewLine$initialise(model);
+									case 'N':
+										return $author$project$Model$noCmd(
+											$author$project$Modes$NodeColor$initialise(model));
 									case 'v':
 										if (model.specialKeys.ctrl) {
 											return $author$project$Model$noCmd(model);
@@ -36358,12 +36465,12 @@ var $author$project$Main$update_DefaultMode = F2(
 												$author$project$Msg$FocusPosition(
 													{pos: model.mousePos, selIds: selIds, tabId: model.graphInfo.activeTabId})));
 									default:
-										break _v0$55;
+										break _v0$56;
 								}
 							}
 						}
 					default:
-						break _v0$56;
+						break _v0$57;
 				}
 			}
 			return $author$project$Model$noCmd(model);
@@ -36959,6 +37066,13 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{autoSave: !model.autoSave}));
+			case 'ToggleLabelColorUpdate':
+				var enabled = !model.labelColorUpdateEnabled;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{labelColorUpdateEnabled: enabled}),
+					$author$project$Main$saveLabelColorUpdateEnabled(enabled));
 			case 'MouseMoveRaw':
 				var v = msg.a;
 				return _Utils_Tuple2(
@@ -37105,6 +37219,8 @@ var $author$project$Main$update = F2(
 					case 'LoopMode':
 						var state = _v6.a;
 						return A3($author$project$Modes$Loop$update, state, msg, model);
+					case 'NodeColorMode':
+						return A2($author$project$Modes$NodeColor$update, msg, model);
 					default:
 						var s = _v6.a;
 						return A3($author$project$Main$update_LatexPreamble, s, msg, model);
@@ -37184,6 +37300,7 @@ var $author$project$Msg$SizeGrid = function (a) {
 var $author$project$Msg$ToggleAutosave = {$: 'ToggleAutosave'};
 var $author$project$Msg$ToggleHideGrid = {$: 'ToggleHideGrid'};
 var $author$project$Msg$ToggleHideRuler = {$: 'ToggleHideRuler'};
+var $author$project$Msg$ToggleLabelColorUpdate = {$: 'ToggleLabelColorUpdate'};
 var $author$project$Msg$ToggleShowDependency = {$: 'ToggleShowDependency'};
 var $author$project$Msg$MouseOnHandFree = function (a) {
 	return {$: 'MouseOnHandFree', a: a};
@@ -37687,6 +37804,8 @@ var $author$project$Main$graphDrawingFromModel = function (m) {
 		case 'LoopMode':
 			var state = _v0.a;
 			return A2($author$project$Modes$Loop$graphDrawing, m, state);
+		case 'NodeColorMode':
+			return A2($author$project$Model$collageGraphFromGraph, m, modelGraph);
 		default:
 			return A2($author$project$Model$collageGraphFromGraph, m, modelGraph);
 	}
@@ -37815,6 +37934,7 @@ var $author$project$Modes$NewArrow$help = function (s) {
 	}
 };
 var $author$project$Modes$NewLine$help = $author$project$HtmlDefs$overlayHelpMsg + ', [ESC] cancel, [click, n] to finalise, [bB] change bend';
+var $author$project$Modes$NodeColor$help = 'Node color mode. Press a color key to color selected nodes and return to default mode. ' + ($author$project$Drawing$Color$helpMsg + ' [ESC] to cancel.');
 var $author$project$Modes$Pullshout$help = '[ESC] cancel, ' + ($author$project$HtmlDefs$overlayHelpMsg + (', cycle between [p]ullback/[P]ushout possibilities, ' + ($author$project$Drawing$Color$helpMsg + (', [\"bB[]\"] to customize the size' + ', [RET] confirm'))));
 var $author$project$Modes$Rename$help = 'Rename mode: [RET] to confirm, [TAB] to next label, [ESC] to cancel';
 var $author$project$Modes$SplitArrow$help = '[ESC] cancel, ' + ($author$project$HtmlDefs$overlayHelpMsg + (', [click] name the point (if new), ' + ('[/] to move the existing label on the other edge, ' + '[RET] terminate the square creation')));
@@ -38019,8 +38139,10 @@ var $author$project$Modes$toString = function (m) {
 			return 'FreeHand';
 		case 'LoopMode':
 			return 'Loop';
-		default:
+		case 'MakeSaveMode':
 			return 'MakeSave';
+		default:
+			return 'Node color';
 	}
 };
 var $author$project$Main$helpMsg = function (model) {
@@ -38052,7 +38174,7 @@ var $author$project$Main$helpMsg = function (model) {
 	var _v0 = $author$project$Model$currentMode(model);
 	switch (_v0.$) {
 		case 'DefaultMode':
-			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-x] cut selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('[d]raw freehand mode (or use stylus)' + (', new [p]oint ([m] to create a point snapped to grid)' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]ustomise arrow (color, shift)' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[b] bend arrow/reshape looping arrow, ' + ('[.] customise arrow marker, ' + ('[\"bB][\"] to customize the pullback/pushout sign, ' + ('[i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + (', export selection to LaTe[X]/s[V]g' + ', [#] make the other user focus on the mouse position and share selection'))))))))))))))))))))))))))))))))))))))))))))))))))))));
+			return msg('Default mode.\n ' + ('Sumary of commands:\n' + ($author$project$Main$overlayHelpMsgNewLine + ('Selection:' + ('  [click] for point/edge selection (hold for selection rectangle)' + (', [shift] to keep previous selection' + (', [C-a] select all' + (', [S]elect pointer surrounding subdiagram' + (', [u] expand selection to connected components' + (' ([u] again to select embedded proof nodes)' + (', [ESC] or [w] clear selection' + (', [H] and [L]: select subdiagram adjacent to selected edge' + (', [hjkl] move the selection from a point to another' + ('\nHistory: ' + ('[C-z] undo' + (', [Q]uicksave' + ('\nCopy/Paste: ' + ('[C-c] copy selection' + (', [C-x] cut selection' + (', [C-v] paste' + ('\n Basic editing: ' + ('[d]raw freehand mode (or use stylus)' + (', new [p]oint ([m] to create a point snapped to grid)' + (', new [t]ext' + (', [del]ete selected object (also [x])' + (', [q] find and replace in selection' + (', [r]ename selected object (or double click)' + (', new (commutative) [s]quare on selected point (with two already connected edges)' + ('\nArrows: ' + ('new [a]rrow/cylinder/cone from selected objects' + (', new li[n]e' + (', [/] split arrow' + (', [C]ut head of selected arrow' + (', [c]ustomise arrow (color, shift)' + (', if an arrow is selected: [\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('[b] bend arrow/reshape looping arrow, ' + ('[.] customise arrow marker, ' + ('[\"bB][\"] to customize the pullback/pushout sign, ' + ('[i]nvert arrow, ' + ('[+<] move to the foreground/background (also for vertices).' + ('\nNodes: ' + ('[N]ode color (select one or more vertices first)' + ('\nMoving objects:' + ('[g] move selected objects with possible merge (hold g for ' + ('stopping the move on releasing the key)' + (', [f]ix (snap) selected objects on the grid' + (', [e]nlarge diagram (create row/column spaces)' + ('\n\nMiscelleanous: ' + ('[R]esize canvas and grid size' + (', [G]enerate Coq script ([T]: generate test Coq script)' + (', [v] if a proof node is selected, check the proof, if a chain of arrows is selected, ask for a proof, if a subdiagram is selected, generate a proof goal in vscode.' + (' (only works with the coreact-yade vscode extension)' + (', [E] enter an equation (prompt)' + (', export selection to LaTe[X]/s[V]g' + ', [#] make the other user focus on the mouse position and share selection'))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 		case 'DebugMode':
 			return $elm$html$Html$text('Debug Mode. [ESC] to cancel and come back to the default mode. ' + '');
 		case 'FreeHandMode':
@@ -38098,6 +38220,8 @@ var $author$project$Main$helpMsg = function (model) {
 				'Rectangle selection mode. ' + ('Draw a rectangle to select objects. [ESC] to cancel. ' + (hold ? '[s] to confirm.' : '[s] to select without holding the mouse, [click] to confirm.')));
 		case 'BendMode':
 			return msg($author$project$Modes$Bend$help);
+		case 'NodeColorMode':
+			return msg($author$project$Modes$NodeColor$help);
 		default:
 			var txt = 'Mode: ' + ($author$project$Modes$toString(
 				$author$project$Model$currentMode(model)) + ('. [ESC] to cancel and come back to the default' + ' mode.'));
@@ -41870,11 +41994,12 @@ var $author$project$Main$viewGraph = function (model) {
 					$elm$html$Html$button,
 					_List_fromArray(
 						[
-							$elm$html$Html$Events$onClick($author$project$Msg$SaveRulerGridSize)
+							$elm$html$Html$Events$onClick($author$project$Msg$SaveRulerGridSize),
+							$elm$html$Html$Attributes$title('Ruler, Grid size')
 						]),
 					_List_fromArray(
 						[
-							$elm$html$Html$text('Save ruler & grid size preferences')
+							$elm$html$Html$text('Save preferences')
 						])),
 					A2(
 					$elm$html$Html$button,
@@ -41960,6 +42085,7 @@ var $author$project$Main$viewGraph = function (model) {
 											$elm$html$Html$text('Edit latex preamble')
 										])),
 									A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleShowDependency, 'Show dependencies', '(Coreact feature) If false, only the dependency edges of the selected nodes are shown', model.showDependencies),
+									A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleLabelColorUpdate, 'Sync edge label color', 'If checked, updating the color edge also updates the color of the label', model.labelColorUpdateEnabled),
 									A2(
 									$elm$html$Html$p,
 									_List_fromArray(
@@ -42015,11 +42141,16 @@ _Platform_export({'Main':{'init':$author$project$Main$main(
 				function (rulerMargin) {
 					return A2(
 						$elm$json$Json$Decode$andThen,
-						function (defaultGridSize) {
-							return $elm$json$Json$Decode$succeed(
-								{defaultGridSize: defaultGridSize, rulerMargin: rulerMargin, saveLoadButtons: saveLoadButtons});
+						function (labelColorUpdateEnabled) {
+							return A2(
+								$elm$json$Json$Decode$andThen,
+								function (defaultGridSize) {
+									return $elm$json$Json$Decode$succeed(
+										{defaultGridSize: defaultGridSize, labelColorUpdateEnabled: labelColorUpdateEnabled, rulerMargin: rulerMargin, saveLoadButtons: saveLoadButtons});
+								},
+								A2($elm$json$Json$Decode$field, 'defaultGridSize', $elm$json$Json$Decode$int));
 						},
-						A2($elm$json$Json$Decode$field, 'defaultGridSize', $elm$json$Json$Decode$int));
+						A2($elm$json$Json$Decode$field, 'labelColorUpdateEnabled', $elm$json$Json$Decode$bool));
 				},
 				A2($elm$json$Json$Decode$field, 'rulerMargin', $elm$json$Json$Decode$int));
 		},
