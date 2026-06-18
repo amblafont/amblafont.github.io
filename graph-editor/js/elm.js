@@ -5250,6 +5250,7 @@ var $author$project$Model$createModel = function (_v0) {
 		defaultGridSize: defaultGridSize,
 		graphInfo: {
 			activeTabId: 0,
+			latexBackgroundColor: 'white',
 			latexPreamble: '\\newcommand{\\' + ($author$project$GraphDefs$coqProofTexCommand + '}[1]{\\checkmark}'),
 			nextTabId: 1,
 			tabs: _List_fromArray(
@@ -5609,6 +5610,9 @@ var $author$project$Msg$KeyChanged = F3(
 	function (a, b, c) {
 		return {$: 'KeyChanged', a: a, b: b, c: c};
 	});
+var $author$project$Msg$LatexBackgroundColorEdit = function (a) {
+	return {$: 'LatexBackgroundColorEdit', a: a};
+};
 var $author$project$Msg$MakeSave = {$: 'MakeSave'};
 var $author$project$Msg$Marker = function (a) {
 	return {$: 'Marker', a: a};
@@ -7953,9 +7957,9 @@ var $author$project$GraphDefs$depsCodec = A2(
 				return $.node;
 			}),
 		$elm$core$Basics$always($elm$core$Basics$identity)));
-var $author$project$Format$Version19$Adjunction = {$: 'Adjunction'};
-var $author$project$Format$Version19$Dependency = {$: 'Dependency'};
-var $author$project$Format$Version19$Alignment = function (a) {
+var $author$project$Format$Flags$Adjunction = {$: 'Adjunction'};
+var $author$project$Format$Flags$Dependency = {$: 'Dependency'};
+var $author$project$Format$Flags$Alignment = function (a) {
 	return {$: 'Alignment', a: a};
 };
 var $author$project$Geometry$Left = {$: 'Left'};
@@ -7999,14 +8003,14 @@ var $author$project$Codec$maybeList = F3(
 					A2($elm_community$list_extra$List$Extra$findMap, dec, bs));
 			});
 	});
-var $author$project$Format$Version19$edgeMaybeFlagCodec = F3(
+var $author$project$Format$Version20$edgeMaybeFlagCodec = F3(
 	function (_default, constr, destr) {
 		return A3($author$project$Codec$maybeList, _default, constr, destr);
 	});
-var $author$project$Format$Version19$alignmentFlag = A3(
-	$author$project$Format$Version19$edgeMaybeFlagCodec,
+var $author$project$Format$Version20$alignmentFlag = A3(
+	$author$project$Format$Version20$edgeMaybeFlagCodec,
 	$author$project$Geometry$Left,
-	$author$project$Format$Version19$Alignment,
+	$author$project$Format$Flags$Alignment,
 	function (flag) {
 		if (flag.$ === 'Alignment') {
 			var a = flag.a;
@@ -8015,13 +8019,13 @@ var $author$project$Format$Version19$alignmentFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version19$Bend = function (a) {
+var $author$project$Format$Flags$Bend = function (a) {
 	return {$: 'Bend', a: a};
 };
-var $author$project$Format$Version19$bendFlag = A3(
-	$author$project$Format$Version19$edgeMaybeFlagCodec,
+var $author$project$Format$Version20$bendFlag = A3(
+	$author$project$Format$Version20$edgeMaybeFlagCodec,
 	0,
-	$author$project$Format$Version19$Bend,
+	$author$project$Format$Flags$Bend,
 	function (flag) {
 		if (flag.$ === 'Bend') {
 			var a = flag.a;
@@ -8030,110 +8034,96 @@ var $author$project$Format$Version19$bendFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version19$Color = function (a) {
-	return {$: 'Color', a: a};
-};
-var $author$project$Format$Version19$HeadColor = function (a) {
-	return {$: 'HeadColor', a: a};
-};
-var $author$project$Format$Version19$LabelColor = function (a) {
-	return {$: 'LabelColor', a: a};
-};
-var $author$project$Format$Version19$TailColor = function (a) {
-	return {$: 'TailColor', a: a};
-};
 var $author$project$Drawing$Color$Black = {$: 'Black'};
 var $author$project$Drawing$Color$black = $author$project$Drawing$Color$Black;
-var $author$project$Format$Version19$colorsFlag = A2(
-	$author$project$Codec$build,
-	function (_v0) {
-		var main = _v0.main;
-		var head = _v0.head;
-		var tail = _v0.tail;
-		var label = _v0.label;
-		return _Utils_ap(
-			_Utils_eq(main, $author$project$Drawing$Color$black) ? _List_Nil : _List_fromArray(
+var $author$project$Format$Version20$colorMatch = function (v) {
+	if (v.$ === 'Color') {
+		var c = v.a;
+		return $elm$core$Maybe$Just(c);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Format$Version20$findColor = F2(
+	function (f, l) {
+		return A2($elm_community$list_extra$List$Extra$findMap, f, l);
+	});
+var $author$project$Format$Version20$headColorMatch = function (v) {
+	if (v.$ === 'HeadColor') {
+		var c = v.a;
+		return $elm$core$Maybe$Just(c);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Format$Version20$labelColorMatch = function (v) {
+	if (v.$ === 'LabelColor') {
+		var c = v.a;
+		return $elm$core$Maybe$Just(c);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Format$Version20$tailColorMatch = function (v) {
+	if (v.$ === 'TailColor') {
+		var c = v.a;
+		return $elm$core$Maybe$Just(c);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Format$Version20$colorsDecoder = function (l) {
+	var mc = A2($author$project$Format$Version20$findColor, $author$project$Format$Version20$colorMatch, l);
+	var hc = A2($author$project$Format$Version20$findColor, $author$project$Format$Version20$headColorMatch, l);
+	var tc = A2($author$project$Format$Version20$findColor, $author$project$Format$Version20$tailColorMatch, l);
+	var lc = A2($author$project$Format$Version20$findColor, $author$project$Format$Version20$labelColorMatch, l);
+	var c = A2($elm$core$Maybe$withDefault, $author$project$Drawing$Color$black, mc);
+	return {
+		head: A2($elm$core$Maybe$withDefault, c, hc),
+		label: A2($elm$core$Maybe$withDefault, c, lc),
+		main: c,
+		tail: A2($elm$core$Maybe$withDefault, c, tc)
+	};
+};
+var $author$project$Format$Flags$Color = function (a) {
+	return {$: 'Color', a: a};
+};
+var $author$project$Format$Flags$HeadColor = function (a) {
+	return {$: 'HeadColor', a: a};
+};
+var $author$project$Format$Flags$LabelColor = function (a) {
+	return {$: 'LabelColor', a: a};
+};
+var $author$project$Format$Flags$TailColor = function (a) {
+	return {$: 'TailColor', a: a};
+};
+var $author$project$Format$Version20$colorsEncoder = function (_v0) {
+	var main = _v0.main;
+	var head = _v0.head;
+	var tail = _v0.tail;
+	var label = _v0.label;
+	return _Utils_ap(
+		_Utils_eq(main, $author$project$Drawing$Color$black) ? _List_Nil : _List_fromArray(
+			[
+				$author$project$Format$Flags$Color(main)
+			]),
+		_Utils_ap(
+			_Utils_eq(head, main) ? _List_Nil : _List_fromArray(
 				[
-					$author$project$Format$Version19$Color(main)
+					$author$project$Format$Flags$HeadColor(head)
 				]),
 			_Utils_ap(
-				_Utils_eq(head, main) ? _List_Nil : _List_fromArray(
+				_Utils_eq(tail, main) ? _List_Nil : _List_fromArray(
 					[
-						$author$project$Format$Version19$HeadColor(head)
+						$author$project$Format$Flags$TailColor(tail)
 					]),
-				_Utils_ap(
-					_Utils_eq(tail, main) ? _List_Nil : _List_fromArray(
-						[
-							$author$project$Format$Version19$TailColor(tail)
-						]),
-					_Utils_eq(label, main) ? _List_Nil : _List_fromArray(
-						[
-							$author$project$Format$Version19$LabelColor(label)
-						]))));
-	},
-	function (l) {
-		var _v1 = _Utils_Tuple2(
-			_Utils_Tuple2(
-				A2(
-					$elm_community$list_extra$List$Extra$findMap,
-					function (v) {
-						if (v.$ === 'Color') {
-							var c = v.a;
-							return $elm$core$Maybe$Just(c);
-						} else {
-							return $elm$core$Maybe$Nothing;
-						}
-					},
-					l),
-				A2(
-					$elm_community$list_extra$List$Extra$findMap,
-					function (v) {
-						if (v.$ === 'HeadColor') {
-							var c = v.a;
-							return $elm$core$Maybe$Just(c);
-						} else {
-							return $elm$core$Maybe$Nothing;
-						}
-					},
-					l)),
-			_Utils_Tuple2(
-				A2(
-					$elm_community$list_extra$List$Extra$findMap,
-					function (v) {
-						if (v.$ === 'TailColor') {
-							var c = v.a;
-							return $elm$core$Maybe$Just(c);
-						} else {
-							return $elm$core$Maybe$Nothing;
-						}
-					},
-					l),
-				A2(
-					$elm_community$list_extra$List$Extra$findMap,
-					function (v) {
-						if (v.$ === 'LabelColor') {
-							var c = v.a;
-							return $elm$core$Maybe$Just(c);
-						} else {
-							return $elm$core$Maybe$Nothing;
-						}
-					},
-					l)));
-		var _v6 = _v1.a;
-		var mc = _v6.a;
-		var hc = _v6.b;
-		var _v7 = _v1.b;
-		var tc = _v7.a;
-		var lc = _v7.b;
-		var c = A2($elm$core$Maybe$withDefault, $author$project$Drawing$Color$black, mc);
-		return {
-			head: A2($elm$core$Maybe$withDefault, c, hc),
-			label: A2($elm$core$Maybe$withDefault, c, lc),
-			main: c,
-			tail: A2($elm$core$Maybe$withDefault, c, tc)
-		};
-	});
-var $author$project$Format$Version19$Dashed = {$: 'Dashed'};
+				_Utils_eq(label, main) ? _List_Nil : _List_fromArray(
+					[
+						$author$project$Format$Flags$LabelColor(label)
+					]))));
+};
+var $author$project$Format$Version20$colorsFlag = A2($author$project$Codec$build, $author$project$Format$Version20$colorsEncoder, $author$project$Format$Version20$colorsDecoder);
+var $author$project$Format$Flags$Dashed = {$: 'Dashed'};
 var $author$project$Codec$boolList = function (b) {
 	return A3(
 		$author$project$Codec$maybeList,
@@ -8143,18 +8133,18 @@ var $author$project$Codec$boolList = function (b) {
 			return _Utils_eq(b, b2) ? $elm$core$Maybe$Just(true) : $elm$core$Maybe$Nothing;
 		});
 };
-var $author$project$Format$Version19$edgeMaybeFlagCodecFalse = function (flag) {
+var $author$project$Format$Version20$edgeMaybeFlagCodecFalse = function (flag) {
 	return $author$project$Codec$boolList(flag);
 };
-var $author$project$Format$Version19$dashedFlag = $author$project$Format$Version19$edgeMaybeFlagCodecFalse($author$project$Format$Version19$Dashed);
+var $author$project$Format$Version20$dashedFlag = $author$project$Format$Version20$edgeMaybeFlagCodecFalse($author$project$Format$Flags$Dashed);
 var $author$project$ArrowStyle$DefaultHead = {$: 'DefaultHead'};
-var $author$project$Format$Version19$HeadStyle = function (a) {
+var $author$project$Format$Flags$HeadStyle = function (a) {
 	return {$: 'HeadStyle', a: a};
 };
-var $author$project$Format$Version19$headFlag = A3(
-	$author$project$Format$Version19$edgeMaybeFlagCodec,
+var $author$project$Format$Version20$headFlag = A3(
+	$author$project$Format$Version20$edgeMaybeFlagCodec,
 	$author$project$ArrowStyle$DefaultHead,
-	$author$project$Format$Version19$HeadStyle,
+	$author$project$Format$Flags$HeadStyle,
 	function (flag) {
 		if (flag.$ === 'HeadStyle') {
 			var a = flag.a;
@@ -8163,11 +8153,11 @@ var $author$project$Format$Version19$headFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version19$Kind = function (a) {
+var $author$project$Format$Flags$Kind = function (a) {
 	return {$: 'Kind', a: a};
 };
 var $author$project$ArrowStyle$NormalArrow = {$: 'NormalArrow'};
-var $author$project$Format$Version19$kindFlag = function () {
+var $author$project$Format$Version20$kindFlag = function () {
 	var dec = function (flag) {
 		if (flag.$ === 'Kind') {
 			var a = flag.a;
@@ -8181,7 +8171,7 @@ var $author$project$Format$Version19$kindFlag = function () {
 		function (a) {
 			return _Utils_eq(a, $author$project$ArrowStyle$NormalArrow) ? _List_Nil : _List_fromArray(
 				[
-					$author$project$Format$Version19$Kind(a)
+					$author$project$Format$Flags$Kind(a)
 				]);
 		},
 		function (bs) {
@@ -8191,13 +8181,13 @@ var $author$project$Format$Version19$kindFlag = function () {
 				A2($elm_community$list_extra$List$Extra$findMap, dec, bs));
 		});
 }();
-var $author$project$Format$Version19$LoopAngle = function (a) {
+var $author$project$Format$Flags$LoopAngle = function (a) {
 	return {$: 'LoopAngle', a: a};
 };
-var $author$project$Format$Version19$loopAngleFlag = A3(
-	$author$project$Format$Version19$edgeMaybeFlagCodec,
+var $author$project$Format$Version20$loopAngleFlag = A3(
+	$author$project$Format$Version20$edgeMaybeFlagCodec,
 	0,
-	$author$project$Format$Version19$LoopAngle,
+	$author$project$Format$Flags$LoopAngle,
 	function (flag) {
 		if (flag.$ === 'LoopAngle') {
 			var a = flag.a;
@@ -8206,14 +8196,14 @@ var $author$project$Format$Version19$loopAngleFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version19$LoopRadius = function (a) {
+var $author$project$Format$Flags$LoopRadius = function (a) {
 	return {$: 'LoopRadius', a: a};
 };
 var $author$project$ArrowStyle$defaultLoopRadius = 20;
-var $author$project$Format$Version19$loopRadiusFlag = A3(
-	$author$project$Format$Version19$edgeMaybeFlagCodec,
+var $author$project$Format$Version20$loopRadiusFlag = A3(
+	$author$project$Format$Version20$edgeMaybeFlagCodec,
 	$author$project$ArrowStyle$defaultLoopRadius,
-	$author$project$Format$Version19$LoopRadius,
+	$author$project$Format$Flags$LoopRadius,
 	function (flag) {
 		if (flag.$ === 'LoopRadius') {
 			var a = flag.a;
@@ -8222,13 +8212,13 @@ var $author$project$Format$Version19$loopRadiusFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version19$Marker = function (a) {
+var $author$project$Format$Flags$Marker = function (a) {
 	return {$: 'Marker', a: a};
 };
-var $author$project$Format$Version19$markerFlag = A3(
-	$author$project$Format$Version19$edgeMaybeFlagCodec,
+var $author$project$Format$Version20$markerFlag = A3(
+	$author$project$Format$Version20$edgeMaybeFlagCodec,
 	'',
-	$author$project$Format$Version19$Marker,
+	$author$project$Format$Flags$Marker,
 	function (flag) {
 		if (flag.$ === 'Marker') {
 			var a = flag.a;
@@ -8237,17 +8227,17 @@ var $author$project$Format$Version19$markerFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version19$Position = function (a) {
+var $author$project$Format$Flags$Position = function (a) {
 	return {$: 'Position', a: a};
 };
 var $elm$core$Basics$min = F2(
 	function (x, y) {
 		return (_Utils_cmp(x, y) < 0) ? x : y;
 	});
-var $author$project$Format$Version19$positionFlag = A3(
-	$author$project$Format$Version19$edgeMaybeFlagCodec,
+var $author$project$Format$Version20$positionFlag = A3(
+	$author$project$Format$Version20$edgeMaybeFlagCodec,
 	0.5,
-	$author$project$Format$Version19$Position,
+	$author$project$Format$Flags$Position,
 	function (flag) {
 		if (flag.$ === 'Position') {
 			var a = flag.a;
@@ -8260,14 +8250,14 @@ var $author$project$Format$Version19$positionFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version19$ShiftSource = function (a) {
+var $author$project$Format$Flags$ShiftSource = function (a) {
 	return {$: 'ShiftSource', a: a};
 };
-var $author$project$Format$Version19$shiftSourceFlag = A3(
-	$author$project$Format$Version19$edgeMaybeFlagCodec,
+var $author$project$Format$Version20$shiftSourceFlag = A3(
+	$author$project$Format$Version20$edgeMaybeFlagCodec,
 	0.5,
 	function (x) {
-		return $author$project$Format$Version19$ShiftSource((x - 0.5) * 10);
+		return $author$project$Format$Flags$ShiftSource((x - 0.5) * 10);
 	},
 	function (flag) {
 		if (flag.$ === 'ShiftSource') {
@@ -8277,14 +8267,14 @@ var $author$project$Format$Version19$shiftSourceFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version19$ShiftTarget = function (a) {
+var $author$project$Format$Flags$ShiftTarget = function (a) {
 	return {$: 'ShiftTarget', a: a};
 };
-var $author$project$Format$Version19$shiftTargetFlag = A3(
-	$author$project$Format$Version19$edgeMaybeFlagCodec,
+var $author$project$Format$Version20$shiftTargetFlag = A3(
+	$author$project$Format$Version20$edgeMaybeFlagCodec,
 	0.5,
 	function (x) {
-		return $author$project$Format$Version19$ShiftTarget((x - 0.5) * 10);
+		return $author$project$Format$Flags$ShiftTarget((x - 0.5) * 10);
 	},
 	function (flag) {
 		if (flag.$ === 'ShiftTarget') {
@@ -8295,13 +8285,13 @@ var $author$project$Format$Version19$shiftTargetFlag = A3(
 		}
 	});
 var $author$project$ArrowStyle$DefaultTail = {$: 'DefaultTail'};
-var $author$project$Format$Version19$TailStyle = function (a) {
+var $author$project$Format$Flags$TailStyle = function (a) {
 	return {$: 'TailStyle', a: a};
 };
-var $author$project$Format$Version19$tailFlag = A3(
-	$author$project$Format$Version19$edgeMaybeFlagCodec,
+var $author$project$Format$Version20$tailFlag = A3(
+	$author$project$Format$Version20$edgeMaybeFlagCodec,
 	$author$project$ArrowStyle$DefaultTail,
-	$author$project$Format$Version19$TailStyle,
+	$author$project$Format$Flags$TailStyle,
 	function (flag) {
 		if (flag.$ === 'TailStyle') {
 			var a = flag.a;
@@ -8310,9 +8300,9 @@ var $author$project$Format$Version19$tailFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version19$Wavy = {$: 'Wavy'};
-var $author$project$Format$Version19$wavyFlag = $author$project$Format$Version19$edgeMaybeFlagCodecFalse($author$project$Format$Version19$Wavy);
-var $author$project$Format$Version19$arrowStyleCodec = function () {
+var $author$project$Format$Flags$Wavy = {$: 'Wavy'};
+var $author$project$Format$Version20$wavyFlag = $author$project$Format$Version20$edgeMaybeFlagCodecFalse($author$project$Format$Flags$Wavy);
+var $author$project$Format$Version20$arrowStyleCodec = function () {
 	var flagField = F2(
 		function (f1, codec) {
 			return A3($author$project$Codec$fields, f1, $elm$core$Basics$identity, codec);
@@ -8323,25 +8313,25 @@ var $author$project$Format$Version19$arrowStyleCodec = function () {
 			function ($) {
 				return $.loopAngle;
 			},
-			$author$project$Format$Version19$loopAngleFlag,
+			$author$project$Format$Version20$loopAngleFlag,
 			A3(
 				flagField,
 				function ($) {
 					return $.loopRadius;
 				},
-				$author$project$Format$Version19$loopRadiusFlag,
+				$author$project$Format$Version20$loopRadiusFlag,
 				A3(
 					flagField,
 					function ($) {
 						return $.wavy;
 					},
-					$author$project$Format$Version19$wavyFlag,
+					$author$project$Format$Version20$wavyFlag,
 					A3(
 						flagField,
 						function ($) {
 							return $.marker;
 						},
-						$author$project$Format$Version19$markerFlag,
+						$author$project$Format$Version20$markerFlag,
 						A3(
 							flagField,
 							function (_v0) {
@@ -8351,61 +8341,61 @@ var $author$project$Format$Version19$arrowStyleCodec = function () {
 								var labelColor = _v0.labelColor;
 								return {head: headColor, label: labelColor, main: color, tail: tailColor};
 							},
-							$author$project$Format$Version19$colorsFlag,
+							$author$project$Format$Version20$colorsFlag,
 							A3(
 								flagField,
 								function ($) {
 									return $.shiftTarget;
 								},
-								$author$project$Format$Version19$shiftTargetFlag,
+								$author$project$Format$Version20$shiftTargetFlag,
 								A3(
 									flagField,
 									function ($) {
 										return $.shiftSource;
 									},
-									$author$project$Format$Version19$shiftSourceFlag,
+									$author$project$Format$Version20$shiftSourceFlag,
 									A3(
 										flagField,
 										function ($) {
 											return $.labelPosition;
 										},
-										$author$project$Format$Version19$positionFlag,
+										$author$project$Format$Version20$positionFlag,
 										A3(
 											flagField,
 											function ($) {
 												return $.labelAlignment;
 											},
-											$author$project$Format$Version19$alignmentFlag,
+											$author$project$Format$Version20$alignmentFlag,
 											A3(
 												flagField,
 												function ($) {
 													return $.bend;
 												},
-												$author$project$Format$Version19$bendFlag,
+												$author$project$Format$Version20$bendFlag,
 												A3(
 													flagField,
 													function ($) {
 														return $.dashed;
 													},
-													$author$project$Format$Version19$dashedFlag,
+													$author$project$Format$Version20$dashedFlag,
 													A3(
 														flagField,
 														function ($) {
 															return $.kind;
 														},
-														$author$project$Format$Version19$kindFlag,
+														$author$project$Format$Version20$kindFlag,
 														A3(
 															flagField,
 															function ($) {
 																return $.head;
 															},
-															$author$project$Format$Version19$headFlag,
+															$author$project$Format$Version20$headFlag,
 															A3(
 																flagField,
 																function ($) {
 																	return $.tail;
 																},
-																$author$project$Format$Version19$tailFlag,
+																$author$project$Format$Version20$tailFlag,
 																A2(
 																	$author$project$Codec$object,
 																	function (tail) {
@@ -8501,39 +8491,39 @@ var $author$project$ArrowStyle$getStyle = function (_v0) {
 		style,
 		{head: $author$project$ArrowStyle$NoHead, kind: $author$project$ArrowStyle$NoneArrow, labelAlignment: $author$project$Geometry$Over, tail: $author$project$ArrowStyle$DefaultTail}) : style;
 };
-var $author$project$Format$Version19$Edgeo = F3(
+var $author$project$Format$Version20$Edgeo = F3(
 	function (label, options, zindex) {
 		return {label: label, options: options, zindex: zindex};
 	});
-var $author$project$Format$Version19$Pullshout = function (a) {
+var $author$project$Format$Flags$Pullshout = function (a) {
 	return {$: 'Pullshout', a: a};
 };
-var $author$project$Format$Version19$pullshoutStyle = function (_v0) {
+var $author$project$Format$Version20$pullshoutStyle = function (_v0) {
 	var color = _v0.color;
 	var offset1 = _v0.offset1;
 	var offset2 = _v0.offset2;
 	return A2(
 		$elm$core$List$cons,
-		$author$project$Format$Version19$Pullshout(
+		$author$project$Format$Flags$Pullshout(
 			{offset1: offset1, offset2: offset2}),
 		A2(
 			$author$project$Codec$encoder,
-			$author$project$Format$Version19$colorsFlag,
+			$author$project$Format$Version20$colorsFlag,
 			{head: color, label: color, main: color, tail: color}));
 };
-var $author$project$Format$Version19$pullshoutEdge = F2(
+var $author$project$Format$Version20$pullshoutEdge = F2(
 	function (z, label) {
 		return A3(
-			$author$project$Format$Version19$Edgeo,
+			$author$project$Format$Version20$Edgeo,
 			'',
-			$author$project$Format$Version19$pullshoutStyle(label),
+			$author$project$Format$Version20$pullshoutStyle(label),
 			z);
 	});
-var $author$project$Format$Version19$fromEdgeLabel = function (e) {
+var $author$project$Format$Version20$fromEdgeLabel = function (e) {
 	var _v0 = e.details;
 	if (_v0.$ === 'PullshoutEdge') {
 		var l = _v0.a;
-		return A2($author$project$Format$Version19$pullshoutEdge, e.zindex, l);
+		return A2($author$project$Format$Version20$pullshoutEdge, e.zindex, l);
 	} else {
 		var l = _v0.a;
 		var label = l.label;
@@ -8543,13 +8533,13 @@ var $author$project$Format$Version19$fromEdgeLabel = function (e) {
 		return {
 			label: label,
 			options: function () {
-				var convertedStyle = A2($author$project$Codec$encoder, $author$project$Format$Version19$arrowStyleCodec, style);
+				var convertedStyle = A2($author$project$Codec$encoder, $author$project$Format$Version20$arrowStyleCodec, style);
 				return _Utils_ap(
 					isAdjunction ? _List_fromArray(
-						[$author$project$Format$Version19$Adjunction]) : _List_Nil,
+						[$author$project$Format$Flags$Adjunction]) : _List_Nil,
 					_Utils_ap(
 						isDependency ? _List_fromArray(
-							[$author$project$Format$Version19$Dependency]) : _List_Nil,
+							[$author$project$Format$Flags$Dependency]) : _List_Nil,
 						convertedStyle));
 			}(),
 			zindex: e.zindex
@@ -8596,12 +8586,12 @@ var $elm$core$List$singleton = function (value) {
 	return _List_fromArray(
 		[value]);
 };
-var $author$project$Format$Version19$pullshoutFlag = A2(
+var $author$project$Format$Version20$pullshoutFlag = A2(
 	$author$project$Codec$build,
 	A2(
 		$elm$core$Basics$composeR,
 		$elm$core$Maybe$map(
-			A2($elm$core$Basics$composeR, $author$project$Format$Version19$Pullshout, $elm$core$List$singleton)),
+			A2($elm$core$Basics$composeR, $author$project$Format$Flags$Pullshout, $elm$core$List$singleton)),
 		$elm$core$Maybe$withDefault(_List_Nil)),
 	$elm_community$list_extra$List$Extra$findMap(
 		function (flag) {
@@ -8612,7 +8602,7 @@ var $author$project$Format$Version19$pullshoutFlag = A2(
 				return $elm$core$Maybe$Nothing;
 			}
 		}));
-var $author$project$Format$Version19$toEdgeLabel = function (_v0) {
+var $author$project$Format$Version20$toEdgeLabel = function (_v0) {
 	var label = _v0.label;
 	var options = _v0.options;
 	var zindex = _v0.zindex;
@@ -8621,13 +8611,13 @@ var $author$project$Format$Version19$toEdgeLabel = function (_v0) {
 	};
 	return {
 		details: function () {
-			var _v1 = dec($author$project$Format$Version19$pullshoutFlag);
+			var _v1 = dec($author$project$Format$Version20$pullshoutFlag);
 			if (_v1.$ === 'Just') {
 				var offset1 = _v1.a.offset1;
 				var offset2 = _v1.a.offset2;
 				return $author$project$GraphDefs$PullshoutEdge(
 					{
-						color: dec($author$project$Format$Version19$colorsFlag).main,
+						color: dec($author$project$Format$Version20$colorsFlag).main,
 						offset1: offset1,
 						offset2: offset2
 					});
@@ -8635,9 +8625,9 @@ var $author$project$Format$Version19$toEdgeLabel = function (_v0) {
 				return $author$project$GraphDefs$NormalEdge(
 					{
 						dims: $elm$core$Maybe$Nothing,
-						isAdjunction: A2($elm$core$List$member, $author$project$Format$Version19$Adjunction, options),
+						isAdjunction: A2($elm$core$List$member, $author$project$Format$Flags$Adjunction, options),
 						label: label,
-						style: A2($author$project$Codec$decoder, $author$project$Format$Version19$arrowStyleCodec, options)
+						style: A2($author$project$Codec$decoder, $author$project$Format$Version20$arrowStyleCodec, options)
 					});
 			}
 		}(),
@@ -8646,7 +8636,7 @@ var $author$project$Format$Version19$toEdgeLabel = function (_v0) {
 		zindex: zindex
 	};
 };
-var $author$project$Format$Version19$edgeFCodec = A2($author$project$Codec$build, $author$project$Format$Version19$fromEdgeLabel, $author$project$Format$Version19$toEdgeLabel);
+var $author$project$Format$Version20$edgeFCodec = A2($author$project$Codec$build, $author$project$Format$Version20$fromEdgeLabel, $author$project$Format$Version20$toEdgeLabel);
 var $author$project$Polygraph$mapCodec = F2(
 	function (c1, c2) {
 		return A2(
@@ -8664,18 +8654,18 @@ var $author$project$Polygraph$mapCodec = F2(
 				$elm$core$Basics$always(
 					$author$project$Codec$decoder(c2))));
 	});
-var $author$project$Format$Version19$CoqValidated = {$: 'CoqValidated'};
-var $author$project$Format$Version19$nodeMaybeFlagCodecFalse = function (flag) {
+var $author$project$Format$Flags$CoqValidated = {$: 'CoqValidated'};
+var $author$project$Format$Version20$nodeMaybeFlagCodecFalse = function (flag) {
 	return $author$project$Codec$boolList(flag);
 };
-var $author$project$Format$Version19$coqValidatedFlag = $author$project$Format$Version19$nodeMaybeFlagCodecFalse($author$project$Format$Version19$CoqValidated);
-var $author$project$Format$Version19$Dependencies = function (a) {
+var $author$project$Format$Version20$coqValidatedFlag = $author$project$Format$Version20$nodeMaybeFlagCodecFalse($author$project$Format$Flags$CoqValidated);
+var $author$project$Format$Flags$Dependencies = function (a) {
 	return {$: 'Dependencies', a: a};
 };
-var $author$project$Format$Version19$depsFlag = A3(
+var $author$project$Format$Version20$depsFlag = A3(
 	$author$project$Codec$maybeList,
 	_List_Nil,
-	$author$project$Format$Version19$Dependencies,
+	$author$project$Format$Flags$Dependencies,
 	function (c) {
 		if (c.$ === 'Dependencies') {
 			var l = c.a;
@@ -8684,13 +8674,13 @@ var $author$project$Format$Version19$depsFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version19$NodeColor = function (a) {
+var $author$project$Format$Flags$NodeColor = function (a) {
 	return {$: 'NodeColor', a: a};
 };
-var $author$project$Format$Version19$nodeColorFlag = A3(
+var $author$project$Format$Version20$nodeColorFlag = A3(
 	$author$project$Codec$maybeList,
 	$author$project$Drawing$Color$black,
-	$author$project$Format$Version19$NodeColor,
+	$author$project$Format$Flags$NodeColor,
 	function (flag) {
 		if (flag.$ === 'NodeColor') {
 			var c = flag.a;
@@ -8699,9 +8689,9 @@ var $author$project$Format$Version19$nodeColorFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version19$Text = {$: 'Text'};
-var $author$project$Format$Version19$textFlag = $author$project$Format$Version19$nodeMaybeFlagCodecFalse($author$project$Format$Version19$Text);
-var $author$project$Format$Version19$nodeFCodecWithDeps = function () {
+var $author$project$Format$Flags$Text = {$: 'Text'};
+var $author$project$Format$Version20$textFlag = $author$project$Format$Version20$nodeMaybeFlagCodecFalse($author$project$Format$Flags$Text);
+var $author$project$Format$Version20$nodeFCodecWithDeps = function () {
 	var node = function (x) {
 		return A2(
 			$elm$core$Basics$composeR,
@@ -8720,7 +8710,7 @@ var $author$project$Format$Version19$nodeFCodecWithDeps = function () {
 			function ($) {
 				return $.options;
 			},
-			$author$project$Format$Version19$nodeColorFlag,
+			$author$project$Format$Version20$nodeColorFlag,
 			A4(
 				$author$project$Codec$fields,
 				node(
@@ -8730,7 +8720,7 @@ var $author$project$Format$Version19$nodeFCodecWithDeps = function () {
 				function ($) {
 					return $.options;
 				},
-				$author$project$Format$Version19$coqValidatedFlag,
+				$author$project$Format$Version20$coqValidatedFlag,
 				A4(
 					$author$project$Codec$fields,
 					node(
@@ -8753,7 +8743,7 @@ var $author$project$Format$Version19$nodeFCodecWithDeps = function () {
 						function ($) {
 							return $.options;
 						},
-						$author$project$Format$Version19$textFlag,
+						$author$project$Format$Version20$textFlag,
 						A4(
 							$author$project$Codec$fields,
 							node(
@@ -8782,7 +8772,7 @@ var $author$project$Format$Version19$nodeFCodecWithDeps = function () {
 									function ($) {
 										return $.options;
 									},
-									$author$project$Format$Version19$depsFlag,
+									$author$project$Format$Version20$depsFlag,
 									A2(
 										$author$project$Codec$object,
 										F7(
@@ -8806,14 +8796,14 @@ var $author$project$Format$Version19$nodeFCodecWithDeps = function () {
 												};
 											}))))))))));
 }();
-var $author$project$Format$Version19$graphCodec = A2(
+var $author$project$Format$Version20$graphCodec = A2(
 	$author$project$Codec$compose,
 	A2(
 		$author$project$Codec$compose,
 		$author$project$Polygraph$codec,
-		A2($author$project$Polygraph$mapCodec, $author$project$Format$Version19$nodeFCodecWithDeps, $author$project$Format$Version19$edgeFCodec)),
+		A2($author$project$Polygraph$mapCodec, $author$project$Format$Version20$nodeFCodecWithDeps, $author$project$Format$Version20$edgeFCodec)),
 	$author$project$GraphDefs$depsCodec);
-var $author$project$Format$Version19$tabFlagsCodec = $author$project$Codec$buildObject(
+var $author$project$Format$Version20$tabFlagsCodec = $author$project$Codec$buildObject(
 	A4(
 		$author$project$Codec$fields,
 		function ($) {
@@ -8858,7 +8848,7 @@ var $author$project$Format$Version19$tabFlagsCodec = $author$project$Codec$build
 						function (e) {
 							return {edges: e.edges, nextId: e.nextGraphId, nodes: e.nodes};
 						},
-						$author$project$Format$Version19$graphCodec,
+						$author$project$Format$Version20$graphCodec,
 						A2(
 							$author$project$Codec$object,
 							F5(
@@ -8869,7 +8859,7 @@ var $author$project$Format$Version19$tabFlagsCodec = $author$project$Codec$build
 								function (graph, title, sizeGrid, tabId, freehandDrawings) {
 									return {edges: graph.edges, freehandDrawings: freehandDrawings, id: tabId, nextGraphId: graph.nextId, nodes: graph.nodes, sizeGrid: sizeGrid, title: title};
 								}))))))));
-var $author$project$Format$Version19$graphInfoCodecFlags = $author$project$Codec$buildObject(
+var $author$project$Format$Version20$graphInfoCodecFlags = $author$project$Codec$buildObject(
 	A4(
 		$author$project$Codec$fields,
 		function ($) {
@@ -8882,42 +8872,58 @@ var $author$project$Format$Version19$graphInfoCodecFlags = $author$project$Codec
 		A4(
 			$author$project$Codec$fields,
 			function ($) {
-				return $.latexPreamble;
+				return $.latexBackgroundColor;
 			},
 			function ($) {
-				return $.latexPreamble;
+				return $.latexBackgroundColor;
 			},
 			$author$project$Codec$identity,
 			A4(
 				$author$project$Codec$fields,
 				function ($) {
-					return $.nextTabId;
+					return $.latexPreamble;
 				},
 				function ($) {
-					return $.nextTabId;
+					return $.latexPreamble;
 				},
 				$author$project$Codec$identity,
 				A4(
 					$author$project$Codec$fields,
 					function ($) {
-						return $.tabs;
+						return $.nextTabId;
 					},
 					function ($) {
-						return $.tabs;
+						return $.nextTabId;
 					},
-					$author$project$Codec$list($author$project$Format$Version19$tabFlagsCodec),
-					A2(
-						$author$project$Codec$object,
-						F4(
-							function (tabs, nextTabId, latexPreamble, activeTabId) {
-								return {activeTabId: activeTabId, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs};
-							}),
-						F4(
-							function (tabs, nextTabId, latexPreamble, activeTabId) {
-								return {activeTabId: activeTabId, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs};
-							})))))));
+					$author$project$Codec$identity,
+					A4(
+						$author$project$Codec$fields,
+						function ($) {
+							return $.tabs;
+						},
+						function ($) {
+							return $.tabs;
+						},
+						$author$project$Codec$list($author$project$Format$Version20$tabFlagsCodec),
+						A2(
+							$author$project$Codec$object,
+							F5(
+								function (tabs, nextTabId, latexPreamble, latexBackgroundColor, activeTabId) {
+									return {activeTabId: activeTabId, latexBackgroundColor: latexBackgroundColor, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs};
+								}),
+							F5(
+								function (tabs, nextTabId, latexPreamble, latexBackgroundColor, activeTabId) {
+									return {activeTabId: activeTabId, latexBackgroundColor: latexBackgroundColor, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs};
+								}))))))));
+var $author$project$Format$Version20$fromJSGraphFlags = function (g) {
+	return A2($author$project$Codec$decoder, $author$project$Format$Version20$graphInfoCodecFlags, g);
+};
+var $author$project$Format$Version19$toNextGrapho = function (g) {
+	return {activeTabId: g.activeTabId, latexBackgroundColor: 'white', latexPreamble: g.latexPreamble, nextTabId: g.nextTabId, tabs: g.tabs};
+};
 var $author$project$Format$Version19$fromJSGraphFlags = function (g) {
-	return A2($author$project$Codec$decoder, $author$project$Format$Version19$graphInfoCodecFlags, g);
+	return $author$project$Format$Version20$fromJSGraphFlags(
+		$author$project$Format$Version19$toNextGrapho(g));
 };
 var $author$project$Polygraph$nodeMap = F2(
 	function (f, _v0) {
@@ -8936,7 +8942,7 @@ var $author$project$Format$Version18$toNextEdgeFlags = function (_v0) {
 		label: label,
 		options: A2(
 			$elm$core$List$cons,
-			$author$project$Format$Version19$LabelColor($author$project$Drawing$Color$black),
+			$author$project$Format$Flags$LabelColor($author$project$Drawing$Color$black),
 			style),
 		zindex: zindex
 	};
@@ -9051,7 +9057,7 @@ var $author$project$Format$Version18$graphoMap = F3(
 				tabs)
 		};
 	});
-var $author$project$Format$Version19$Unrecognized = {$: 'Unrecognized'};
+var $author$project$Format$Flags$Unrecognized = {$: 'Unrecognized'};
 var $author$project$Geometry$Centre = {$: 'Centre'};
 var $author$project$Geometry$Right = {$: 'Right'};
 var $author$project$Codec$buildVariant = F2(
@@ -9572,117 +9578,117 @@ var $author$project$Format$Version18$edgeFlagCodec = function () {
 	};
 	return A2(
 		$author$project$Codec$buildVariant,
-		$elm$core$Basics$always($author$project$Format$Version19$Unrecognized),
+		$elm$core$Basics$always($author$project$Format$Flags$Unrecognized),
 		A3(
 			$author$project$Codec$variant0,
 			$author$project$Format$Version18$prefixes.unrecognized,
-			$author$project$Format$Version19$Unrecognized,
+			$author$project$Format$Flags$Unrecognized,
 			A4(
 				$author$project$Codec$prefixVariant0,
 				$author$project$Format$Version18$prefixes.loopAngle,
-				$author$project$Format$Version19$LoopAngle,
+				$author$project$Format$Flags$LoopAngle,
 				$author$project$Format$Version18$floatCodec,
 				A4(
 					$author$project$Codec$prefixVariant0,
 					$author$project$Format$Version18$prefixes.loopRadius,
-					$author$project$Format$Version19$LoopRadius,
+					$author$project$Format$Flags$LoopRadius,
 					$author$project$Format$Version18$floatCodec,
 					A4(
 						$author$project$Codec$prefixVariant0,
 						$author$project$Format$Version18$prefixes.shiftTarget,
-						$author$project$Format$Version19$ShiftTarget,
+						$author$project$Format$Flags$ShiftTarget,
 						$author$project$Format$Version18$floatCodec,
 						A4(
 							$author$project$Codec$prefixVariant0,
 							$author$project$Format$Version18$prefixes.shiftSource,
-							$author$project$Format$Version19$ShiftSource,
+							$author$project$Format$Flags$ShiftSource,
 							$author$project$Format$Version18$floatCodec,
 							A4(
 								$author$project$Codec$prefixVariant0,
 								$author$project$Format$Version18$prefixes.tailColor,
-								$author$project$Format$Version19$TailColor,
+								$author$project$Format$Flags$TailColor,
 								$author$project$Drawing$Color$codec,
 								A4(
 									$author$project$Codec$prefixVariant0,
 									$author$project$Format$Version18$prefixes.headColor,
-									$author$project$Format$Version19$HeadColor,
+									$author$project$Format$Flags$HeadColor,
 									$author$project$Drawing$Color$codec,
 									A4(
 										$author$project$Codec$prefixVariant0,
 										$author$project$Format$Version18$prefixes.color,
-										$author$project$Format$Version19$Color,
+										$author$project$Format$Flags$Color,
 										$author$project$Drawing$Color$codec,
 										A4(
 											$author$project$Codec$prefixVariant0,
 											$author$project$Format$Version18$prefixes.alignment,
-											$author$project$Format$Version19$Alignment,
+											$author$project$Format$Flags$Alignment,
 											$author$project$ArrowStyle$alignmentCodec,
 											A4(
 												$author$project$Codec$prefixVariant0,
 												$author$project$Format$Version18$prefixes.tail,
-												$author$project$Format$Version19$TailStyle,
+												$author$project$Format$Flags$TailStyle,
 												$author$project$ArrowStyle$tailCodec,
 												A4(
 													$author$project$Codec$prefixVariant0,
 													$author$project$Format$Version18$prefixes.head,
-													$author$project$Format$Version19$HeadStyle,
+													$author$project$Format$Flags$HeadStyle,
 													$author$project$ArrowStyle$headCodec,
 													A4(
 														$author$project$Codec$prefixVariant0,
 														$author$project$Format$Version18$prefixes.kind,
-														$author$project$Format$Version19$Kind,
+														$author$project$Format$Flags$Kind,
 														$author$project$ArrowStyle$kindCodec,
 														A3(
 															$author$project$Codec$variant0,
 															$author$project$Format$Version18$prefixes.wavy,
-															$author$project$Format$Version19$Wavy,
+															$author$project$Format$Flags$Wavy,
 															A3(
 																$author$project$Codec$variant0,
 																$author$project$Format$Version18$prefixes.adjunction,
-																$author$project$Format$Version19$Adjunction,
+																$author$project$Format$Flags$Adjunction,
 																A4(
 																	$author$project$Codec$prefixVariant0,
 																	$author$project$Format$Version18$prefixes.position,
-																	$author$project$Format$Version19$Position,
+																	$author$project$Format$Flags$Position,
 																	$author$project$Format$Version18$floatCodec,
 																	A4(
 																		$author$project$Codec$prefixVariant0,
 																		$author$project$Format$Version18$prefixes.bend,
-																		$author$project$Format$Version19$Bend,
+																		$author$project$Format$Flags$Bend,
 																		$author$project$Format$Version18$floatCodec,
 																		A4(
 																			$author$project$Codec$prefixVariant0,
 																			$author$project$Format$Version18$prefixes.pullshout,
-																			$author$project$Format$Version19$Pullshout,
+																			$author$project$Format$Flags$Pullshout,
 																			$author$project$Format$Version18$pullshoutOffsetCodec,
 																			A4(
 																				$author$project$Codec$prefixVariant0,
 																				$author$project$Format$Version18$prefixes.marker,
-																				$author$project$Format$Version19$Marker,
+																				$author$project$Format$Flags$Marker,
 																				$author$project$Codec$identity,
 																				A3(
 																					$author$project$Codec$variant0,
 																					$author$project$Format$Version18$prefixes.dashed,
-																					$author$project$Format$Version19$Dashed,
+																					$author$project$Format$Flags$Dashed,
 																					$author$project$Codec$customEnum(split)))))))))))))))))))));
 }();
 var $author$project$Format$Version18$stringToEdgeFlag = $author$project$Codec$decoder($author$project$Format$Version18$edgeFlagCodec);
-var $author$project$Format$Version19$UnrecognizedNodeFlag = {$: 'UnrecognizedNodeFlag'};
+var $author$project$Format$Flags$UnrecognizedNodeFlag = {$: 'UnrecognizedNodeFlag'};
 var $author$project$Format$Version18$nodeFlagCodec = A2(
 	$author$project$Codec$buildVariant,
-	$elm$core$Basics$always($author$project$Format$Version19$UnrecognizedNodeFlag),
+	$elm$core$Basics$always($author$project$Format$Flags$UnrecognizedNodeFlag),
 	A3(
 		$author$project$Codec$variant0,
 		'',
-		$author$project$Format$Version19$UnrecognizedNodeFlag,
+		$author$project$Format$Flags$UnrecognizedNodeFlag,
 		A3(
 			$author$project$Codec$variant0,
 			'text',
-			$author$project$Format$Version19$Text,
+			$author$project$Format$Flags$Text,
 			A3(
 				$author$project$Codec$variant0,
 				'coqValidated',
-				$author$project$Format$Version19$CoqValidated,
+				$author$project$Format$Flags$CoqValidated,
 				$author$project$Codec$customEnum(
 					F4(
 						function (coq, text, unrecognized, v) {
@@ -9743,7 +9749,7 @@ var $author$project$Format$Version18$edgeMaybeFlagCodec = F3(
 var $author$project$Format$Version18$bendFlag = A3(
 	$author$project$Format$Version18$edgeMaybeFlagCodec,
 	0,
-	$author$project$Format$Version19$Bend,
+	$author$project$Format$Flags$Bend,
 	function (flag) {
 		if (flag.$ === 'Bend') {
 			var a = flag.a;
@@ -9756,11 +9762,11 @@ var $author$project$Format$Version18$edgeMaybeFlagCodecFalse = function (flag) {
 	return $author$project$Format$Version18$edgeFlagsCodec(
 		$author$project$Codec$boolList(flag));
 };
-var $author$project$Format$Version18$dashedFlag = $author$project$Format$Version18$edgeMaybeFlagCodecFalse($author$project$Format$Version19$Dashed);
+var $author$project$Format$Version18$dashedFlag = $author$project$Format$Version18$edgeMaybeFlagCodecFalse($author$project$Format$Flags$Dashed);
 var $author$project$Format$Version18$positionFlag = A3(
 	$author$project$Format$Version18$edgeMaybeFlagCodec,
 	0.5,
-	$author$project$Format$Version19$Position,
+	$author$project$Format$Flags$Position,
 	function (flag) {
 		if (flag.$ === 'Position') {
 			var a = flag.a;
@@ -9773,7 +9779,7 @@ var $author$project$Format$Version18$positionFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Format$Version18$wavyFlag = $author$project$Format$Version18$edgeMaybeFlagCodecFalse($author$project$Format$Version19$Wavy);
+var $author$project$Format$Version18$wavyFlag = $author$project$Format$Version18$edgeMaybeFlagCodecFalse($author$project$Format$Flags$Wavy);
 var $author$project$Format$Version16$toNextStyle = function (_v0) {
 	var tail = _v0.tail;
 	var head = _v0.head;
@@ -9864,10 +9870,10 @@ var $author$project$Format$Version16$toNextEdge = function (_v0) {
 	var style2 = $author$project$Format$Version16$toNextStyle(style);
 	var style3 = _Utils_eq(kind, $author$project$Format$Version16$keys.pullshout) ? A2(
 		$author$project$Format$Version18$addFlag,
-		$author$project$Format$Version19$Pullshout(
+		$author$project$Format$Flags$Pullshout(
 			{offset1: style.position, offset2: style.bend}),
 		style2) : style2;
-	var style4 = _Utils_eq(kind, $author$project$Format$Version16$keys.adjunction) ? A2($author$project$Format$Version18$addFlag, $author$project$Format$Version19$Adjunction, style3) : style3;
+	var style4 = _Utils_eq(kind, $author$project$Format$Version16$keys.adjunction) ? A2($author$project$Format$Version18$addFlag, $author$project$Format$Flags$Adjunction, style3) : style3;
 	return {label: label, style: style4, zindex: zindex};
 };
 var $author$project$Format$Version18$nodeFlagsCodec = $author$project$Codec$compose(
@@ -9876,8 +9882,8 @@ var $author$project$Format$Version18$nodeMaybeFlagCodecFalse = function (flag) {
 	return $author$project$Format$Version18$nodeFlagsCodec(
 		$author$project$Codec$boolList(flag));
 };
-var $author$project$Format$Version18$coqValidatedFlag = $author$project$Format$Version18$nodeMaybeFlagCodecFalse($author$project$Format$Version19$CoqValidated);
-var $author$project$Format$Version18$textFlag = $author$project$Format$Version18$nodeMaybeFlagCodecFalse($author$project$Format$Version19$Text);
+var $author$project$Format$Version18$coqValidatedFlag = $author$project$Format$Version18$nodeMaybeFlagCodecFalse($author$project$Format$Flags$CoqValidated);
+var $author$project$Format$Version18$textFlag = $author$project$Format$Version18$nodeMaybeFlagCodecFalse($author$project$Format$Flags$Text);
 var $author$project$Format$Version16$toNextNode = function (_v0) {
 	var pos = _v0.pos;
 	var label = _v0.label;
@@ -10606,14 +10612,14 @@ var $author$project$Codec$variantTruePair = F4(
 			},
 			c);
 	});
-var $author$project$Format$Version19$genericVariantTrue = F3(
+var $author$project$Format$Version20$genericVariantTrue = F3(
 	function (_default, tag, v) {
 		return A4($author$project$Codec$variantTruePair, tag, v, _default, $author$project$Codec$trueJs);
 	});
 var $elm$json$Json$Encode$null = _Json_encodeNull;
-var $author$project$Format$Version19$optionNames = {adjunction: 'adjunction', alignment: 'alignment', bend: 'bend', color: 'color ', dashed: 'dashed', dependency: 'dependency', head: 'head', headColor: 'headColor', kind: 'kind', labelColor: 'labelColor', loopAngle: 'loopAngle', loopRadius: 'loopRadius', marker: 'marker', position: 'position', pullshout: 'pullshout', shiftSource: 'shiftSource', shiftTarget: 'shiftTarget', tail: 'tail', tailColor: 'tailColor', unrecognized: 'unrecognized', wavy: 'wavy'};
-var $author$project$Format$Version19$maxDecimalDigits = 4;
-var $author$project$Format$Version19$stringFromFloat = F2(
+var $author$project$Format$Version20$optionNames = {adjunction: 'adjunction', alignment: 'alignment', bend: 'bend', color: 'color ', dashed: 'dashed', dependency: 'dependency', head: 'head', headColor: 'headColor', kind: 'kind', labelColor: 'labelColor', loopAngle: 'loopAngle', loopRadius: 'loopRadius', marker: 'marker', position: 'position', pullshout: 'pullshout', shiftSource: 'shiftSource', shiftTarget: 'shiftTarget', tail: 'tail', tailColor: 'tailColor', unrecognized: 'unrecognized', wavy: 'wavy'};
+var $author$project$Format$Version20$maxDecimalDigits = 4;
+var $author$project$Format$Version20$stringFromFloat = F2(
 	function (n, f) {
 		var s = $elm$core$String$fromFloat(f);
 		var _v0 = A2($elm$core$String$split, '.', s);
@@ -10626,9 +10632,9 @@ var $author$project$Format$Version19$stringFromFloat = F2(
 			return s;
 		}
 	});
-var $author$project$Format$Version19$myStringFromFloat = $author$project$Format$Version19$stringFromFloat($author$project$Format$Version19$maxDecimalDigits);
-var $author$project$Format$Version19$myStringToFloat = function () {
-	var epsilon = 2 * A2($elm$core$Basics$pow, 10, 1 - $author$project$Format$Version19$maxDecimalDigits);
+var $author$project$Format$Version20$myStringFromFloat = $author$project$Format$Version20$stringFromFloat($author$project$Format$Version20$maxDecimalDigits);
+var $author$project$Format$Version20$myStringToFloat = function () {
+	var epsilon = 2 * A2($elm$core$Basics$pow, 10, 1 - $author$project$Format$Version20$maxDecimalDigits);
 	return A2(
 		$elm$core$Basics$composeR,
 		$elm$core$String$toFloat,
@@ -10637,12 +10643,12 @@ var $author$project$Format$Version19$myStringToFloat = function () {
 				return ((_Utils_cmp(epsilon, d) < 0) && (_Utils_cmp(d, epsilon) < 0)) ? 0 : d;
 			}));
 }();
-var $author$project$Format$Version19$pullshoutOffsetCodec = A2(
+var $author$project$Format$Version20$pullshoutOffsetCodec = A2(
 	$author$project$Codec$build,
 	function (_v0) {
 		var offset1 = _v0.offset1;
 		var offset2 = _v0.offset2;
-		return $author$project$Format$Version19$myStringFromFloat(offset1) + (' ' + $author$project$Format$Version19$myStringFromFloat(offset2));
+		return $author$project$Format$Version20$myStringFromFloat(offset1) + (' ' + $author$project$Format$Version20$myStringFromFloat(offset2));
 	},
 	function (s) {
 		var _default = {offset1: 0, offset2: 0};
@@ -10652,8 +10658,8 @@ var $author$project$Format$Version19$pullshoutOffsetCodec = A2(
 			var _v2 = _v1.b;
 			var s2 = _v2.a;
 			var _v3 = _Utils_Tuple2(
-				$author$project$Format$Version19$myStringToFloat(s1),
-				$author$project$Format$Version19$myStringToFloat(s2));
+				$author$project$Format$Version20$myStringToFloat(s1),
+				$author$project$Format$Version20$myStringToFloat(s2));
 			if ((_v3.a.$ === 'Just') && (_v3.b.$ === 'Just')) {
 				var f1 = _v3.a.a;
 				var f2 = _v3.b.a;
@@ -10676,8 +10682,8 @@ var $author$project$Codec$stringJs = $author$project$Codec$Codec(
 		},
 		encoder: $elm$json$Json$Encode$string
 	});
-var $author$project$Format$Version19$edgeFlagCodec = function () {
-	var variantTrue = $author$project$Format$Version19$genericVariantTrue($author$project$Format$Version19$Unrecognized);
+var $author$project$Format$Version20$edgeFlagCodec = function () {
+	var variantTrue = $author$project$Format$Version20$genericVariantTrue($author$project$Format$Flags$Unrecognized);
 	var variantString = F3(
 		function (tag, v, c) {
 			return A3(
@@ -10792,107 +10798,107 @@ var $author$project$Format$Version19$edgeFlagCodec = function () {
 	};
 	return A2(
 		$author$project$Codec$buildVariant,
-		$elm$core$Basics$always($author$project$Format$Version19$Unrecognized),
+		$elm$core$Basics$always($author$project$Format$Flags$Unrecognized),
 		A3(
 			$author$project$Codec$variant0,
-			$author$project$Format$Version19$optionNames.unrecognized,
-			$author$project$Format$Version19$Unrecognized,
+			$author$project$Format$Version20$optionNames.unrecognized,
+			$author$project$Format$Flags$Unrecognized,
 			A4(
 				$author$project$Codec$variant1Pair,
-				$author$project$Format$Version19$optionNames.loopAngle,
-				$author$project$Format$Version19$LoopAngle,
+				$author$project$Format$Version20$optionNames.loopAngle,
+				$author$project$Format$Flags$LoopAngle,
 				$author$project$Codec$floatJs,
 				A4(
 					$author$project$Codec$variant1Pair,
-					$author$project$Format$Version19$optionNames.loopRadius,
-					$author$project$Format$Version19$LoopRadius,
+					$author$project$Format$Version20$optionNames.loopRadius,
+					$author$project$Format$Flags$LoopRadius,
 					$author$project$Codec$floatJs,
 					A4(
 						$author$project$Codec$variant1Pair,
-						$author$project$Format$Version19$optionNames.shiftTarget,
-						$author$project$Format$Version19$ShiftTarget,
+						$author$project$Format$Version20$optionNames.shiftTarget,
+						$author$project$Format$Flags$ShiftTarget,
 						$author$project$Codec$floatJs,
 						A4(
 							$author$project$Codec$variant1Pair,
-							$author$project$Format$Version19$optionNames.shiftSource,
-							$author$project$Format$Version19$ShiftSource,
+							$author$project$Format$Version20$optionNames.shiftSource,
+							$author$project$Format$Flags$ShiftSource,
 							$author$project$Codec$floatJs,
 							A4(
 								variantString,
-								$author$project$Format$Version19$optionNames.labelColor,
-								$author$project$Format$Version19$LabelColor,
+								$author$project$Format$Version20$optionNames.labelColor,
+								$author$project$Format$Flags$LabelColor,
 								$author$project$Drawing$Color$codec,
 								A4(
 									variantString,
-									$author$project$Format$Version19$optionNames.tailColor,
-									$author$project$Format$Version19$TailColor,
+									$author$project$Format$Version20$optionNames.tailColor,
+									$author$project$Format$Flags$TailColor,
 									$author$project$Drawing$Color$codec,
 									A4(
 										variantString,
-										$author$project$Format$Version19$optionNames.headColor,
-										$author$project$Format$Version19$HeadColor,
+										$author$project$Format$Version20$optionNames.headColor,
+										$author$project$Format$Flags$HeadColor,
 										$author$project$Drawing$Color$codec,
 										A4(
 											variantString,
-											$author$project$Format$Version19$optionNames.color,
-											$author$project$Format$Version19$Color,
+											$author$project$Format$Version20$optionNames.color,
+											$author$project$Format$Flags$Color,
 											$author$project$Drawing$Color$codec,
 											A4(
 												variantString,
-												$author$project$Format$Version19$optionNames.alignment,
-												$author$project$Format$Version19$Alignment,
+												$author$project$Format$Version20$optionNames.alignment,
+												$author$project$Format$Flags$Alignment,
 												$author$project$ArrowStyle$alignmentCodec,
 												A4(
 													variantString,
-													$author$project$Format$Version19$optionNames.tail,
-													$author$project$Format$Version19$TailStyle,
+													$author$project$Format$Version20$optionNames.tail,
+													$author$project$Format$Flags$TailStyle,
 													$author$project$ArrowStyle$tailCodec,
 													A4(
 														variantString,
-														$author$project$Format$Version19$optionNames.head,
-														$author$project$Format$Version19$HeadStyle,
+														$author$project$Format$Version20$optionNames.head,
+														$author$project$Format$Flags$HeadStyle,
 														$author$project$ArrowStyle$headCodec,
 														A4(
 															variantString,
-															$author$project$Format$Version19$optionNames.kind,
-															$author$project$Format$Version19$Kind,
+															$author$project$Format$Version20$optionNames.kind,
+															$author$project$Format$Flags$Kind,
 															$author$project$ArrowStyle$kindCodec,
 															A3(
 																variantTrue,
-																$author$project$Format$Version19$optionNames.wavy,
-																$author$project$Format$Version19$Wavy,
+																$author$project$Format$Version20$optionNames.wavy,
+																$author$project$Format$Flags$Wavy,
 																A3(
 																	variantTrue,
-																	$author$project$Format$Version19$optionNames.dependency,
-																	$author$project$Format$Version19$Dependency,
+																	$author$project$Format$Version20$optionNames.dependency,
+																	$author$project$Format$Flags$Dependency,
 																	A3(
 																		variantTrue,
-																		$author$project$Format$Version19$optionNames.adjunction,
-																		$author$project$Format$Version19$Adjunction,
+																		$author$project$Format$Version20$optionNames.adjunction,
+																		$author$project$Format$Flags$Adjunction,
 																		A4(
 																			$author$project$Codec$variant1Pair,
-																			$author$project$Format$Version19$optionNames.position,
-																			$author$project$Format$Version19$Position,
+																			$author$project$Format$Version20$optionNames.position,
+																			$author$project$Format$Flags$Position,
 																			$author$project$Codec$floatJs,
 																			A4(
 																				$author$project$Codec$variant1Pair,
-																				$author$project$Format$Version19$optionNames.bend,
-																				$author$project$Format$Version19$Bend,
+																				$author$project$Format$Version20$optionNames.bend,
+																				$author$project$Format$Flags$Bend,
 																				$author$project$Codec$floatJs,
 																				A4(
 																					variantString,
-																					$author$project$Format$Version19$optionNames.pullshout,
-																					$author$project$Format$Version19$Pullshout,
-																					$author$project$Format$Version19$pullshoutOffsetCodec,
+																					$author$project$Format$Version20$optionNames.pullshout,
+																					$author$project$Format$Flags$Pullshout,
+																					$author$project$Format$Version20$pullshoutOffsetCodec,
 																					A4(
 																						$author$project$Codec$variant1Pair,
-																						$author$project$Format$Version19$optionNames.marker,
-																						$author$project$Format$Version19$Marker,
+																						$author$project$Format$Version20$optionNames.marker,
+																						$author$project$Format$Flags$Marker,
 																						$author$project$Codec$stringJs,
 																						A3(
 																							variantTrue,
-																							$author$project$Format$Version19$optionNames.dashed,
-																							$author$project$Format$Version19$Dashed,
+																							$author$project$Format$Version20$optionNames.dashed,
+																							$author$project$Format$Flags$Dashed,
 																							A2(
 																								$author$project$Codec$customPair,
 																								split,
@@ -10951,14 +10957,14 @@ var $author$project$Codec$objectJs = $author$project$Codec$Codec(
 		},
 		encoder: $elm$json$Json$Encode$object
 	});
-var $author$project$Format$Version19$codecEdgeFlagsJs = A2(
+var $author$project$Format$Version20$codecEdgeFlagsJs = A2(
 	$author$project$Codec$compose,
 	$author$project$Codec$objectJs,
 	A2(
 		$author$project$Codec$compose,
-		$author$project$Codec$list($author$project$Format$Version19$edgeFlagCodec),
+		$author$project$Codec$list($author$project$Format$Version20$edgeFlagCodec),
 		$author$project$Codec$filter(
-			$elm$core$Basics$neq($author$project$Format$Version19$Unrecognized))));
+			$elm$core$Basics$neq($author$project$Format$Flags$Unrecognized))));
 var $author$project$Codec$filterMap = F2(
 	function (f, g) {
 		return A2(
@@ -10967,7 +10973,7 @@ var $author$project$Codec$filterMap = F2(
 			$elm$core$List$filterMap(g));
 	});
 var $elm$json$Json$Encode$int = _Json_wrap;
-var $author$project$Format$Version19$depsArgsCodec = function () {
+var $author$project$Format$Version20$depsArgsCodec = function () {
 	var c = A2(
 		$author$project$Codec$filterMap,
 		function (_v0) {
@@ -10992,8 +10998,8 @@ var $author$project$Format$Version19$depsArgsCodec = function () {
 		});
 	return A2($author$project$Codec$compose, $author$project$Codec$objectJs, c);
 }();
-var $author$project$Format$Version19$nodeFlagCodec = function () {
-	var variantTrue = $author$project$Format$Version19$genericVariantTrue($author$project$Format$Version19$UnrecognizedNodeFlag);
+var $author$project$Format$Version20$nodeFlagCodec = function () {
+	var variantTrue = $author$project$Format$Version20$genericVariantTrue($author$project$Format$Flags$UnrecognizedNodeFlag);
 	var variantString = F3(
 		function (tag, v, c) {
 			return A3(
@@ -11004,29 +11010,29 @@ var $author$project$Format$Version19$nodeFlagCodec = function () {
 		});
 	return A2(
 		$author$project$Codec$buildVariant,
-		$elm$core$Basics$always($author$project$Format$Version19$UnrecognizedNodeFlag),
+		$elm$core$Basics$always($author$project$Format$Flags$UnrecognizedNodeFlag),
 		A3(
 			$author$project$Codec$variant0,
 			'',
-			$author$project$Format$Version19$UnrecognizedNodeFlag,
+			$author$project$Format$Flags$UnrecognizedNodeFlag,
 			A4(
 				variantString,
 				'nodeColor',
-				$author$project$Format$Version19$NodeColor,
+				$author$project$Format$Flags$NodeColor,
 				$author$project$Drawing$Color$codec,
 				A4(
 					$author$project$Codec$variant1Pair,
 					'dependencies',
-					$author$project$Format$Version19$Dependencies,
-					$author$project$Format$Version19$depsArgsCodec,
+					$author$project$Format$Flags$Dependencies,
+					$author$project$Format$Version20$depsArgsCodec,
 					A3(
 						variantTrue,
 						'text',
-						$author$project$Format$Version19$Text,
+						$author$project$Format$Flags$Text,
 						A3(
 							variantTrue,
 							'coqValidated',
-							$author$project$Format$Version19$CoqValidated,
+							$author$project$Format$Flags$CoqValidated,
 							A2(
 								$author$project$Codec$customPair,
 								F6(
@@ -11048,15 +11054,15 @@ var $author$project$Format$Version19$nodeFlagCodec = function () {
 									}),
 								_Utils_Tuple2('', $elm$json$Json$Encode$null))))))));
 }();
-var $author$project$Format$Version19$codecNodeFlagsJs = A2(
+var $author$project$Format$Version20$codecNodeFlagsJs = A2(
 	$author$project$Codec$compose,
 	$author$project$Codec$objectJs,
 	A2(
 		$author$project$Codec$compose,
-		$author$project$Codec$list($author$project$Format$Version19$nodeFlagCodec),
+		$author$project$Codec$list($author$project$Format$Version20$nodeFlagCodec),
 		$author$project$Codec$filter(
-			$elm$core$Basics$neq($author$project$Format$Version19$UnrecognizedNodeFlag))));
-var $author$project$Format$Version19$edgeMap = F2(
+			$elm$core$Basics$neq($author$project$Format$Flags$UnrecognizedNodeFlag))));
+var $author$project$Format$Version20$edgeMap = F2(
 	function (f, _v0) {
 		var label = _v0.label;
 		var options = _v0.options;
@@ -11067,7 +11073,7 @@ var $author$project$Format$Version19$edgeMap = F2(
 			zindex: zindex
 		};
 	});
-var $author$project$Format$Version19$nodeMap = F2(
+var $author$project$Format$Version20$nodeMap = F2(
 	function (f, _v0) {
 		var pos = _v0.pos;
 		var label = _v0.label;
@@ -11080,7 +11086,7 @@ var $author$project$Format$Version19$nodeMap = F2(
 			zindex: zindex
 		};
 	});
-var $author$project$Format$Version19$taboMap = F3(
+var $author$project$Format$Version20$taboMap = F3(
 	function (fn, fe, _v0) {
 		var id = _v0.id;
 		var title = _v0.title;
@@ -11093,7 +11099,7 @@ var $author$project$Format$Version19$taboMap = F3(
 			edges: A2(
 				$elm$core$List$map,
 				$author$project$Polygraph$edgeMap(
-					$author$project$Format$Version19$edgeMap(fe)),
+					$author$project$Format$Version20$edgeMap(fe)),
 				edges),
 			freehandDrawings: freehandDrawings,
 			id: id,
@@ -11101,46 +11107,52 @@ var $author$project$Format$Version19$taboMap = F3(
 			nodes: A2(
 				$elm$core$List$map,
 				$author$project$Polygraph$nodeMap(
-					$author$project$Format$Version19$nodeMap(fn)),
+					$author$project$Format$Version20$nodeMap(fn)),
 				nodes),
 			sizeGrid: sizeGrid,
 			title: title
 		};
 	});
-var $author$project$Format$Version19$graphoMap = F3(
+var $author$project$Format$Version20$graphoMap = F3(
 	function (fn, fe, _v0) {
 		var tabs = _v0.tabs;
 		var latexPreamble = _v0.latexPreamble;
+		var latexBackgroundColor = _v0.latexBackgroundColor;
 		var nextTabId = _v0.nextTabId;
 		var activeTabId = _v0.activeTabId;
 		return {
 			activeTabId: activeTabId,
+			latexBackgroundColor: latexBackgroundColor,
 			latexPreamble: latexPreamble,
 			nextTabId: nextTabId,
 			tabs: A2(
 				$elm$core$List$map,
-				A2($author$project$Format$Version19$taboMap, fn, fe),
+				A2($author$project$Format$Version20$taboMap, fn, fe),
 				tabs)
 		};
 	});
-var $author$project$Format$Version19$graphoCodec = F2(
+var $author$project$Format$Version20$graphoCodec = F2(
 	function (c1, c2) {
 		return A2(
 			$author$project$Codec$build,
 			A2(
-				$author$project$Format$Version19$graphoMap,
+				$author$project$Format$Version20$graphoMap,
 				$author$project$Codec$encoder(c1),
 				$author$project$Codec$encoder(c2)),
 			A2(
-				$author$project$Format$Version19$graphoMap,
+				$author$project$Format$Version20$graphoMap,
 				$author$project$Codec$decoder(c1),
 				$author$project$Codec$decoder(c2)));
 	});
-var $author$project$Format$Version19$codecGraphFlagsJs = A2($author$project$Format$Version19$graphoCodec, $author$project$Format$Version19$codecNodeFlagsJs, $author$project$Format$Version19$codecEdgeFlagsJs);
-var $author$project$Format$Version19$fromJSGraph = A2(
+var $author$project$Format$Version20$codecGraphFlagsJs = A2($author$project$Format$Version20$graphoCodec, $author$project$Format$Version20$codecNodeFlagsJs, $author$project$Format$Version20$codecEdgeFlagsJs);
+var $author$project$Format$Version20$fromJSGraph = A2(
 	$elm$core$Basics$composeL,
-	$author$project$Format$Version19$fromJSGraphFlags,
-	$author$project$Codec$decoder($author$project$Format$Version19$codecGraphFlagsJs));
+	$author$project$Format$Version20$fromJSGraphFlags,
+	$author$project$Codec$decoder($author$project$Format$Version20$codecGraphFlagsJs));
+var $author$project$Format$Version19$fromJSGraph = function (g) {
+	return $author$project$Format$Version20$fromJSGraph(
+		$author$project$Format$Version19$toNextGrapho(g));
+};
 var $author$project$Msg$SimpleScenario = {$: 'SimpleScenario'};
 var $author$project$Msg$isSimpleScenario = function (s) {
 	return _Utils_eq(s, $author$project$Msg$SimpleScenario);
@@ -13860,6 +13872,225 @@ var $author$project$Main$loadedGraph2 = _Platform_incomingPort(
 				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
 		},
 		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
+var $author$project$Main$loadedGraph20 = _Platform_incomingPort(
+	'loadedGraph20',
+	A2(
+		$elm$json$Json$Decode$andThen,
+		function (setFirstTab) {
+			return A2(
+				$elm$json$Json$Decode$andThen,
+				function (scenario) {
+					return A2(
+						$elm$json$Json$Decode$andThen,
+						function (graph) {
+							return A2(
+								$elm$json$Json$Decode$andThen,
+								function (clipboard) {
+									return $elm$json$Json$Decode$succeed(
+										{clipboard: clipboard, graph: graph, scenario: scenario, setFirstTab: setFirstTab});
+								},
+								A2($elm$json$Json$Decode$field, 'clipboard', $elm$json$Json$Decode$bool));
+						},
+						A2(
+							$elm$json$Json$Decode$field,
+							'graph',
+							A2(
+								$elm$json$Json$Decode$andThen,
+								function (tabs) {
+									return A2(
+										$elm$json$Json$Decode$andThen,
+										function (nextTabId) {
+											return A2(
+												$elm$json$Json$Decode$andThen,
+												function (latexPreamble) {
+													return A2(
+														$elm$json$Json$Decode$andThen,
+														function (latexBackgroundColor) {
+															return A2(
+																$elm$json$Json$Decode$andThen,
+																function (activeTabId) {
+																	return $elm$json$Json$Decode$succeed(
+																		{activeTabId: activeTabId, latexBackgroundColor: latexBackgroundColor, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs});
+																},
+																A2($elm$json$Json$Decode$field, 'activeTabId', $elm$json$Json$Decode$int));
+														},
+														A2($elm$json$Json$Decode$field, 'latexBackgroundColor', $elm$json$Json$Decode$string));
+												},
+												A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
+										},
+										A2($elm$json$Json$Decode$field, 'nextTabId', $elm$json$Json$Decode$int));
+								},
+								A2(
+									$elm$json$Json$Decode$field,
+									'tabs',
+									$elm$json$Json$Decode$list(
+										A2(
+											$elm$json$Json$Decode$andThen,
+											function (title) {
+												return A2(
+													$elm$json$Json$Decode$andThen,
+													function (sizeGrid) {
+														return A2(
+															$elm$json$Json$Decode$andThen,
+															function (nodes) {
+																return A2(
+																	$elm$json$Json$Decode$andThen,
+																	function (nextGraphId) {
+																		return A2(
+																			$elm$json$Json$Decode$andThen,
+																			function (id) {
+																				return A2(
+																					$elm$json$Json$Decode$andThen,
+																					function (freehandDrawings) {
+																						return A2(
+																							$elm$json$Json$Decode$andThen,
+																							function (edges) {
+																								return $elm$json$Json$Decode$succeed(
+																									{edges: edges, freehandDrawings: freehandDrawings, id: id, nextGraphId: nextGraphId, nodes: nodes, sizeGrid: sizeGrid, title: title});
+																							},
+																							A2(
+																								$elm$json$Json$Decode$field,
+																								'edges',
+																								$elm$json$Json$Decode$list(
+																									A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (to) {
+																											return A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (label) {
+																													return A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (id) {
+																															return A2(
+																																$elm$json$Json$Decode$andThen,
+																																function (from) {
+																																	return $elm$json$Json$Decode$succeed(
+																																		{from: from, id: id, label: label, to: to});
+																																},
+																																A2($elm$json$Json$Decode$field, 'from', $elm$json$Json$Decode$int));
+																														},
+																														A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																												},
+																												A2(
+																													$elm$json$Json$Decode$field,
+																													'label',
+																													A2(
+																														$elm$json$Json$Decode$andThen,
+																														function (zindex) {
+																															return A2(
+																																$elm$json$Json$Decode$andThen,
+																																function (options) {
+																																	return A2(
+																																		$elm$json$Json$Decode$andThen,
+																																		function (label) {
+																																			return $elm$json$Json$Decode$succeed(
+																																				{label: label, options: options, zindex: zindex});
+																																		},
+																																		A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																																},
+																																A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
+																														},
+																														A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int))));
+																										},
+																										A2($elm$json$Json$Decode$field, 'to', $elm$json$Json$Decode$int)))));
+																					},
+																					A2(
+																						$elm$json$Json$Decode$field,
+																						'freehandDrawings',
+																						$elm$json$Json$Decode$list(
+																							A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (start) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (offsets) {
+																											return $elm$json$Json$Decode$succeed(
+																												{offsets: offsets, start: start});
+																										},
+																										A2($elm$json$Json$Decode$field, 'offsets', $elm$json$Json$Decode$string));
+																								},
+																								A2(
+																									$elm$json$Json$Decode$field,
+																									'start',
+																									A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (_v0) {
+																											return A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (_v1) {
+																													return $elm$json$Json$Decode$succeed(
+																														_Utils_Tuple2(_v0, _v1));
+																												},
+																												A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																										},
+																										A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)))))));
+																			},
+																			A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																	},
+																	A2($elm$json$Json$Decode$field, 'nextGraphId', $elm$json$Json$Decode$int));
+															},
+															A2(
+																$elm$json$Json$Decode$field,
+																'nodes',
+																$elm$json$Json$Decode$list(
+																	A2(
+																		$elm$json$Json$Decode$andThen,
+																		function (label) {
+																			return A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (id) {
+																					return $elm$json$Json$Decode$succeed(
+																						{id: id, label: label});
+																				},
+																				A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+																		},
+																		A2(
+																			$elm$json$Json$Decode$field,
+																			'label',
+																			A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (zindex) {
+																					return A2(
+																						$elm$json$Json$Decode$andThen,
+																						function (pos) {
+																							return A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (options) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (label) {
+																											return $elm$json$Json$Decode$succeed(
+																												{label: label, options: options, pos: pos, zindex: zindex});
+																										},
+																										A2($elm$json$Json$Decode$field, 'label', $elm$json$Json$Decode$string));
+																								},
+																								A2($elm$json$Json$Decode$field, 'options', $elm$json$Json$Decode$value));
+																						},
+																						A2(
+																							$elm$json$Json$Decode$field,
+																							'pos',
+																							A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (_v0) {
+																									return A2(
+																										$elm$json$Json$Decode$andThen,
+																										function (_v1) {
+																											return $elm$json$Json$Decode$succeed(
+																												_Utils_Tuple2(_v0, _v1));
+																										},
+																										A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$float));
+																								},
+																								A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float))));
+																				},
+																				A2($elm$json$Json$Decode$field, 'zindex', $elm$json$Json$Decode$int)))))));
+													},
+													A2($elm$json$Json$Decode$field, 'sizeGrid', $elm$json$Json$Decode$int));
+											},
+											A2($elm$json$Json$Decode$field, 'title', $elm$json$Json$Decode$string)))))));
+				},
+				A2($elm$json$Json$Decode$field, 'scenario', $elm$json$Json$Decode$string));
+		},
+		A2($elm$json$Json$Decode$field, 'setFirstTab', $elm$json$Json$Decode$bool)));
 var $author$project$Main$loadedGraph3 = _Platform_incomingPort(
 	'loadedGraph3',
 	A2(
@@ -15332,6 +15563,7 @@ var $author$project$Main$onMouseMoveFromJS = _Platform_incomingPort(
 		A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$float)));
 var $author$project$Main$preventDefault = _Platform_outgoingPort('preventDefault', $elm$core$Basics$identity);
 var $author$project$Main$promptedEquation = _Platform_incomingPort('promptedEquation', $elm$json$Json$Decode$string);
+var $author$project$Main$promptedLatexBackgroundColor = _Platform_incomingPort('promptedLatexBackgroundColor', $elm$json$Json$Decode$string);
 var $author$project$Main$promptedTabTitle = _Platform_incomingPort('promptedTabTitle', $elm$json$Json$Decode$string);
 var $author$project$Msg$ClearProtocol = function (a) {
 	return {$: 'ClearProtocol', a: a};
@@ -15362,6 +15594,9 @@ var $author$project$Format$GraphInfo$FreehandRemove = F2(
 var $author$project$Format$GraphInfo$GraphChange = function (a) {
 	return {$: 'GraphChange', a: a};
 };
+var $author$project$Format$GraphInfo$LatexBackgroundColorEdit = function (a) {
+	return {$: 'LatexBackgroundColorEdit', a: a};
+};
 var $author$project$Format$GraphInfo$LatexPreamble = function (a) {
 	return {$: 'LatexPreamble', a: a};
 };
@@ -15390,16 +15625,16 @@ var $author$project$Format$GraphInfo$TabSizeGrid = F2(
 var $author$project$Format$GraphInfo$TabUnremove = function (a) {
 	return {$: 'TabUnremove', a: a};
 };
-var $author$project$Format$Version19$edgeCodec = A2(
+var $author$project$Format$Version20$edgeCodec = A2(
 	$author$project$Codec$compose,
 	A2(
 		$author$project$Codec$build,
-		$author$project$Format$Version19$edgeMap(
-			$author$project$Codec$encoder($author$project$Format$Version19$codecEdgeFlagsJs)),
-		$author$project$Format$Version19$edgeMap(
-			$author$project$Codec$decoder($author$project$Format$Version19$codecEdgeFlagsJs))),
-	$author$project$Format$Version19$edgeFCodec);
-var $author$project$Format$LastVersion$edgeCodec = $author$project$Format$Version19$edgeCodec;
+		$author$project$Format$Version20$edgeMap(
+			$author$project$Codec$encoder($author$project$Format$Version20$codecEdgeFlagsJs)),
+		$author$project$Format$Version20$edgeMap(
+			$author$project$Codec$decoder($author$project$Format$Version20$codecEdgeFlagsJs))),
+	$author$project$Format$Version20$edgeFCodec);
+var $author$project$Format$LastVersion$edgeCodec = $author$project$Format$Version20$edgeCodec;
 var $author$project$Polygraph$Modif = function (a) {
 	return {$: 'Modif', a: a};
 };
@@ -15573,30 +15808,30 @@ var $author$project$Polygraph$modifCodec = A2(
 			return m;
 		},
 		$author$project$Polygraph$Modif));
-var $author$project$Format$Version19$nodeCodecWithDeps = A2(
+var $author$project$Format$Version20$nodeCodecWithDeps = A2(
 	$author$project$Codec$compose,
 	A2(
 		$author$project$Codec$build,
-		$author$project$Format$Version19$nodeMap(
-			$author$project$Codec$encoder($author$project$Format$Version19$codecNodeFlagsJs)),
-		$author$project$Format$Version19$nodeMap(
-			$author$project$Codec$decoder($author$project$Format$Version19$codecNodeFlagsJs))),
-	$author$project$Format$Version19$nodeFCodecWithDeps);
-var $author$project$Format$Version19$nodeCodec = A2(
+		$author$project$Format$Version20$nodeMap(
+			$author$project$Codec$encoder($author$project$Format$Version20$codecNodeFlagsJs)),
+		$author$project$Format$Version20$nodeMap(
+			$author$project$Codec$decoder($author$project$Format$Version20$codecNodeFlagsJs))),
+	$author$project$Format$Version20$nodeFCodecWithDeps);
+var $author$project$Format$Version20$nodeCodec = A2(
 	$author$project$Codec$build,
 	function (n) {
 		return A2(
 			$author$project$Codec$encoder,
-			$author$project$Format$Version19$nodeCodecWithDeps,
+			$author$project$Format$Version20$nodeCodecWithDeps,
 			{deps: _List_Nil, node: n});
 	},
 	A2(
 		$elm$core$Basics$composeR,
-		$author$project$Codec$decoder($author$project$Format$Version19$nodeCodecWithDeps),
+		$author$project$Codec$decoder($author$project$Format$Version20$nodeCodecWithDeps),
 		function ($) {
 			return $.node;
 		}));
-var $author$project$Format$LastVersion$nodeCodec = $author$project$Format$Version19$nodeCodec;
+var $author$project$Format$LastVersion$nodeCodec = $author$project$Format$Version20$nodeCodec;
 var $author$project$Format$GraphInfoCodec$codecGraphModif = A2(
 	$author$project$Codec$compose,
 	$author$project$Polygraph$modifCodec,
@@ -15733,24 +15968,24 @@ var $author$project$FreeHandDrawings$emptyDrawingJS = {
 var $author$project$Format$GraphInfo$emptyTab = function (id) {
 	return {freehandDrawings: $author$project$FreeHandDrawings$empty, graph: $author$project$Polygraph$empty, id: id, sizeGrid: 200, title: '1'};
 };
-var $author$project$Format$Version19$taboCodec = F2(
+var $author$project$Format$Version20$taboCodec = F2(
 	function (c1, c2) {
 		return A2(
 			$author$project$Codec$build,
 			A2(
-				$author$project$Format$Version19$taboMap,
+				$author$project$Format$Version20$taboMap,
 				$author$project$Codec$encoder(c1),
 				$author$project$Codec$encoder(c2)),
 			A2(
-				$author$project$Format$Version19$taboMap,
+				$author$project$Format$Version20$taboMap,
 				$author$project$Codec$decoder(c1),
 				$author$project$Codec$decoder(c2)));
 	});
-var $author$project$Format$Version19$tabCodec = A2(
+var $author$project$Format$Version20$tabCodec = A2(
 	$author$project$Codec$compose,
-	A2($author$project$Format$Version19$taboCodec, $author$project$Format$Version19$codecNodeFlagsJs, $author$project$Format$Version19$codecEdgeFlagsJs),
-	$author$project$Format$Version19$tabFlagsCodec);
-var $author$project$Format$LastVersion$tabCodec = $author$project$Format$Version19$tabCodec;
+	A2($author$project$Format$Version20$taboCodec, $author$project$Format$Version20$codecNodeFlagsJs, $author$project$Format$Version20$codecEdgeFlagsJs),
+	$author$project$Format$Version20$tabFlagsCodec);
+var $author$project$Format$LastVersion$tabCodec = $author$project$Format$Version20$tabCodec;
 var $author$project$Format$GraphInfoCodec$defaultModifJS = {
 	graphModif: $author$project$Format$GraphInfoCodec$defaultGraphModifJS,
 	newFreeHand: $author$project$FreeHandDrawings$emptyDrawingJS,
@@ -15900,8 +16135,8 @@ var $author$project$Format$GraphInfoCodec$codecModif = function () {
 											}))))),
 						A6(
 							$author$project$Codec$variant1,
-							'latexPreamble',
-							$author$project$Format$GraphInfo$LatexPreamble,
+							'latexBackgroundColor',
+							$author$project$Format$GraphInfo$LatexBackgroundColorEdit,
 							F2(
 								function (s, r) {
 									return _Utils_update(
@@ -15912,46 +16147,51 @@ var $author$project$Format$GraphInfoCodec$codecModif = function () {
 								return $.string;
 							},
 							$author$project$Codec$identity,
-							A3(
-								$author$project$Codec$variant0,
-								'tabNew',
-								$author$project$Format$GraphInfo$TabNew,
-								A6(
-									$author$project$Codec$variant1,
-									'tabDuplicate',
-									$author$project$Format$GraphInfo$TabDuplicate,
-									updTabId,
-									function ($) {
-										return $.tabId;
-									},
-									$author$project$Codec$identity,
+							A6(
+								$author$project$Codec$variant1,
+								'latexPreamble',
+								$author$project$Format$GraphInfo$LatexPreamble,
+								F2(
+									function (s, r) {
+										return _Utils_update(
+											r,
+											{string: s});
+									}),
+								function ($) {
+									return $.string;
+								},
+								$author$project$Codec$identity,
+								A3(
+									$author$project$Codec$variant0,
+									'tabNew',
+									$author$project$Format$GraphInfo$TabNew,
 									A6(
 										$author$project$Codec$variant1,
-										'tabUnremove',
-										$author$project$Format$GraphInfo$TabUnremove,
-										F2(
-											function (tab, r) {
-												return _Utils_update(
-													r,
-													{tab: tab});
-											}),
+										'tabDuplicate',
+										$author$project$Format$GraphInfo$TabDuplicate,
+										updTabId,
 										function ($) {
-											return $.tab;
+											return $.tabId;
 										},
-										$author$project$Format$LastVersion$tabCodec,
+										$author$project$Codec$identity,
 										A6(
 											$author$project$Codec$variant1,
-											'tabRemove',
-											$author$project$Format$GraphInfo$TabRemove,
-											updTabId,
+											'tabUnremove',
+											$author$project$Format$GraphInfo$TabUnremove,
+											F2(
+												function (tab, r) {
+													return _Utils_update(
+														r,
+														{tab: tab});
+												}),
 											function ($) {
-												return $.tabId;
+												return $.tab;
 											},
-											$author$project$Codec$identity,
+											$author$project$Format$LastVersion$tabCodec,
 											A6(
 												$author$project$Codec$variant1,
-												'tabMoveRight',
-												$author$project$Format$GraphInfo$TabMoveRight,
+												'tabRemove',
+												$author$project$Format$GraphInfo$TabRemove,
 												updTabId,
 												function ($) {
 													return $.tabId;
@@ -15959,104 +16199,119 @@ var $author$project$Format$GraphInfoCodec$codecModif = function () {
 												$author$project$Codec$identity,
 												A6(
 													$author$project$Codec$variant1,
-													'tabMoveLeft',
-													$author$project$Format$GraphInfo$TabMoveLeft,
+													'tabMoveRight',
+													$author$project$Format$GraphInfo$TabMoveRight,
 													updTabId,
 													function ($) {
 														return $.tabId;
 													},
 													$author$project$Codec$identity,
 													A6(
-														$author$project$Codec$variant2,
-														'tabSizeGrid',
-														$author$project$Format$GraphInfo$TabSizeGrid,
-														F3(
-															function (tabId, size, r) {
-																return _Utils_update(
-																	r,
-																	{size: size, tabId: tabId});
-															}),
+														$author$project$Codec$variant1,
+														'tabMoveLeft',
+														$author$project$Format$GraphInfo$TabMoveLeft,
+														updTabId,
 														function ($) {
 															return $.tabId;
 														},
-														function ($) {
-															return $.size;
-														},
+														$author$project$Codec$identity,
 														A6(
 															$author$project$Codec$variant2,
-															'tabRename',
-															$author$project$Format$GraphInfo$TabRename,
+															'tabSizeGrid',
+															$author$project$Format$GraphInfo$TabSizeGrid,
 															F3(
-																function (tabId, string, r) {
+																function (tabId, size, r) {
 																	return _Utils_update(
 																		r,
-																		{string: string, tabId: tabId});
+																		{size: size, tabId: tabId});
 																}),
 															function ($) {
 																return $.tabId;
 															},
 															function ($) {
-																return $.string;
+																return $.size;
 															},
-															A2(
-																$author$project$Codec$customStringTag,
-																function (tabRename) {
-																	return function (tabSizeGrid) {
-																		return function (tabMoveLeft) {
-																			return function (tabMoveRight) {
-																				return function (tabRemove) {
-																					return function (tabUnremove) {
-																						return function (tabDuplicate) {
-																							return function (tabNew) {
-																								return function (latexPreamble) {
-																									return function (graphChange) {
-																										return function (freehandAdd) {
-																											return function (freehandRemove) {
-																												return function (noop) {
-																													return function (v) {
-																														switch (v.$) {
-																															case 'TabRename':
-																																var id = v.a;
-																																var s = v.b;
-																																return A2(tabRename, id, s);
-																															case 'TabSizeGrid':
-																																var id = v.a;
-																																var size = v.b;
-																																return A2(tabSizeGrid, id, size);
-																															case 'TabMoveLeft':
-																																var id = v.a;
-																																return tabMoveLeft(id);
-																															case 'TabMoveRight':
-																																var id = v.a;
-																																return tabMoveRight(id);
-																															case 'TabRemove':
-																																var id = v.a;
-																																return tabRemove(id);
-																															case 'TabUnremove':
-																																var tab = v.a;
-																																return tabUnremove(tab);
-																															case 'TabDuplicate':
-																																var id = v.a;
-																																return tabDuplicate(id);
-																															case 'TabNew':
-																																return tabNew;
-																															case 'LatexPreamble':
-																																var s = v.a;
-																																return latexPreamble(s);
-																															case 'GraphChange':
-																																var arg = v.a;
-																																return graphChange(arg);
-																															case 'FreehandAdd':
-																																var tabId = v.a;
-																																var points = v.b;
-																																return A2(freehandAdd, tabId, points);
-																															case 'FreehandRemove':
-																																var tabId = v.a;
-																																var idx = v.b;
-																																return A2(freehandRemove, tabId, idx);
-																															default:
-																																return noop;
-																														}
+															A6(
+																$author$project$Codec$variant2,
+																'tabRename',
+																$author$project$Format$GraphInfo$TabRename,
+																F3(
+																	function (tabId, string, r) {
+																		return _Utils_update(
+																			r,
+																			{string: string, tabId: tabId});
+																	}),
+																function ($) {
+																	return $.tabId;
+																},
+																function ($) {
+																	return $.string;
+																},
+																A2(
+																	$author$project$Codec$customStringTag,
+																	function (tabRename) {
+																		return function (tabSizeGrid) {
+																			return function (tabMoveLeft) {
+																				return function (tabMoveRight) {
+																					return function (tabRemove) {
+																						return function (tabUnremove) {
+																							return function (tabDuplicate) {
+																								return function (tabNew) {
+																									return function (latexPreamble) {
+																										return function (latexBackgroundColor) {
+																											return function (graphChange) {
+																												return function (freehandAdd) {
+																													return function (freehandRemove) {
+																														return function (noop) {
+																															return function (v) {
+																																switch (v.$) {
+																																	case 'TabRename':
+																																		var id = v.a;
+																																		var s = v.b;
+																																		return A2(tabRename, id, s);
+																																	case 'TabSizeGrid':
+																																		var id = v.a;
+																																		var size = v.b;
+																																		return A2(tabSizeGrid, id, size);
+																																	case 'TabMoveLeft':
+																																		var id = v.a;
+																																		return tabMoveLeft(id);
+																																	case 'TabMoveRight':
+																																		var id = v.a;
+																																		return tabMoveRight(id);
+																																	case 'TabRemove':
+																																		var id = v.a;
+																																		return tabRemove(id);
+																																	case 'TabUnremove':
+																																		var tab = v.a;
+																																		return tabUnremove(tab);
+																																	case 'TabDuplicate':
+																																		var id = v.a;
+																																		return tabDuplicate(id);
+																																	case 'TabNew':
+																																		return tabNew;
+																																	case 'LatexPreamble':
+																																		var s = v.a;
+																																		return latexPreamble(s);
+																																	case 'LatexBackgroundColorEdit':
+																																		var s = v.a;
+																																		return latexBackgroundColor(s);
+																																	case 'GraphChange':
+																																		var arg = v.a;
+																																		return graphChange(arg);
+																																	case 'FreehandAdd':
+																																		var tabId = v.a;
+																																		var points = v.b;
+																																		return A2(freehandAdd, tabId, points);
+																																	case 'FreehandRemove':
+																																		var tabId = v.a;
+																																		var idx = v.b;
+																																		return A2(freehandRemove, tabId, idx);
+																																	default:
+																																		return noop;
+																																}
+																															};
+																														};
 																													};
 																												};
 																											};
@@ -16069,21 +16324,20 @@ var $author$project$Format$GraphInfoCodec$codecModif = function () {
 																				};
 																			};
 																		};
-																	};
-																},
-																$author$project$Format$GraphInfoCodec$defaultModifJS)))))))))))))));
+																	},
+																	$author$project$Format$GraphInfoCodec$defaultModifJS))))))))))))))));
 }();
 var $author$project$Msg$Noop = {$: 'Noop'};
 var $author$project$CommandCodec$defaultProtocolMsg = $author$project$Msg$ModifProtocol(
 	{command: $author$project$Msg$Noop, id: $author$project$Msg$defaultModifId, modif: $author$project$Format$GraphInfo$Noop, selIds: $elm_community$intdict$IntDict$empty});
-var $author$project$Format$Version19$toJSGraph = function (g) {
+var $author$project$Format$Version20$toJSGraph = function (g) {
 	return A2(
 		$author$project$Codec$encoder,
-		$author$project$Format$Version19$codecGraphFlagsJs,
-		A2($author$project$Codec$encoder, $author$project$Format$Version19$graphInfoCodecFlags, g));
+		$author$project$Format$Version20$codecGraphFlagsJs,
+		A2($author$project$Codec$encoder, $author$project$Format$Version20$graphInfoCodecFlags, g));
 };
-var $author$project$Format$Version19$graphInfoCodec = A2($author$project$Codec$build, $author$project$Format$Version19$toJSGraph, $author$project$Format$Version19$fromJSGraph);
-var $author$project$Format$LastVersion$graphInfoCodec = $author$project$Format$Version19$graphInfoCodec;
+var $author$project$Format$Version20$graphInfoCodec = A2($author$project$Codec$build, $author$project$Format$Version20$toJSGraph, $author$project$Format$Version20$fromJSGraph);
+var $author$project$Format$LastVersion$graphInfoCodec = $author$project$Format$Version20$graphInfoCodec;
 var $author$project$Codec$maybeBuildVariant = F2(
 	function (defaultV, _v0) {
 		var c = _v0.a;
@@ -16629,11 +16883,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																								function (latexPreamble) {
 																									return A2(
 																										$elm$json$Json$Decode$andThen,
-																										function (activeTabId) {
-																											return $elm$json$Json$Decode$succeed(
-																												{activeTabId: activeTabId, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs});
+																										function (latexBackgroundColor) {
+																											return A2(
+																												$elm$json$Json$Decode$andThen,
+																												function (activeTabId) {
+																													return $elm$json$Json$Decode$succeed(
+																														{activeTabId: activeTabId, latexBackgroundColor: latexBackgroundColor, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs});
+																												},
+																												A2($elm$json$Json$Decode$field, 'activeTabId', $elm$json$Json$Decode$int));
 																										},
-																										A2($elm$json$Json$Decode$field, 'activeTabId', $elm$json$Json$Decode$int));
+																										A2($elm$json$Json$Decode$field, 'latexBackgroundColor', $elm$json$Json$Decode$string));
 																								},
 																								A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
 																						},
@@ -17419,11 +17678,16 @@ var $author$project$CommandCodec$protocolReceiveJS = _Platform_incomingPort(
 																function (latexPreamble) {
 																	return A2(
 																		$elm$json$Json$Decode$andThen,
-																		function (activeTabId) {
-																			return $elm$json$Json$Decode$succeed(
-																				{activeTabId: activeTabId, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs});
+																		function (latexBackgroundColor) {
+																			return A2(
+																				$elm$json$Json$Decode$andThen,
+																				function (activeTabId) {
+																					return $elm$json$Json$Decode$succeed(
+																						{activeTabId: activeTabId, latexBackgroundColor: latexBackgroundColor, latexPreamble: latexPreamble, nextTabId: nextTabId, tabs: tabs});
+																				},
+																				A2($elm$json$Json$Decode$field, 'activeTabId', $elm$json$Json$Decode$int));
 																		},
-																		A2($elm$json$Json$Decode$field, 'activeTabId', $elm$json$Json$Decode$int));
+																		A2($elm$json$Json$Decode$field, 'latexBackgroundColor', $elm$json$Json$Decode$string));
 																},
 																A2($elm$json$Json$Decode$field, 'latexPreamble', $elm$json$Json$Decode$string));
 														},
@@ -18136,6 +18400,7 @@ var $author$project$Main$subscriptions = function (m) {
 					$author$project$Main$findReplace($author$project$Msg$FindReplace),
 					$author$project$Main$simpleMsg($author$project$Msg$SimpleMsg),
 					$author$project$Main$promptedTabTitle($author$project$Msg$RenameTab),
+					$author$project$Main$promptedLatexBackgroundColor($author$project$Msg$LatexBackgroundColorEdit),
 					$author$project$Main$clear(
 					function (_v0) {
 						var scenario = _v0.scenario;
@@ -18245,6 +18510,11 @@ var $author$project$Main$subscriptions = function (m) {
 					A2(
 						$elm$core$Basics$composeR,
 						$author$project$Msg$mapLoadGraphInfo($author$project$Format$Version19$fromJSGraph),
+						$author$project$Msg$loadGraphInfoToMsg)),
+					$author$project$Main$loadedGraph20(
+					A2(
+						$elm$core$Basics$composeR,
+						$author$project$Msg$mapLoadGraphInfo($author$project$Format$Version20$fromJSGraph),
 						$author$project$Msg$loadGraphInfoToMsg)),
 					$author$project$Main$setFirstTabEquation($author$project$Msg$SetFirstTabEquation),
 					$elm$browser$Browser$Events$onClick(
@@ -19592,6 +19862,16 @@ var $author$project$Format$GraphInfo$applyModif = F2(
 								gi,
 								{latexPreamble: s}),
 							undo: $author$project$Format$GraphInfo$LatexPreamble(gi.latexPreamble)
+						}));
+			case 'LatexBackgroundColorEdit':
+				var s = modif.a;
+				return _Utils_eq(s, gi.latexBackgroundColor) ? $elm$core$Maybe$Nothing : retModif(
+					$elm$core$Maybe$Just(
+						{
+							next: _Utils_update(
+								gi,
+								{latexBackgroundColor: s}),
+							undo: $author$project$Format$GraphInfo$LatexBackgroundColorEdit(gi.latexBackgroundColor)
 						}));
 			case 'TabMoveLeft':
 				var id = modif.a;
@@ -21749,6 +22029,9 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 																			'activeTabId',
 																			$elm$json$Json$Encode$int($.activeTabId)),
 																			_Utils_Tuple2(
+																			'latexBackgroundColor',
+																			$elm$json$Json$Encode$string($.latexBackgroundColor)),
+																			_Utils_Tuple2(
 																			'latexPreamble',
 																			$elm$json$Json$Encode$string($.latexPreamble)),
 																			_Utils_Tuple2(
@@ -22320,6 +22603,9 @@ var $author$project$CommandCodec$protocolSendJS = _Platform_outgoingPort(
 															_Utils_Tuple2(
 															'activeTabId',
 															$elm$json$Json$Encode$int($.activeTabId)),
+															_Utils_Tuple2(
+															'latexBackgroundColor',
+															$elm$json$Json$Encode$string($.latexBackgroundColor)),
 															_Utils_Tuple2(
 															'latexPreamble',
 															$elm$json$Json$Encode$string($.latexPreamble)),
@@ -23133,43 +23419,44 @@ var $author$project$ArrowStyle$headTikzStyle = function (hd) {
 	}
 };
 var $author$project$Drawing$Color$toString = $author$project$Codec$encoder($author$project$Drawing$Color$codec);
-var $author$project$ArrowStyle$tikzStyle = function (stl) {
-	return $author$project$Drawing$Color$toString(stl.color) + (',' + (function () {
-		var _v0 = _Utils_Tuple2(stl.head, stl.kind);
-		switch (_v0.b.$) {
-			case 'DoubleArrow':
-				if (_v0.a.$ === 'NoHead') {
-					var _v1 = _v0.a;
-					var _v2 = _v0.b;
-					return 'identity,';
-				} else {
+var $author$project$ArrowStyle$tikzStyle = F2(
+	function (bgColor, stl) {
+		return $author$project$Drawing$Color$toString(stl.color) + (',' + ((_Utils_eq(stl.kind, $author$project$ArrowStyle$DoubleArrow) ? ('double=' + ($author$project$Drawing$Color$toString(bgColor) + ',')) : '') + (function () {
+			var _v0 = _Utils_Tuple2(stl.head, stl.kind);
+			switch (_v0.b.$) {
+				case 'DoubleArrow':
+					if (_v0.a.$ === 'NoHead') {
+						var _v1 = _v0.a;
+						var _v2 = _v0.b;
+						return 'identity,';
+					} else {
+						var hd = _v0.a;
+						var _v3 = _v0.b;
+						return $author$project$ArrowStyle$headTikzStyle(hd) + 'cell=0.05, ';
+					}
+				case 'NormalArrow':
 					var hd = _v0.a;
-					var _v3 = _v0.b;
-					return $author$project$ArrowStyle$headTikzStyle(hd) + 'cell=0.05, ';
-				}
-			case 'NormalArrow':
-				var hd = _v0.a;
-				var _v4 = _v0.b;
-				return $author$project$ArrowStyle$headTikzStyle(hd);
-			default:
-				var hd = _v0.a;
-				var _v5 = _v0.b;
-				return 'draw=none, ';
-		}
-	}() + ((stl.dashed ? 'dashed, ' : '') + (((!(!stl.bend)) ? ('curve={ratio=' + ($elm$core$String$fromFloat(stl.bend) + '}, ')) : '') + ((stl.wavy ? 'decorate,decoration={zigzag, pre length=3px, post length=3px,amplitude=0.05cm, segment length=0.15cm}, ' : '') + function () {
-		var _v6 = stl.tail;
-		switch (_v6.$) {
-			case 'DefaultTail':
-				return '';
-			case 'Mapsto':
-				return 'mapsto,';
-			case 'Hook':
-				return 'into, ';
-			default:
-				return 'linto, ';
-		}
-	}())))));
-};
+					var _v4 = _v0.b;
+					return $author$project$ArrowStyle$headTikzStyle(hd);
+				default:
+					var hd = _v0.a;
+					var _v5 = _v0.b;
+					return 'draw=none, ';
+			}
+		}() + ((stl.dashed ? 'dashed, ' : '') + (((!(!stl.bend)) ? ('curve={ratio=' + ($elm$core$String$fromFloat(stl.bend) + '}, ')) : '') + ((stl.wavy ? 'decorate,decoration={zigzag, pre length=3px, post length=3px,amplitude=0.05cm, segment length=0.15cm}, ' : '') + function () {
+			var _v6 = stl.tail;
+			switch (_v6.$) {
+				case 'DefaultTail':
+					return '';
+				case 'Mapsto':
+					return 'mapsto,';
+				case 'Hook':
+					return 'into, ';
+				default:
+					return 'linto, ';
+			}
+		}()))))));
+	});
 var $author$project$Geometry$Point$scale = F3(
 	function (sx, sy, _v0) {
 		var x = _v0.a;
@@ -23199,7 +23486,7 @@ var $author$project$Drawing$arrowToTikz = function (args) {
 		var bezier = _v0.a;
 		var width = (args.strokeWidth === 1) ? '' : ('line width=' + $author$project$Drawing$dimToTikz(args.strokeWidth));
 		var bez = $author$project$Geometry$QuadraticBezier$toCubic(bezier);
-		return '\\draw[' + ($author$project$ArrowStyle$tikzStyle(args.style) + (width + ('] ' + ($author$project$Drawing$pointToTikz(bez.from) + (' .. controls ' + ($author$project$Drawing$pointToTikz(bez.controlPoint1) + (' and ' + ($author$project$Drawing$pointToTikz(bez.controlPoint2) + (' .. ' + ($author$project$Drawing$pointToTikz(bez.to) + ';'))))))))));
+		return '\\draw[' + (A2($author$project$ArrowStyle$tikzStyle, args.backgroundColor, args.style) + (width + ('] ' + ($author$project$Drawing$pointToTikz(bez.from) + (' .. controls ' + ($author$project$Drawing$pointToTikz(bez.controlPoint1) + (' and ' + ($author$project$Drawing$pointToTikz(bez.controlPoint2) + (' .. ' + ($author$project$Drawing$pointToTikz(bez.to) + ';'))))))))));
 	} else {
 		var loop = _v0.a;
 		var width = (args.strokeWidth === 1) ? '' : ('line width=' + $author$project$Drawing$dimToTikz(args.strokeWidth));
@@ -23219,7 +23506,7 @@ var $author$project$Drawing$arrowToTikz = function (args) {
 		var startAngle = (A2($elm$core$Basics$atan2, my1 - mcy, x1 - cx) * 180) / $elm$core$Basics$pi;
 		var endAngleRaw = (A2($elm$core$Basics$atan2, my2 - mcy, x2 - cx) * 180) / $elm$core$Basics$pi;
 		var endAngle = (loop.r > 0) ? ((_Utils_cmp(endAngleRaw, startAngle) > 0) ? (endAngleRaw - 360) : endAngleRaw) : ((_Utils_cmp(endAngleRaw, startAngle) < 0) ? (endAngleRaw + 360) : endAngleRaw);
-		return '\\draw[' + ($author$project$ArrowStyle$tikzStyle(args.style) + (width + ('] ' + ($author$project$Drawing$pointToTikz(loop.from) + (' arc [start angle=' + ($elm$core$String$fromFloat(startAngle) + (', end angle=' + ($elm$core$String$fromFloat(endAngle) + (', radius=' + ($author$project$Drawing$dimToTikz(r) + '];'))))))))));
+		return '\\draw[' + (A2($author$project$ArrowStyle$tikzStyle, args.backgroundColor, args.style) + (width + ('] ' + ($author$project$Drawing$pointToTikz(loop.from) + (' arc [start angle=' + ($elm$core$String$fromFloat(startAngle) + (', end angle=' + ($elm$core$String$fromFloat(endAngle) + (', radius=' + ($author$project$Drawing$dimToTikz(r) + '];'))))))))));
 	}
 };
 var $author$project$Drawing$lineToTikz = function (arg) {
@@ -23457,19 +23744,18 @@ var $author$project$ListExtraExtra$succPairs = function (l) {
 		return _List_Nil;
 	}
 };
-var $author$project$Drawing$Color$white = $author$project$Drawing$Color$White;
 var $author$project$Drawing$polyLine = F2(
 	function (args, attrs) {
 		var pairs = $author$project$ListExtraExtra$succPairs(args.points);
 		var normalArg = function (_v1) {
 			var from = _v1.a;
 			var to = _v1.b;
-			return {color: args.color, from: from, strokeWidth: 1, to: to};
+			return {color: args.color, from: from, shadow: false, strokeWidth: 1, to: to};
 		};
 		var shadowArg = function (_v0) {
 			var from = _v0.a;
 			var to = _v0.b;
-			return {color: $author$project$Drawing$Color$white, from: from, strokeWidth: $author$project$Drawing$shadowWidth, to: to};
+			return {color: args.backgroundColor, from: from, shadow: true, strokeWidth: $author$project$Drawing$shadowWidth, to: to};
 		};
 		var makeShape = function (arg) {
 			return A2(
@@ -23491,14 +23777,15 @@ var $author$project$Drawing$polyLine = F2(
 		return $author$project$Drawing$group(
 			_Utils_ap(shadow, normal));
 	});
-var $author$project$GraphDrawing$drawHat = F5(
-	function (edgeId, a, z, _v0, hat) {
+var $author$project$GraphDrawing$drawHat = F6(
+	function (cfg, edgeId, a, z, _v0, hat) {
 		var color = _v0.color;
 		var classes = $author$project$GraphDrawing$class(
 			$author$project$GraphDrawing$activityToEdgeClasses(a));
 		return A2(
 			$author$project$Drawing$polyLine,
 			{
+				backgroundColor: cfg.latexBackgroundColor,
 				color: color,
 				points: _List_fromArray(
 					[hat.p1, hat.summit, hat.p2]),
@@ -23943,18 +24230,21 @@ var $author$project$Msg$MouseOn = function (a) {
 var $author$project$Drawing$Arrow = function (a) {
 	return {$: 'Arrow', a: a};
 };
-var $author$project$ArrowStyle$shadow = function (st) {
-	return _Utils_update(
-		st,
-		{color: $author$project$Drawing$Color$white, dashed: false, head: $author$project$ArrowStyle$NoHead, tail: $author$project$ArrowStyle$DefaultTail});
-};
+var $author$project$ArrowStyle$shadow = F2(
+	function (bgColor, st) {
+		return _Utils_update(
+			st,
+			{color: bgColor, dashed: false, head: $author$project$ArrowStyle$NoHead, tail: $author$project$ArrowStyle$DefaultTail});
+	});
 var $author$project$Drawing$arrow = F2(
 	function (args, attrs0) {
-		var normalArg = {curve: args.curve, strokeWidth: 1, style: args.style};
+		var normalArg = {backgroundColor: args.backgroundColor, curve: args.curve, shadow: false, strokeWidth: 1, style: args.style};
 		var shadowArg = {
+			backgroundColor: args.backgroundColor,
 			curve: args.curve,
+			shadow: true,
 			strokeWidth: $author$project$Drawing$shadowWidth,
-			style: $author$project$ArrowStyle$shadow(args.style)
+			style: A2($author$project$ArrowStyle$shadow, args.backgroundColor, args.style)
 		};
 		var makeShape = function (arg) {
 			return A2(
@@ -24778,7 +25068,7 @@ var $author$project$GraphDrawing$normalEdgeDrawing = F7(
 				[
 					A2(
 					$author$project$Drawing$arrow,
-					{curve: q, style: style, zindex: z},
+					{backgroundColor: cfg.latexBackgroundColor, curve: q, style: style, zindex: z},
 					attrs),
 					A7($author$project$GraphDrawing$segmentLabel, cfg, q, edgeId, activity, label, style.marker, curve),
 					A3($author$project$GraphDrawing$drawMarker, style.color, style.marker, q)
@@ -24795,7 +25085,7 @@ var $author$project$GraphDrawing$graphDrawing = F2(
 						if (_v0.b.$ === 'HatShape') {
 							var pullshoutStyle = _v0.a.a;
 							var hat = _v0.b.a;
-							return A5($author$project$GraphDrawing$drawHat, id, e.isActive, e.zindex, pullshoutStyle, hat);
+							return A6($author$project$GraphDrawing$drawHat, cfg, id, e.isActive, e.zindex, pullshoutStyle, hat);
 						} else {
 							break _v0$2;
 						}
@@ -24839,7 +25129,9 @@ var $author$project$GraphDrawing$graphDrawing = F2(
 	});
 var $author$project$Main$toDrawing = F2(
 	function (model, graph) {
+		var bgColor = A2($author$project$Codec$decoder, $author$project$Drawing$Color$codec, model.graphInfo.latexBackgroundColor);
 		var cfg = {
+			latexBackgroundColor: bgColor,
 			latexPreamble: function () {
 				var _v0 = model.scenario;
 				if (_v0.$ === 'Exercise1') {
@@ -26693,6 +26985,7 @@ var $author$project$Drawing$mkPath = F3(
 									]) : _List_Nil))))),
 			_List_Nil);
 	});
+var $author$project$Drawing$Color$white = $author$project$Drawing$Color$White;
 var $author$project$Drawing$arrowToSvg = F2(
 	function (args, attrs0) {
 		var arrowStyle = args.style;
@@ -26700,6 +26993,7 @@ var $author$project$Drawing$arrowToSvg = F2(
 		if ($author$project$ArrowStyle$isNone(arrowStyle)) {
 			return A2($author$project$String$Svg$g, _List_Nil, _List_Nil);
 		} else {
+			var color = args.shadow ? $author$project$Drawing$Color$white : arrowStyle.color;
 			var _v0 = args.curve;
 			if (_v0.$ === 'CurveBezier') {
 				var q = _v0.a;
@@ -26707,7 +27001,7 @@ var $author$project$Drawing$arrowToSvg = F2(
 				var mkgen = function (l) {
 					return A2(
 						$author$project$Drawing$mkPath,
-						{color: arrowStyle.color, dashed: arrowStyle.dashed, strokeWidth: args.strokeWidth, wavy: arrowStyle.wavy},
+						{color: color, dashed: arrowStyle.dashed, strokeWidth: args.strokeWidth, wavy: arrowStyle.wavy},
 						_Utils_ap(l, attrs));
 				};
 				var mkl = mkgen(_List_Nil);
@@ -26765,7 +27059,7 @@ var $author$project$Drawing$arrowToSvg = F2(
 								$author$project$String$Svg$fill('none'),
 								A2(
 									$elm$core$List$cons,
-									$author$project$String$Svg$strokeFromColor(arrowStyle.color),
+									$author$project$String$Svg$strokeFromColor(color),
 									_Utils_ap(
 										l,
 										_Utils_ap(
@@ -26817,7 +27111,8 @@ var $author$project$Drawing$lineToSvg = F2(
 						f(tox)),
 						$author$project$String$Svg$y2(
 						f(toy)),
-						$author$project$String$Svg$strokeFromColor(arg.color),
+						$author$project$String$Svg$strokeFromColor(
+						arg.shadow ? $author$project$Drawing$Color$white : arg.color),
 						$author$project$String$Svg$strokeWidthPx(arg.strokeWidth)
 					]),
 				A2($elm$core$List$map, $author$project$String$Html$ghostAttribute, attrs)),
@@ -27590,6 +27885,9 @@ var $author$project$Main$saveGraph = _Platform_outgoingPort(
 													'activeTabId',
 													$elm$json$Json$Encode$int($.activeTabId)),
 													_Utils_Tuple2(
+													'latexBackgroundColor',
+													$elm$json$Json$Encode$string($.latexBackgroundColor)),
+													_Utils_Tuple2(
 													'latexPreamble',
 													$elm$json$Json$Encode$string($.latexPreamble)),
 													_Utils_Tuple2(
@@ -27842,9 +28140,9 @@ var $author$project$Format$GraphInfo$normalise = function (gi) {
 var $author$project$Model$toGraphInfo = function (m) {
 	return m.graphInfo;
 };
-var $author$project$Format$LastVersion$toJSGraph = $author$project$Format$Version19$toJSGraph;
-var $author$project$Format$Version19$version = 19;
-var $author$project$Format$LastVersion$version = $author$project$Format$Version19$version;
+var $author$project$Format$LastVersion$toJSGraph = $author$project$Format$Version20$toJSGraph;
+var $author$project$Format$Version20$version = 20;
+var $author$project$Format$LastVersion$version = $author$project$Format$Version20$version;
 var $author$project$Main$toJsGraphInfo = function (model) {
 	return {
 		graph: $author$project$Format$LastVersion$toJSGraph(
@@ -28038,6 +28336,9 @@ var $author$project$Main$quicksaveGraph = _Platform_outgoingPort(
 													_Utils_Tuple2(
 													'activeTabId',
 													$elm$json$Json$Encode$int($.activeTabId)),
+													_Utils_Tuple2(
+													'latexBackgroundColor',
+													$elm$json$Json$Encode$string($.latexBackgroundColor)),
 													_Utils_Tuple2(
 													'latexPreamble',
 													$elm$json$Json$Encode$string($.latexPreamble)),
@@ -33945,6 +34246,9 @@ var $author$project$Main$clipboardWriteGraph = _Platform_outgoingPort(
 									'activeTabId',
 									$elm$json$Json$Encode$int($.activeTabId)),
 									_Utils_Tuple2(
+									'latexBackgroundColor',
+									$elm$json$Json$Encode$string($.latexBackgroundColor)),
+									_Utils_Tuple2(
 									'latexPreamble',
 									$elm$json$Json$Encode$string($.latexPreamble)),
 									_Utils_Tuple2(
@@ -34103,6 +34407,9 @@ var $author$project$Main$clipboardWriteLatex = _Platform_outgoingPort(
 													_Utils_Tuple2(
 													'activeTabId',
 													$elm$json$Json$Encode$int($.activeTabId)),
+													_Utils_Tuple2(
+													'latexBackgroundColor',
+													$elm$json$Json$Encode$string($.latexBackgroundColor)),
 													_Utils_Tuple2(
 													'latexPreamble',
 													$elm$json$Json$Encode$string($.latexPreamble)),
@@ -34393,6 +34700,9 @@ var $author$project$Main$generateProofJs = _Platform_outgoingPort(
 													_Utils_Tuple2(
 													'activeTabId',
 													$elm$json$Json$Encode$int($.activeTabId)),
+													_Utils_Tuple2(
+													'latexBackgroundColor',
+													$elm$json$Json$Encode$string($.latexBackgroundColor)),
 													_Utils_Tuple2(
 													'latexPreamble',
 													$elm$json$Json$Encode$string($.latexPreamble)),
@@ -36974,6 +37284,10 @@ var $author$project$Main$update = F2(
 				var s = msg.a;
 				return returnModif(
 					A2($author$project$Format$GraphInfo$TabRename, activeTabId, s));
+			case 'LatexBackgroundColorEdit':
+				var s = msg.a;
+				return returnModif(
+					$author$project$Format$GraphInfo$LatexBackgroundColorEdit(s));
 			case 'RemoveTab':
 				return returnModif(
 					$author$project$Format$GraphInfo$TabRemove(activeTabId));
@@ -41576,6 +41890,7 @@ var $author$project$Main$openFile = _Platform_outgoingPort(
 	});
 var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
+var $author$project$Main$promptLatexBackgroundColor = _Platform_outgoingPort('promptLatexBackgroundColor', $elm$json$Json$Encode$string);
 var $author$project$Main$quickLoad = _Platform_outgoingPort(
 	'quickLoad',
 	function ($) {
@@ -42083,6 +42398,19 @@ var $author$project$Main$viewGraph = function (model) {
 									_List_fromArray(
 										[
 											$elm$html$Html$text('Edit latex preamble')
+										])),
+									A2(
+									$elm$html$Html$button,
+									_List_fromArray(
+										[
+											$elm$html$Html$Events$onClick(
+											$author$project$Msg$Do(
+												$author$project$Main$promptLatexBackgroundColor(model.graphInfo.latexBackgroundColor))),
+											$elm$html$Html$Attributes$title('Color of the shadows of lines/arrows, in exported LaTeX')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Latex background color: ' + model.graphInfo.latexBackgroundColor)
 										])),
 									A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleShowDependency, 'Show dependencies', '(Coreact feature) If false, only the dependency edges of the selected nodes are shown', model.showDependencies),
 									A4($author$project$HtmlDefs$checkbox, $author$project$Msg$ToggleLabelColorUpdate, 'Sync edge label color', 'If checked, updating the color edge also updates the color of the label', model.labelColorUpdateEnabled),
