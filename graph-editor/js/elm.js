@@ -5693,10 +5693,13 @@ var $author$project$Modes$Bend$computeFlags = function (_v0) {
 };
 var $author$project$Modes$Customize$computeFlags = function (s) {
 	var _v0 = s.mode;
-	if (_v0.$ === 'CustomizeModePart') {
-		return {pointerLock: false};
-	} else {
-		return {pointerLock: true};
+	switch (_v0.$) {
+		case 'CustomizeModePart':
+			return {pointerLock: false};
+		case 'CustomizeModeShift':
+			return {pointerLock: true};
+		default:
+			return {pointerLock: true};
 	}
 };
 var $author$project$Modes$NewArrow$computeFlags = function (state) {
@@ -5705,6 +5708,8 @@ var $author$project$Modes$NewArrow$computeFlags = function (state) {
 		case 'NewArrowBend':
 			return {pointerLock: true};
 		case 'NewArrowShift':
+			return {pointerLock: true};
+		case 'NewArrowShorten':
 			return {pointerLock: true};
 		default:
 			return {pointerLock: false};
@@ -8284,6 +8289,36 @@ var $author$project$Format$Version20$shiftTargetFlag = A3(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
+var $author$project$Format$Flags$ShortenHead = function (a) {
+	return {$: 'ShortenHead', a: a};
+};
+var $author$project$Format$Version20$shortenHeadFlag = A3(
+	$author$project$Format$Version20$edgeMaybeFlagCodec,
+	0,
+	$author$project$Format$Flags$ShortenHead,
+	function (flag) {
+		if (flag.$ === 'ShortenHead') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Format$Flags$ShortenTail = function (a) {
+	return {$: 'ShortenTail', a: a};
+};
+var $author$project$Format$Version20$shortenTailFlag = A3(
+	$author$project$Format$Version20$edgeMaybeFlagCodec,
+	0,
+	$author$project$Format$Flags$ShortenTail,
+	function (flag) {
+		if (flag.$ === 'ShortenTail') {
+			var a = flag.a;
+			return $elm$core$Maybe$Just(a);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
 var $author$project$ArrowStyle$DefaultTail = {$: 'DefaultTail'};
 var $author$project$Format$Flags$TailStyle = function (a) {
 	return {$: 'TailStyle', a: a};
@@ -8311,161 +8346,126 @@ var $author$project$Format$Version20$arrowStyleCodec = function () {
 		A3(
 			flagField,
 			function ($) {
-				return $.loopAngle;
+				return $.shortenTail;
 			},
-			$author$project$Format$Version20$loopAngleFlag,
+			$author$project$Format$Version20$shortenTailFlag,
 			A3(
 				flagField,
 				function ($) {
-					return $.loopRadius;
+					return $.shortenHead;
 				},
-				$author$project$Format$Version20$loopRadiusFlag,
+				$author$project$Format$Version20$shortenHeadFlag,
 				A3(
 					flagField,
 					function ($) {
-						return $.wavy;
+						return $.loopAngle;
 					},
-					$author$project$Format$Version20$wavyFlag,
+					$author$project$Format$Version20$loopAngleFlag,
 					A3(
 						flagField,
 						function ($) {
-							return $.marker;
+							return $.loopRadius;
 						},
-						$author$project$Format$Version20$markerFlag,
+						$author$project$Format$Version20$loopRadiusFlag,
 						A3(
 							flagField,
-							function (_v0) {
-								var color = _v0.color;
-								var headColor = _v0.headColor;
-								var tailColor = _v0.tailColor;
-								var labelColor = _v0.labelColor;
-								return {head: headColor, label: labelColor, main: color, tail: tailColor};
+							function ($) {
+								return $.wavy;
 							},
-							$author$project$Format$Version20$colorsFlag,
+							$author$project$Format$Version20$wavyFlag,
 							A3(
 								flagField,
 								function ($) {
-									return $.shiftTarget;
+									return $.marker;
 								},
-								$author$project$Format$Version20$shiftTargetFlag,
+								$author$project$Format$Version20$markerFlag,
 								A3(
 									flagField,
-									function ($) {
-										return $.shiftSource;
+									function (_v0) {
+										var color = _v0.color;
+										var headColor = _v0.headColor;
+										var tailColor = _v0.tailColor;
+										var labelColor = _v0.labelColor;
+										return {head: headColor, label: labelColor, main: color, tail: tailColor};
 									},
-									$author$project$Format$Version20$shiftSourceFlag,
+									$author$project$Format$Version20$colorsFlag,
 									A3(
 										flagField,
 										function ($) {
-											return $.labelPosition;
+											return $.shiftTarget;
 										},
-										$author$project$Format$Version20$positionFlag,
+										$author$project$Format$Version20$shiftTargetFlag,
 										A3(
 											flagField,
 											function ($) {
-												return $.labelAlignment;
+												return $.shiftSource;
 											},
-											$author$project$Format$Version20$alignmentFlag,
+											$author$project$Format$Version20$shiftSourceFlag,
 											A3(
 												flagField,
 												function ($) {
-													return $.bend;
+													return $.labelPosition;
 												},
-												$author$project$Format$Version20$bendFlag,
+												$author$project$Format$Version20$positionFlag,
 												A3(
 													flagField,
 													function ($) {
-														return $.dashed;
+														return $.labelAlignment;
 													},
-													$author$project$Format$Version20$dashedFlag,
+													$author$project$Format$Version20$alignmentFlag,
 													A3(
 														flagField,
 														function ($) {
-															return $.kind;
+															return $.bend;
 														},
-														$author$project$Format$Version20$kindFlag,
+														$author$project$Format$Version20$bendFlag,
 														A3(
 															flagField,
 															function ($) {
-																return $.head;
+																return $.dashed;
 															},
-															$author$project$Format$Version20$headFlag,
+															$author$project$Format$Version20$dashedFlag,
 															A3(
 																flagField,
 																function ($) {
-																	return $.tail;
+																	return $.kind;
 																},
-																$author$project$Format$Version20$tailFlag,
-																A2(
-																	$author$project$Codec$object,
-																	function (tail) {
-																		return function (head) {
-																			return function (kind) {
-																				return function (dashed) {
-																					return function (bend) {
-																						return function (alignment) {
-																							return function (position) {
-																								return function (shiftSource) {
-																									return function (shiftTarget) {
-																										return function (colors) {
-																											return function (marker) {
-																												return function (wavy) {
-																													return function (loopRadius) {
-																														return function (loopAngle) {
-																															return {bend: bend, color: colors.main, dashed: dashed, head: head, headColor: colors.head, kind: kind, labelAlignment: alignment, labelColor: colors.label, labelPosition: position, loopAngle: loopAngle, loopRadius: loopRadius, marker: marker, shiftSource: shiftSource, shiftTarget: shiftTarget, tail: tail, tailColor: colors.tail, wavy: wavy};
-																														};
-																													};
-																												};
-																											};
-																										};
-																									};
-																								};
-																							};
-																						};
-																					};
-																				};
-																			};
-																		};
+																$author$project$Format$Version20$kindFlag,
+																A3(
+																	flagField,
+																	function ($) {
+																		return $.head;
 																	},
-																	function (tail) {
-																		return function (head) {
-																			return function (kind) {
-																				return function (dashed) {
-																					return function (bend) {
-																						return function (alignment) {
-																							return function (position) {
-																								return function (shiftSource) {
-																									return function (shiftTarget) {
-																										return function (colors) {
-																											return function (marker) {
-																												return function (wavy) {
-																													return function (loopRadius) {
-																														return function (loopAngle) {
-																															return _Utils_ap(
-																																shiftSource,
-																																_Utils_ap(
-																																	shiftTarget,
-																																	_Utils_ap(
-																																		position,
-																																		_Utils_ap(
-																																			bend,
-																																			_Utils_ap(
-																																				marker,
-																																				_Utils_ap(
-																																					colors,
-																																					_Utils_ap(
-																																						dashed,
-																																						_Utils_ap(
-																																							alignment,
-																																							_Utils_ap(
-																																								tail,
-																																								_Utils_ap(
-																																									head,
-																																									_Utils_ap(
-																																										kind,
-																																										_Utils_ap(
-																																											wavy,
-																																											_Utils_ap(loopRadius, loopAngle)))))))))))));
+																	$author$project$Format$Version20$headFlag,
+																	A3(
+																		flagField,
+																		function ($) {
+																			return $.tail;
+																		},
+																		$author$project$Format$Version20$tailFlag,
+																		A2(
+																			$author$project$Codec$object,
+																			function (tail) {
+																				return function (head) {
+																					return function (kind) {
+																						return function (dashed) {
+																							return function (bend) {
+																								return function (alignment) {
+																									return function (position) {
+																										return function (shiftSource) {
+																											return function (shiftTarget) {
+																												return function (colors) {
+																													return function (marker) {
+																														return function (wavy) {
+																															return function (loopRadius) {
+																																return function (loopAngle) {
+																																	return function (shortenHead) {
+																																		return function (shortenTail) {
+																																			return {bend: bend, color: colors.main, dashed: dashed, head: head, headColor: colors.head, kind: kind, labelAlignment: alignment, labelColor: colors.label, labelPosition: position, loopAngle: loopAngle, loopRadius: loopRadius, marker: marker, shiftSource: shiftSource, shiftTarget: shiftTarget, shortenHead: shortenHead, shortenTail: shortenTail, tail: tail, tailColor: colors.tail, wavy: wavy};
+																																		};
+																																	};
+																																};
+																															};
 																														};
 																													};
 																												};
@@ -8477,9 +8477,68 @@ var $author$project$Format$Version20$arrowStyleCodec = function () {
 																						};
 																					};
 																				};
-																			};
-																		};
-																	}))))))))))))))));
+																			},
+																			function (tail) {
+																				return function (head) {
+																					return function (kind) {
+																						return function (dashed) {
+																							return function (bend) {
+																								return function (alignment) {
+																									return function (position) {
+																										return function (shiftSource) {
+																											return function (shiftTarget) {
+																												return function (colors) {
+																													return function (marker) {
+																														return function (wavy) {
+																															return function (loopRadius) {
+																																return function (loopAngle) {
+																																	return function (shortenHead) {
+																																		return function (shortenTail) {
+																																			return _Utils_ap(
+																																				shiftSource,
+																																				_Utils_ap(
+																																					shiftTarget,
+																																					_Utils_ap(
+																																						position,
+																																						_Utils_ap(
+																																							bend,
+																																							_Utils_ap(
+																																								marker,
+																																								_Utils_ap(
+																																									colors,
+																																									_Utils_ap(
+																																										dashed,
+																																										_Utils_ap(
+																																											alignment,
+																																											_Utils_ap(
+																																												tail,
+																																												_Utils_ap(
+																																													head,
+																																													_Utils_ap(
+																																														kind,
+																																														_Utils_ap(
+																																															wavy,
+																																															_Utils_ap(
+																																																loopRadius,
+																																																_Utils_ap(
+																																																	loopAngle,
+																																																	_Utils_ap(shortenHead, shortenTail)))))))))))))));
+																																		};
+																																	};
+																																};
+																															};
+																														};
+																													};
+																												};
+																											};
+																										};
+																									};
+																								};
+																							};
+																						};
+																					};
+																				};
+																			}))))))))))))))))));
 }();
 var $author$project$ArrowStyle$NoHead = {$: 'NoHead'};
 var $author$project$ArrowStyle$NoneArrow = {$: 'NoneArrow'};
@@ -10617,7 +10676,7 @@ var $author$project$Format$Version20$genericVariantTrue = F3(
 		return A4($author$project$Codec$variantTruePair, tag, v, _default, $author$project$Codec$trueJs);
 	});
 var $elm$json$Json$Encode$null = _Json_encodeNull;
-var $author$project$Format$Version20$optionNames = {adjunction: 'adjunction', alignment: 'alignment', bend: 'bend', color: 'color ', dashed: 'dashed', dependency: 'dependency', head: 'head', headColor: 'headColor', kind: 'kind', labelColor: 'labelColor', loopAngle: 'loopAngle', loopRadius: 'loopRadius', marker: 'marker', position: 'position', pullshout: 'pullshout', shiftSource: 'shiftSource', shiftTarget: 'shiftTarget', tail: 'tail', tailColor: 'tailColor', unrecognized: 'unrecognized', wavy: 'wavy'};
+var $author$project$Format$Version20$optionNames = {adjunction: 'adjunction', alignment: 'alignment', bend: 'bend', color: 'color ', dashed: 'dashed', dependency: 'dependency', head: 'head', headColor: 'headColor', kind: 'kind', labelColor: 'labelColor', loopAngle: 'loopAngle', loopRadius: 'loopRadius', marker: 'marker', position: 'position', pullshout: 'pullshout', shiftSource: 'shiftSource', shiftTarget: 'shiftTarget', shortenHead: 'shortenHead', shortenTail: 'shortenTail', tail: 'tail', tailColor: 'tailColor', unrecognized: 'unrecognized', wavy: 'wavy'};
 var $author$project$Format$Version20$maxDecimalDigits = 4;
 var $author$project$Format$Version20$stringFromFloat = F2(
 	function (n, f) {
@@ -10712,68 +10771,78 @@ var $author$project$Format$Version20$edgeFlagCodec = function () {
 																		return function (shiftTarget) {
 																			return function (loopRadius) {
 																				return function (loopAngle) {
-																					return function (unrecognized) {
-																						return function (v) {
-																							switch (v.$) {
-																								case 'Dashed':
-																									return dashed(true);
-																								case 'Marker':
-																									var s = v.a;
-																									return marker(s);
-																								case 'Pullshout':
-																									var r = v.a;
-																									return pullshout(r);
-																								case 'Bend':
-																									var f = v.a;
-																									return bend(f);
-																								case 'Position':
-																									var f = v.a;
-																									return position(f);
-																								case 'Adjunction':
-																									return adjunction(true);
-																								case 'Dependency':
-																									return dependency(true);
-																								case 'Wavy':
-																									return wavy(true);
-																								case 'Kind':
-																									var k = v.a;
-																									return kind(k);
-																								case 'HeadStyle':
-																									var s = v.a;
-																									return headstyle(s);
-																								case 'TailStyle':
-																									var s = v.a;
-																									return tailstyle(s);
-																								case 'Alignment':
-																									var s = v.a;
-																									return alignment(s);
-																								case 'Unrecognized':
-																									return unrecognized;
-																								case 'Color':
-																									var c = v.a;
-																									return color(c);
-																								case 'HeadColor':
-																									var c = v.a;
-																									return headcolor(c);
-																								case 'TailColor':
-																									var c = v.a;
-																									return tailcolor(c);
-																								case 'LabelColor':
-																									var c = v.a;
-																									return labelcolor(c);
-																								case 'ShiftSource':
-																									var c = v.a;
-																									return shiftSource(c);
-																								case 'ShiftTarget':
-																									var c = v.a;
-																									return shiftTarget(c);
-																								case 'LoopRadius':
-																									var c = v.a;
-																									return loopRadius(c);
-																								default:
-																									var c = v.a;
-																									return loopAngle(c);
-																							}
+																					return function (shortenHead) {
+																						return function (shortenTail) {
+																							return function (unrecognized) {
+																								return function (v) {
+																									switch (v.$) {
+																										case 'Dashed':
+																											return dashed(true);
+																										case 'Marker':
+																											var s = v.a;
+																											return marker(s);
+																										case 'Pullshout':
+																											var r = v.a;
+																											return pullshout(r);
+																										case 'Bend':
+																											var f = v.a;
+																											return bend(f);
+																										case 'Position':
+																											var f = v.a;
+																											return position(f);
+																										case 'Adjunction':
+																											return adjunction(true);
+																										case 'Dependency':
+																											return dependency(true);
+																										case 'Wavy':
+																											return wavy(true);
+																										case 'Kind':
+																											var k = v.a;
+																											return kind(k);
+																										case 'HeadStyle':
+																											var s = v.a;
+																											return headstyle(s);
+																										case 'TailStyle':
+																											var s = v.a;
+																											return tailstyle(s);
+																										case 'Alignment':
+																											var s = v.a;
+																											return alignment(s);
+																										case 'Unrecognized':
+																											return unrecognized;
+																										case 'Color':
+																											var c = v.a;
+																											return color(c);
+																										case 'HeadColor':
+																											var c = v.a;
+																											return headcolor(c);
+																										case 'TailColor':
+																											var c = v.a;
+																											return tailcolor(c);
+																										case 'LabelColor':
+																											var c = v.a;
+																											return labelcolor(c);
+																										case 'ShiftSource':
+																											var c = v.a;
+																											return shiftSource(c);
+																										case 'ShiftTarget':
+																											var c = v.a;
+																											return shiftTarget(c);
+																										case 'LoopRadius':
+																											var c = v.a;
+																											return loopRadius(c);
+																										case 'LoopAngle':
+																											var c = v.a;
+																											return loopAngle(c);
+																										case 'ShortenHead':
+																											var a = v.a;
+																											return shortenHead(a);
+																										default:
+																											var a = v.a;
+																											return shortenTail(a);
+																									}
+																								};
+																							};
 																						};
 																					};
 																				};
@@ -10805,104 +10874,114 @@ var $author$project$Format$Version20$edgeFlagCodec = function () {
 			$author$project$Format$Flags$Unrecognized,
 			A4(
 				$author$project$Codec$variant1Pair,
-				$author$project$Format$Version20$optionNames.loopAngle,
-				$author$project$Format$Flags$LoopAngle,
+				$author$project$Format$Version20$optionNames.shortenTail,
+				$author$project$Format$Flags$ShortenTail,
 				$author$project$Codec$floatJs,
 				A4(
 					$author$project$Codec$variant1Pair,
-					$author$project$Format$Version20$optionNames.loopRadius,
-					$author$project$Format$Flags$LoopRadius,
+					$author$project$Format$Version20$optionNames.shortenHead,
+					$author$project$Format$Flags$ShortenHead,
 					$author$project$Codec$floatJs,
 					A4(
 						$author$project$Codec$variant1Pair,
-						$author$project$Format$Version20$optionNames.shiftTarget,
-						$author$project$Format$Flags$ShiftTarget,
+						$author$project$Format$Version20$optionNames.loopAngle,
+						$author$project$Format$Flags$LoopAngle,
 						$author$project$Codec$floatJs,
 						A4(
 							$author$project$Codec$variant1Pair,
-							$author$project$Format$Version20$optionNames.shiftSource,
-							$author$project$Format$Flags$ShiftSource,
+							$author$project$Format$Version20$optionNames.loopRadius,
+							$author$project$Format$Flags$LoopRadius,
 							$author$project$Codec$floatJs,
 							A4(
-								variantString,
-								$author$project$Format$Version20$optionNames.labelColor,
-								$author$project$Format$Flags$LabelColor,
-								$author$project$Drawing$Color$codec,
+								$author$project$Codec$variant1Pair,
+								$author$project$Format$Version20$optionNames.shiftTarget,
+								$author$project$Format$Flags$ShiftTarget,
+								$author$project$Codec$floatJs,
 								A4(
-									variantString,
-									$author$project$Format$Version20$optionNames.tailColor,
-									$author$project$Format$Flags$TailColor,
-									$author$project$Drawing$Color$codec,
+									$author$project$Codec$variant1Pair,
+									$author$project$Format$Version20$optionNames.shiftSource,
+									$author$project$Format$Flags$ShiftSource,
+									$author$project$Codec$floatJs,
 									A4(
 										variantString,
-										$author$project$Format$Version20$optionNames.headColor,
-										$author$project$Format$Flags$HeadColor,
+										$author$project$Format$Version20$optionNames.labelColor,
+										$author$project$Format$Flags$LabelColor,
 										$author$project$Drawing$Color$codec,
 										A4(
 											variantString,
-											$author$project$Format$Version20$optionNames.color,
-											$author$project$Format$Flags$Color,
+											$author$project$Format$Version20$optionNames.tailColor,
+											$author$project$Format$Flags$TailColor,
 											$author$project$Drawing$Color$codec,
 											A4(
 												variantString,
-												$author$project$Format$Version20$optionNames.alignment,
-												$author$project$Format$Flags$Alignment,
-												$author$project$ArrowStyle$alignmentCodec,
+												$author$project$Format$Version20$optionNames.headColor,
+												$author$project$Format$Flags$HeadColor,
+												$author$project$Drawing$Color$codec,
 												A4(
 													variantString,
-													$author$project$Format$Version20$optionNames.tail,
-													$author$project$Format$Flags$TailStyle,
-													$author$project$ArrowStyle$tailCodec,
+													$author$project$Format$Version20$optionNames.color,
+													$author$project$Format$Flags$Color,
+													$author$project$Drawing$Color$codec,
 													A4(
 														variantString,
-														$author$project$Format$Version20$optionNames.head,
-														$author$project$Format$Flags$HeadStyle,
-														$author$project$ArrowStyle$headCodec,
+														$author$project$Format$Version20$optionNames.alignment,
+														$author$project$Format$Flags$Alignment,
+														$author$project$ArrowStyle$alignmentCodec,
 														A4(
 															variantString,
-															$author$project$Format$Version20$optionNames.kind,
-															$author$project$Format$Flags$Kind,
-															$author$project$ArrowStyle$kindCodec,
-															A3(
-																variantTrue,
-																$author$project$Format$Version20$optionNames.wavy,
-																$author$project$Format$Flags$Wavy,
-																A3(
-																	variantTrue,
-																	$author$project$Format$Version20$optionNames.dependency,
-																	$author$project$Format$Flags$Dependency,
+															$author$project$Format$Version20$optionNames.tail,
+															$author$project$Format$Flags$TailStyle,
+															$author$project$ArrowStyle$tailCodec,
+															A4(
+																variantString,
+																$author$project$Format$Version20$optionNames.head,
+																$author$project$Format$Flags$HeadStyle,
+																$author$project$ArrowStyle$headCodec,
+																A4(
+																	variantString,
+																	$author$project$Format$Version20$optionNames.kind,
+																	$author$project$Format$Flags$Kind,
+																	$author$project$ArrowStyle$kindCodec,
 																	A3(
 																		variantTrue,
-																		$author$project$Format$Version20$optionNames.adjunction,
-																		$author$project$Format$Flags$Adjunction,
-																		A4(
-																			$author$project$Codec$variant1Pair,
-																			$author$project$Format$Version20$optionNames.position,
-																			$author$project$Format$Flags$Position,
-																			$author$project$Codec$floatJs,
-																			A4(
-																				$author$project$Codec$variant1Pair,
-																				$author$project$Format$Version20$optionNames.bend,
-																				$author$project$Format$Flags$Bend,
-																				$author$project$Codec$floatJs,
+																		$author$project$Format$Version20$optionNames.wavy,
+																		$author$project$Format$Flags$Wavy,
+																		A3(
+																			variantTrue,
+																			$author$project$Format$Version20$optionNames.dependency,
+																			$author$project$Format$Flags$Dependency,
+																			A3(
+																				variantTrue,
+																				$author$project$Format$Version20$optionNames.adjunction,
+																				$author$project$Format$Flags$Adjunction,
 																				A4(
-																					variantString,
-																					$author$project$Format$Version20$optionNames.pullshout,
-																					$author$project$Format$Flags$Pullshout,
-																					$author$project$Format$Version20$pullshoutOffsetCodec,
+																					$author$project$Codec$variant1Pair,
+																					$author$project$Format$Version20$optionNames.position,
+																					$author$project$Format$Flags$Position,
+																					$author$project$Codec$floatJs,
 																					A4(
 																						$author$project$Codec$variant1Pair,
-																						$author$project$Format$Version20$optionNames.marker,
-																						$author$project$Format$Flags$Marker,
-																						$author$project$Codec$stringJs,
-																						A3(
-																							variantTrue,
-																							$author$project$Format$Version20$optionNames.dashed,
-																							$author$project$Format$Flags$Dashed,
-																							A2(
-																								$author$project$Codec$customPair,
-																								split,
-																								_Utils_Tuple2('', $elm$json$Json$Encode$null))))))))))))))))))))))));
+																						$author$project$Format$Version20$optionNames.bend,
+																						$author$project$Format$Flags$Bend,
+																						$author$project$Codec$floatJs,
+																						A4(
+																							variantString,
+																							$author$project$Format$Version20$optionNames.pullshout,
+																							$author$project$Format$Flags$Pullshout,
+																							$author$project$Format$Version20$pullshoutOffsetCodec,
+																							A4(
+																								$author$project$Codec$variant1Pair,
+																								$author$project$Format$Version20$optionNames.marker,
+																								$author$project$Format$Flags$Marker,
+																								$author$project$Codec$stringJs,
+																								A3(
+																									variantTrue,
+																									$author$project$Format$Version20$optionNames.dashed,
+																									$author$project$Format$Flags$Dashed,
+																									A2(
+																										$author$project$Codec$customPair,
+																										split,
+																										_Utils_Tuple2('', $elm$json$Json$Encode$null))))))))))))))))))))))))));
 }();
 var $author$project$Codec$filter = function (f) {
 	return A2(
@@ -21258,22 +21337,31 @@ var $author$project$GraphDefs$posGraph = function (g) {
 			} else {
 				var l = _v4.a;
 				var computePosDims = function (isSource) {
+					var shorten = isSource ? l.style.shortenTail : l.style.shortenHead;
 					var _v6 = isSource ? _Utils_Tuple2(n1, $author$project$ArrowStyle$Tail) : _Utils_Tuple2(n2, $author$project$ArrowStyle$Head);
 					var n = _v6.a;
 					var part = _v6.b;
-					if (!n.isArrow) {
-						return n.posDims;
-					} else {
-						var oldPosDims = n.posDims;
-						return _Utils_update(
-							oldPosDims,
+					var base = function () {
+						var base2 = n.posDims;
+						return n.isArrow ? _Utils_update(
+							base2,
 							{
 								pos: A2(
 									$author$project$Geometry$Curve$point,
 									n.extrems.curve,
 									A2($author$project$ArrowStyle$shiftRatioFromPart, l.style, part))
-							});
-					}
+							}) : n.posDims;
+					}();
+					var adjustDim = function (d) {
+						return A2($elm$core$Basics$max, 0, d + (shorten * 2));
+					};
+					return _Utils_update(
+						base,
+						{
+							dims: _Utils_Tuple2(
+								adjustDim(base.dims.a),
+								adjustDim(base.dims.b))
+						});
 				};
 				var isLoop = _Utils_eq(n1.id, n2.id);
 				var curve = function () {
@@ -28926,7 +29014,7 @@ var $author$project$QuickInput$equalityParser = A2(
 			$elm$parser$Parser$spaces)),
 	$author$project$QuickInput$handSideParser);
 var $author$project$ArrowStyle$noMarker = '';
-var $author$project$ArrowStyle$empty = {bend: 0, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$DefaultHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelColor: $author$project$Drawing$Color$black, labelPosition: 0.5, loopAngle: 0, loopRadius: $author$project$ArrowStyle$defaultLoopRadius, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0.5, shiftTarget: 0.5, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
+var $author$project$ArrowStyle$empty = {bend: 0, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$DefaultHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelColor: $author$project$Drawing$Color$black, labelPosition: 0.5, loopAngle: 0, loopRadius: $author$project$ArrowStyle$defaultLoopRadius, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0.5, shiftTarget: 0.5, shortenHead: 0, shortenTail: 0, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
 var $author$project$SpecialLabels$makeSpecial = F2(
 	function (key, s) {
 		return _Utils_eq(key, $author$project$SpecialLabels$Normal) ? s : _Utils_ap(
@@ -29642,6 +29730,21 @@ var $author$project$Polygraph$md_updateEdges = F2(
 			$author$project$Polygraph$newModif(graph),
 			es);
 	});
+var $author$project$Modes$Customize$updateEdgeStyle = F2(
+	function (edges, f) {
+		var applyStyle = function (label) {
+			return _Utils_update(
+				label,
+				{
+					style: f(label.style)
+				});
+		};
+		return A2(
+			$elm$core$List$map,
+			$author$project$Polygraph$edgeMap(
+				$author$project$GraphDefs$mapNormalEdge(applyStyle)),
+			edges);
+	});
 var $author$project$ArrowStyle$updateShift = F2(
 	function (_v0, s) {
 		var part = _v0.part;
@@ -29654,30 +29757,43 @@ var $author$project$ArrowStyle$updateShift = F2(
 	});
 var $author$project$Modes$Customize$updateEdgeShift = F2(
 	function (edges, state) {
-		var applyStyle = function (label) {
-			var newStyle = A2(
-				$author$project$ArrowStyle$updateShift,
-				{part: state.part, shift: state.componentState.value},
-				label.style);
-			return _Utils_update(
-				label,
-				{style: newStyle});
-		};
 		return A2(
-			$elm$core$List$map,
-			$author$project$Polygraph$edgeMap(
-				$author$project$GraphDefs$mapNormalEdge(applyStyle)),
-			edges);
+			$author$project$Modes$Customize$updateEdgeStyle,
+			edges,
+			$author$project$ArrowStyle$updateShift(
+				{part: state.part, shift: state.componentState.value}));
+	});
+var $author$project$ArrowStyle$updateShorten = F2(
+	function (_v0, s) {
+		var part = _v0.part;
+		var shorten = _v0.shorten;
+		return _Utils_eq(part, $author$project$ArrowStyle$Tail) ? _Utils_update(
+			s,
+			{shortenTail: shorten}) : _Utils_update(
+			s,
+			{shortenHead: shorten});
+	});
+var $author$project$Modes$Customize$updateEdgeShorten = F2(
+	function (edges, state) {
+		return A2(
+			$author$project$Modes$Customize$updateEdgeStyle,
+			edges,
+			$author$project$ArrowStyle$updateShorten(
+				{part: state.part, shorten: state.componentState.value}));
 	});
 var $author$project$Modes$Customize$createModif = F2(
 	function (modelGraph, state) {
 		var edges = function () {
 			var _v0 = state.mode;
-			if (_v0.$ === 'CustomizeModePart') {
-				return state.edges;
-			} else {
-				var shiftState = _v0.a;
-				return A2($author$project$Modes$Customize$updateEdgeShift, state.edges, shiftState);
+			switch (_v0.$) {
+				case 'CustomizeModePart':
+					return state.edges;
+				case 'CustomizeModeShift':
+					var shiftState = _v0.a;
+					return A2($author$project$Modes$Customize$updateEdgeShift, state.edges, shiftState);
+				default:
+					var shortenState = _v0.a;
+					return A2($author$project$Modes$Customize$updateEdgeShorten, state.edges, shortenState);
 			}
 		}();
 		return A2($author$project$Polygraph$md_updateEdges, edges, modelGraph);
@@ -29715,7 +29831,7 @@ var $author$project$GraphDefs$getEdgeDirectionFromId = F2(
 			$author$project$GraphDefs$getEdgeDirection(g),
 			A2($author$project$Polygraph$getEdge, eid, g));
 	});
-var $author$project$Modes$Customize$initialiseComponent = F3(
+var $author$project$Modes$Customize$initialiseShiftComponent = F3(
 	function (part, dir0, ini) {
 		var dir = _Utils_eq(
 			dir0,
@@ -29759,13 +29875,68 @@ var $author$project$Modes$Customize$initialiseShiftMode = F3(
 							mode: $author$project$Modes$CustomizeModeShift(
 								{
 									componentState: A3(
-										$author$project$Modes$Customize$initialiseComponent,
+										$author$project$Modes$Customize$initialiseShiftComponent,
 										part,
 										dir,
 										{shift: 0.5}),
 									part: part
 								})
 						}));
+			}
+		}
+	});
+var $author$project$Modes$CustomizeModeShorten = function (a) {
+	return {$: 'CustomizeModeShorten', a: a};
+};
+var $author$project$Geometry$Point$flip = function (_v0) {
+	var x = _v0.a;
+	var y = _v0.b;
+	return _Utils_Tuple2(0 - x, 0 - y);
+};
+var $author$project$Modes$Customize$initialiseShortenComponent = F3(
+	function (part, dir, initVal) {
+		var dir2 = _Utils_eq(
+			dir,
+			_Utils_Tuple2(0, 0)) ? _Utils_Tuple2(10, 0) : A2($author$project$Geometry$Point$resize, 0.001, dir);
+		var dir3 = _Utils_eq(part, $author$project$ArrowStyle$Head) ? $author$project$Geometry$Point$flip(dir2) : dir2;
+		return {bounds: $elm$core$Maybe$Nothing, direction: dir3, value: initVal.shorten};
+	});
+var $author$project$Modes$Customize$initialiseShortenMode = F3(
+	function (part, state, model) {
+		var _v0 = state.edges;
+		if (!_v0.b) {
+			return model;
+		} else {
+			var edge = _v0.a;
+			var _v1 = $author$project$GraphDefs$filterEdgeNormal(edge);
+			if (_v1.$ === 'Nothing') {
+				return model;
+			} else {
+				var normalEdge = _v1.a;
+				var initVal = _Utils_eq(part, $author$project$ArrowStyle$Tail) ? normalEdge.label.details.style.shortenTail : normalEdge.label.details.style.shortenHead;
+				var odir = A2(
+					$author$project$GraphDefs$getEdgeDirection,
+					$author$project$Model$getActiveGraph(model),
+					edge);
+				if (odir.$ === 'Nothing') {
+					return model;
+				} else {
+					var dir = odir.a;
+					var comp = A3(
+						$author$project$Modes$Customize$initialiseShortenComponent,
+						part,
+						dir,
+						{shorten: initVal});
+					return A2(
+						$author$project$Modes$Customize$updateState,
+						model,
+						_Utils_update(
+							state,
+							{
+								mode: $author$project$Modes$CustomizeModeShorten(
+									{componentState: comp, part: part})
+							}));
+				}
 			}
 		}
 	});
@@ -29839,14 +30010,14 @@ var $author$project$Modes$Customize$mainUpdate = F4(
 							mode: $author$project$Modes$CustomizeModePart(part)
 						})));
 		};
-		_v0$8:
+		_v0$10:
 		while (true) {
 			if ((msg.$ === 'KeyChanged') && (!msg.a)) {
 				if (msg.c.$ === 'Control') {
 					if (msg.c.a === 'Escape') {
 						return $author$project$Model$switch_Default(model);
 					} else {
-						break _v0$8;
+						break _v0$10;
 					}
 				} else {
 					switch (msg.c.a.valueOf()) {
@@ -29863,6 +30034,12 @@ var $author$project$Modes$Customize$mainUpdate = F4(
 						case 'e':
 							return $author$project$Model$noCmd(
 								A3($author$project$Modes$Customize$initialiseShiftMode, $author$project$ArrowStyle$Head, state, model));
+						case 'S':
+							return $author$project$Model$noCmd(
+								A3($author$project$Modes$Customize$initialiseShortenMode, $author$project$ArrowStyle$Tail, state, model));
+						case 'E':
+							return $author$project$Model$noCmd(
+								A3($author$project$Modes$Customize$initialiseShortenMode, $author$project$ArrowStyle$Head, state, model));
 						case ' ':
 							return A2($author$project$Modes$Customize$api.finalise, model, state);
 						default:
@@ -29884,7 +30061,7 @@ var $author$project$Modes$Customize$mainUpdate = F4(
 					}
 				}
 			} else {
-				break _v0$8;
+				break _v0$10;
 			}
 		}
 		return $author$project$Model$noCmd(model);
@@ -29942,15 +30119,72 @@ var $author$project$Modes$Customize$updateShift = F4(
 				return $author$project$Model$noCmd(model);
 		}
 	});
+var $author$project$Modes$Customize$updateShorten = F4(
+	function (state, shortenState, msg, model) {
+		var _v0 = A2($author$project$Modes$Capture$update, shortenState.componentState, msg);
+		switch (_v0.$) {
+			case 'Cancel':
+				return $author$project$Model$switch_Default(model);
+			case 'NewState':
+				var newCompState = _v0.a;
+				var newState = _Utils_update(
+					state,
+					{
+						mode: $author$project$Modes$CustomizeModeShorten(
+							_Utils_update(
+								shortenState,
+								{componentState: newCompState}))
+					});
+				return $author$project$Model$noCmd(
+					A2($author$project$Modes$Customize$updateState, model, newState));
+			default:
+				_v1$4:
+				while (true) {
+					switch (msg.$) {
+						case 'MouseClick':
+							return A2($author$project$Modes$Customize$api.finalise, model, state);
+						case 'KeyChanged':
+							if (!msg.a) {
+								if (msg.c.$ === 'Control') {
+									if (msg.c.a === 'Escape') {
+										return $author$project$Model$switch_Default(model);
+									} else {
+										break _v1$4;
+									}
+								} else {
+									switch (msg.c.a.valueOf()) {
+										case ' ':
+											return A2($author$project$Modes$Customize$api.finalise, model, state);
+										case '?':
+											return $author$project$Model$noCmd(
+												$author$project$Model$toggleHelpOverlay(model));
+										default:
+											break _v1$4;
+									}
+								}
+							} else {
+								break _v1$4;
+							}
+						default:
+							break _v1$4;
+					}
+				}
+				return $author$project$Model$noCmd(model);
+		}
+	});
 var $author$project$Modes$Customize$update = F3(
 	function (state, msg, model) {
 		var _v0 = state.mode;
-		if (_v0.$ === 'CustomizeModePart') {
-			var part = _v0.a;
-			return A4($author$project$Modes$Customize$mainUpdate, state, part, msg, model);
-		} else {
-			var s = _v0.a;
-			return A4($author$project$Modes$Customize$updateShift, state, s, msg, model);
+		switch (_v0.$) {
+			case 'CustomizeModePart':
+				var part = _v0.a;
+				return A4($author$project$Modes$Customize$mainUpdate, state, part, msg, model);
+			case 'CustomizeModeShift':
+				var s = _v0.a;
+				return A4($author$project$Modes$Customize$updateShift, state, s, msg, model);
+			default:
+				var s = _v0.a;
+				return A4($author$project$Modes$Customize$updateShorten, state, s, msg, model);
 		}
 	});
 var $author$project$GraphDefs$edgeToNodeLabel = F2(
@@ -31398,12 +31632,34 @@ var $author$project$Modes$NewArrow$initialiseShiftMode = F3(
 							$author$project$Modes$NewArrowShift,
 							part,
 							A3(
-								$author$project$Modes$Customize$initialiseComponent,
+								$author$project$Modes$Customize$initialiseShiftComponent,
 								part,
 								dir,
 								{shift: 0.5}))
 					}));
 		}
+	});
+var $author$project$Modes$NewArrowShorten = F2(
+	function (a, b) {
+		return {$: 'NewArrowShorten', a: a, b: b};
+	});
+var $author$project$Modes$NewArrow$initialiseShortenMode = F3(
+	function (part, state, model) {
+		var dir = A2($author$project$Modes$NewArrow$getRawDirection, model, state);
+		var initVal = _Utils_eq(part, $author$project$ArrowStyle$Tail) ? state.style.shortenTail : state.style.shortenHead;
+		var comp = A3(
+			$author$project$Modes$Customize$initialiseShortenComponent,
+			part,
+			dir,
+			{shorten: initVal});
+		return A2(
+			$author$project$Modes$NewArrow$updateState,
+			model,
+			_Utils_update(
+				state,
+				{
+					mode: A2($author$project$Modes$NewArrowShorten, part, comp)
+				}));
 	});
 var $author$project$ArrowStyle$isPartColorable = F2(
 	function (part, s) {
@@ -31929,6 +32185,24 @@ var $author$project$Modes$NewArrow$updateShiftState = F4(
 					style: newStyle
 				}));
 	});
+var $author$project$Modes$NewArrow$updateShortenState = F4(
+	function (part, model, state, componentState) {
+		var shorten = componentState.value;
+		var style = state.style;
+		var newStyle = A2(
+			$author$project$ArrowStyle$updateShorten,
+			{part: part, shorten: shorten},
+			style);
+		return A2(
+			$author$project$Modes$NewArrow$updateState,
+			model,
+			_Utils_update(
+				state,
+				{
+					mode: A2($author$project$Modes$NewArrowShorten, part, componentState),
+					style: newStyle
+				}));
+	});
 var $author$project$Modes$NewArrow$updateCapture = F3(
 	function (state, msg, model) {
 		var _v0 = state.mode;
@@ -31950,6 +32224,15 @@ var $author$project$Modes$NewArrow$updateCapture = F3(
 					s,
 					msg,
 					A3($author$project$Modes$NewArrow$updateShiftState, part, model, state));
+			case 'NewArrowShorten':
+				var part = _v0.a;
+				var s = _v0.b;
+				return A4(
+					$author$project$Modes$NewArrow$handleCapture,
+					model,
+					s,
+					msg,
+					A3($author$project$Modes$NewArrow$updateShortenState, part, model, state));
 			default:
 				return $elm$core$Maybe$Nothing;
 		}
@@ -31998,7 +32281,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 							mode: $author$project$Modes$NewArrowPart(m)
 						}))) : $author$project$Model$noCmd(model);
 		};
-		_v0$25:
+		_v0$27:
 		while (true) {
 			switch (msg.$) {
 				case 'MouseClick':
@@ -32024,7 +32307,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 							return next(
 								{finish: false, merge: true});
 						} else {
-							break _v0$25;
+							break _v0$27;
 						}
 					} else {
 						if (msg.c.$ === 'Control') {
@@ -32038,7 +32321,7 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 									return next(
 										{finish: false, merge: state.merge || state.isAdjunction});
 								default:
-									break _v0$25;
+									break _v0$27;
 							}
 						} else {
 							switch (msg.c.a.valueOf()) {
@@ -32118,6 +32401,12 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 								case 'e':
 									return $author$project$Model$noCmd(
 										A3($author$project$Modes$NewArrow$initialiseShiftMode, $author$project$ArrowStyle$Head, state, model));
+								case 'S':
+									return $author$project$Model$noCmd(
+										A3($author$project$Modes$NewArrow$initialiseShortenMode, $author$project$ArrowStyle$Tail, state, model));
+								case 'E':
+									return $author$project$Model$noCmd(
+										A3($author$project$Modes$NewArrow$initialiseShortenMode, $author$project$ArrowStyle$Head, state, model));
 								case 'd':
 									return $author$project$Model$noCmd(
 										A2(
@@ -32173,12 +32462,12 @@ var $author$project$Modes$NewArrow$updateNormal = F3(
 												state,
 												{kind: kind})));
 								default:
-									break _v0$25;
+									break _v0$27;
 							}
 						}
 					}
 				default:
-					break _v0$25;
+					break _v0$27;
 			}
 		}
 		var _v4 = A3($author$project$Modes$NewArrow$updateCapture, state, msg, model);
@@ -32286,7 +32575,7 @@ var $author$project$GraphDefs$newEdgeLabel = F2(
 			{isAdjunction: false, isDependency: false});
 	});
 var $author$project$ArrowStyle$simpleLineStyle = function (bend) {
-	return {bend: bend, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$NoHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelColor: $author$project$Drawing$Color$black, labelPosition: 0.5, loopAngle: 0, loopRadius: $author$project$ArrowStyle$defaultLoopRadius, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0.5, shiftTarget: 0.5, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
+	return {bend: bend, color: $author$project$Drawing$Color$black, dashed: false, head: $author$project$ArrowStyle$NoHead, headColor: $author$project$Drawing$Color$black, kind: $author$project$ArrowStyle$NormalArrow, labelAlignment: $author$project$Geometry$Left, labelColor: $author$project$Drawing$Color$black, labelPosition: 0.5, loopAngle: 0, loopRadius: $author$project$ArrowStyle$defaultLoopRadius, marker: $author$project$ArrowStyle$noMarker, shiftSource: 0.5, shiftTarget: 0.5, shortenHead: 0, shortenTail: 0, tail: $author$project$ArrowStyle$DefaultTail, tailColor: $author$project$Drawing$Color$black, wavy: false};
 };
 var $author$project$Modes$NewLine$makeGraph = F2(
 	function (m, s) {
@@ -35469,7 +35758,9 @@ var $author$project$ArrowStyle$invert = function (st) {
 						return st.labelAlignment;
 				}
 			}(),
-			labelPosition: 1 - st.labelPosition
+			labelPosition: 1 - st.labelPosition,
+			shortenHead: st.shortenTail,
+			shortenTail: st.shortenHead
 		});
 };
 var $author$project$Polygraph$md_invertEdge = F2(
@@ -38179,28 +38470,37 @@ var $author$project$ArrowStyle$controlChars = '|>(=-~A][';
 var $author$project$HtmlDefs$overlayHelpMsg = '[?] to toggle help overlay';
 var $author$project$Modes$Bend$help = 'Bend mode: move mouse to bend, [Click] or [SPC] to confirm, [ESC] to cancel. ' + $author$project$HtmlDefs$overlayHelpMsg;
 var $author$project$Drawing$Color$helpMsg = 'bla[c]k, bl[u]e, [g]reen, [o]range, [r]ed, [v]iolet, yello[w], gra[y]';
+var $author$project$Modes$Customize$helpCapture = ' use mouse, [ESC] to cancel, [SPC] or [click] to confirm. ';
 var $author$project$Modes$Customize$helpShift = function (part) {
-	return 'Shift ' + ((_Utils_eq(part, $author$project$ArrowStyle$Tail) ? 'source' : 'target') + (' use mouse, [ESC] to cancel, [SPC} or [click] to confirm. ' + $author$project$HtmlDefs$overlayHelpMsg));
+	return 'Shift ' + ((_Utils_eq(part, $author$project$ArrowStyle$Tail) ? 'source' : 'target') + ($author$project$Modes$Customize$helpCapture + $author$project$HtmlDefs$overlayHelpMsg));
+};
+var $author$project$Modes$Customize$helpShorten = function (part) {
+	return 'Shorten ' + ((_Utils_eq(part, $author$project$ArrowStyle$Tail) ? 'source' : 'target') + ($author$project$Modes$Customize$helpCapture + $author$project$HtmlDefs$overlayHelpMsg));
 };
 var $author$project$Modes$Customize$shiftHelpMsg = 'shift [s]ource/targ[e]t';
+var $author$project$Modes$Customize$shortenHelpMsg = 'shorten [S]ource/targ[E]t';
 var $author$project$Modes$Customize$help = function (state) {
 	return 'Mode customise. ' + function () {
 		var _v0 = state.mode;
-		if (_v0.$ === 'CustomizeModeShift') {
-			var part = _v0.a.part;
-			return $author$project$Modes$Customize$helpShift(part);
-		} else {
-			var part = _v0.a;
-			return function () {
-				switch (part.$) {
-					case 'MainEdgePart':
-						return '.';
-					case 'HeadPart':
-						return ' head.';
-					default:
-						return ' tail.';
-				}
-			}() + (' Color [H]ead/[T]ail. ' + ($author$project$Modes$Customize$shiftHelpMsg + ('. ' + ($author$project$HtmlDefs$overlayHelpMsg + ('\n[ESC] or [SPC] or colorise selected edges: ' + $author$project$Drawing$Color$helpMsg)))));
+		switch (_v0.$) {
+			case 'CustomizeModeShift':
+				var part = _v0.a.part;
+				return $author$project$Modes$Customize$helpShift(part);
+			case 'CustomizeModeShorten':
+				var part = _v0.a.part;
+				return $author$project$Modes$Customize$helpShorten(part);
+			default:
+				var part = _v0.a;
+				return function () {
+					switch (part.$) {
+						case 'MainEdgePart':
+							return '.';
+						case 'HeadPart':
+							return ' head.';
+						default:
+							return ' tail.';
+					}
+				}() + (' Color [H]ead/[T]ail. ' + ($author$project$Modes$Customize$shiftHelpMsg + ('. ' + ($author$project$Modes$Customize$shortenHelpMsg + ('. ' + ($author$project$HtmlDefs$overlayHelpMsg + ('\n[ESC] or [SPC] or colorise selected edges: ' + $author$project$Drawing$Color$helpMsg)))))));
 		}
 	}();
 };
@@ -38232,7 +38532,7 @@ var $author$project$Modes$Move$help = function (s) {
 	}())))))));
 };
 var $author$project$Modes$NewArrow$help = function (s) {
-	var mainMsg = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard ' + ('([f] to move by a multiple of the grid size), ' + ('[ctrl] merge, [a] merge without renaming, toggle [m]erge preview, ' + ('[0] switch to loop creation, ' + ('[RET] or space to terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('shift [s]ource/targ[e]t, ' + ('[.] customise the marker' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('create [D]ependency arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + ($author$project$Drawing$Color$helpMsg + ', color [H]ead/[T]ail')))))))))))))))))));
+	var mainMsg = $author$project$HtmlDefs$overlayHelpMsg + (', [ESC] cancel, [click, TAB] name the point (if new) and arrow, ' + ('[hjkl] position the new point with the keyboard ' + ('([f] to move by a multiple of the grid size), ' + ('[ctrl] merge, [a] merge without renaming, toggle [m]erge preview, ' + ('[0] switch to loop creation, ' + ('[RET] or space to terminate the arrow creation, ' + ('[\"' + ($author$project$ArrowStyle$controlChars + ('\"] alternate between different arrow styles, ' + ('shift [s]ource/targ[e]t, ' + ('shorten [S]ource/targ[E]t, ' + ('[.] customise the marker' + ('[i]nvert arrow, ' + ('create a[d]junction arrow, ' + ('create [D]ependency arrow, ' + ('[p]ullback/[P]ushout mode, ' + ('[C] switch to cone/cylinder creation (if relevant).\n' + ('[p]ullback/[P]ushout mode.\n' + ('Colors: ' + ($author$project$Drawing$Color$helpMsg + ', color [H]ead/[T]ail'))))))))))))))))))));
 	var _v0 = s.mode;
 	switch (_v0.$) {
 		case 'NewArrowMain':
@@ -38242,9 +38542,12 @@ var $author$project$Modes$NewArrow$help = function (s) {
 			return 'Submode color ' + ((_Utils_eq(p, $author$project$ArrowStyle$Head) ? 'head' : 'tail') + (' of the arrow: [ESC] to cancel, ' + ($author$project$Drawing$Color$helpMsg + (', ' + $author$project$HtmlDefs$overlayHelpMsg))));
 		case 'NewArrowBend':
 			return 'bend using mouse, [g] to validate, ' + mainMsg;
-		default:
+		case 'NewArrowShift':
 			var part = _v0.a;
 			return 'shift using mouse, [g] to validate, ' + mainMsg;
+		default:
+			var part = _v0.a;
+			return 'shorten using mouse, [g] to validate, ' + mainMsg;
 	}
 };
 var $author$project$Modes$NewLine$help = $author$project$HtmlDefs$overlayHelpMsg + ', [ESC] cancel, [click, n] to finalise, [bB] change bend';
