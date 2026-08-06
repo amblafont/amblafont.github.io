@@ -74,13 +74,13 @@
         border-color: #8e44ad;
         background-color: #ede4f5;
       }
-      .rule-app-row.not-applyable {
-        opacity: 0.6;
-        cursor: default;
+      .rule-app-row.second-order {
+        border-left: 3px solid #e67e22;
+        background-color: #fdf2e9;
       }
-      .rule-app-row.not-applyable:hover {
-        background-color: #f8f9fa;
-        border-color: #e9ecef;
+      .rule-app-row.second-order:hover {
+        border-color: #e67e22;
+        background-color: #fbe5d3;
       }
       .apply-btn {
         position: absolute;
@@ -211,7 +211,8 @@
       }
       .layer-row {
         display: flex;
-        align-items: center;
+        flex-direction: column;
+        align-items: stretch;
         gap: 4px;
         padding: 3px 6px;
         background-color: #f8f9fa;
@@ -227,13 +228,24 @@
         opacity: 0.65;
         background-color: #f2f2f2;
       }
+      .layer-row-header {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px;
+        min-width: 0;
+      }
+      .layer-row-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
       .layer-title {
         font-weight: 600;
         color: #2c3e50;
         flex: 1;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        min-width: 0;
+        overflow-wrap: break-word;
       }
       .layer-btn {
         padding: 2px 5px;
@@ -266,6 +278,27 @@
         padding: 0;
         cursor: pointer;
         background: none;
+      }
+      .provable-badge {
+        font-size: 0.7em;
+        font-weight: bold;
+        padding: 1px 5px;
+        border-radius: 3px;
+        margin-left: 2px;
+        flex-shrink: 0;
+      }
+      .provable-ok {
+        background-color: #d4efdf;
+        color: #1e8449;
+      }
+      .provable-fail {
+        background-color: #fadbd8;
+        color: #c0392b;
+      }
+      .provable-btn {
+        background-color: #f1c40f;
+        border-color: #f39c12;
+        font-weight: bold;
       }
       
       /* Selection Highlight Styles */
@@ -320,14 +353,27 @@
       
       .drawing-row {
         display: flex;
-        align-items: center;
-        gap: 6px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
         padding: 4px 6px;
         background-color: #f8f9fa;
         border: 1px solid #e9ecef;
         border-radius: 4px;
         font-size: 0.8rem;
         margin-top: 4px;
+      }
+      .drawing-row-header {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px;
+        min-width: 0;
+      }
+      .drawing-row-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
       }
       .drawing-row.active {
         border-color: #3498db;
@@ -341,9 +387,8 @@
         font-weight: 600;
         color: #2c3e50;
         flex: 1;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        min-width: 0;
+        overflow-wrap: break-word;
       }
       .rule-badge {
         font-size: 0.7em;
@@ -366,7 +411,24 @@
         letter-spacing: 0.5px;
         margin-left: 4px;
       }
+      .second-order-badge {
+        font-size: 0.7em;
+        font-weight: bold;
+        background-color: #e67e22;
+        color: white;
+        padding: 2px 5px;
+        border-radius: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-left: 4px;
+      }
+      .rule-badge-invalid {
+        background-color: #e74c3c;
+      }
       .rule-app-name .first-order-badge {
+        margin-left: 6px;
+      }
+      .rule-app-name .second-order-badge {
         margin-left: 6px;
       }
       .active-badge {
@@ -419,6 +481,13 @@
         display: inline;
         margin-bottom: 0;
         margin-left: 6px;
+      }
+      .form-group.flag-row {
+        flex-wrap: wrap;
+      }
+      .form-group.flag-row .flag-layer-select {
+        width: 100%;
+        margin-top: 6px;
       }
       .form-group.position {
         display: flex;
@@ -497,7 +566,7 @@
         font-size: 0.85rem;
       }
     </style>
-    <script type="module" crossorigin src="assets/index-BryJ7euR.js"></script>
+    <script type="module" crossorigin src="./assets/index-DHEqRIcm.js"></script>
   </head>
   <body>
     <div id="app">
@@ -513,16 +582,22 @@
 
         <div id="current-drawing-banner" class="current-drawing-banner">
           <span style="color: #555;">Editing: <strong id="active-drawing-name" style="color: #2c3e50;">Unsaved Drawing</strong></span>
+          <label title="Explicitly mark the current drawing as a rule (must satisfy rule conditions)" style="display:flex; align-items:center; gap:4px; font-size:0.75rem; color:#555; cursor:pointer;">
+            <input type="checkbox" id="mark-rule-checkbox" /> Rule
+          </label>
           <span id="active-drawing-rule-tag"></span>
         </div>
         
         <div class="drawings-container" style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px dashed #eee;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
             <h3 style="margin: 0; font-size: 0.9rem; color: #555;">Drawing Store</h3>
-            <div style="display: flex; gap: 4px;">
+            <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+              <input type="checkbox" id="export-select-all" title="Select all drawings for export" />
               <button id="new-drawing-btn" class="layer-btn" style="background-color: #e67e22; color: white; border: none; font-weight: bold;" title="Start a new blank drawing">New</button>
-              <button id="import-drawing-btn" class="layer-btn" style="background-color: #3498db; color: white; border: none; font-weight: bold;" title="Import drawing from JSON file">Import</button>
+              <button id="import-drawing-btn" class="layer-btn" style="background-color: #3498db; color: white; border: none; font-weight: bold;" title="Import one or more drawings from a JSON file">Import</button>
+              <button id="export-drawings-btn" class="layer-btn" style="background-color: #16a085; color: white; border: none; font-weight: bold;" title="Export all drawings to a JSON file">Export</button>
               <button id="save-drawing-btn" class="layer-btn" style="background-color: #2ecc71; color: white; border: none; font-weight: bold;" title="Save current drawing">Save</button>
+              <button id="delete-drawings-btn" class="layer-btn" style="background-color: #e74c3c; color: white; border: none; font-weight: bold;" title="Delete the checked drawings">Delete</button>
             </div>
             <input type="file" id="drawing-json-upload" accept=".json" style="display: none;" />
           </div>
