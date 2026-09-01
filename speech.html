@@ -48,21 +48,29 @@
     <script>
         const increaseFontBtn = document.getElementById("increase-font");
         const decreaseFontBtn = document.getElementById("decrease-font");
+        const transcriptionDiv = document.getElementById("transcription");
+
+        const savedFontSize = localStorage.getItem("font-size");
+        if (savedFontSize) {
+            transcriptionDiv.style.fontSize = savedFontSize;
+        }
 
         increaseFontBtn.addEventListener("click", () => {
             const currentSize = window.getComputedStyle(transcriptionDiv).fontSize;
             const newSize = parseFloat(currentSize) + 2;
             transcriptionDiv.style.fontSize = newSize + "px";
+            localStorage.setItem("font-size", newSize + "px");
         });
 
         decreaseFontBtn.addEventListener("click", () => {
             const currentSize = window.getComputedStyle(transcriptionDiv).fontSize;
             const newSize = parseFloat(currentSize) - 2;
             transcriptionDiv.style.fontSize = newSize + "px";
+            localStorage.setItem("font-size", newSize + "px");
         });
+
         const startBtn = document.getElementById("start");
         const stopBtn = document.getElementById("stop");
-        const transcriptionDiv = document.getElementById("transcription");
 
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = "fr-FR";
