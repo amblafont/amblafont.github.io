@@ -43,6 +43,7 @@
     <input type="checkbox" id="capitalize" name="capitalize" onchange="toggleCapitalization()">
     <label for="capitalize">Capitalize transcription</label>
     <div id="transcription">La transcription s'affichera ici...</div>
+    <button id="clear-btn">Effacer</button>
    
 
     <script>
@@ -67,6 +68,13 @@
             const newSize = parseFloat(currentSize) - 2;
             transcriptionDiv.style.fontSize = newSize + "px";
             localStorage.setItem("font-size", newSize + "px");
+        });
+
+        const clearBtn = document.getElementById("clear-btn");
+        clearBtn.addEventListener("click", () => {
+            transcriptionDiv.innerText = "";
+            recognition.stop();
+            recognition.start();
         });
 
         const startBtn = document.getElementById("start");
